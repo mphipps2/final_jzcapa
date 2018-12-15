@@ -1,20 +1,24 @@
-#### Joint Calorimeter Prototype Analysis --- JCaPA           #### 
+#### Joint Calorimeter Prototype Analysis --- JCaPA           
 #### Created by Y.Kulinich, R.Longo and C.Lantz on 12/12/2018 ####                                                                                                    
                                                                                                                                                  
 Basic structure defined and discussed during the Thursday meeting on 12/13/2018 
 
 JCaPA
-	Analysis
-		include 
-		src
-		userFunctions
-	MC (to be implemented) 
-	2018_Utils (to be added) 
+#	Analysis
+#		include 
+#		src
+#		userFunctions
+#	MC (to be implemented) 
+#	2018_Utils (to be added) 
 
 The project is cmake based, so you need a reasonably new cmake version ( version > 2.8 )
+
 The standalone Analysis part requires only a root installation (https://root.cern.ch)
+
 The MC part will be conditional since it requires additional software as Geant4 and all its dependencies
+
 The corresponding README part will be written once MC will be included. 
+
 The 2018_Utils folder will be meant to contain useful files for 2018 test beam analysis (e.g. Summary of various scans etc)
 
 #### CMake and installation ####
