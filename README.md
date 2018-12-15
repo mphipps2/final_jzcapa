@@ -5,21 +5,17 @@ Basic structure defined and discussed during the Thursday meeting on 12/13/2018
 
 JCaPA   
      Analysis   
-        include    
-        src   
-        userFunctions   
+          include    
+          src   
+          userFunctions   
      MC (to be implemented)    
-     2018_Utils (to be added)    
+     2018_Utils (empty for the moment)    
 
-The project is cmake based, so you need a reasonably new cmake version ( version > 2.8 )
-
-The standalone Analysis part requires only a root installation (https://root.cern.ch)
-
-The MC part will be conditional since it requires additional software as Geant4 and all its dependencies
-
-The corresponding README part will be written once MC will be included. 
-
-The 2018_Utils folder will be meant to contain useful files for 2018 test beam analysis (e.g. Summary of various scans etc)
+The project is cmake based, so you need a reasonably new cmake version ( version > 2.8 )   
+The standalone Analysis part requires only a root installation (https://root.cern.ch)   
+The MC part will be conditional since it requires additional software as Geant4 and all its dependencies   
+The corresponding README part will be written once MC will be included.    
+The 2018_Utils folder will be meant to contain useful files for 2018 test beam analysis (e.g. Summary of various scans etc)   
 
 #### CMake and installation ####
 To install the software using cmake will be trivial. 
@@ -50,13 +46,20 @@ Please check AnalysisExample.cpp if you're looking for a basic template.
 Two main classes are provided at the moment: 
 - DataReader 
 - WFAnalysis (inherits from Analysis.h)
-They are well commented by Yakov for each available method. 
-A doxygen documentation can also be created following the instruction below 
+They are well commented by Yakov for each available method.   
+A doxygen documentation can also be created following the instruction below.     
 
 #### Doxygen documentation ####
-First, check that doxygen is installed on your machine. 
-If it's not the case, just check it out using 
-By default a folder "doxygen" will also be installed in your JCaPA_INSTALL folder. 
+First, check that doxygen is installed on your machine.   
+If it's not the case, just check it out using   
+By default a folder "doxygen" will also be installed in your JCaPA_INSTALL folder.   
+To obtain the documentation, just execute   
+
+doxygen JCaPA_doxy.cnf   
+
+This will generate for you  $JCaPA/html and $JCaPA/latex folder.  
+If you start $JCaPA/html/index.html with your browser, you will get your doxygen docs (surfable).   
+Alternatively, you can compile the latex static documentation in $JCaPA/latex 
 
 
  
