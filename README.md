@@ -22,14 +22,19 @@ To install the software using cmake will be trivial.
 In the same folder where you have JCaPA, just do
 
 mkdir JCaPA_BUILD
+
 mkdir JCaPA_INSTALL 
 
 at this stage, remember to add to your environment
+
 export JCaPA=/path/to/your/JCaPA_INSTALL
 
 cd JCaPA_BUILD
+
 cmake -DCMAKE_INSTALL_PREFIX=../JCaPA_INSTALL/ ../JCaPA
+
 make -j8 
+
 make install 
 
 please remember to re-make & make install every time you change the source code 
@@ -45,6 +50,9 @@ They are well commented by Yakov for each available method.
 A doxygen documentation can also be created following the instruction below 
 
 #### Doxygen documentation ####
+First, check that doxygen is installed on your machine. 
+If it's not the case, just check it out using 
+By default a folder "doxygen" will also be installed in your JCaPA_INSTALL folder. 
 
 
  
