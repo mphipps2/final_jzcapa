@@ -8,7 +8,7 @@ JCaPA
   		include    
   		src   
   		userFunctions   
-  	MC (to be implemented)    
+   	MC (to be implemented)    
  	2018_Utils (to be added)    
 
 The project is cmake based, so you need a reasonably new cmake version ( version > 2.8 )
