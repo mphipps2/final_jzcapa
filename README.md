@@ -4,12 +4,12 @@
 Basic structure defined and discussed during the Thursday meeting on 12/13/2018 
 
 JCaPA   
- 	Analysis   
-  		include    
-  		src   
-  		userFunctions   
-   	MC (to be implemented)    
- 	2018_Utils (to be added)    
+     Analysis   
+        include    
+        src   
+        userFunctions   
+     MC (to be implemented)    
+     2018_Utils (to be added)    
 
 The project is cmake based, so you need a reasonably new cmake version ( version > 2.8 )
 
