@@ -36,6 +36,8 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 add_compile_options(-std=c++11)
 #add_compile_options(-arch x86_64)
 
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmakeModules/)
+
 find_package (ROOT REQUIRED)
 include_directories (${ROOT_INCLUDE_DIR})
 
