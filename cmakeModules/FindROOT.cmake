@@ -14,7 +14,7 @@ MESSAGE(STATUS "Looking for Root...")
 
 SET(ROOT_CONFIG_SEARCHPATH
   ${SIMPATH}/tools/root/bin
-  /usr/local/Cellar/root/6.14.04_2/bin
+  $ENV{ROOTSYS}/bin
 )
 
 SET(ROOT_DEFINITIONS "")
