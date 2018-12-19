@@ -8,7 +8,7 @@ JCaPA
           include    
           src   
           userFunctions   
-     MC (to be implemented)    
+     MonteCarlo    
      2018_Utils (empty for the moment)    
 
 The project is cmake based, so you need a reasonably new cmake version ( version > 2.8 )   
@@ -46,7 +46,8 @@ Please check AnalysisExample.cpp if you're looking for a basic template.
 Two main classes are provided at the moment: 
 - DataReader 
 - WFAnalysis (inherits from Analysis.h)
-They are well commented by Yakov for each available method.   
+
+They are well commented by Yakov for each available method.     
 A doxygen documentation can also be created following the instruction below.     
 
 #### Monte Carlo ####
