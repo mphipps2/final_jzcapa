@@ -49,6 +49,15 @@ TARGET_LINK_LIBRARIES(test_JCaPA ${ROOT_LIBRARIES})
 #Analysis libraries and user functions 
 add_subdirectory(Analysis)
 
+#MonteCarlo folder. The installation will be conditional and disabled by default (not everyone needs to work with it and requires dependencies)
+#The starting point will be the work done by Mike Phipps
+
+if (${JCaPA_ENABLE_MC} MATCHES "YES")
+    message("${BoldGreen} Monte Carlo extension enabled! ${ColourReset}")
+    add_subdirectory(MonteCarlo)
+
+endif (${JCaPA_ENABLE_MC} MATCHES "YES")
+
 #Install test
 install(TARGETS test_JCaPA RUNTIME DESTINATION bin)
 #Install doxygen files
