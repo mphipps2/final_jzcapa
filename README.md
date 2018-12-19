@@ -49,6 +49,20 @@ Two main classes are provided at the moment:
 They are well commented by Yakov for each available method.   
 A doxygen documentation can also be created following the instruction below.     
 
+#### Monte Carlo ####
+Monte Carlo folder added on 12/19/2018.    
+What's there at the moment is exactly what has been done so far by Mike Phipps (michael.william.phipps@cern.ch). 
+The only modifications implemented were to ensure the compatibility with newer Geant4 versions (>= 10.4.3).   
+Such changes have been implemented in order to allow also for backward compatibility with older Geant4 versions. 
+
+Please note that MonteCarlo support is *DISABLED* by default. This choice is meant to avoid people not interested in MC to install Geant4 and the other dependencies. 
+In order to enable it, add the option 
+
+-DJCaPA_ENABLE_MC=YES 
+
+while cmaking. Please note that you need the Geant4 toolkit (and the corresponding dependencies) to successfully enable the MC support. 
+More details will come in the future. 
+
 #### Doxygen documentation ####
 First, check that doxygen is installed on your machine.   
 If it's not the case, just check it out using   
