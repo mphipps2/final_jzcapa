@@ -1,4 +1,6 @@
- Instructions from Mike Phipps (taken from his repo) 
+#### ZDC R&D MonteCarlo ####
+
+ Instructions from Mike Phipps (taken from his repo, michael.william.phipps@cern.ch) 
 
  This simulation is intended to allow standalone (non-ATHENA) simulation of the current ZDC geometry, as well as configurable geometries that could be used for prototype studies.
 	
