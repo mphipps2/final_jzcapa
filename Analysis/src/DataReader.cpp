@@ -14,6 +14,7 @@
 #include <TTree.h>
 #include <TH1.h>
 #include <TCanvas.h>
+#include <TChain.h>
 
 #include <iostream>
 
@@ -74,6 +75,20 @@ DataReader::~DataReader(){
   delete m_fIn;
 }
 
+
+/** @brief Enables the read from list of files option for DataReader
+ *
+ *  @param1 name of the list of files to be processed (with the full path if it's not in the execution folder)
+ *
+ *  @return none
+ */
+void DataReader::ReadListOfFiles(std::string listname){
+
+    m_readListOfFiles = true;
+    m_fListOfFiles = listname;
+}
+
+
 /** @brief Initialization method for DataReader
  *
  *  Select which file(s) to read. For now just a single
@@ -92,9 +107,19 @@ void DataReader::Initialize(){
     "output.root" : Form( "output%d.root", m_runNumber );
 
   if( m_readListOfFiles ){
-    // for now do nothing. Was thinking of having
-    // a file called inputFiles.txt, from which to
-    // read a list of files. TBD (I am in Berlin now).
+
+    // Riccardo - 21/01/2019 - TChain implementation
+    // The file list name is supposed to be already set
+    m_fileChain = new TChain("tree");
+    std::ifstream inFile;
+    inFile.open(m_fListOfFiles.c_str());
+    std::string reader_buff;
+    while(inFile >> reader_buff){
+        //Let's push all the files in the list into the TChain
+        m_fileChain->Add(reader_buff.c_str());
+    }
+    /** TODO - Add fileChain reading below
+     */
   } else {
       m_fIn = TFile::Open( m_fNameIn.c_str() );
   }
@@ -123,15 +148,18 @@ void DataReader::ProcessEvents(){
 
   std::vector< std::vector< float >  >  vWF;
   std::vector< std::vector< float >* > pvWF;
-  std::vector< TH1* > vWFH;
+  std::vector< TH1* > vWFH; //Buffer histograms for the raw waveforms at each event. They will go to AnalyzeEvent for processing
   vWF .resize( m_nCh );
   pvWF.resize( m_nCh );
   vWFH.resize( m_nCh );
   
+  /** TODO : add reading for list of files */
   TTree* tree = static_cast< TTree* >
     ( m_fIn->Get( "tree" ) );
 
   // Connect raw data to tree
+  // For the moment, the only reading implemented is the raw data from each channel.
+  // Other items should be implemented in the same way if needed.
   // Also create the histograms to fill
   for( uint ch = 0; ch < m_nCh; ch++ ){
     pvWF[ ch ] = &vWF[ ch ];
