@@ -11,8 +11,15 @@
 #ifndef DATAREADER_H
 #define DATAREADER_H
 
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
+#include <stdio.h>
 #include <string>
 #include <vector>
+
+#include <TChain.h>
 
 class TFile;
 class Analysis;
@@ -26,6 +33,8 @@ class DataReader{
   DataReader( const unsigned int = 0, const unsigned int = 0,
 	      const std::string& = "", const unsigned int = 0 );
   virtual ~DataReader();
+
+  void ReadListOfFiles(std::string listname);
 
   void Initialize   ( );
   void ProcessEvents( );
@@ -41,13 +50,19 @@ class DataReader{
 
   //Input file name
   std::string m_fNameIn;
+  //Input list of files
+  std::string m_fListOfFiles;
+
   //Run number
   unsigned int m_runNumber;
   
   //Boolean switch to enable the reading of a list of files
   bool m_readListOfFiles;
 
+  //Input file (in case of a single processing)
   TFile* m_fIn;
+  //TChain to accomodate many files (in case of a list of files)
+  TChain* m_fileChain;
 };
 
 #endif
