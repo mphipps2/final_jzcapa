@@ -28,12 +28,15 @@ class DataReader{
 
  public:
   DataReader( );
-  DataReader( const unsigned int = 0, const unsigned int = 0 );
-  DataReader( const unsigned int = 0, const unsigned int = 0, const std::string& = "" );
-  DataReader( const unsigned int = 0, const unsigned int = 0,
+  DataReader( const unsigned int = 0,  const unsigned int = 0 );
+  DataReader( const unsigned int = 0,  const unsigned int = 0,
+	      const std::string& = "" );
+  DataReader( const unsigned int = 0,  const unsigned int = 0,
 	      const std::string& = "", const unsigned int = 0 );
   virtual ~DataReader();
 
+  void AddAnalysis  ( Analysis* );
+  
   void ReadListOfFiles(std::string listname);
 
   void Initialize   ( );
@@ -41,7 +44,11 @@ class DataReader{
   void Finalize     ( );
 
  private:
-  Analysis* m_ana;
+  // output file
+  TFile* m_fOut;
+  
+  // vector of all analysis
+  std::vector< Analysis* > m_ana;
 
   //Number of channels to be read
   unsigned int m_nCh;

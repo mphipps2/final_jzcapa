@@ -24,7 +24,6 @@ class Analysis{
 
  public:
   Analysis( ){};
-  Analysis( const std::string& ){};
   virtual ~Analysis( ){};
 
   virtual void Initialize     ( ) = 0;
@@ -32,11 +31,6 @@ class Analysis{
   virtual void AnalyzeEvent   ( const std::vector< TH1* >& ) = 0;
   virtual void AnalyzeEvent   ( const std::vector< std::vector< float > >& ) = 0;
   virtual void Finalize       ( ) = 0;
-
- protected:
-  std::string m_fNameOut;
-  TFile* m_fOut;
-
 };
 
 #endif

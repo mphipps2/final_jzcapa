@@ -19,7 +19,7 @@
 #include <iostream>
 
 #include "DataReader.h"
-#include "WFAnalysis.h"
+#include "Analysis.h"
 
 /** @brief Default Constructor for DataReader.
  */
@@ -63,16 +63,30 @@ DataReader::DataReader( const uint nCh, const uint nSamp,
  */
 DataReader::DataReader( const uint nCh, const uint nSamp,
 			const std::string& fNameIn, const uint runNum )
-  : m_nCh( nCh ), m_nSamp( nSamp ),
-    m_fNameIn( fNameIn ), m_runNumber( runNum ),
-    m_ana( NULL ), m_fIn( NULL ){
+  : m_nCh( nCh ), m_nSamp( nSamp ), m_fNameIn( fNameIn ),
+    m_runNumber( runNum ), m_readListOfFiles( false ), m_fIn( NULL ){
+
 }
 
 
 /** @brief Destructor for DataReader.
  */
 DataReader::~DataReader(){
-  delete m_fIn;
+
+  for( auto& ana : m_ana ){
+    delete ana; ana = NULL;
+  }
+}
+
+/** @brief Adds an analysis to vector of analysis
+ *
+ *  @param1 Pointer to an Analysis.
+ *
+ *  @return none
+ */
+void DataReader::AddAnalysis( Analysis* ana ){
+
+  m_ana.push_back( ana );
 }
 
 
@@ -82,7 +96,7 @@ DataReader::~DataReader(){
  *
  *  @return none
  */
-void DataReader::ReadListOfFiles(std::string listname){
+void DataReader::ReadListOfFiles( std::string listname ){
 
     m_readListOfFiles = true;
     m_fListOfFiles = listname;
@@ -100,12 +114,6 @@ void DataReader::ReadListOfFiles(std::string listname){
  */
 void DataReader::Initialize(){
 
-  // If we are reading a list of files, or have no run number
-  // make default name output.root, otherwise make it
-  // outputN.root, where N is a run number of a file.
-  std::string fNameOut = m_readListOfFiles ?
-    "output.root" : Form( "output%d.root", m_runNumber );
-
   if( m_readListOfFiles ){
 
     // Riccardo - 21/01/2019 - TChain implementation
@@ -121,12 +129,21 @@ void DataReader::Initialize(){
     /** TODO - Add fileChain reading below
      */
   } else {
-      m_fIn = TFile::Open( m_fNameIn.c_str() );
+    m_fIn = TFile::Open( m_fNameIn.c_str() );
   }
+
+  // If we are reading a list of files, or have no run number
+  // make default name output.root, otherwise make it
+  // outputN.root, where N is a run number of a file.
+  std::string fNameOut = m_readListOfFiles ?
+    "output.root" : Form( "output%d.root", m_runNumber );
+
+  m_fOut = new TFile( fNameOut.c_str(), "RECREATE" );
   
-  m_ana = new WFAnalysis( fNameOut );
-  m_ana->Initialize();
-  m_ana->SetupHistograms();
+  for( auto& ana : m_ana ){
+    ana->Initialize();
+    ana->SetupHistograms();
+  }
 }
 
 
@@ -146,16 +163,22 @@ void DataReader::Initialize(){
  */
 void DataReader::ProcessEvents(){
 
+  // Raw data to read in as vector of vectors size NxM
+  // Where N = nCh and M = nSamples per channel.
   std::vector< std::vector< float >  >  vWF;
   std::vector< std::vector< float >* > pvWF;
-  std::vector< TH1* > vWFH; //Buffer histograms for the raw waveforms at each event. They will go to AnalyzeEvent for processing
+
+  // Histograms (N of them) for the raw waveforms from each event.
+  // They will go to AnalyzeEvent for processing
+  std::vector< TH1* > vWFH;
+
+  // Resize these to be of size nCh.
   vWF .resize( m_nCh );
   pvWF.resize( m_nCh );
   vWFH.resize( m_nCh );
-  
+
   /** TODO : add reading for list of files */
-  TTree* tree = static_cast< TTree* >
-    ( m_fIn->Get( "tree" ) );
+  TTree* tree = static_cast< TTree* >( m_fIn->Get( "tree" ) );
 
   // Connect raw data to tree
   // For the moment, the only reading implemented is the raw data from each channel.
@@ -164,9 +187,9 @@ void DataReader::ProcessEvents(){
   for( uint ch = 0; ch < m_nCh; ch++ ){
     pvWF[ ch ] = &vWF[ ch ];
     tree->SetBranchAddress( Form( "RawC%d", ch ), &pvWF[ ch ] );
-    vWFH[ ch ]  = new TH1D( Form( "hWF%d", ch ), Form( "hWF%d;samp;amp", ch ), m_nSamp, 0, m_nSamp );
+    vWFH[ ch ] = new TH1D( Form( "hWF%d", ch ), Form( "hWF%d;samp;amp", ch ), m_nSamp, 0, m_nSamp );
   }
-
+  
   std::cout << "File: " << m_fIn->GetName() << " has "
 	    << tree->GetEntries() << " events." << std::endl;
   
@@ -184,11 +207,13 @@ void DataReader::ProcessEvents(){
       } // End loop over samples in each channel
     } // End loop over channels
 
-    // Now call analysis. With the provided WFAnalysis,
+    // Now call all analysis and run their AnalyzeEvent.
     // Can either send a vector of histos, or a 2D vector
     // Of all the data, depending on what you want to do.
-    m_ana->AnalyzeEvent( vWFH );
-    m_ana->AnalyzeEvent( vWF  );
+    for( auto& ana : m_ana ){
+      ana->AnalyzeEvent( vWFH );
+      ana->AnalyzeEvent( vWF  );
+    }
   } // End event loop
 
   for( auto& h : vWFH ){ delete h; }
@@ -202,11 +227,19 @@ void DataReader::ProcessEvents(){
  *  @return none
  */
 void DataReader::Finalize(){
-
+  
   if( m_fIn ){
     m_fIn->Close();
   }
 
-  m_ana->Finalize();
+  // enter the output file since
+  // we will be writing to it now.
+  m_fOut->cd();
+
+  for( auto& ana : m_ana ){
+    ana->Finalize();
+  }
+
+  m_fOut->Close();
 }
 

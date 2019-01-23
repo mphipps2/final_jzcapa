@@ -17,7 +17,6 @@ class WFAnalysis : public Analysis{
 
  public :
   WFAnalysis( );
-  WFAnalysis( const std::string& = "" );
   virtual ~WFAnalysis( );
 
   virtual void Initialize     ( );

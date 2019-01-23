@@ -11,7 +11,6 @@
  *  @bug No known bugs.
  */
 
-#include <TFile.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
@@ -23,29 +22,19 @@
 
 /** @brief Default Constructor for WFAnalysis.
  */
-WFAnalysis::WFAnalysis( ) : WFAnalysis( "" ){
+WFAnalysis::WFAnalysis( ){
 
-}
-
-/** @brief Constructor for WFAnalysis.
- *
- *  @param1 Name of output file
- */
-WFAnalysis::WFAnalysis( const std::string& fNameOut ){
-
-  m_fNameOut = fNameOut;
 }
 
 /** @brief Destructor for WFAnalysis.
  */
 WFAnalysis::~WFAnalysis( ){
 
-  delete m_fOut;
 }
 
 /** @brief Initialization method for WFAnalysis
  *
- *  Create output root file will be written.
+ *  Get pointer to output file.
  *  Can add other things here that you would 
  *  perhaps not put into the constructor.
  *  I.e. a TTree, some tools. Etc.
@@ -53,9 +42,6 @@ WFAnalysis::~WFAnalysis( ){
  *  @return none
  */
 void WFAnalysis::Initialize( ){
-
-  //Intializes the pointer to the output file
-  m_fOut = new TFile( m_fNameOut.c_str(), "RECREATE" );
 
 }
 
@@ -118,18 +104,13 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
 
 /** @brief Finalize method for WFAnalysis
  *
- *  Write output file. Write histograms, TTree if it exists.
+ *  Write histograms, TTree if it exists.
  *
  *  @return none
  */
 void WFAnalysis::Finalize( ){
 
-  m_fOut->cd();
-
   // If these exist...
   // m_tree->Write();
   // m_hist->Write();
-
-  m_fOut->Close();
-  
 }
