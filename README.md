@@ -77,5 +77,29 @@ If you start $JCaPA/html/index.html with your browser, you will get your doxygen
 Alternatively, you can compile the latex static documentation in $JCaPA/latex 
 
 
+#### Structure of processed data ####
+TTree structure of the processed data is illustrated in the following.
+
+Tree name: "tree".
+Inside one can find a variety of branches.
+In 2018 we had N = 20 channels read. 5 DRS4 Boards x 4 Channels each. Each channel is configured to output 1024 samples.
+
+Raw data is stored as a vector<float> in branches called 'RawCn' and 'Cn', where n is an element { 0, ..., N-1 }.
+Each branch RawCn and Cn will be of size 1024 (corresponding to the number of samples).
+Therefore for each event we have N vectors of size 1024.
+RawCn corresponds to the "raw" output, what one would see on the DRS scope.
+Cn corresponds to processed output, as determined by rdcaqAnalysis.
+One can take the RawCn and reprocess it as they wish using JCaPA analysis methods (or implementing new ones). 
+
+Also, in the tree, there are branches that come from rcdaqAnalysis which have information on the output of each channel.
+These are branches such as MaxCharge. Lets say there are M of them.
+These are vectors of size N, you will have one piece of information for each channel. Be it max charge, or pedestal rms, etc.
+Here you have information from rcdaqAnalysis depending on how it was configured. The user can use this and or do their own processing from the raw data.
+Depending on how many pieces of processed info are saved from rcdaqAnalysis, you will have M vectors of size N.
+
+Summarizing, there are
+N branches of size 1024 for the channel waveforms.
+and
+M branches of size N for the processed data from rcdaqAnalysis. M is an arbitrary number.
  
 
