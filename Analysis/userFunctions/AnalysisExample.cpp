@@ -20,15 +20,17 @@ int main(int argc, char *argv[]){
   int runNum = 54;   // !! Change for your test !!
 
   string fNameIn = "TreeZDCBeamTestRun54.root"; // !! Change for your test !!
- 
+
+  // DataReader is the main class. It reads data and also
+  // has analysis classes in it. User should only have to
+  // modify the analysis classes and add output in them.
+  // User has to add their analysis to DataReader.
   DataReader* r = new DataReader( nCh, nSamp, fNameIn, runNum );
 
   r->AddAnalysis( new WFAnalysis() );
 
-  r->Initialize();
-  r->ProcessEvents();
-  r->Finalize();
-
+  r->Run();
+  
   delete r;
   
   return 0;

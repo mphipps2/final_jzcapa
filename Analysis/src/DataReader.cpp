@@ -103,6 +103,20 @@ void DataReader::ReadListOfFiles( std::string listname ){
 }
 
 
+/** @brief Run method for DataReader
+ *
+ *  Call Initialize, ProcessEvents, and Finalize
+ *  Made so the driver class only has to call one method.
+ *  
+ *  @return none
+ */
+void DataReader::Run(){
+
+  Initialize();
+  ProcessEvents();
+  Finalize();
+}
+
 /** @brief Initialization method for DataReader
  *
  *  Select which file(s) to read. For now just a single

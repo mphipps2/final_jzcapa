@@ -37,12 +37,14 @@ class DataReader{
 
   void AddAnalysis  ( Analysis* );
   
-  void ReadListOfFiles(std::string listname);
+  void ReadListOfFiles( std::string listname );
 
+  void Run();
+  
   void Initialize   ( );
   void ProcessEvents( );
   void Finalize     ( );
-
+  
  private:
   // output file
   TFile* m_fOut;

@@ -1,14 +1,13 @@
 /** @file AnalysisExample.cpp
- *  @brief example of a simple analysis: read and plot all the w
+ *  @brief Example of a simple analysis: read and plot all the w
  *
- *  This contains the prototypes and members
- *  for DataReader
  *
- *  @author Yakov Kulinich
+ *  @author Yakov Kulinich, Riccardo Longo
  *  @bug No known bugs.
  */
 
 #include "DataReader.h"
+#include "WFAnalysis.h"
 
 using namespace std;
 
@@ -18,15 +17,21 @@ int main(int argc, char *argv[]){
 
   int nCh    = 20;   // 5 DRS4 x 4 ch/board - 16 RPD channels
   int nSamp  = 1024; // Default number of samples?
-  int runNum = 54;   // !! Change !!
+  int runNum = 54;   // !! Change for your test !!
 
-  string fNameIn = "TreeZDCBeamTestRun54.root";
- 
+  string fNameIn = "TreeZDCBeamTestRun54.root"; // !! Change for your test !!
+
+  // DataReader is the main class. It reads data and also
+  // has analysis classes in it. User should only have to
+  // modify the analysis classes and add output in them.
+  // User has to add their analysis to DataReader.
   DataReader* r = new DataReader( nCh, nSamp, fNameIn, runNum );
-  r->Initialize();
-  r->ProcessEvents();
-  r->Finalize();
+
+  r->AddAnalysis( new WFAnalysis() );
+
+  r->Run();
+  
+  delete r;
   
   return 0;
 }
-
