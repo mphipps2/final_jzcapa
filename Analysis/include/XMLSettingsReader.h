@@ -35,9 +35,11 @@ class XMLSettingsReader {
       void getChildValue(std::string _baseNode, int _baseNumber, std::string _childNode, double& _retVal);
       void getChildValue(std::string _baseNode, int _baseNumber, std::string _childNode, int& _retVal);
 
+      bool parseFile(std::string _fileName);
+
  private :
-      XercesDOMParser* myDOMParser;
-      DOMElement* rootNode;
+      XercesDOMParser* m_DOMParser;
+      DOMElement* m_rootNode;
 };
 
 #endif

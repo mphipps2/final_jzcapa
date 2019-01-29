@@ -8,7 +8,6 @@
  *  @bug No known bugs.
  */
 
-
 #include "XMLSettingsReader.h"
 
 using namespace xercesc;
@@ -27,16 +26,16 @@ XMLSettingsReader::XMLSettingsReader( void ){
       }
 
       //Initial number of root nodes = 0
-      rootNode = 0;
+      m_rootNode = 0;
 
       //Initializing the DOM parser and the error handles
-      myDOMParser = new XercesDOMParser();
-      myDOMParser->setValidationScheme(XercesDOMParser::Val_Always);
-      myDOMParser->setDoNamespaces(false);
+      m_DOMParser = new XercesDOMParser();
+      m_DOMParser->setValidationScheme(XercesDOMParser::Val_Always);
+      m_DOMParser->setDoNamespaces(false);
       ErrorHandler* errHandler = (ErrorHandler*) new HandlerBase();
-      myDOMParser->setErrorHandler(errHandler);
-      myDOMParser->setDoSchema(false);
-      myDOMParser->setValidationConstraintFatal(false);
+      m_DOMParser->setErrorHandler(errHandler);
+      m_DOMParser->setDoSchema(false);
+      m_DOMParser->setValidationConstraintFatal(false);
 
 }
 
@@ -44,7 +43,7 @@ XMLSettingsReader::XMLSettingsReader( void ){
  */
 XMLSettingsReader::~XMLSettingsReader( void ){
 
-    if (myDOMParser != NULL) delete myDOMParser;
+    if (m_DOMParser != NULL) delete m_DOMParser;
     XMLPlatformUtils::Terminate();
 
 }
@@ -68,7 +67,7 @@ XMLSettingsReader::~XMLSettingsReader( void ){
 
 int XMLSettingsReader::getBaseNodeCount(std::string _nodeName){
 
-    return rootNode->getElementsByTagName(XMLString::transcode(_nodeName.c_str()))->getLength();
+    return m_rootNode->getElementsByTagName(XMLString::transcode(_nodeName.c_str()))->getLength();
 
 }
 
@@ -95,7 +94,7 @@ int XMLSettingsReader::getBaseNodeCount(std::string _nodeName){
 int XMLSettingsReader::getNodeChildCount(std::string _nodeName, int _nodeNumber, std::string _childName){
 
       XMLCh* bufferNode = XMLString::transcode(_nodeName.c_str());
-      DOMNodeList* list = myDOMParser->getDocument()->getElementsByTagName(bufferNode);
+      DOMNodeList* list = m_DOMParser->getDocument()->getElementsByTagName(bufferNode);
       XMLString::release(&bufferNode);
 
       if (list->getLength() <= (unsigned int) _nodeNumber)
@@ -137,7 +136,7 @@ int XMLSettingsReader::getNodeChildCount(std::string _nodeName, int _nodeNumber,
 std::string XMLSettingsReader::getChildValue(std::string _baseNode, int _baseNumber, std::string _childNode){
 
       XMLCh* bufferNode = XMLString::transcode(_baseNode.c_str());
-      DOMNodeList* list = myDOMParser->getDocument()->getElementsByTagName(bufferNode);
+      DOMNodeList* list = m_DOMParser->getDocument()->getElementsByTagName(bufferNode);
       XMLString::release(&bufferNode);
 
       if (getBaseNodeCount(_baseNode) <= _baseNumber)
@@ -213,6 +212,32 @@ void  XMLSettingsReader::getChildValue(std::string _baseNode, int _baseNumber,
     buffer >> _retVal;
 }
 
+/*! @brief This routine loads data from a file
+ *  @param _fileName
+ *  This Routine loads the XML-Tree from a given file.
+ */
+bool XMLSettingsReader::parseFile(std::string _fileName){
+
+    try {
+        m_DOMParser->parse(XMLString::transcode(_fileName.c_str()));
+      } catch (const XMLException& toCatch) {
+        char* message = XMLString::transcode(toCatch.getMessage());
+        std::cerr <<  "XMLException message is: " <<  message << std::endl;
+        XMLString::release(&message);
+        return false;
+      } catch (const DOMException& toCatch) {
+        char* message = XMLString::transcode(toCatch.msg);
+        std::cerr <<  "DOMException message is: " <<  message << std::endl;
+        XMLString::release(&message);
+        return false;
+      } catch (...) {
+        std::cerr <<  "Unexpected exception. Are you sure that the file exists?" << std::endl;
+        return false;
+      }
+      m_rootNode = m_DOMParser->getDocument()->getDocumentElement();
+      return true;
+
+}
 
 
 
