@@ -13,8 +13,10 @@ FILE(GLOB_RECURSE PA_INC
     "${CMAKE_SOURCE_DIR}/Analysis/include/*.hh"
 )
 
-add_executable(AnalysisExample ${ANALYSIS_SRC_DIR}/DataReader.cpp ${ANALYSIS_SRC_DIR}/WFAnalysis.cpp userFunctions/AnalysisExample.cpp)
+add_executable(AnalysisExample ${ANALYSIS_SRC_DIR}/XMLSettingsReader.cpp ${ANALYSIS_SRC_DIR}/DataReader.cpp ${ANALYSIS_SRC_DIR}/WFAnalysis.cpp userFunctions/AnalysisExample.cpp)
 TARGET_LINK_LIBRARIES(AnalysisExample ${ROOT_LIBRARIES})
+TARGET_LINK_LIBRARIES(AnalysisExample ${XERCESC_LIBRARY})
+
 
 install(TARGETS AnalysisExample RUNTIME DESTINATION bin)
 
