@@ -38,12 +38,22 @@ add_compile_options(-std=c++11)
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmakeModules/)
 
+#Root support
 find_package (ROOT REQUIRED)
 include_directories (${ROOT_INCLUDE_DIR})
+
+#Xerces-C support
+find_package (Xerces REQUIRED)
+include_directories (${XERCESC_INCLUDE})
+
+
 
 #Test executable - does nothing
 add_executable(test_JCaPA  main.cpp)
 TARGET_LINK_LIBRARIES(test_JCaPA ${ROOT_LIBRARIES})
+TARGET_LINK_LIBRARIES(test_JCaPA ${XERCESC_LIBRARY})
+
+
 
 #Subdirectory structure
 #Analysis libraries and user functions 
