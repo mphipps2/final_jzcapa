@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<root>
+        <channel>
+                <start_run>0</start_run>
+                <end_run>60</end_run>
+                <detector>RPD</detector>
+                <name>C1</name>
+                <mapping_row>1</mapping_row>
+                <mapping_column>1</mapping_column>
+                <delay>200</delay>
+                <offset>0</offset>
+                <HV>69.8</HV>
+        </channel>
+</root>
+
