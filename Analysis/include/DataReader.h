@@ -19,6 +19,8 @@
 #include <string>
 #include <vector>
 
+#include "XMLSettingsReader.h"
+
 #include <TChain.h>
 
 class TFile;
@@ -38,6 +40,8 @@ class DataReader{
   void AddAnalysis  ( Analysis* );
   
   void ReadListOfFiles( std::string listname );
+
+  void LoadConfigurationFile(std::string _inFile);
 
   void Run();
   
@@ -72,6 +76,9 @@ class DataReader{
   TFile* m_fIn;
   //TChain to accomodate many files (in case of a list of files)
   TChain* m_fileChain;
+
+  //XML parser
+  XMLSettingsReader *m_XMLparser;
 };
 
 #endif

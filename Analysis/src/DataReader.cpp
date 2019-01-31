@@ -20,6 +20,7 @@
 
 #include "DataReader.h"
 #include "Analysis.h"
+#include "Containers.h"
 
 /** @brief Default Constructor for DataReader.
  */
@@ -100,6 +101,48 @@ void DataReader::ReadListOfFiles( std::string listname ){
 
     m_readListOfFiles = true;
     m_fListOfFiles = listname;
+}
+
+void DataReader::LoadConfigurationFile(std::string _inFile){
+
+    //Temporary implementation - objects will be just created within this method and loaded here.
+    //TODO: incorporate them in a data-member or better in a ZDC and RPD objects inheriting from a Detector class and return them
+    m_XMLparser = new XMLSettingsReader();
+
+    if (!m_XMLparser->parseFile(_inFile)) {
+            std::cerr << " Data Reader could not parse file : " << _inFile << std::endl;
+            return;
+    }
+
+    std::cout << "Loading .xml Configuration File..." << std::endl;
+    std::cout << "Found " << m_XMLparser->getBaseNodeCount("channel") << " channel entries " << std::endl;
+
+    std::vector < Channel > channelEntries;
+    int first_run, last_run;
+
+    for (unsigned int i = 0; i < m_XMLparser->getBaseNodeCount("channel"); i++) {
+        Channel buffer_ch;
+        m_XMLparser->getChildValue("channel",i,"start_run",first_run);
+        m_XMLparser->getChildValue("channel",i,"end_run",last_run);
+
+        //Discard entries for any channel that does not apply to our run
+        if(m_runNumber < first_run || m_runNumber > last_run) continue;
+
+        //If the entry applies, we store it in the vector
+        m_XMLparser->getChildValue("channel",i,"detector",buffer_ch.detector);
+        m_XMLparser->getChildValue("channel",i,"name",buffer_ch.name);
+        m_XMLparser->getChildValue("channel",i,"mapping_row",buffer_ch.mapping_row);
+        m_XMLparser->getChildValue("channel",i,"mapping_column",buffer_ch.mapping_column);
+        m_XMLparser->getChildValue("channel",i,"delay",buffer_ch.delay);
+        m_XMLparser->getChildValue("channel",i,"offset",buffer_ch.offset);
+        m_XMLparser->getChildValue("channel",i,"HV",buffer_ch.HV);
+
+        channelEntries.push_back(buffer_ch);
+    }
+
+    std::cout << "Loaded " << channelEntries.size() << " configuration entries " << std::endl;
+
+
 }
 
 
