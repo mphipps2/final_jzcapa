@@ -40,6 +40,8 @@ class Channel {
     int mapping_column;
 	/** Was the channel functioning */
 	bool is_on;
+	/** Operating voltage of the channel**/
+	int Vop;
 
 };
 
