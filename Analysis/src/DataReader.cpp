@@ -136,7 +136,8 @@ void DataReader::LoadConfigurationFile(std::string _inFile){
         m_XMLparser->getChildValue("channel",i,"delay",buffer_ch.delay);
         m_XMLparser->getChildValue("channel",i,"offset",buffer_ch.offset);
         m_XMLparser->getChildValue("channel",i,"HV",buffer_ch.HV);
-		m_XMLparser->getChildValue("channel",i,"is_on",buffer_ch.is_on);
+        m_XMLparser->getChildValue("channel",i,"is_on",buffer_ch.is_on);
+        m_XMLparser->getChildValue("channel",i,"Vop",buffer_ch.Vop);
 
         channelEntries.push_back(buffer_ch);
     }
