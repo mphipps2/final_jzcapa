@@ -16,10 +16,10 @@
                 <delay>93</delay>
                 <offset>-210</offset>
                 <HV>70.1</HV>
-				<is_on>true</is_on>
-				<Vop>68.5</Vop>
+                <is_on>true</is_on>
+                <Vop>68.5</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -29,10 +29,10 @@
                 <delay>93</delay>
                 <offset>-210</offset>
                 <HV>70.0</HV>
-				<is_on>true</is_on>
-				<Vop>68.59</Vop>
+                <is_on>true</is_on>
+                <Vop>68.59</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -42,10 +42,10 @@
                 <delay>93</delay>
                 <offset>-210</offset>
                 <HV>69.38</HV>
-				<is_on>true</is_on>
-				<Vop>69.19</Vop>
+                <is_on>true</is_on>
+                <Vop>69.19</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -55,10 +55,10 @@
                 <delay>93</delay>
                 <offset>-210</offset>
                 <HV>69.38</HV>
-				<is_on>true</is_on>
-				<Vop>69.2</Vop>
+                <is_on>true</is_on>
+                <Vop>69.2</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -68,10 +68,10 @@
                 <delay>82</delay>
                 <offset>-210</offset>
                 <HV>69.38</HV>
-				<is_on>true</is_on>
-				<Vop>69.23</Vop>
+                <is_on>true</is_on>
+                <Vop>69.23</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -81,10 +81,10 @@
                 <delay>82</delay>
                 <offset>-210</offset>
                 <HV>69.26</HV>
-				<is_on>true</is_on>
-				<Vop>69.36</Vop>
+                <is_on>true</is_on>
+                <Vop>69.36</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -94,10 +94,10 @@
                 <delay>82</delay>
                 <offset>-210</offset>
                 <HV>69.3</HV>
-				<is_on>true</is_on>
-				<Vop>69.28</Vop>
+                <is_on>true</is_on>
+                <Vop>69.28</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -107,10 +107,10 @@
                 <delay>82</delay>
                 <offset>-210</offset>
                 <HV>69.3</HV>
-				<is_on>false</is_on>
-				<Vop>69.3</Vop>
+                <is_on>false</is_on>
+                <Vop>69.3</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -120,10 +120,10 @@
                 <delay>61</delay>
                 <offset>-210</offset>
                 <HV>69.52</HV>
-				<is_on>true</is_on>
-				<Vop>68.33</Vop>
+                <is_on>true</is_on>
+                <Vop>68.33</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -133,10 +133,10 @@
                 <delay>61</delay>
                 <offset>-210</offset>
                 <HV>69.52</HV>
-				<is_on>true</is_on>
-				<Vop>69.34</Vop>
+                <is_on>true</is_on>
+                <Vop>69.34</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -146,10 +146,10 @@
                 <delay>61</delay>
                 <offset>-210</offset>
                 <HV>69.52</HV>
-				<is_on>true</is_on>
-				<Vop>69.35</Vop>
+                <is_on>true</is_on>
+                <Vop>69.35</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -159,10 +159,10 @@
                 <delay>61</delay>
                 <offset>-210</offset>
                 <HV>69.52</HV>
-				<is_on>true</is_on>
-				<Vop>69.36</Vop>
+                <is_on>true</is_on>
+                <Vop>69.36</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -172,10 +172,10 @@
                 <delay>50</delay>
                 <offset>-210</offset>
                 <HV>69.5</HV>
-				<is_on>true</is_on>
-				<Vop>69.37</Vop>
+                <is_on>true</is_on>
+                <Vop>69.37</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -185,10 +185,10 @@
                 <delay>50</delay>
                 <offset>-210</offset>
                 <HV>69.47</HV>
-				<is_on>true</is_on>
-				<Vop>69.41</Vop>
+                <is_on>true</is_on>
+                <Vop>69.41</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -198,10 +198,10 @@
                 <delay>50</delay>
                 <offset>-210</offset>
                 <HV>69.44</HV>
-				<is_on>true</is_on>
-				<Vop>69.42</Vop>
+                <is_on>true</is_on>
+                <Vop>69.42</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>65</end_run>
                 <detector>RPD</detector>
@@ -211,11 +211,11 @@
                 <delay>50</delay>
                 <offset>-210</offset>
                 <HV>69.44</HV>
-				<is_on>true</is_on>
-				<Vop>69.44</Vop>
+                <is_on>true</is_on>
+                <Vop>69.44</Vop>
         </channel>
 <!--ZDC Scan 1 and 2-->
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>151</end_run>
                 <detector>ZDC</detector>
@@ -225,9 +225,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1300</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+				<Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>152</start_run>
                 <end_run>171</end_run>
                 <detector>ZDC</detector>
@@ -237,9 +238,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1300</HV>
-				<is_on>false</is_on>
+                <is_on>false</is_on>
+				<Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>172</start_run>
                 <end_run>177</end_run>
                 <detector>ZDC</detector>
@@ -249,9 +251,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1300</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+				<Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>0</start_run>
                 <end_run>177</end_run>
                 <detector>ZDC</detector>
@@ -261,10 +264,11 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1300</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+				<Vop>1500</Vop>
         </channel>
 <!--ZDC Scan 3,4 and 5-->
-		<channel>
+        <channel>
                 <start_run>190</start_run>
                 <end_run>231</end_run>
                 <detector>ZDC</detector>
@@ -274,9 +278,10 @@
                 <delay>101</delay>
                 <offset>210</offset>
                 <HV>1235</HV>
-				<is_on>true</is_on>
-        </channel>
-		<channel>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>        
+		</channel>
+        <channel>
                 <start_run>190</start_run>
                 <end_run>231</end_run>
                 <detector>ZDC</detector>
@@ -286,10 +291,11 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1190</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
 <!--ZDC Scan 6 and 7-->
-		<channel>
+        <channel>
                 <start_run>258</start_run>
                 <end_run>296</end_run>
                 <detector>ZDC</detector>
@@ -299,9 +305,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1380</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>258</start_run>
                 <end_run>296</end_run>
                 <detector>ZDC</detector>
@@ -311,10 +318,11 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1335</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
 <!--ZDC Scan 8 and 9-->
-		<channel>
+        <channel>
                 <start_run>312</start_run>
                 <end_run>350</end_run>
                 <detector>ZDC</detector>
@@ -324,9 +332,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1200</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>312</start_run>
                 <end_run>350</end_run>
                 <detector>ZDC</detector>
@@ -336,10 +345,11 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1150</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
 <!--ZDC Scan 10-->
-		<channel>
+        <channel>
                 <start_run>351</start_run>
                 <end_run>351</end_run>
                 <detector>ZDC</detector>
@@ -349,9 +359,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1250</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>351</start_run>
                 <end_run>351</end_run>
                 <detector>ZDC</detector>
@@ -361,9 +372,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1200</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>352</start_run>
                 <end_run>352</end_run>
                 <detector>ZDC</detector>
@@ -373,9 +385,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1300</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>352</start_run>
                 <end_run>352</end_run>
                 <detector>ZDC</detector>
@@ -385,9 +398,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1250</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>353</start_run>
                 <end_run>353</end_run>
                 <detector>ZDC</detector>
@@ -397,9 +411,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1350</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>353</start_run>
                 <end_run>353</end_run>
                 <detector>ZDC</detector>
@@ -409,9 +424,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1300</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>354</start_run>
                 <end_run>354</end_run>
                 <detector>ZDC</detector>
@@ -421,9 +437,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1400</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>354</start_run>
                 <end_run>354</end_run>
                 <detector>ZDC</detector>
@@ -433,9 +450,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1350</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>355</start_run>
                 <end_run>359</end_run>
                 <detector>ZDC</detector>
@@ -445,9 +463,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1450</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>355</start_run>
                 <end_run>355</end_run>
                 <detector>ZDC</detector>
@@ -457,9 +476,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1400</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>356</start_run>
                 <end_run>356</end_run>
                 <detector>ZDC</detector>
@@ -469,9 +489,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1450</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>357</start_run>
                 <end_run>359</end_run>
                 <detector>ZDC</detector>
@@ -481,10 +502,11 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1500</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
 <!--ZDC Scan 11, 12 and 13-->
-		<channel>
+        <channel>
                 <start_run>362</start_run>
                 <end_run>404</end_run>
                 <detector>ZDC</detector>
@@ -494,9 +516,10 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1800</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		<channel>
+        <channel>
                 <start_run>362</start_run>
                 <end_run>404</end_run>
                 <detector>ZDC</detector>
@@ -506,8 +529,9 @@
                 <delay>71</delay>
                 <offset>210</offset>
                 <HV>1800</HV>
-				<is_on>true</is_on>
+                <is_on>true</is_on>
+                <Vop>1500</Vop>
         </channel>
-		
+        
 </root>
 
