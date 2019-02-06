@@ -143,6 +143,7 @@ std::vector < Channel > DataReader::LoadConfigurationFile(std::string _inFile){
     }
 
     std::cout << "Loaded " << channelEntries.size() << " configuration entries " << std::endl;
+    if( channelEntries.size() < 18 ) std::cout << "WARNING!!!! Number of Channels < 18. Seems that some entry is missed for this run in the config.xml. BE CAREFUL!" << std::endl;
 	return channelEntries;
 
 }
