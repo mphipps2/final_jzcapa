@@ -12,8 +12,12 @@ set (ANALYSIS_SRC_DIR "${CMAKE_SOURCE_DIR}/Analysis/src")
 FILE(GLOB_RECURSE PA_INC
     "${CMAKE_SOURCE_DIR}/Analysis/include/*.hh"
 )
+FILE(GLOB_RECURSE DEPENDENCIES
+    "${CMAKE_SOURCE_DIR}/Analysis/include/*.hh"
+    "${CMAKE_SOURCE_DIR}/Analysis/src/*.cpp"
+)
 
-add_executable(AnalysisExample ${ANALYSIS_SRC_DIR}/Containers.cpp ${ANALYSIS_SRC_DIR}/XMLSettingsReader.cpp ${ANALYSIS_SRC_DIR}/DataReader.cpp ${ANALYSIS_SRC_DIR}/WFAnalysis.cpp userFunctions/AnalysisExample.cpp)
+add_executable(AnalysisExample ${DEPENDENCIES} userFunctions/AnalysisExample.cpp)
 TARGET_LINK_LIBRARIES(AnalysisExample ${ROOT_LIBRARIES})
 TARGET_LINK_LIBRARIES(AnalysisExample ${XERCESC_LIBRARY})
 
