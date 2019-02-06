@@ -72,4 +72,5 @@ endif (${JCaPA_ENABLE_MC} MATCHES "YES")
 install(TARGETS test_JCaPA RUNTIME DESTINATION bin)
 #Install doxygen files
 install(FILES doxygen/JCaPA_doxy.cnf DESTINATION doxygen)
+install(FILES Utils/ConfigFile2018.xml DESTINATION Utils)
 
