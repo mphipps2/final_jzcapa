@@ -103,7 +103,7 @@ void DataReader::ReadListOfFiles( std::string listname ){
     m_fListOfFiles = listname;
 }
 
-vector < Channel > DataReader::LoadConfigurationFile(std::string _inFile){
+std::vector < Channel > DataReader::LoadConfigurationFile(std::string _inFile){
 
     //Temporary implementation - objects will be just created within this method and loaded here.
     //TODO: incorporate them in a data-member or better in a ZDC and RPD objects inheriting from a Detector class and return them
