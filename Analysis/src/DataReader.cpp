@@ -30,6 +30,15 @@ DataReader::DataReader() : DataReader( 0, 0, "", 0 ){
 
 /** @brief Constructor for DataReader.
  *
+ *  @param1 Run number being used.
+ */
+DataReader::DataReader( const uint runNum )
+  : m_runNumber( runNum ), m_readListOfFiles( false ), m_fIn( NULL ){
+
+}
+
+/** @brief Constructor for DataReader.
+ *
  *  @param1 Number of channels being read
  *  @param2 Number of samples per channel
  */
@@ -103,7 +112,7 @@ void DataReader::ReadListOfFiles( std::string listname ){
     m_fListOfFiles = listname;
 }
 
-void DataReader::LoadConfigurationFile(std::string _inFile){
+vector< Channel > DataReader::LoadConfigurationFile(std::string _inFile = "${JCaPA}/Utils/ConfigFile2018.xml"){
 
     //Temporary implementation - objects will be just created within this method and loaded here.
     //TODO: incorporate them in a data-member or better in a ZDC and RPD objects inheriting from a Detector class and return them
@@ -126,7 +135,7 @@ void DataReader::LoadConfigurationFile(std::string _inFile){
         m_XMLparser->getChildValue("channel",i,"end_run",last_run);
 
         //Discard entries for any channel that does not apply to our run
-        if(m_runNumber < first_run || m_runNumber > last_run) continue;
+        if(m_runNumber > first_run || m_runNumber < last_run) continue;
 
         //If the entry applies, we store it in the vector
         m_XMLparser->getChildValue("channel",i,"detector",buffer_ch.detector);
@@ -144,7 +153,7 @@ void DataReader::LoadConfigurationFile(std::string _inFile){
 
     std::cout << "Loaded " << channelEntries.size() << " configuration entries " << std::endl;
 
-
+	return channelEntries;
 }
 
 
