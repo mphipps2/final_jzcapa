@@ -38,10 +38,10 @@ class Channel {
     int mapping_row;
     /** Mapping in the vertical direction [C] */
     int mapping_column;
-	/** Was the channel functioning */
-	bool is_on;
-	/** Operating voltage of the channel**/
-	int Vop;
+    /** Was the channel functioning */
+    bool is_on;
+    /** Operating voltage of the channel**/
+    int Vop;
 
 };
 
