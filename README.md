@@ -12,7 +12,8 @@ JCaPA
      2018_Utils (empty for the moment)    
 
 The project is cmake based, so you need a reasonably new cmake version ( version > 2.8 )   
-The standalone Analysis part requires only a root installation (https://root.cern.ch)   
+The standalone Analysis part requires only a root installation (https://root.cern.ch) and a xerces-c installation (http://xerces.apache.org). 
+Please note that xerces-c is usually available via your package installer (so easy to get installed). 
 The MC part will be conditional since it requires additional software as Geant4 and all its dependencies   
 The corresponding README part will be written once MC will be included.    
 The 2018_Utils folder will be meant to contain useful files for 2018 test beam analysis (e.g. Summary of various scans etc)   
