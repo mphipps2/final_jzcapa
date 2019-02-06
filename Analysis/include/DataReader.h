@@ -30,6 +30,7 @@ class DataReader{
 
  public:
   DataReader( );
+  DataReader( const unsigned int = 0 );
   DataReader( const unsigned int = 0,  const unsigned int = 0 );
   DataReader( const unsigned int = 0,  const unsigned int = 0,
 	      const std::string& = "" );
@@ -41,7 +42,7 @@ class DataReader{
   
   void ReadListOfFiles( std::string listname );
 
-  void LoadConfigurationFile(std::string _inFile);
+  vector< Channel > LoadConfigurationFile(std::string _inFile);
 
   void Run();
   
