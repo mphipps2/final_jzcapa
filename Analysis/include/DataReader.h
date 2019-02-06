@@ -41,7 +41,7 @@ class DataReader{
   
   void ReadListOfFiles( std::string listname );
 
-  vector< Channel > LoadConfigurationFile(std::string _inFile);
+  std::vector< Channel > LoadConfigurationFile(std::string _inFile);
 
   void Run();
   
