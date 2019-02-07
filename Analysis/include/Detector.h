@@ -19,14 +19,14 @@ class Detector{
 
  public:
   Detector( ){};
-  Detector( std::vector< Channel > _element ){ Element = _element}
+  Detector( std::vector< Channel > _element ){ Element = _element;}
   virtual ~Detector( ){};
 
   
   virtual Channel* GetElement  (int row, int column,int runNum, std::string type) = 0;
-  virtual float*   GetPosition ( ) { return Position; };
-  virtual float*   GetAngle    ( ) { return Angle; };
-  virtual void     SetElement  ( Channel _entry) { element.push_back(_entry); };
+  virtual double*  GetPosition ( ) { return Position; };
+  virtual double*  GetAngle    ( ) { return Angle; };
+  virtual void     SetElement  ( Channel _entry) { Element.push_back(_entry); };
   virtual void     SetPosition (double x, double y, double z) { Position[0] = x; Position[1] = y; Position[3] = z; };
   virtual void     SetAngle    (double a = 0, double b = 0, double c = 0) { Angle[0] = a; Angle[1] = b; Angle[3] = c; };
   virtual void     PrintMap    ( ) = 0;
