@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "XMLSettingsReader.h"
+#include "Containers.h"
 
 #include <TChain.h>
 
