@@ -35,7 +35,7 @@ Channel* Detector::GetElement(int row, int column){
   int entries=Element.size();
   for(int i=0; i<entries; i++){
     if(row==Element[i].mapping_row && column==Element[i].mapping_column){
-      return &entry[i];
+      return &Element[i];
     }
   }
   return nullptr;
