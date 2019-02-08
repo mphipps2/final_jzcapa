@@ -18,12 +18,12 @@
 class Detector{
 
  public:
-  Detector( ){};
+  Detector( );
   Detector( std::vector< Channel > _element ){ Element = _element;}
-  virtual ~Detector( ){};
+  virtual ~Detector( );
 
   
-  virtual Channel* GetElement  (int row, int column,int runNum, std::string type) = 0;
+  virtual Channel* GetElement  (int row, int column);
   virtual double*  GetPosition ( ) { return Position; };
   virtual double*  GetAngle    ( ) { return Angle; };
   virtual void     SetElement  ( Channel _entry) { Element.push_back(_entry); };
