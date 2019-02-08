@@ -103,7 +103,7 @@ void DataReader::ReadListOfFiles( std::string listname ){
     m_fListOfFiles = listname;
 }
 
-std::vector < Channel > DataReader::LoadConfigurationFile(std::string _inFile){
+std::vector < Channel > DataReader::LoadConfigurationFile(std::string _inFile "$JCaPA/Utils/ConfigFile2018.xml"){
 
     //Temporary implementation - objects will be just created within this method and loaded here.
     //TODO: incorporate them in a data-member or better in a ZDC and RPD objects inheriting from a Detector class and return them
@@ -111,7 +111,7 @@ std::vector < Channel > DataReader::LoadConfigurationFile(std::string _inFile){
 
     if (!m_XMLparser->parseFile(_inFile)) {
             std::cerr << " Data Reader could not parse file : " << _inFile << std::endl;
-            return;
+            return {};
     }
 
     std::cout << "Loading .xml Configuration File..." << std::endl;
