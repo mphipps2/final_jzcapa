@@ -20,7 +20,6 @@ XMLSettingsReader::XMLSettingsReader( void ){
         XMLPlatformUtils::Initialize();
       } catch (const XMLException& toCatch) {
         char* message = XMLString::transcode(toCatch.getMessage());
-
         std::cout << "Fatal error during the parser initialization! " << std::endl;
         XMLString::release(&message);
       }

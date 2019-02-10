@@ -34,7 +34,6 @@ WFAnalysis::~WFAnalysis( ){
 
 /** @brief Initialization method for WFAnalysis
  *
- *  Get pointer to output file.
  *  Can add other things here that you would 
  *  perhaps not put into the constructor.
  *  I.e. a TTree, some tools. Etc.

@@ -4,7 +4,7 @@
  *  This contains the prototypes and members 
  *  for ZDC
  *
- *  @author Chad Lantz
+ *  @author Chad Lantz, Riccardo Longo
  *  @bug No known bugs.
  */
 
@@ -17,14 +17,14 @@ class ZDC : public Detector{
 
  public:
   ZDC( );
+  ZDC(std::vector<Channel *> _readOut , int _zdcNumber);
   virtual ~ZDC( );
-  virtual ~ZDC( int _number ) { Number = _number; };
   
   virtual void PrintMap  ( );
-  virtual void SetNumber ( int _number ) { Number = _number; };
+  void SetNumber ( int _number ) { m_Number = _number; }
  
  private:
-  int Number;
+  int m_Number;
 };
 
 #endif

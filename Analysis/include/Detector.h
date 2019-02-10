@@ -13,30 +13,34 @@
 
 #include <vector>
 #include <string>
+
 #include "Containers.h"
 
 class Detector{
 
  public:
   Detector( );
-  Detector( std::vector< Channel > _element ){ Element = _element;}
+  Detector( std::vector< Channel* > _element ){ m_Element = _element;}
   virtual ~Detector( );
 
   
   virtual Channel* GetElement  (int row, int column);
-  virtual double*  GetPosition ( ) { return Position; };
-  virtual double*  GetAngle    ( ) { return Angle; };
-  virtual void     SetElement  ( Channel _entry) { Element.push_back(_entry); };
-  virtual void     SetPosition (double x, double y, double z) { Position[0] = x; Position[1] = y; Position[3] = z; };
-  virtual void     SetAngle    (double a = 0, double b = 0, double c = 0) { Angle[0] = a; Angle[1] = b; Angle[3] = c; };
+  virtual std::vector < Channel* > GetChannelsVector () { return m_Element; }
+  virtual double*  GetPosition ( ) { return m_Position; }
+  virtual double*  GetAngle    ( ) { return m_Angle; }
+
+  virtual void     SetElement  ( Channel* _entry) { m_Element.push_back(_entry); }
+  virtual void     SetPosition (double x, double y, double z) { m_Position[0] = x; m_Position[1] = y; m_Position[2] = z; }
+  virtual void     SetAngle    (double _cosx = 0, double _cosy = 0, double _cosz = 0) { m_Angle[0] = _cosx; m_Angle[1] = _cosy; m_Angle[2] = _cosz; }
   virtual void     PrintMap    ( ) = 0;
   
   private:
-  std::vector< Channel > Element;
+  /** Vector of channels associated to the dector **/
+  std::vector< Channel* > m_Element;
   /** Three element array with x, y, and z of some pre-defined point on the detector **/
-  double Position[3];
+  double m_Position[3];
   /** Three element array of angle about the x, y, and z axis **/
-  double Angle[3];
+  double m_Angle[3];
   };
 
 #endif

@@ -11,11 +11,26 @@
 
 #include "RPD.h"
 
+#include <string>
+#include <stdio.h>
 
 /** @brief Default Constructor for RPD.
  */
 RPD::RPD( ){
 	
+}
+
+/** @brief Constructor that takes the whole vector of channels readout and selects and stores only the RPD ones
+*/
+
+RPD::RPD( std::vector < Channel* > _readOut){
+
+    for(int i = 0; i < (int)_readOut.size(); i++){
+        if(_readOut.at(i)->name == "RPD"){
+            SetElement(_readOut.at(i));
+        }
+    }
+    std::cout << "RPD object created with " << GetChannelsVector().size() << " channel entries " << std::endl;
 }
 
 /** @brief Destructor for RPD.
@@ -33,33 +48,20 @@ RPD::~RPD( ){
  * third line.
  * 
  */
-void PrintMap(){
-  std::cout<<" _______________________________ "<<std::endl;
-  for(int row=1;row<=4;row++){
-    Channel *c[4];
-    c[0]=GetElement(row,1,"RPD");
-    c[1]=GetElement(row,2,"RPD");
-    c[2]=GetElement(row,3,"RPD");
-    c[3]=GetElement(row,4,"RPD");
-
-    std::cout<<"|  "<<Form("%d,4",row);
-    std::cout<<"  |  "<<Form("%d,4",row);
-    std::cout<<"  |  "<<Form("%d,4",row);
-    std::cout<<"  |  "<<Form("%d,4",row);
-    std::cout<<"  |"<<std::endl;
-
-    std::cout<<"|   "<<*c[3]->name;
-    std::cout<<"  |   "<<*c[2]->name;
-    std::cout<<"  |  "<<*c[1]->name;
-    std::cout<<"   |   "<<*c[0]->name;
-    std::cout<<"  |"<<std::endl;
-
-    std::cout<<"|   "<<*c[3]->is_on;
-    std::cout<<"  |   "<<*c[2]->is_on;
-    std::cout<<"  |  "<<*c[1]->is_on;
-    std::cout<<"   |   "<<*c[0]->is_on;
-    std::cout<<"  |"<<std::endl;
-
-    std::cout<<"|_______|_______|_______|_______|"<<std::endl;
-  }	
+void RPD::PrintMap(){
+  std::cout << " ___________________________________ " << std::endl;
+  //RPD has 4 rows and 4 columns
+  for(int row = 1; row <= 4; row++){
+      Channel* c[4];
+      std::string status, name;
+      for(int cln = 1; cln <= 4; cln++){
+          
+          c[cln] = GetElement(row,cln);
+          if(c[cln]->is_on) status = "ON";
+              else status = "OFF";
+          if (cln == 1) std::cout << "|  " << row << "," << cln << " --> " << c[cln]->name << " , " << status;
+          else std::cout << "  |  " << row << "," << cln << " --> " << c[cln]->name << " , " << status;
+          
+        }//End of the loop over columns
+      }//End of the loop over rows
 }

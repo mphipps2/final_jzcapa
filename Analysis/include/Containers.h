@@ -10,6 +10,7 @@
 #define CONTAINERS_H
 
 #include "Containers.h"
+
 #include <iostream>
 
 class Channel {
@@ -42,8 +43,8 @@ class Channel {
     bool is_on;
     /** Operating voltage of the channel**/
     int Vop;
-	/** Raw waveform for a particular event **/
-	std::vector < Channel > WF;
+    /** Raw waveform for a particular event **/
+    //std::vector < Channel > WF;
 
 };
 

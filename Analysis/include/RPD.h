@@ -4,22 +4,24 @@
  *  This contains the prototypes and members 
  *  for RPD
  *
- *  @author Chad Lantz
+ *  @author Chad Lantz, Riccardo Longo
  *  @bug No known bugs.
  */
 
 #ifndef RPD_H
 #define RPD_H
 
+#include "Containers.h"
 #include "Detector.h"
 
 class RPD : public Detector{
 
  public:
   RPD( );
-  virtual ~RPD( );
+  RPD( std::vector< Channel* > _readOut );
+  ~RPD( );
   
-  virtual void  PrintMap  ( );
+  virtual void PrintMap( );
   
     };
 
