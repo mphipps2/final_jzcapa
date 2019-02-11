@@ -1,4 +1,4 @@
-/** @file DataReader.cxx
+/** @file DataReader.cxxs
  *  @brief Implementation of DataReader.
  *
  *  Function definitions for DataReader are provided. 
@@ -172,9 +172,9 @@ Detector* DataReader::GetDetector( std::string _detName ){
         std::cout << "The detector you're looking for is not ZDC1, ZDC2 or RPD. Please check and correct your request " << std::endl;
         return NULL;
     }
-    if( s_detName == "ZDC1" || _detName == "zdc1" ) return m_detectors.at(0);
-    if( s_detName == "ZDC2" || _detName == "zdc2" ) return m_detectors.at(1);
-    if( s_detName == "RPD" || _detName == "rpd" ) return m_detectors.at(2);
+    if( _detName == "ZDC1" || _detName == "zdc1" ) return m_detectors.at(0);
+    if( _detName == "ZDC2" || _detName == "zdc2" ) return m_detectors.at(1);
+    if( _detName == "RPD" || _detName == "rpd" ) return m_detectors.at(2);
 
 }
 
