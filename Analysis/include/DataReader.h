@@ -21,6 +21,7 @@
 
 #include "XMLSettingsReader.h"
 #include "Containers.h"
+#include "Detector.h"
 
 #include <TChain.h>
 
@@ -42,7 +43,7 @@ class DataReader{
   
   void ReadListOfFiles( std::string listname );
 
-  std::vector< Channel* > LoadConfigurationFile(std::string _inFile);
+  void LoadConfigurationFile(std::string _inFile);
 
   void Run();
   
@@ -77,6 +78,9 @@ class DataReader{
   TFile* m_fIn;
   //TChain to accomodate many files (in case of a list of files)
   TChain* m_fileChain;
+
+  //Vector of detectors placed in the 2018 setup (2 ZDCs, 1 RPD)
+  std::vector < Detector* > m_detectors;
 
   //XML parser
   XMLSettingsReader *m_XMLparser;

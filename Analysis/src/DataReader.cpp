@@ -105,7 +105,7 @@ void DataReader::ReadListOfFiles( std::string listname ){
     m_fListOfFiles = listname;
 }
 
-std::vector < Channel* > DataReader::LoadConfigurationFile(std::string _inFile = "$JCaPA/Utils/ConfigFile2018.xml"){
+void DataReader::LoadConfigurationFile(std::string _inFile = "$JCaPA/Utils/ConfigFile2018.xml"){
 
     //Temporary implementation - objects will be just created within this method and loaded here.
     //TODO: incorporate them in a data-member or better in a ZDC and RPD objects inheriting from a Detector class and return them
@@ -113,7 +113,7 @@ std::vector < Channel* > DataReader::LoadConfigurationFile(std::string _inFile =
 
     if (!m_XMLparser->parseFile(_inFile)) {
             std::cerr << " Data Reader could not parse file : " << _inFile << std::endl;
-            return {};
+            return;
     }
 
     std::cout << "Loading .xml Configuration File..." << std::endl;
@@ -146,8 +146,15 @@ std::vector < Channel* > DataReader::LoadConfigurationFile(std::string _inFile =
 
     std::cout << "Loaded " << channelEntries.size() << " configuration entries " << std::endl;
     if( channelEntries.size() < 18 ) std::cout << "WARNING!!!! Number of Channels < 18. Seems that some entry is missed for this run in the config.xml. BE CAREFUL!" << std::endl;
-	return channelEntries;
+    ZDC* zdc1 = new ZDC(channelEntries,1);
+    ZDC* zdc2 = new ZDC(channelEntries,2);
+    RPD* rpd = new RPD(channelEntries);
 
+    m_detectors.push_back(zdc1);
+    m_detectors.push_back(zdc2);
+    m_detectors.push_back(rpd);
+    std::cout << "Detector configuration: loading complete! " << std::endl;
+    return;
 }
 
 
