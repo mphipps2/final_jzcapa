@@ -45,6 +45,8 @@ class DataReader{
 
   void LoadConfigurationFile(std::string _inFile);
 
+  Detector* GetDetector( std::string _detName );
+
   void Run();
   
   void Initialize   ( );

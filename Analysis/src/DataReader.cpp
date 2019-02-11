@@ -88,7 +88,6 @@ DataReader::~DataReader(){
  *  @return none
  */
 void DataReader::AddAnalysis( Analysis* ana ){
-
   m_ana.push_back( ana );
 }
 
@@ -105,6 +104,10 @@ void DataReader::ReadListOfFiles( std::string listname ){
     m_fListOfFiles = listname;
 }
 
+/**
+ * @brief Reads the .xml configuration file and load characteristics for all the channels, immediately sorted into detectors objects
+ * @param _inFile
+ */
 void DataReader::LoadConfigurationFile(std::string _inFile = "$JCaPA/Utils/ConfigFile2018.xml"){
 
     //Temporary implementation - objects will be just created within this method and loaded here.
@@ -155,6 +158,24 @@ void DataReader::LoadConfigurationFile(std::string _inFile = "$JCaPA/Utils/Confi
     m_detectors.push_back(rpd);
     std::cout << "Detector configuration: loading complete! " << std::endl;
     return;
+}
+
+/**
+ * @brief DataReader::GetDetector allows the user to access the detectors objects after loading them at the beginning of the execution
+ * @param _detName can be ZDC1 (upstream module), ZDC2 (downstream module) or RPD.
+ * @return
+ */
+Detector* DataReader::GetDetector( std::string _detName ){
+
+    if(_detName != "ZDC1" && _detName != "ZDC2" && _detName != "zdc1" && _detName != "zdc2" && _detName != "RPD" && _detName != "rpd")
+    {
+        std::cout << "The detector you're looking for is not ZDC1, ZDC2 or RPD. Please check and correct your request " << std::endl;
+        return NULL;
+    }
+    if( s_detName == "ZDC1" || _detName == "zdc1" ) return m_detectors.at(0);
+    if( s_detName == "ZDC2" || _detName == "zdc2" ) return m_detectors.at(1);
+    if( s_detName == "RPD" || _detName == "rpd" ) return m_detectors.at(2);
+
 }
 
 
