@@ -44,7 +44,24 @@ Channel* Detector::GetElement(int row, int column){
     
 }
 
-
+/** @brief Get the properties of a detector element
+ *
+ * Returns a pointer to the Channel stored in m_Elements with the
+ * requested channel name.
+ * If the requested element is not found, return a warning message and a NULL pointer.
+ * 
+ */
+Channel* Detector::GetElement(std::string _name){
+    
+    for(int i=0; i < (int)m_Element.size(); i++){
+            if(!name.compare(m_Element->name){
+            return m_Element[i];
+    }
+  }
+  std::cerr << " WARNING: Element (" << _name << ") not found! " << std::endl;
+  return nullptr;
+    
+}
 
 
 
