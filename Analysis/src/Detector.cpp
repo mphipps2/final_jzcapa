@@ -54,9 +54,7 @@ Channel* Detector::GetElement(int row, int column){
 Channel* Detector::GetElement(std::string _name){
     
     for(int i=0; i < (int)m_Element.size(); i++){
-            if(!name.compare(m_Element->name){
-            return m_Element[i];
-    }
+            if(!_name.compare(m_Element.at(i)->name)) return m_Element[i];
   }
   std::cerr << " WARNING: Element (" << _name << ") not found! " << std::endl;
   return nullptr;
