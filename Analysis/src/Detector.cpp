@@ -11,6 +11,7 @@
  
 #include "Detector.h"
 #include "Containers.h"
+#include <vector>
  
  
 /** @brief Default Constructor for Detector.
@@ -59,6 +60,18 @@ Channel* Detector::GetElement(std::string _name){
   std::cerr << " WARNING: Element (" << _name << ") not found! " << std::endl;
   return nullptr;
     
+}
+
+void Detector::SetBranches( TTree *_dataTree ){
+
+    std::vector< std::vector< float >* > pvWF;
+    pvWF.resize(m_Element.size());
+
+    for( uint ch = 0; ch < m_Element.size(); ch++ ){
+      pvWF[ ch ] = &m_Element[ch]->WF;
+      _dataTree->SetBranchAddress( ("Raw" + m_Element.at(ch)->name).c_str(), &pvWF[ ch ] );
+    }
+
 }
 
 

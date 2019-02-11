@@ -12,6 +12,7 @@
 #include "Containers.h"
 
 #include <iostream>
+#include <vector>
 
 class Channel {
 
@@ -44,7 +45,7 @@ class Channel {
     /** Operating voltage of the channel**/
     int Vop;
     /** Raw waveform for a particular event **/
-    //std::vector < Channel > WF;
+    std::vector < float > WF;
 
 };
 

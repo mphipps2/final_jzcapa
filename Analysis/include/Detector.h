@@ -15,6 +15,7 @@
 #include <string>
 
 #include "Containers.h"
+#include "TTree.h"
 
 class Detector{
 
@@ -33,6 +34,8 @@ class Detector{
   virtual void     SetElement  ( Channel* _entry) { m_Element.push_back(_entry); }
   virtual void     SetPosition (double x, double y, double z) { m_Position[0] = x; m_Position[1] = y; m_Position[2] = z; }
   virtual void     SetAngle    (double _cosx = 0, double _cosy = 0, double _cosz = 0) { m_Angle[0] = _cosx; m_Angle[1] = _cosy; m_Angle[2] = _cosz; }
+  virtual void     SetBranches ( TTree* _dataTree );
+
   virtual void     PrintMap    ( ) = 0;
   
   private:
