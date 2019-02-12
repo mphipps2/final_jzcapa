@@ -25,18 +25,45 @@ RPD::RPD( ){
 
 RPD::RPD( std::vector < Channel* > _readOut){
 
-    for(int i = 0; i < (int)_readOut.size(); i++){
-        if(_readOut.at(i)->name == "RPD"){
-            SetElement(_readOut.at(i));
+    m_SortedElements.resize(nRows);
+    for(int row=0; row<nRows; row++){
+        m_SortedElements[row].resize(nColumns);
+        for(int column; column<nColumns; column++){
+            m_SortedElements[row][column]=GetElement(row,column);
         }
     }
-    std::cout << "RPD object created with " << GetChannelsVector().size() << " channel entries " << std::endl;
+
+    std::cout << "RPD object created with " << nRows << " rows and " << nColumns << " columns" << std::endl;
 }
 
 /** @brief Destructor for RPD.
  */
 RPD::~RPD( ){
 
+}
+
+/** @brief Get the properties of a detector element
+ *
+ * If m_SortedElements is populated, return the element in 
+ * m_SortedElements[row][column].
+ * Otherwise returns a pointer to the Channel stored in m_Element 
+ * with the requested row and column.
+ * If the requested element is not found, return a warning message and a NULL pointer.
+ * 
+ */
+Channel* Detector::GetElement(int row, int column){
+    
+    if((int)m_SortedElements.size()==nElements){ return m_SortedElements[row][column];
+    }else{
+        for(int i=0; i < (int)m_Element.size(); i++){
+            if(row == m_Element[i]->mapping_row && column == m_Element[i]->mapping_column){
+            return m_Element[i];
+            }
+        }
+     }
+  std::cerr << " WARNING: Element (" << row << "," << column << ") not found! " << std::endl;
+  return nullptr;
+    
 }
 
 
