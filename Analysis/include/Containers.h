@@ -27,6 +27,7 @@ class Channel {
     *        [3,4] [3,3] [3,2] [3,1]
     *        [4,4] [4,3] [4,2] [4,1]
     */
+	/** Type of detector - ZDC or RPD **/
     std::string detector;
     /** Channel name - CXX with XX in [1,20]  */
     std::string name;
