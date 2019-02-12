@@ -17,7 +17,7 @@
 /** @brief Default Constructor for RPD.
  */
 RPD::RPD( ){
-	
+
 }
 
 /** @brief Constructor that takes the whole vector of channels readout and selects and stores only the RPD ones
@@ -25,9 +25,8 @@ RPD::RPD( ){
 
 RPD::RPD( std::vector < Channel* > _readOut){
 
-    m_SortedElements.resize(nRows);
+    ResizeSortedElements();
     for(int row=0; row<nRows; row++){
-        m_SortedElements[row].resize(nColumns);
         for(int column; column<nColumns; column++){
             m_SortedElements[row][column]=GetElement(row,column);
         }
@@ -51,13 +50,13 @@ RPD::~RPD( ){
  * If the requested element is not found, return a warning message and a NULL pointer.
  * 
  */
-Channel* Detector::GetElement(int row, int column){
+Channel* RPD::GetElement(int row, int column){
     
     if((int)m_SortedElements.size()==nElements){ return m_SortedElements[row][column];
     }else{
-        for(int i=0; i < (int)m_Element.size(); i++){
-            if(row == m_Element[i]->mapping_row && column == m_Element[i]->mapping_column){
-            return m_Element[i];
+        for(int i=0; i < (int)GetChannelsVector()->size(); i++){
+            if(row == GetChannelsVector()->at(i)->mapping_row && column == GetChannelsVector()->at(i)->mapping_column){
+            return GetChannelsVector()->at(i);
             }
         }
      }
@@ -65,7 +64,6 @@ Channel* Detector::GetElement(int row, int column){
   return nullptr;
     
 }
-
 
 /** @brief Prints a map of the RPD to the terminal
  *
@@ -92,3 +90,24 @@ void RPD::PrintMap(){
         }//End of the loop over columns
       }//End of the loop over rows
 }
+
+/** @brief Resizes m_SortedElements
+ *
+ * Uses nRows and nColumns to resize m_SortedElements
+ * 2D vectors must have columns sized individually.
+ * 
+ */
+void RPD::ResizeSortedElements(){
+    m_SortedElements.resize(nRows);
+    for(int row=0; row < nRows; row++){
+        m_SortedElements.resize(nColumns);
+    }
+}
+
+
+
+
+
+
+
+
