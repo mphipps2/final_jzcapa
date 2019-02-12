@@ -23,16 +23,22 @@ class RPD : public Detector{
   
   Channel* GetElement(int row, int column);
   
-  void SetnRows(int rows){nRows=rows; nElements = nRows * nColumns; };
-  void SetnCols(int cols){nColumns=cols; nElements = nRows * nColumns; };
+  void SetnRows(int rows){nRows=rows; nElements = nRows * nColumns; ResizeSortedElements(); };
+  void SetnCols(int cols){nColumns=cols; nElements = nRows * nColumns; ResizeSortedElements(); };
+  void ResizeSortedElements();
   
   virtual void PrintMap( );
   
  private:
+  /** Number of rows **/
   int nRows = 4;
+  /** Number of columns **/
   int nColumns = 4;
+  /** Total elements **/
   int nElements = nRows * nColumns;
+  /** 2D vector of channels sorted in a [row][column] format **/
+  std::vector< std::vector< Channel* > > m_SortedElements;
   
-    };
+};
 
 #endif
