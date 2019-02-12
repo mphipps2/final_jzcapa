@@ -27,7 +27,7 @@ class Detector{
   
   virtual Channel* GetElement  (int row, int column);
   virtual Channel* GetElement  (std::string _name);
-  virtual std::vector < Channel* > GetChannelsVector () { return m_Element; }
+  virtual std::vector < Channel* >* GetChannelsVector () { return &m_Element; }
   virtual double*  GetPosition ( ) { return m_Position; }
   virtual double*  GetAngle    ( ) { return m_Angle; }
 
@@ -41,8 +41,6 @@ class Detector{
   private:
   /** Vector of channels associated to the dector **/
   std::vector< Channel* > m_Element;
-  /** 2D vector of channels sorted in a [row][column] format **/
-  std::vector< vector< Channel* > > m_SortedElements;
   /** Three element array with x, y, and z of some pre-defined point on the detector **/
   double m_Position[3];
   /** Three element array of angle about the x, y, and z axis **/
