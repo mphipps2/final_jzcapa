@@ -43,6 +43,7 @@ class DataReader{
   
   void ReadListOfFiles( std::string listname );
 
+  void LoadAlignmentFile(std::string _inFile);
   void LoadConfigurationFile(std::string _inFile);
 
   Detector* GetDetector( std::string _detName );
@@ -83,6 +84,9 @@ class DataReader{
 
   //Vector of detectors placed in the 2018 setup (2 ZDCs, 1 RPD)
   std::vector < Detector* > m_detectors;
+
+  //Alignment information for the given run
+  Alignment* m_alignment;
 
   //XML parser
   XMLSettingsReader *m_XMLparser;

@@ -50,4 +50,27 @@ class Channel {
 
 };
 
+class Alignment {
+
+ public:
+
+    /** X position of the Desy Table **/
+    double x_table;
+    /** Y position of the Desy Table **/
+    double y_table;
+    /** First detector met by the beam **/
+    std::string upstream_Det;
+    /** Second detector met by the beam **/
+    std::string mid_Det;
+    /** Third detector met by the beam **/
+    std::string downstream_Det;
+    /** GOLIATH magnet status **/
+    bool magnet_On;
+    /** Target in **/
+    bool target_In;
+    /** Lead absorber in **/
+    bool lead_In;
+
+};
+
 #endif

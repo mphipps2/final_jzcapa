@@ -29,6 +29,9 @@ int main(int argc, char *argv[]){
 
   r->AddAnalysis( new WFAnalysis() );
 
+  r->LoadConfigurationFile("${JCaPA}/Utils/ConfigFile2018.xml");
+  r->LoadAlignmentFile("${JCaPA}/Utils/ConfigFile2018.xml");
+
   r->Run();
   
   delete r;

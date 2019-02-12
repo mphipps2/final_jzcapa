@@ -104,14 +104,49 @@ void DataReader::ReadListOfFiles( std::string listname ){
     m_fListOfFiles = listname;
 }
 
+
+/**
+ * @brief Reads the .xml configuration file and load characteristics for all the channels, immediately sorted into detectors objects
+ * @param _inFile
+ */
+void DataReader::LoadAlignmentFile(std::string _inFile = "$JCaPA/Utils/Alignment_2018.xml"){
+
+    m_XMLparser = new XMLSettingsReader();
+
+    if (!m_XMLparser->parseFile(_inFile)) {
+            std::cerr << " Data Reader could not parse file : " << _inFile << std::endl;
+            return;
+    }
+
+    std::cout << "Loading .xml Alignment File..." << std::endl;
+    std::cout << "Found " << m_XMLparser->getBaseNodeCount("Alignment") << " alignment entries " << std::endl;
+    std::cout << "Retrieving the information for run " << m_runNumber << std::endl;
+
+    int run;
+    for (unsigned int i = 0; i < m_XMLparser->getBaseNodeCount("Alignment"); i++) {
+        m_XMLparser->getChildValue("Alignment",i,"run",run);
+        if(run != m_runNumber) continue;
+        std::cout << "Found Run Entry in Alignment file for run " << m_runNumber << std::endl;
+        m_XMLparser->getChildValue("Alignment",i,"x_table",m_alignment->x_table);
+        m_XMLparser->getChildValue("Alignment",i,"y_table",m_alignment->y_table);
+        m_XMLparser->getChildValue("Alignment",i,"upstream_Det",m_alignment->upstream_Det);
+        m_XMLparser->getChildValue("Alignment",i,"mid_Det",m_alignment->mid_Det);
+        m_XMLparser->getChildValue("Alignment",i,"downstream_Det",m_alignment->downstream_Det);
+        m_XMLparser->getChildValue("Alignment",i,"target_In",m_alignment->target_In);
+        m_XMLparser->getChildValue("Alignment",i,"lead_In",m_alignment->lead_In);
+        m_XMLparser->getChildValue("Alignment",i,"magnet_On",m_alignment->magnet_On);
+    }
+
+    if(m_alignment == NULL) std::cout << "WARNING: ALIGNMENT NOT FOUND!!!" << std::endl;
+    return;
+}
+
 /**
  * @brief Reads the .xml configuration file and load characteristics for all the channels, immediately sorted into detectors objects
  * @param _inFile
  */
 void DataReader::LoadConfigurationFile(std::string _inFile = "$JCaPA/Utils/ConfigFile2018.xml"){
 
-    //Temporary implementation - objects will be just created within this method and loaded here.
-    //TODO: incorporate them in a data-member or better in a ZDC and RPD objects inheriting from a Detector class and return them
     m_XMLparser = new XMLSettingsReader();
 
     if (!m_XMLparser->parseFile(_inFile)) {
@@ -157,6 +192,7 @@ void DataReader::LoadConfigurationFile(std::string _inFile = "$JCaPA/Utils/Confi
     m_detectors.push_back(zdc2);
     m_detectors.push_back(rpd);
     std::cout << "Detector configuration: loading complete! " << std::endl;
+
     return;
 }
 
@@ -176,6 +212,8 @@ Detector* DataReader::GetDetector( std::string _detName ){
     if( _detName == "ZDC2" || _detName == "zdc2" ) return m_detectors.at(1);
     if( _detName == "RPD" || _detName == "rpd" ) return m_detectors.at(2);
 
+    std::cout << "WARNING: detector recognition glitch. NULL pointer being returned..." << std::endl;
+    return NULL;
 }
 
 
