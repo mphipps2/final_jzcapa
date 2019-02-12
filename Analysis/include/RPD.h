@@ -21,7 +21,17 @@ class RPD : public Detector{
   RPD( std::vector< Channel* > _readOut );
   ~RPD( );
   
+  Channel* GetElement(int row, int column);
+  
+  void SetnRows(int rows){nRows=rows; nElements = nRows * nColumns; };
+  void SetnCols(int cols){nColumns=cols; nElements = nRows * nColumns; };
+  
   virtual void PrintMap( );
+  
+ private:
+  int nRows = 4;
+  int nColumns = 4;
+  int nElements = nRows * nColumns;
   
     };
 
