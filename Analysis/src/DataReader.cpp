@@ -1,4 +1,4 @@
-/** @file DataReader.cxxs
+ /** @file DataReader.cxxs
  *  @brief Implementation of DataReader.
  *
  *  Function definitions for DataReader are provided. 
@@ -188,9 +188,10 @@ void DataReader::LoadConfigurationFile(std::string _inFile = "$JCaPA/Utils/Confi
     ZDC* zdc2 = new ZDC(channelEntries,2);
     RPD* rpd = new RPD(channelEntries);
 
-    m_detectors.push_back(zdc1);
-    m_detectors.push_back(zdc2);
-    m_detectors.push_back(rpd);
+    m_detectors.push_back(zdc1); //Position 0 goes for ZDC1
+    m_detectors.push_back(zdc2); //Position 1 goes for ZDC2
+    m_detectors.push_back(rpd); //Position 2 goes for the RPD
+
     std::cout << "Detector configuration: loading complete! " << std::endl;
 
     return;
@@ -291,7 +292,7 @@ void DataReader::Initialize(){
  */
 void DataReader::ProcessEvents(){
 
-  // Raw data to read in as vector of vectors size NxM
+  // Processed Raw data to read in as vector of vectors size NxM
   // Where N = nCh and M = nSamples per channel.
   std::vector< std::vector< float >  >  vWF;
   std::vector< std::vector< float >* > pvWF;
@@ -305,30 +306,44 @@ void DataReader::ProcessEvents(){
   pvWF.resize( m_nCh );
   vWFH.resize( m_nCh );
 
-  /** TODO : add reading for list of files */
+  /** TODO : add reading for list of files
+    * Please note that many of the implementations are now for a single-file treatment
+    */
   TTree* tree = static_cast< TTree* >( m_fIn->Get( "tree" ) );
 
-  // Connect raw data to tree
-  // For the moment, the only reading implemented is the raw data from each channel.
+  //Specific pointers to each detector, if needed afterwards
+  ZDC* zdc1 = static_cast< ZDC* >( GetDetector("ZDC1") );
+  ZDC* zdc2 = static_cast< ZDC* >( GetDetector("ZDC2") );
+  RPD* rpd =  static_cast< RPD* >( GetDetector("RPD") );
+
+  //All the raw channels addresses set for read-out
+  for( uint detID = 0; detID < (int) m_detectors.size(); detID++ ){
+       m_detectors.at(detID)->SetBranches(tree);
+       m_detectors.at(detID)->SetNSamples(m_nSamp);
+       m_detectors.at(detID)->DeclareHistograms();
+  }
+
+  // Connect raw data to tree. For the moment, the only reading implemented is the raw data from each channel.
   // Other items should be implemented in the same way if needed.
   // Also create the histograms to fill
   for( uint ch = 0; ch < m_nCh; ch++ ){
+    //Example - here we retrieve the already processed waveform (M.Phipps approach during the data production)
     pvWF[ ch ] = &vWF[ ch ];
-    tree->SetBranchAddress( Form( "RawC%d", ch ), &pvWF[ ch ] );
+    tree->SetBranchAddress( Form( "C%d", ch ), &pvWF[ ch ] );
     vWFH[ ch ] = new TH1D( Form( "hWF%d", ch ), Form( "hWF%d;samp;amp", ch ), m_nSamp, 0, m_nSamp );
   }
-  
-  std::cout << "File: " << m_fIn->GetName() << " has "
-	    << tree->GetEntries() << " events." << std::endl;
+
+  std::cout << "File: " << m_fIn->GetName() << " has " << tree->GetEntries() << " events." << std::endl;
   
   // !! EVENT LOOP
   for( int ev = 0; ev < tree->GetEntries(); ev++ ){
     tree->GetEntry( ev );
 
     // Fill the waveforms
-    for( uint ch = 0; ch < m_nCh; ch++ ){
-      vWFH[ ch ]->Reset();
+    for( uint detID = 0; detID < (int) m_detectors.size(); detID++ )  m_detectors.at(detID)->FillHistograms();
 
+
+   for( uint ch = 0; ch < m_nCh; ch++ ) {
     // Loop over samples in each channel
     for( uint samp = 0; samp < m_nSamp; samp++ ){
       vWFH[ ch ]->SetBinContent( samp + 1, vWF[ ch ][ samp ] );

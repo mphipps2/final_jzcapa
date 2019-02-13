@@ -31,10 +31,13 @@ class Detector{
   virtual double*  GetPosition ( ) { return m_Position; }
   virtual double*  GetAngle    ( ) { return m_Angle; }
 
+  virtual void     SetNSamples ( int _nSamples )  { m_nSamp = _nSamples; }
   virtual void     SetElement  ( Channel* _entry) { m_Element.push_back(_entry); }
   virtual void     SetPosition (double x, double y, double z) { m_Position[0] = x; m_Position[1] = y; m_Position[2] = z; }
   virtual void     SetAngle    (double _cosx = 0, double _cosy = 0, double _cosz = 0) { m_Angle[0] = _cosx; m_Angle[1] = _cosy; m_Angle[2] = _cosz; }
   virtual void     SetBranches ( TTree* _dataTree );
+  virtual void     DeclareHistograms ( );
+  virtual void     FillHistograms ( );
 
   virtual void     PrintMap    ( ) = 0;
   
@@ -45,6 +48,9 @@ class Detector{
   double m_Position[3];
   /** Three element array of angle about the x, y, and z axis **/
   double m_Angle[3];
+  /** Number of samples per channel **/
+  int m_nSamp = 1024;
+
   };
 
 #endif

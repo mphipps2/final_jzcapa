@@ -62,6 +62,10 @@ Channel* Detector::GetElement(std::string _name){
     
 }
 
+/**
+ * @brief Set the branches of the tree to the channels of the detectors (according to their name, read from the mapping)
+ * @param _dataTree : processed data tree
+ */
 void Detector::SetBranches( TTree *_dataTree ){
 
     std::vector< std::vector< float >* > pvWF;
@@ -72,6 +76,30 @@ void Detector::SetBranches( TTree *_dataTree ){
       _dataTree->SetBranchAddress( ("Raw" + m_Element.at(ch)->name).c_str(), &pvWF[ ch ] );
     }
 
+}
+
+/**
+ * @brief Declare histograms to be filled with the raw waveform
+ */
+void Detector::DeclareHistograms(){
+
+    for( uint ch = 0; ch < m_Element.size(); ch++ ){
+        m_Element.at(ch)->WF_histo = new TH1D(m_Element.at(ch)->name.c_str(), (m_Element.at(ch)->name + ", " + m_Element.at(ch)->detector).c_str(), m_nSamp, 0, m_nSamp);
+    }
+
+}
+
+/**
+ * @brief Fill histograms with the current raw waveform
+ */
+void Detector::FillHistograms(){
+    for( uint ch = 0; ch < m_Element.size(); ch++ ){
+        m_Element.at(ch)->WF_histo->Reset();
+        // Loop over samples in each channel
+        for( uint samp = 0; samp < m_nSamp; samp++ ){
+          m_Element.at(ch)->WF_histo->SetBinContent( samp + 1, m_Element.at(ch)->WF[ samp ] );
+          } // End loop over samples in each channel
+        }
 }
 
 

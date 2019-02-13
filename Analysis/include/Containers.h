@@ -10,6 +10,7 @@
 #define CONTAINERS_H
 
 #include "Containers.h"
+#include "TH1.h"
 
 #include <iostream>
 #include <vector>
@@ -47,6 +48,8 @@ class Channel {
     int Vop;
     /** Raw waveform for a particular event **/
     std::vector < float > WF;
+    /** Histrogram for visualization and analysis of the waveform **/
+    TH1D* WF_histo;
 
 };
 
