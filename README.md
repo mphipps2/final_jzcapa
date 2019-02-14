@@ -1,23 +1,23 @@
-#### Joint ZeroDegree Calorimeter Prototype Analysis --- JCaPA           
+#### Joint Zerodegree Calorimeter Prototype Analysis --- JZCaPA           
 #### Created by Y.Kulinich, R.Longo and C.Lantz on 12/12/2018 #### 
 #### Migrated from CERN to UIUC Gitlab on 14th February 2019 ####
                                                                                                                                                  
 Basic structure defined and discussed during the Thursday meeting on 12/13/2018 
 
-JCaPA   
+JZCaPA   
      Analysis   
           include    
           src   
           userFunctions   
      MonteCarlo    
-     2018_Utils (empty for the moment)    
+     2018_Utils 
 
 The project is cmake based, so you need a reasonably new cmake version ( version > 2.8 )   
 The standalone Analysis part requires only a root installation (https://root.cern.ch) and a xerces-c installation (http://xerces.apache.org). 
 Please note that xerces-c is usually available via your package installer (so easy to get installed). 
 The MC part will be conditional since it requires additional software as Geant4 and all its dependencies   
 The corresponding README part will be written once MC will be included.    
-The 2018_Utils folder will be meant to contain useful files for 2018 test beam analysis (e.g. Summary of various scans etc)   
+The 2018_Utils folder contains the .xml settings file encoding the useful information on 2018 beam test (automatically loaded in JZCaPA).   
 
 #### CMake and installation ####
 To install the software using cmake will be trivial. 
@@ -45,9 +45,7 @@ please remember to re-make & make install every time you change the source code
 Each user can implement his/her own analysis creating a new userFunction.cpp in Analysis/userFunctions folder. 
 Please check AnalysisExample.cpp if you're looking for a basic template. 
 
-Two main classes are provided at the moment: 
-- DataReader 
-- WFAnalysis (inherits from Analysis.h)
+The code has been updated and improved considerably in the last period, so further description will be provided afterwards. 
 
 They are well commented by Yakov for each available method.     
 A doxygen documentation can also be created following the instruction below.     
