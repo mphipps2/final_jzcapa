@@ -1,5 +1,5 @@
 #Basic Cmake structure created by R.Longo on 12/13/2018
-project(JCaPA)
+project(JZCaPA)
 cmake_minimum_required(VERSION 2.8)
 #aux_source_directory(. SRC_LIST)
 
@@ -21,13 +21,13 @@ if(NOT WIN32)
 endif()
 
 message("${BoldBlue}
-      #  #####           ######     #
-      # #     #          #     #   # #
-      # #                #     #  #   #
-      # #        ####    ######  #     #
-#     # #       #    #   #       #######
-#     # #     # #    #   #       #     #
- #####   #####   ######  #       #     #
+       # #######  #####         ######     #    
+       #      #  #     #   ##   #     #   # #   
+       #     #   #        #  #  #     #  #   #  
+       #    #    #       #    # ######  #     # 
+ #     #   #     #       ###### #       ####### 
+ #     #  #      #     # #    # #       #     # 
+  #####  #######  #####  #    # #       #     # 
 ${ColourReset}")
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
