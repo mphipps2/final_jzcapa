@@ -49,9 +49,9 @@ include_directories (${XERCESC_INCLUDE})
 
 
 #Test executable - does nothing
-add_executable(test_JCaPA  main.cpp)
-TARGET_LINK_LIBRARIES(test_JCaPA ${ROOT_LIBRARIES})
-TARGET_LINK_LIBRARIES(test_JCaPA ${XERCESC_LIBRARY})
+add_executable(test_JZCaPA  main.cpp)
+TARGET_LINK_LIBRARIES(test_JZCaPA ${ROOT_LIBRARIES})
+TARGET_LINK_LIBRARIES(test_JZCaPA ${XERCESC_LIBRARY})
 
 
 
@@ -62,16 +62,16 @@ add_subdirectory(Analysis)
 #MonteCarlo folder. The installation will be conditional and disabled by default (not everyone needs to work with it and requires dependencies)
 #The starting point will be the work done by Mike Phipps
 
-if (${JCaPA_ENABLE_MC} MATCHES "YES")
+if (${JZCaPA_ENABLE_MC} MATCHES "YES")
     message("${BoldGreen} Monte Carlo extension enabled! ${ColourReset}")
     add_subdirectory(MonteCarlo)
 
-endif (${JCaPA_ENABLE_MC} MATCHES "YES")
+endif (${JZCaPA_ENABLE_MC} MATCHES "YES")
 
 #Install test
-install(TARGETS test_JCaPA RUNTIME DESTINATION bin)
+install(TARGETS test_JZCaPA RUNTIME DESTINATION bin)
 #Install doxygen files
-install(FILES doxygen/JCaPA_doxy.cnf DESTINATION doxygen)
+install(FILES doxygen/JZCaPA_doxy.cnf DESTINATION doxygen)
 install(FILES Utils/ConfigFile2018.xml DESTINATION Utils)
 install(FILES Utils/Alignment_2018.xml DESTINATION Utils)
 
