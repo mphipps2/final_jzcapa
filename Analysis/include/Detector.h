@@ -27,7 +27,7 @@ class Detector{
   
   virtual Channel* GetElement  (int row, int column);
   virtual Channel* GetElement  (std::string _name);
-  virtual std::vector < Channel* >* GetChannelsVector () { return &m_Element; }
+  virtual std::vector < Channel* > GetChannelsVector () { return m_Element; }
   virtual double*  GetPosition ( ) { return m_Position; }
   virtual double*  GetAngle    ( ) { return m_Angle; }
 

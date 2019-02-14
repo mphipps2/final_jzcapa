@@ -101,6 +101,26 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
   }
 }
 
+/**
+ * @brief Analyze Event method for WF analysis
+ *  A const vector of channels is received. Can be either the vector coming from a single detector or formed using all the channels.
+ *  Example of how to retrieve raw data and associated histograms are provided
+ * @param vCh
+ */
+void WFAnalysis::AnalyzeEvent( const std::vector<Channel *> vCh ){
+
+    for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
+      //retrieving information for each channel
+      TH1* h = vCh.at(ch)->WF_histo;
+      std::vector < float > chEntries = vCh.at(ch)->WF;
+      for( unsigned int samp = 0; samp < h->GetNbinsX(); samp++ ){
+        // will print what each sample in each channel equals
+        // std::cout << ch << " " << samp << " = " << h->GetBinContent( samp + 1 ) << std::endl;
+      }
+    }
+
+}
+
 /** @brief Finalize method for WFAnalysis
  *
  *  Write histograms, TTree if it exists.

@@ -339,12 +339,13 @@ void DataReader::ProcessEvents(){
   for( int ev = 0; ev < tree->GetEntries(); ev++ ){
     tree->GetEntry( ev );
 
-    // Fill the waveforms
-    for( uint detID = 0; detID < (int) m_detectors.size(); detID++ )  m_detectors.at(detID)->FillHistograms();
+    // Fill the raw waveforms
+    for( uint detID = 0; detID < (int) m_detectors.size(); detID++ )
+        m_detectors.at(detID)->FillHistograms();
 
-
+   //Here if you're interested in already processed waveform
    for( uint ch = 0; ch < m_nCh; ch++ ) {
-    // Loop over samples in each channel
+   // Loop over samples in each channel
     for( uint samp = 0; samp < m_nSamp; samp++ ){
       vWFH[ ch ]->SetBinContent( samp + 1, vWF[ ch ][ samp ] );
       } // End loop over samples in each channel
@@ -353,7 +354,13 @@ void DataReader::ProcessEvents(){
     // Now call all analysis and run their AnalyzeEvent.
     // Can either send a vector of histos, or a 2D vector
     // Of all the data, depending on what you want to do.
+    // Note that at the moment none of this methods is doing anything
     for( auto& ana : m_ana ){
+      //raw data analysis
+      ana->AnalyzeEvent( zdc1->GetChannelsVector()  );
+      ana->AnalyzeEvent( zdc2->GetChannelsVector() );
+      ana->AnalyzeEvent( rpd->GetChannelsVector() );
+      //already processed wf analysis
       ana->AnalyzeEvent( vWFH );
       ana->AnalyzeEvent( vWF  );
     }

@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+#include "Containers.h"
+
 class TFile;
 class TH1;
 class TH2;
@@ -30,6 +32,7 @@ class Analysis{
   virtual void SetupHistograms( ) = 0;
   virtual void AnalyzeEvent   ( const std::vector< TH1* >& ) = 0;
   virtual void AnalyzeEvent   ( const std::vector< std::vector< float > >& ) = 0;
+  virtual void AnalyzeEvent   ( const std::vector< Channel* > ) = 0;
   virtual void Finalize       ( ) = 0;
 };
 

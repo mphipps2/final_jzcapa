@@ -54,9 +54,9 @@ Channel* RPD::GetElement(int row, int column){
     
     if((int)m_SortedElements.size()==nElements){ return m_SortedElements[row][column];
     }else{
-        for(int i=0; i < (int)GetChannelsVector()->size(); i++){
-            if(row == GetChannelsVector()->at(i)->mapping_row && column == GetChannelsVector()->at(i)->mapping_column){
-            return GetChannelsVector()->at(i);
+        for(int i=0; i < (int)GetChannelsVector().size(); i++){
+            if(row == GetChannelsVector().at(i)->mapping_row && column == GetChannelsVector().at(i)->mapping_column){
+            return GetChannelsVector().at(i);
             }
         }
      }

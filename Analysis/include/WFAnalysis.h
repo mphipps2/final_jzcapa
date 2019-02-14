@@ -12,6 +12,7 @@
 #define WFANALYSIS_H
 
 #include "Analysis.h"
+#include "Containers.h"
 
 class WFAnalysis : public Analysis{
 
@@ -23,6 +24,7 @@ class WFAnalysis : public Analysis{
   virtual void SetupHistograms( );
   virtual void AnalyzeEvent   ( const std::vector< TH1* >& );
   virtual void AnalyzeEvent   ( const std::vector< std::vector< float > >& );
+  virtual void AnalyzeEvent   ( const std::vector< Channel* > );
   virtual void Finalize       ( );
 
 };

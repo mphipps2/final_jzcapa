@@ -27,8 +27,8 @@ ZDC::ZDC( std::vector < Channel* > _readOut, int _zdcNumber){
             SetElement(_readOut.at(i));
         }
     }
-    if(GetChannelsVector()->size() > 1) std::cout << "WARNING : more than one entry for one ZDC module. Check the config.xml" << std::endl;
-    std::cout << "ZDC object created with " << GetChannelsVector()->size() << " channel entries " << std::endl;
+    if(GetChannelsVector().size() > 1) std::cout << "WARNING : more than one entry for one ZDC module. Check the config.xml" << std::endl;
+    std::cout << "ZDC object created with " << GetChannelsVector().size() << " channel entries " << std::endl;
 }
 
 /** @brief Destructor for ZDC.
