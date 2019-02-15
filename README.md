@@ -102,7 +102,7 @@ N branches of size 1024 for the channel waveforms.
 and
 M branches of size N for the processed data from rcdaqAnalysis. M is an arbitrary number.
  
-#### XML Setting file support - Beta version #### 
+#### XML Setting file support #### 
 Since 29th January you will need to install also xercesc as a dependency to compile JZCaPA. This is rather straight forward on machines where you have root access. 
 You've just to run 
 
@@ -110,3 +110,5 @@ your_package_installer install xerces-c
 
 If you are on a cluster and xerces-c is not installed/available by default, is straightforward to checkout the source from http://xerces.apache.org/xerces-c/download.cgi and compile it following the instructions available on the webpage. 
 If you are going for the source installation, please note that, for an easier detection by cmake, it is adviced to define the variables $XERCESC_DIR, $XERCESC_INCLUDE_DIR and $XERCESC_LIBRARY
+Thanks to the .xml settings file support (hopefully) all the 2018 test beam settings will be loaded automatically when starting the analysis and associated to detectors objects (ZDC1, ZDC2 or RPD). 
+More information can be added if needed, just formulate a request or do the implementation yourself!  
