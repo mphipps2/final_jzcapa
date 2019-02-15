@@ -22,13 +22,13 @@ The 2018_Utils folder contains the .xml settings file encoding the useful inform
 #### CMake and installation ####
 To install the software using cmake will be trivial. 
 In the same folder where you have JZCaPA, just do
-
+```bash
 mkdir JZCaPA_BUILD
 
 mkdir JZCaPA_INSTALL 
-
+```
 at this stage, remember to add to your environment
-
+```bash
 export JZCaPA=/path/to/your/JCaPA_INSTALL
 
 cd JZCaPA_BUILD
@@ -38,7 +38,7 @@ cmake -DCMAKE_INSTALL_PREFIX=../JZCaPA_INSTALL/ ../JZCaPA
 make -j8 
 
 make install 
-
+```
 please remember to re-make & make install every time you change the source code 
 
 #### Analysis ####
@@ -58,9 +58,9 @@ Such changes have been implemented in order to allow also for backward compatibi
 
 Please note that MonteCarlo support is *DISABLED* by default. This choice is meant to avoid people not interested in MC to install Geant4 and the other dependencies. 
 In order to enable it, add the option 
-
+```bash
 -DJZCaPA_ENABLE_MC=YES 
-
+```
 while cmaking. Please note that you need the Geant4 toolkit (and the corresponding dependencies) to successfully enable the MC support. 
 More details will come in the future. 
 
@@ -69,9 +69,9 @@ First, check that doxygen is installed on your machine.
 If it's not the case, just check it out using   
 By default a folder "doxygen" will also be installed in your JZCaPA_INSTALL folder.   
 To obtain the documentation, just execute   
-
+```bash
 doxygen JZCaPA_doxy.cnf   
-
+```
 This will generate for you  $JZCaPA/html and $JZCaPA/latex folder.  
 If you start $JCaPA/html/index.html with your browser, you will get your doxygen docs (surfable).   
 Alternatively, you can compile the latex static documentation in $JZCaPA/latex 
@@ -105,9 +105,9 @@ M branches of size N for the processed data from rcdaqAnalysis. M is an arbitrar
 #### XML Setting file support #### 
 Since 29th January you will need to install also xercesc as a dependency to compile JZCaPA. This is rather straight forward on machines where you have root access. 
 You've just to run 
-
+```bash
 your_package_installer install xerces-c 
-
+```
 If you are on a cluster and xerces-c is not installed/available by default, is straightforward to checkout the source from http://xerces.apache.org/xerces-c/download.cgi and compile it following the instructions available on the webpage. 
 If you are going for the source installation, please note that, for an easier detection by cmake, it is adviced to define the variables $XERCESC_DIR, $XERCESC_INCLUDE_DIR and $XERCESC_LIBRARY
 Thanks to the .xml settings file support (hopefully) all the 2018 test beam settings will be loaded automatically when starting the analysis and associated to detectors objects (ZDC1, ZDC2 or RPD). 
