@@ -26,12 +26,17 @@ RPD::RPD( ){
 RPD::RPD( std::vector < Channel* > _readOut){
 
     ResizeSortedElements();
-    for(int row=0; row<nRows; row++){
-        for(int column; column<nColumns; column++){
-            m_SortedElements[row][column]=GetElement(row,column);
+    for(int row=1; row<=nRows; row++){
+        for(int column=1; column<=nColumns; column++){
+            for(int i=0; i<(int)_readOut.size();i++){
+                if(_readOut.at(i)->mapping_row == row && _readOut.at(i)->mapping_column == column){
+                    m_SortedElements.at(row-1).push_back(_readOut.at(i));
+                    SetElement(_readOut.at(i));
+                }
+            }
         }
     }
-
+    
     std::cout << "RPD object created with " << nRows << " rows and " << nColumns << " columns" << std::endl;
 }
 
