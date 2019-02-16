@@ -109,7 +109,7 @@ void DataReader::ReadListOfFiles( std::string listname ){
  * @brief Reads the .xml configuration file and load characteristics for all the channels, immediately sorted into detectors objects
  * @param _inFile
  */
-void DataReader::LoadAlignmentFile(std::string _inFile = "$JZCaPA/Utils/Alignment_2018.xml"){
+void DataReader::LoadAlignmentFile(std::string _inFile ){
 
     m_XMLparser = new XMLSettingsReader();
 
@@ -145,7 +145,7 @@ void DataReader::LoadAlignmentFile(std::string _inFile = "$JZCaPA/Utils/Alignmen
  * @brief Reads the .xml configuration file and load characteristics for all the channels, immediately sorted into detectors objects
  * @param _inFile
  */
-void DataReader::LoadConfigurationFile(std::string _inFile = "$JZCaPA/Utils/ConfigFile2018.xml"){
+void DataReader::LoadConfigurationFile(std::string _inFile ){
 
     m_XMLparser = new XMLSettingsReader();
 
