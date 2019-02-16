@@ -161,7 +161,7 @@ void DataReader::LoadConfigurationFile(std::string _inFile ){
     int first_run, last_run;
 
     for (unsigned int i = 0; i < m_XMLparser->getBaseNodeCount("channel"); i++) {
-        Channel *buffer_ch;
+        Channel *buffer_ch = new Channel();
         m_XMLparser->getChildValue("channel",i,"start_run",first_run);
         m_XMLparser->getChildValue("channel",i,"end_run",last_run);
 
