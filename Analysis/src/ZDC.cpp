@@ -23,7 +23,7 @@ ZDC::ZDC( std::vector < Channel* > _readOut, int _zdcNumber){
 
     m_Number = _zdcNumber;
     for(int i = 0; i < (int)_readOut.size(); i++){
-        if(_readOut.at(i)->name == "ZDC" && _readOut.at(i)->mapping_column == m_Number){
+        if((_readOut.at(i)->mapping_row == 0) && (_readOut.at(i)->mapping_column == m_Number)){
             SetElement(_readOut.at(i));
         }
     }
