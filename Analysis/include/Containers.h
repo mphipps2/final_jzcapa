@@ -44,11 +44,13 @@ class Channel {
     int mapping_column;
     /** Was the channel functioning */
     bool is_on;
-    /** Operating voltage of the channel**/
+    /** Operating voltage of the channel*/
     int Vop;
-    /** Raw waveform for a particular event **/
+    /** Raw waveform for a particular event */
     std::vector < float > WF;
-    /** Histrogram for visualization and analysis of the waveform **/
+    /** Pointer to the WF vector */
+    std::vector < float > *pWF = &WF;
+    /** Histrogram for visualization and analysis of the waveform */
     TH1D* WF_histo;
 
 };
