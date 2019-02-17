@@ -43,8 +43,8 @@ class DataReader{
   
   void ReadListOfFiles( std::string listname );
 
-  void LoadAlignmentFile(std::string _inFile = std::getenv("JZCaPA") + std::string("Utils/Alignment_2018.xml"));
-  void LoadConfigurationFile(std::string _inFile = std::getenv("JZCaPA") + std::string("Utils/ConfigFile2018.xml"));
+  void LoadAlignmentFile(std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/Alignment_2018.xml"));
+  void LoadConfigurationFile(std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/ConfigFile2018.xml"));
 
   Detector* GetDetector( std::string _detName );
 
