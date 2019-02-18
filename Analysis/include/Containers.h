@@ -78,4 +78,12 @@ class Alignment {
 
 };
 
+class ProcessedWF {
+    /** Histogram with first derivative **/
+    TH1D* FirstDerivative;
+    /** Crossing zero points - dummy - to be checked by Sheng **/
+    std::vector < int > CrossZeroPoints;
+
+};
+
 #endif
