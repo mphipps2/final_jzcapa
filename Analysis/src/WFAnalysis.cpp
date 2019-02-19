@@ -102,6 +102,8 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
 }
 
 /** @brief GetDifferential method for WFAnalysis
+ * The derivative is achieve by taking the difference of the summation N points before and after the i channel
+ * i.e new_sample[i] = sum(samp[i+k])-sum(samp[i-k]), k =1, 2, 3 ... sample_range.
  *
  *  h const 1D vector of M dimenstion is received, M is the number of samples per channel
  *  ch is the channel number.
@@ -111,7 +113,7 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
  *  @return truncated (M-2*window) 1D TH1 histogram 
  */
 TH1 *WFAnalysis::GetDifferential( const TH1 *h, unsigned int ch, int window, bool debug){
-    TH1F *hNew = new TH1F( Form( "ch_%d", ch ), "diff;samp;derivative", 1004, 0 + window, 1024 - window );
+    TH1F *hNew = new TH1F( Form( "ch_%d", ch ), "diff;samp;derivative", 1024, 0, 1024);
     int new_sample = window;
 
     // sample loop
@@ -126,7 +128,7 @@ TH1 *WFAnalysis::GetDifferential( const TH1 *h, unsigned int ch, int window, boo
       }
       //set the difference of two sum to the new histogram        
         hNew->SetBinContent(new_sample,(sum_after - sum_previous));
-      new_sample++;
+        new_sample++;
     }// end of sample loop
     if (debug){
       if (ch <=5){
@@ -149,14 +151,7 @@ TH1 *WFAnalysis::GetDifferential( const TH1 *h, unsigned int ch, int window, boo
  * @param vCh
  */
 void WFAnalysis::AnalyzeEvent( const std::vector<Channel *> vCh ){
-    /* The derivative is achieve by taking the difference of the summation N points before and after the i channel
-    i.e new_sample[i] = sum(samp[i+k])-sum(samp[i-k]), k =1, 2, 3 ... sample_range.
-    */
-    //Create a Canvas to output raw signal and first derivative of the raw signal
-    TCanvas *c1 = new TCanvas("c2","Canvas ped",200,10,1000,600);
-    c1->Divide(1,2);
-    // create a hitogram to store the derivative of the signal
-    // discard the first and last sample_range points in the raw signal
+
      
     //set up the sample range for the derivative
     unsigned int sample_range = 50;
@@ -169,7 +164,7 @@ void WFAnalysis::AnalyzeEvent( const std::vector<Channel *> vCh ){
       std::vector < float > chEntries = vCh.at(ch)->WF;
       
 
-      GetDifferential(h,ch,sample_range);
+      GetDifferential(h,ch,sample_range,1);
 
   }
 
