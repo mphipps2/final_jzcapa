@@ -101,6 +101,47 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
   }
 }
 
+/** @brief GetDifferential method for WFAnalysis
+ *
+ *  h const 1D vector of M dimenstion is received, M is the number of samples per channel
+ *  ch is the channel number.
+ *  window is the integral window for the pre-integration
+ *  debug is to draw the first 5 raw signals and the derivative 
+ *
+ *  @return truncated (M-2*window) 1D TH1 histogram 
+ */
+TH1 *WFAnalysis::GetDifferential( const TH1 *h, unsigned int ch, int window, bool debug){
+    TH1F *hNew = new TH1F( Form( "ch_%d", ch ), "diff;samp;derivative", 1004, 0 + window, 1024 - window );
+    int new_sample = window;
+
+    // sample loop
+    for( unsigned int samp = window; samp < h->GetNbinsX() - window ; samp++ ){
+      //decalare temp variable to store the sum before and after the i data point
+      double sum_previous = 0;
+      double sum_after = 0;
+      //calculate the sum before and after the i data point
+      for (int i = 0; i < window; i++  ){
+        sum_previous = (h->GetBinContent( samp - i ) + sum_previous);
+        sum_after = (h->GetBinContent( samp + i ) + sum_after);
+      }
+      //set the difference of two sum to the new histogram        
+        hNew->SetBinContent(new_sample,(sum_after - sum_previous));
+      new_sample++;
+    }// end of sample loop
+    if (debug){
+      if (ch <=5){
+        TCanvas *c2 = new TCanvas(Form( "ch_%d", ch ),"Canvas debug",200,10,1000,600);
+        c2->Divide(1,2);
+        c2->cd(1);
+        h->DrawCopy();
+        c2->cd(2);
+        hNew->DrawCopy();
+        c2->Print(Form( "ch_%d.pdf", ch ));
+      }
+    }//if debug end
+    return hNew;
+  }
+
 /**
  * @brief Analyze Event method for WF analysis
  *  A const vector of channels is received. Can be either the vector coming from a single detector or formed using all the channels.
@@ -117,51 +158,20 @@ void WFAnalysis::AnalyzeEvent( const std::vector<Channel *> vCh ){
     // create a hitogram to store the derivative of the signal
     // discard the first and last sample_range points in the raw signal
      
-    TH1F *hNew = new TH1F( "hNew", "diff;samp;amp", 1004, 0, 1004 );
     //set up the sample range for the derivative
     unsigned int sample_range = 50;
     //in order to align with the raw signal,the new histogram start at the 50th point of the raw signal
     int new_sample = sample_range;
 
-    //for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
-    for( unsigned int ch = 0; ch < 1; ch++ ){
+    for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
       //retrieving information for each channel
       TH1* h = vCh.at(ch)->WF_histo;
       std::vector < float > chEntries = vCh.at(ch)->WF;
       
-      //plot the raw signal and switch to the second blok
-      c1->cd(1);
-      h->DrawCopy();
-      c1->cd(2);
 
+      GetDifferential(h,ch,sample_range);
 
-
-      for( unsigned int samp = sample_range; samp < h->GetNbinsX() - sample_range ; samp++ ){
-        //decalare temp variable to store the sum before and after the i data point
-        double sum_previous = 0;
-        double sum_after = 0;
-
-        //calculate the sum before and after the i data point
-        for (int i = 0; i < sample_range; i++  ){
-          sum_previous = (h->GetBinContent( samp - i ) + sum_previous);
-          sum_after = (h->GetBinContent( samp + i ) + sum_after);
-
-        }
-
-        //set the difference of two sum to the new histogram        
-        hNew->SetBinContent(new_sample,(sum_after - sum_previous));
-        new_sample++;
-
-        //draw the derivative histogram 
-        hNew->DrawCopy();
-
-
-
-        // will print what each sample in each channel equals
-        // std::cout << ch << " " << samp << " = " << h->GetBinContent( samp + 1 ) << std::endl;
-      }
-    }
-    c1->Print("test.pdf");
+  }
 
 }
 

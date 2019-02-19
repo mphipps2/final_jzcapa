@@ -22,6 +22,7 @@ class WFAnalysis : public Analysis{
 
   virtual void Initialize     ( );
   virtual void SetupHistograms( );
+  virtual TH1 *GetDifferential( const TH1 *h, unsigned int ch, int window,bool debug=false);
   virtual void AnalyzeEvent   ( const std::vector< TH1* >& );
   virtual void AnalyzeEvent   ( const std::vector< std::vector< float > >& );
   virtual void AnalyzeEvent   ( const std::vector< Channel* > );
