@@ -30,7 +30,7 @@ int main(int argc, char *argv[]){
   r->AddAnalysis( new WFAnalysis() );
 
   r->LoadConfigurationFile();
-  r->LoadAlignmentFile();
+  //r->LoadAlignmentFile();
 
   r->Run();
   

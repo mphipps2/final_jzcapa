@@ -15,7 +15,7 @@
 #include <TH2.h>
 #include <TH3.h>
 #include <TTree.h>
-
+#include <TCanvas.h>//Sheng
 #include <iostream>
 
 #include "WFAnalysis.h"
@@ -108,18 +108,65 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
  * @param vCh
  */
 void WFAnalysis::AnalyzeEvent( const std::vector<Channel *> vCh ){
+    /* The derivative is achieve by taking the difference of the summation N points before and after the i channel
+    i.e new_sample[i] = sum(samp[i+k])-sum(samp[i-k]), k =1, 2, 3 ... sample_range.
+    */
+    //Create a Canvas to output raw signal and first derivative of the raw signal
+    TCanvas *c1 = new TCanvas("c2","Canvas ped",200,10,1000,600);
+    c1->Divide(1,2);
+    // create a hitogram to store the derivative of the signal
+    // discard the first and last sample_range points in the raw signal
+     
+    TH1F *hNew = new TH1F( "hNew", "diff;samp;amp", 1004, 0, 1004 );
+    //set up the sample range for the derivative
+    unsigned int sample_range = 50;
+    //in order to align with the raw signal,the new histogram start at the 50th point of the raw signal
+    int new_sample = sample_range;
 
-    for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
+    //for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
+    for( unsigned int ch = 0; ch < 1; ch++ ){
       //retrieving information for each channel
       TH1* h = vCh.at(ch)->WF_histo;
       std::vector < float > chEntries = vCh.at(ch)->WF;
-      for( unsigned int samp = 0; samp < h->GetNbinsX(); samp++ ){
+      
+      //plot the raw signal and switch to the second blok
+      c1->cd(1);
+      h->DrawCopy();
+      c1->cd(2);
+
+
+
+      for( unsigned int samp = sample_range; samp < h->GetNbinsX() - sample_range ; samp++ ){
+        //decalare temp variable to store the sum before and after the i data point
+        double sum_previous = 0;
+        double sum_after = 0;
+
+        //calculate the sum before and after the i data point
+        for (int i = 0; i < sample_range; i++  ){
+          sum_previous = (h->GetBinContent( samp - i ) + sum_previous);
+          sum_after = (h->GetBinContent( samp + i ) + sum_after);
+
+        }
+
+        //set the difference of two sum to the new histogram        
+        hNew->SetBinContent(new_sample,(sum_after - sum_previous));
+        new_sample++;
+
+        //draw the derivative histogram 
+        hNew->DrawCopy();
+
+
+
         // will print what each sample in each channel equals
         // std::cout << ch << " " << samp << " = " << h->GetBinContent( samp + 1 ) << std::endl;
       }
     }
+    c1->Print("test.pdf");
 
 }
+
+
+
 
 /** @brief Finalize method for WFAnalysis
  *

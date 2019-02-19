@@ -336,7 +336,9 @@ void DataReader::ProcessEvents(){
   std::cout << "File: " << m_fIn->GetName() << " has " << tree->GetEntries() << " events." << std::endl;
   
   // !! EVENT LOOP
-  for( int ev = 0; ev < tree->GetEntries(); ev++ ){
+  //for( int ev = 0; ev < tree->GetEntries(); ev++ ){
+  for( int ev = 1; ev < 2; ev++ ){ // for single event test
+  
     tree->GetEntry( ev );
 
     // Fill the raw waveforms
@@ -357,12 +359,12 @@ void DataReader::ProcessEvents(){
     // Note that at the moment none of this methods is doing anything
     for( auto& ana : m_ana ){
       //raw data analysis
-      ana->AnalyzeEvent( zdc1->GetChannelsVector()  );
-      ana->AnalyzeEvent( zdc2->GetChannelsVector() );
+      //ana->AnalyzeEvent( zdc1->GetChannelsVector()  );
+      //ana->AnalyzeEvent( zdc2->GetChannelsVector() );
       ana->AnalyzeEvent( rpd->GetChannelsVector() );
       //already processed wf analysis
-      ana->AnalyzeEvent( vWFH );
-      ana->AnalyzeEvent( vWF  );
+      //ana->AnalyzeEvent( vWFH );
+      //ana->AnalyzeEvent( vWF  );
     }
   } // End event loop
 
