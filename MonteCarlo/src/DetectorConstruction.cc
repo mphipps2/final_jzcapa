@@ -110,7 +110,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
   G4double modSizeX[5]; G4double modSizeY[5]; G4double modSizeZ[5]; G4double modCasingThickness[5]; G4double modWidth[5]; G4String modAbsorberMat[5]; G4double modAbsorberThickness[5]; G4double modAbsorberHeight[5]; G4double modAbsorberWidth[5]; G4double modCoreDiameter[5]; G4double modCladdingThickness[5]; G4int modNRadiators[5]; G4int modNAbsorbers[5]; G4int modType[5]; bool cladding[5]; G4double modRadiatorGapLength[5]; G4double stripPitch[5]; G4int modNStripsPerGap[5];
   
   G4int    nModules            = config->GetValue( "nModules",4);
-  modType[0]            = config->GetValue( "mod1Type",1);
+  modType[0]            = config->GetValue( "mod1Type",4);
   modType[1]            = config->GetValue( "mod2Type",2);
   modType[2]            = config->GetValue( "mod3Type",3);
   modType[3]            = config->GetValue( "mod4Type",3);
@@ -168,7 +168,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
   
   // Option to switch on/off checking of volumes overlaps
   //
-  bool checkOverlaps = true;
+  bool checkOverlaps = false;
   
   //----------------------------------------------     
   // World

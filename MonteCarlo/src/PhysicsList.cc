@@ -44,9 +44,10 @@
 #include "G4Version.hh"
 #include "G4LossTableManager.hh"
 
-#if G4VERSION_NUMBER > 999
-static G4ParticleTable::G4PTblDicIterator* aParticleIterator;
-#endif
+// *ARIC COMMENTED OUT*
+//#if G4VERSION_NUMBER > 999
+//static G4ParticleTable::G4PTblDicIterator* aParticleIterator;
+//#endif
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -329,23 +330,30 @@ StepMax* PhysicsList::GetStepMaxProcess()
 void PhysicsList::AddStepMax()
 {
   // Step limitation seen as a process
-#if G4VERSION_NUMBER > 999
-      aParticleIterator->reset();
-      while ((*aParticleIterator)()) {
-        G4ParticleDefinition* particle = aParticleIterator->value();
+#if G4VERSION_NUMBER >= 1030
+  auto theParticleIterator1 = GetParticleIterator();
+   
+  theParticleIterator1->reset();
+       
+  while ((*theParticleIterator1)()) {
+	
+    G4ParticleDefinition* particle = theParticleIterator1->value();
 # else
-  theParticleIterator->reset();
-       while ((*theParticleIterator)()) {
-         G4ParticleDefinition* particle = theParticleIterator->value();
+	
+    theParticleIterator->reset();
+  
+    while ((*theParticleIterator)()) {
+      G4ParticleDefinition* particle = theParticleIterator->value();
 #endif
       G4ProcessManager* pmanager = particle->GetProcessManager();
 
       if (fStepMaxProcess->IsApplicable(*particle) && !particle->IsShortLived())
-      {
-         if (pmanager) pmanager ->AddDiscreteProcess(fStepMaxProcess);
-      }
+	{
+	  if (pmanager) pmanager ->AddDiscreteProcess(fStepMaxProcess);
+	}
+    }
   }
-}
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

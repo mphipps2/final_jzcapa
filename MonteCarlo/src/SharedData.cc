@@ -18,7 +18,9 @@ SharedData :: SharedData ()
 {
   m_eventCounter = 0;     
   m_outputFileName = "myOut.root";
-  m_configFileName = "config/config.cfg";
+  m_configFileName = std::getenv("JZCaPA");
+  m_configFileName.replace(m_configFileName.length()-15,15,"JZCaPA/config/config.cfg");
+ // m_configFileName = "config/config.cfg";
   m_fout = NULL;
   m_tree = NULL;
   m_config = NULL;

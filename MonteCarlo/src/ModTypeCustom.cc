@@ -227,7 +227,7 @@ void ModTypeCustom::ConstructDetector()
 
   int nModules = config->GetValue("nModules",4);
     // Option to switch on/off checking of volumes overlaps
-  bool checkOverlaps = config->GetValue("checkOverlaps",true);
+  bool checkOverlaps = config->GetValue("checkOverlaps",false);
   
   for (int i = 0; i < nModules; ++i) {
     char variable[256];
