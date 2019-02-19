@@ -19,7 +19,8 @@ SharedData :: SharedData ()
   m_eventCounter = 0;     
   m_outputFileName = "myOut.root";
   m_configFileName = std::getenv("JZCaPA");
-  m_configFileName.replace(m_configFileName.length()-15,15,"JZCaPA/config/config.cfg");
+  m_configFileName.replace(m_configFileName.length()-15,15,"/JZCaPA/MonteCarlo/config/config.cfg");
+ // std::cout << "* current config file path * = " << m_configFileName << std::endl;
  // m_configFileName = "config/config.cfg";
   m_fout = NULL;
   m_tree = NULL;
@@ -37,6 +38,7 @@ SharedData :: SharedData ( const std::string& outputFileName,
   m_eventCounter = 0;
   m_outputFileName = outputFileName;
   m_configFileName = configFileName;
+ // std::cout << "* current config file path * = " << m_configFileName << std::endl;
   m_fout = NULL ;
   m_tree = NULL;
   m_config = NULL;
@@ -69,7 +71,7 @@ void SharedData :: Initialize()
   m_config       = new TEnv ();
   int success;
   success = m_config->ReadFile( m_configFileName.c_str(), EEnvLevel(0));
-  std::cout << " Config File " <<  m_configFileName.c_str() << " read successfully (0 = success) " << success << std::endl;
+  std::cout << " Config File path = " <<  m_configFileName.c_str() << " Check if read successfully (0 = success) " << success << std::endl;
 }
 
 /** @brief Function to add an output histo.

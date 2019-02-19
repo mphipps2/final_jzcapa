@@ -329,6 +329,7 @@ StepMax* PhysicsList::GetStepMaxProcess()
 
 void PhysicsList::AddStepMax()
 {
+	std::cout << "Aric test2 addstepmax" << std::endl;
   // Step limitation seen as a process
 #if G4VERSION_NUMBER >= 1030
   auto theParticleIterator1 = GetParticleIterator();

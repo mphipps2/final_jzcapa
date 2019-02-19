@@ -67,7 +67,13 @@ int main(int argc,char** argv)
   // Choose the Random engine
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
   // Get some arguments for RunManager
-  TString cfgName = "config/config.cfg";
+  
+  // Aric's fix for finding config file location
+  TString m_configFileName = std::getenv("JZCaPA");
+  m_configFileName.Replace(m_configFileName.Length()-15,15,"/JZCaPA/MonteCarlo/config/config.cfg");
+  TString cfgName = m_configFileName;
+  //std::cout << "config file path = " << cfgName << std::endl;
+ 
   
   if( argc == 4 ){
     TString arg;
