@@ -330,30 +330,21 @@ StepMax* PhysicsList::GetStepMaxProcess()
 void PhysicsList::AddStepMax()
 {
   // Step limitation seen as a process
-#if G4VERSION_NUMBER >= 1030
-  auto theParticleIterator1 = GetParticleIterator();
-   
-  theParticleIterator1->reset();
-       
-  while ((*theParticleIterator1)()) {
-	
-    G4ParticleDefinition* particle = theParticleIterator1->value();
-# else
-	
+  
+    auto theParticleIterator = GetParticleIterator();
+
     theParticleIterator->reset();
   
     while ((*theParticleIterator)()) {
       G4ParticleDefinition* particle = theParticleIterator->value();
-#endif
       G4ProcessManager* pmanager = particle->GetProcessManager();
 
       if (fStepMaxProcess->IsApplicable(*particle) && !particle->IsShortLived())
-	{
-	  if (pmanager) pmanager ->AddDiscreteProcess(fStepMaxProcess);
-	}
-    }
-  }
-
+		{
+			if (pmanager) pmanager ->AddDiscreteProcess(fStepMaxProcess);
+		}
+   }
+ }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
