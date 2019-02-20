@@ -118,6 +118,8 @@ void DataReader::LoadAlignmentFile(std::string _inFile ){
             return;
     }
 
+    m_alignment = new Alignment();
+
     std::cout << "Loading .xml Alignment File..." << std::endl;
     std::cout << "Found " << m_XMLparser->getBaseNodeCount("Alignment") << " alignment entries " << std::endl;
     std::cout << "Retrieving the information for run " << m_runNumber << std::endl;
@@ -167,6 +169,7 @@ void DataReader::LoadConfigurationFile(std::string _inFile ){
 
         //Discard entries for any channel that does not apply to our run
         if(m_runNumber < first_run || m_runNumber > last_run) continue;
+
 
         //If the entry applies, we store it in the vector
         m_XMLparser->getChildValue("channel",i,"detector",buffer_ch->detector);
