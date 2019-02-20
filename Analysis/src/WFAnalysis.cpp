@@ -102,47 +102,74 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
 }
 
 /** @brief GetDifferential method for WFAnalysis
- * The derivative is achieve by taking the difference of the summation N points before and after the i channel
+ * The derivative is calculated as the difference of the summation N points before and after the ith point
  * i.e new_sample[i] = sum(samp[i+k])-sum(samp[i-k]), k =1, 2, 3 ... sample_range.
  *
- *  h const 1D vector of M dimenstion is received, M is the number of samples per channel
- *  ch is the channel number.
- *  window is the integral window for the pre-integration
- *  debug is to draw the first 5 raw signals and the derivative 
  *
- *  @return truncated (M-2*window) 1D TH1 histogram 
+ *  @param1 Histogram to be differentiated
+ *  @param2 Channel number being plotted
+ *  @param3 Number of points used for summation window
+ *  @param4 Debug boolean, prints samples if true
+ *  @return truncated (M-2*window) TH1 histogram 
  */
-TH1 *WFAnalysis::GetDifferential( const TH1 *h, unsigned int ch, int window, bool debug){
-    TH1F *hNew = new TH1F( Form( "ch_%d", ch ), "diff;samp;derivative", 1024, 0, 1024);
-    int new_sample = window;
+TH1 *WFAnalysis::GetDifferential( TH1D *h, unsigned int ch, int N, bool debug){
+    TH1D *hNew = new TH1D( Form( "%s Differential", h->GetTitle() ), "diff;samp;derivative", 1024, 0, 1024);
 
     // sample loop
-    for( unsigned int samp = window; samp < h->GetNbinsX() - window ; samp++ ){
+    for( unsigned int bin = N; bin < h->GetNbinsX() - N ; bin++ ){
       //decalare temp variable to store the sum before and after the i data point
-      double sum_previous = 0;
+      double sum_before = 0;
       double sum_after = 0;
       //calculate the sum before and after the i data point
-      for (int i = 0; i < window; i++  ){
-        sum_previous = (h->GetBinContent( samp - i ) + sum_previous);
-        sum_after = (h->GetBinContent( samp + i ) + sum_after);
+      for (int i = 0; i < N; i++  ){
+        sum_before = (h->GetBinContent( bin - i ) + sum_before);
+        sum_after = (h->GetBinContent( bin + i ) + sum_after);
       }
-      //set the difference of two sum to the new histogram        
-        hNew->SetBinContent(new_sample,(sum_after - sum_previous));
-        new_sample++;
-    }// end of sample loop
-    if (debug){
-      if (ch <=5){
-        TCanvas *c2 = new TCanvas(Form( "ch_%d", ch ),"Canvas debug",200,10,1000,600);
-        c2->Divide(1,2);
-        c2->cd(1);
-        h->DrawCopy();
-        c2->cd(2);
-        hNew->DrawCopy();
-        c2->Print(Form( "ch_%d.pdf", ch ));
-      }
-    }//if debug end
+        //set the bin to the calculated derivative value     
+        hNew->SetBinContent(bin,(sum_after - sum_before));
+    }//end derivative loop
+    
+    if (debug && ch<5){
+        TCanvas *c = new TCanvas(Form("Debug ch%d",ch),"Debug",200,10,1000,600);
+        OverlayHistos(h,hNew,c->cd(),true);
+    }//end if debug
     return hNew;
-  }
+}
+
+/** @brief OverlayHistos method for WFAnalysis
+ *
+ *  Plots two input histograms on the same, specified pad with 
+ *  separate axis. Saves the plots as PDFs with the name of the 
+ *  base histogram if given the option.
+ *
+ *  @param1 Base histogram (left y-axis)
+ *  @param2 Overlayed histogram (right y-axis)
+ *  @param3 Address of a pad (TPad or TCanvas) to be drawn on
+ *  @param4 Save option. If true, save a .pdf
+ */
+void WFAnalysis::OverlayHistos( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool save){
+    //Remove Stat box and double the y-axis range to include negative values
+    gStyle->SetOptStat(kFALSE);
+    pad->cd();
+    h1->Draw();
+    h1->SetAxisRange(-h1->GetMaximum()*1.1,h1->GetMaximum()*1.1,"Y");
+    pad->Update();
+    
+   //scale h2 to the pad coordinates
+   float rightmax = 1.1*h2->GetMaximum();
+   float scale = gPad->GetUymax()/rightmax;
+   h2->SetLineColor(kRed);
+   h2->Scale(scale);
+   h2->Draw("same");
+
+   //draw an axis on the right side
+   TGaxis axis(gPad->GetUxmax(),gPad->GetUymin(),gPad->GetUxmax(), gPad->GetUymax(),-rightmax,rightmax,510,"+L");
+   axis.SetLineColor(kRed);
+   axis.SetLabelColor(kRed);
+   axis.Draw();
+
+   if(save) pad->Print( Form( "%sOverlay.pdf", h1->GetTitle())) ;
+}
 
 /**
  * @brief Analyze Event method for WF analysis
@@ -160,7 +187,7 @@ void WFAnalysis::AnalyzeEvent( const std::vector<Channel *> vCh ){
 
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
       //retrieving information for each channel
-      TH1* h = vCh.at(ch)->WF_histo;
+      TH1D* h = vCh.at(ch)->WF_histo;
       std::vector < float > chEntries = vCh.at(ch)->WF;
       
 
