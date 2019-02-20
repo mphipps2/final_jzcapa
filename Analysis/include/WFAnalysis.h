@@ -13,6 +13,9 @@
 
 #include "Analysis.h"
 #include "Containers.h"
+#include "TStyle.h"
+#include "TGaxis.h"
+#include "TVirtualPad.h"
 
 class WFAnalysis : public Analysis{
 
@@ -22,7 +25,8 @@ class WFAnalysis : public Analysis{
 
   virtual void Initialize     ( );
   virtual void SetupHistograms( );
-  virtual TH1 *GetDifferential( const TH1 *h, unsigned int ch, int window,bool debug=false);
+  virtual TH1 *GetDifferential( TH1D *h, unsigned int ch, int window,bool debug=false);
+  virtual void OverlayHistos  ( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool save);
   virtual void AnalyzeEvent   ( const std::vector< TH1* >& );
   virtual void AnalyzeEvent   ( const std::vector< std::vector< float > >& );
   virtual void AnalyzeEvent   ( const std::vector< Channel* > );
