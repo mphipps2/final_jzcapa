@@ -79,6 +79,9 @@ class Alignment {
 };
 
 class ProcessedWF {
+    
+  public:
+  
     /** Histogram with first derivative **/
     TH1D* FirstDerivative;
     /** Crossing zero points - dummy - to be checked by Sheng **/
