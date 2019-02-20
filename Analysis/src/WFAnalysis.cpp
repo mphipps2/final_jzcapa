@@ -116,7 +116,7 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
       TH1D* h = vCh.at(ch)->WF_histo;
       std::vector < float > chEntries = vCh.at(ch)->WF;
       
-      TH1D *diff = (TH1D*) GetDifferential( h, 50);
+      TH1D *diff = (TH1D*) GetDifferential( h, 50, true);
       
       
   }
@@ -133,17 +133,37 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
  * @param2 Pointer to a pad to be drawn to
  */
 void WFAnalysis::AnalyzeEvent( std::vector<Channel*> vCh, TVirtualPad* pad ){
-
-    for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
+    TH1D *diff;
+    int ch = 0;
+    bool draw = true;
+    
+    //for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
       //retrieving information for each channel
-      TH1D* h = vCh.at(ch)->WF_histo;
-      std::vector < float > chEntries = vCh.at(ch)->WF;
+        TH1D* h = vCh.at(ch)->WF_histo;
+        std::vector < float > chEntries = vCh.at(ch)->WF;
       
-      TH1D *diff = (TH1D*) GetDifferential( h, ch, 50);
-      OverlayHistos( h, diff, pad);
+        diff = (TH1D*) GetDifferential( h, 50, false);
+        double dScale = diff->GetMaximum();
+        double RMS = GetRMS( diff, 50, true);
+        OverlayHistos( h, diff, pad, false);
+        
+
+        if(draw){
+            //Determine scale for the RMS line
+            float sRMS = 3.5*RMS*h->GetMaximum()/dScale; 
+            pad->cd();
+                    
+            //Draw two horizontal lines showing the RMS thresholds
+            TLine lineLow (0, -sRMS, h->GetNbinsX(), -sRMS );
+            TLine lineHigh(0,  sRMS, h->GetNbinsX(),  sRMS );
+            lineLow.SetLineColor ( kGreen );
+            lineHigh.SetLineColor( kGreen );
+            lineLow.DrawClone( );
+            lineHigh.DrawClone( );
+            //pad->Print("inEvent.pdf");
+        }
       
-      
-  }
+  //}
 
 }
 
@@ -183,6 +203,46 @@ TH1 *WFAnalysis::GetDifferential( TH1D *h, int N, bool debug){
     return hNew;
 }
 
+/** @brief GetRMS method for WFAnalysis
+ *
+ *  Given an input histogram, outputs an RMS value
+ *  based on a gaussian fit concentrating on the center
+ *
+ *  @param1 Input histogram
+ *  @return RMS value of central peak
+ */
+double WFAnalysis::GetRMS( TH1D *h , int diff_window, bool save){
+    
+    //Make a histogram with x-range to match the y-range of the input
+    Double_t xmin,xmax;
+    h->GetMinimumAndMaximum(xmin,xmax);
+    TH1D hRMS("RMS","RMS",5*(xmax-xmin)/diff_window,xmin,xmax);
+    gStyle->SetOptFit(0001);
+    
+    //Loop over the histogram excluding the window used for differentiating to fill hRMS
+    Int_t nbins = h->GetNbinsX();
+    for(int bin = diff_window; bin < nbins - diff_window; bin++){
+        hRMS.Fill( h->GetBinContent( bin ) );
+    }
+    
+    //Make a gaussian fit and apply it to our histogram quietly and using our range
+    TF1 f("f","gaus",-250,250);
+    hRMS.Fit("f","R+");
+    
+    if( save ){
+        TCanvas c( "RMS" , "RMS", 200, 10, 1000, 600);
+        c.cd();
+        hRMS.Draw();
+        f.Draw("same");
+        c.Draw();
+        c.Print( "RMS.pdf" );
+    }
+    
+    //Return parameter 2. "gaus" is [0]*exp(-0.5*((x-[1])/[2])**2)
+    return f.GetParameter(2);
+    
+}
+
 /** @brief OverlayHistos method for WFAnalysis
  *
  *  Plots two input histograms on the same, specified pad with 
@@ -198,7 +258,7 @@ void WFAnalysis::OverlayHistos( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool save
     if( pad == nullptr ) TCanvas pad( h1->GetTitle(), h1->GetTitle(), 200, 10, 1000, 600);
     //Remove Stat box and double the y-axis range to include negative values
     gStyle->SetOptStat( kFALSE );
-    pad->cd();
+    //pad->cd();
     h1->Draw();
     h1->SetAxisRange( -h1->GetMaximum()*1.1, h1->GetMaximum()*1.1, "Y");
     pad->Update();
@@ -214,7 +274,7 @@ void WFAnalysis::OverlayHistos( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool save
    TGaxis axis( gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax(), -rightmax, rightmax, 510, "+L");
    axis.SetLineColor( kRed );
    axis.SetLabelColor( kRed );
-   axis.Draw();
+   axis.DrawClone();
 
    if( save ) pad->Print( Form( "%s_Overlay.pdf", h1->GetTitle() ) ) ;
 }
