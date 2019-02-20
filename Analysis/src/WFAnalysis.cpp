@@ -101,77 +101,199 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
   }
 }
 
-/** @brief GetDifferential method for WFAnalysis
- * The derivative is achieve by taking the difference of the summation N points before and after the i channel
- * i.e new_sample[i] = sum(samp[i+k])-sum(samp[i-k]), k =1, 2, 3 ... sample_range.
- *
- *  h const 1D vector of M dimenstion is received, M is the number of samples per channel
- *  ch is the channel number.
- *  window is the integral window for the pre-integration
- *  debug is to draw the first 5 raw signals and the derivative 
- *
- *  @return truncated (M-2*window) 1D TH1 histogram 
- */
-TH1 *WFAnalysis::GetDifferential( const TH1 *h, unsigned int ch, int window, bool debug){
-    TH1F *hNew = new TH1F( Form( "ch_%d", ch ), "diff;samp;derivative", 1024, 0, 1024);
-    int new_sample = window;
-
-    // sample loop
-    for( unsigned int samp = window; samp < h->GetNbinsX() - window ; samp++ ){
-      //decalare temp variable to store the sum before and after the i data point
-      double sum_previous = 0;
-      double sum_after = 0;
-      //calculate the sum before and after the i data point
-      for (int i = 0; i < window; i++  ){
-        sum_previous = (h->GetBinContent( samp - i ) + sum_previous);
-        sum_after = (h->GetBinContent( samp + i ) + sum_after);
-      }
-      //set the difference of two sum to the new histogram        
-        hNew->SetBinContent(new_sample,(sum_after - sum_previous));
-        new_sample++;
-    }// end of sample loop
-    if (debug){
-      if (ch <=5){
-        TCanvas *c2 = new TCanvas(Form( "ch_%d", ch ),"Canvas debug",200,10,1000,600);
-        c2->Divide(1,2);
-        c2->cd(1);
-        h->DrawCopy();
-        c2->cd(2);
-        hNew->DrawCopy();
-        c2->Print(Form( "ch_%d.pdf", ch ));
-      }
-    }//if debug end
-    return hNew;
-  }
-
 /**
  * @brief Analyze Event method for WF analysis
- *  A const vector of channels is received. Can be either the vector coming from a single detector or formed using all the channels.
+ *  Receives a  const vector of Channels. Loops over all Channels within
+ *  the vector for analysis.
  *  Example of how to retrieve raw data and associated histograms are provided
- * @param vCh
+ *
+ * @param1 A vector of pointers to Channel objects
  */
-void WFAnalysis::AnalyzeEvent( const std::vector<Channel *> vCh ){
-
-     
-    //set up the sample range for the derivative
-    unsigned int sample_range = 50;
-    //in order to align with the raw signal,the new histogram start at the 50th point of the raw signal
-    int new_sample = sample_range;
+void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
 
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
       //retrieving information for each channel
-      TH1* h = vCh.at(ch)->WF_histo;
+      TH1D* h = vCh.at(ch)->WF_histo;
       std::vector < float > chEntries = vCh.at(ch)->WF;
       
-
-      GetDifferential(h,ch,sample_range,1);
-
+      TH1D *diff = (TH1D*) GetDifferential( h, 50, true);
+      
+      
   }
 
 }
 
+/**
+ * @brief Analyze Event method for WF analysis
+ *  Receives a  const vector of Channels. Loops over all Channels within
+ *  the vector for analysis. Also receives a pointer to a TVirtualPad for graphical output
+ *  Example of how to retrieve raw data and associated histograms are provided
+ *
+ * @param1 A vector of pointers to Channel objects
+ * @param2 Pointer to a pad to be drawn to
+ */
+void WFAnalysis::AnalyzeEvent( std::vector<Channel*> vCh, TVirtualPad* pad ){
+    TH1D *diff;
+    int ch = 0;
+    bool draw = true;
+    
+    //for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
+      //retrieving information for each channel
+        TH1D* h = vCh.at(ch)->WF_histo;
+        std::vector < float > chEntries = vCh.at(ch)->WF;
+      
+        diff = (TH1D*) GetDifferential( h, 50, false);
+        double dScale = diff->GetMaximum();
+        double RMS = GetRMS( diff, 50, true);
+        OverlayHistos( h, diff, pad, false);
+        
+
+        if(draw){
+            //Determine scale for the RMS line
+            float sRMS = 3.5*RMS*h->GetMaximum()/dScale; 
+            pad->cd();
+                    
+            //Draw two horizontal lines showing the RMS thresholds
+            TLine lineLow (0, -sRMS, h->GetNbinsX(), -sRMS );
+            TLine lineHigh(0,  sRMS, h->GetNbinsX(),  sRMS );
+            lineLow.SetLineColor ( kGreen );
+            lineHigh.SetLineColor( kGreen );
+            lineLow.DrawClone( );
+            lineHigh.DrawClone( );
+            //pad->Print("inEvent.pdf");
+        }
+      
+  //}
+
+}
 
 
+/** @brief GetDifferential method for WFAnalysis
+ *
+ * The derivative is calculated as the difference of the summation N points before and after the ith point
+ * i.e new_sample[i] = sum(samp[i+k])-sum(samp[i-k]), k =1, 2, 3 ... sample_range.
+ *
+ *
+ *  @param1 Histogram to be differentiated
+ *  @param2 Number of points used for summation window
+ *  @param3 Debug boolean, prints samples if true
+ *  @return truncated (M-2*window) TH1 histogram 
+ */
+TH1 *WFAnalysis::GetDifferential( TH1D *h, int N, bool debug){
+    TH1D *hNew = new TH1D( Form( "%s Differential", h->GetTitle() ), "diff;samp;derivative", 1024, 0, 1024);
+
+    // Loop over histogram
+    for( unsigned int bin = N; bin < h->GetNbinsX() - N ; bin++ ){
+      //decalare temp variable to store the sum before and after the i data point
+      double sum_before = 0;
+      double sum_after = 0;
+      //calculate the sum before and after the i data point
+      for (int i = 0; i < N; i++  ){
+        sum_before += h->GetBinContent( bin - i );
+        sum_after  += h->GetBinContent( bin + i );
+      }
+        //set the bin to the calculated derivative value     
+        hNew->SetBinContent(bin,(sum_after - sum_before));
+    }//end derivative loop
+    
+    if (debug){
+        TCanvas *c = new TCanvas( Form( "%s Differential", h->GetTitle() ), "Debug", 200, 10, 1000, 600);
+        OverlayHistos(h,hNew,c->cd(),true);
+    }//end if debug
+    return hNew;
+}
+
+/** @brief GetRMS method for WFAnalysis
+ *
+ *  Given an input histogram, outputs an RMS value
+ *  based on a gaussian fit concentrating on the center
+ *
+ *  @param1 Input histogram
+ *  @return RMS value of central peak
+ */
+double WFAnalysis::GetRMS( TH1D *h , int diff_window, bool save){
+    
+    //Make a histogram with x-range to match the y-range of the input
+    Double_t xmin,xmax;
+    h->GetMinimumAndMaximum(xmin,xmax);
+    TH1D hRMS("RMS","RMS",5*(xmax-xmin)/diff_window,xmin,xmax);
+    gStyle->SetOptFit(0001);
+    
+    //Loop over the histogram excluding the window used for differentiating to fill hRMS
+    Int_t nbins = h->GetNbinsX();
+    for(int bin = diff_window; bin < nbins - diff_window; bin++){
+        hRMS.Fill( h->GetBinContent( bin ) );
+    }
+    
+    //Make a gaussian fit and apply it to our histogram quietly and using our range
+    TF1 f("f","gaus",-250,250);
+    hRMS.Fit("f","R+");
+    
+    if( save ){
+        TCanvas c( "RMS" , "RMS", 200, 10, 1000, 600);
+        c.cd();
+        hRMS.Draw();
+        f.Draw("same");
+        c.Draw();
+        c.Print( "RMS.pdf" );
+    }
+    
+    //Return parameter 2. "gaus" is [0]*exp(-0.5*((x-[1])/[2])**2)
+    return f.GetParameter(2);
+    
+}
+
+/** @brief OverlayHistos method for WFAnalysis
+ *
+ *  Plots two input histograms on the same, specified pad with 
+ *  separate axis. Saves the plots as PDFs with the name of the 
+ *  base histogram if given the option.
+ *
+ *  @param1 Base histogram (left y-axis)
+ *  @param2 Overlayed histogram (right y-axis)
+ *  @param3 Address of a pad (TPad or TCanvas) to be drawn on
+ *  @param4 Save option. If true, save a .pdf
+ */
+void WFAnalysis::OverlayHistos( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool save){
+    if( pad == nullptr ) TCanvas pad( h1->GetTitle(), h1->GetTitle(), 200, 10, 1000, 600);
+    //Remove Stat box and double the y-axis range to include negative values
+    gStyle->SetOptStat( kFALSE );
+    //pad->cd();
+    h1->Draw();
+    h1->SetAxisRange( -h1->GetMaximum()*1.1, h1->GetMaximum()*1.1, "Y");
+    pad->Update();
+    
+   //scale h2 to the pad coordinates
+   float rightmax = 1.1*h2->GetMaximum();
+   float scale = gPad->GetUymax()/rightmax;
+   h2->SetLineColor( kRed );
+   h2->Scale( scale );
+   h2->Draw( "same" );
+
+   //draw an axis on the right side
+   TGaxis axis( gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax(), -rightmax, rightmax, 510, "+L");
+   axis.SetLineColor( kRed );
+   axis.SetLabelColor( kRed );
+   axis.DrawClone();
+
+   if( save ) pad->Print( Form( "%s_Overlay.pdf", h1->GetTitle() ) ) ;
+}
+
+/** @brief OverlayHistos method for WFAnalysis
+ *
+ *  Generates a new TCanvas and calls OverlayHistos on it.
+ *  This allows the user to save the result of OverlayHistos without
+ *  providing a pad
+ *
+ *  @param1 Base histogram (left y-axis)
+ *  @param2 Overlayed histogram (right y-axis)
+ *  @param3 Save option. If true, save a .pdf
+ */
+void WFAnalysis::OverlayHistos( TH1D *h1, TH1D *h2 , bool save){
+    TCanvas *pad = new TCanvas( h1->GetTitle(), h1->GetTitle(), 200, 10, 1000, 600);
+    OverlayHistos( h1, h2, pad, save);
+    delete pad;
+}
 
 /** @brief Finalize method for WFAnalysis
  *

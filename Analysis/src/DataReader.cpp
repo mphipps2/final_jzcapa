@@ -118,6 +118,8 @@ void DataReader::LoadAlignmentFile(std::string _inFile ){
             return;
     }
 
+    m_alignment = new Alignment();
+
     std::cout << "Loading .xml Alignment File..." << std::endl;
     std::cout << "Found " << m_XMLparser->getBaseNodeCount("Alignment") << " alignment entries " << std::endl;
     std::cout << "Retrieving the information for run " << m_runNumber << std::endl;
@@ -167,6 +169,7 @@ void DataReader::LoadConfigurationFile(std::string _inFile ){
 
         //Discard entries for any channel that does not apply to our run
         if(m_runNumber < first_run || m_runNumber > last_run) continue;
+
 
         //If the entry applies, we store it in the vector
         m_XMLparser->getChildValue("channel",i,"detector",buffer_ch->detector);
@@ -291,6 +294,10 @@ void DataReader::Initialize(){
  *  @return none
  */
 void DataReader::ProcessEvents(){
+    
+  TCanvas *canvas = new TCanvas( "Diff Demo", "Diff Demo", 200, 10, 1000, 600);
+  TPad *pad = new TPad("pad", "pad",0.15,0.11,0.85,0.79);
+  canvas->Divide(4,2);
 
   // Processed Raw data to read in as vector of vectors size NxM
   // Where N = nCh and M = nSamples per channel.
@@ -336,10 +343,16 @@ void DataReader::ProcessEvents(){
   std::cout << "File: " << m_fIn->GetName() << " has " << tree->GetEntries() << " events." << std::endl;
   
   // !! EVENT LOOP
-  //for( int ev = 0; ev < tree->GetEntries(); ev++ ){
-  for( int ev = 1; ev < 2; ev++ ){ // for single event test
+  for( int ev = 0; ev < tree->GetEntries(); ev++ ){
+    
+    // Uncomment to run a few events at a time
+    if(ev==8) break;
+    
+    // Uncomment to run a single event
+    //if(ev!=8) continue;
   
     tree->GetEntry( ev );
+    
 
     // Fill the raw waveforms
     for( uint detID = 0; detID < (int) m_detectors.size(); detID++ )
@@ -360,13 +373,18 @@ void DataReader::ProcessEvents(){
     for( auto& ana : m_ana ){
       //raw data analysis
       //ana->AnalyzeEvent( zdc1->GetChannelsVector()  );
-      //ana->AnalyzeEvent( zdc2->GetChannelsVector() );
-      ana->AnalyzeEvent( rpd->GetChannelsVector() );
+      //ana->AnalyzeEvent( zdc2->GetChannelsVector(), canvas->cd() );
+      //ana->AnalyzeEvent( rpd->GetChannelsVector() );
+      ana->AnalyzeEvent( rpd->GetChannelsVector(), canvas->cd(ev+1) );
       //already processed wf analysis
       //ana->AnalyzeEvent( vWFH );
       //ana->AnalyzeEvent( vWF  );
     }
   } // End event loop
+  
+  pad->Update();
+  canvas->Draw();
+  canvas->Print( "Output.pdf" );
 
   for( auto& h : vWFH ){ delete h; }
 }
