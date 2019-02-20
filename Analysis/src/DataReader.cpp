@@ -293,6 +293,8 @@ void DataReader::Initialize(){
 void DataReader::ProcessEvents(){
     
   TCanvas *canvas = new TCanvas( "Diff Demo", "Diff Demo", 200, 10, 1000, 600);
+  TPad *pad = new TPad("pad", "pad",0.15,0.11,0.85,0.79);
+  canvas->Divide(4,2);
 
   // Processed Raw data to read in as vector of vectors size NxM
   // Where N = nCh and M = nSamples per channel.
@@ -341,7 +343,7 @@ void DataReader::ProcessEvents(){
   for( int ev = 0; ev < tree->GetEntries(); ev++ ){
     
     // Uncomment to run a few events at a time
-    //if(ev==8) break;
+    if(ev==8) break;
     
     // Uncomment to run a single event
     //if(ev!=8) continue;
@@ -368,15 +370,18 @@ void DataReader::ProcessEvents(){
     for( auto& ana : m_ana ){
       //raw data analysis
       //ana->AnalyzeEvent( zdc1->GetChannelsVector()  );
-      ana->AnalyzeEvent( zdc2->GetChannelsVector(), canvas->cd() );
+      //ana->AnalyzeEvent( zdc2->GetChannelsVector(), canvas->cd() );
       //ana->AnalyzeEvent( rpd->GetChannelsVector() );
+      ana->AnalyzeEvent( rpd->GetChannelsVector(), canvas->cd(ev+1) );
       //already processed wf analysis
       //ana->AnalyzeEvent( vWFH );
       //ana->AnalyzeEvent( vWF  );
     }
   } // End event loop
   
+  pad->Update();
   canvas->Draw();
+  canvas->Print( "Output.pdf" );
 
   for( auto& h : vWFH ){ delete h; }
 }
