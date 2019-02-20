@@ -294,11 +294,12 @@ void DataReader::Initialize(){
  *  @return none
  */
 void DataReader::ProcessEvents(){
-    
+  
+  //Added for debug/demo purposes. Remove after implementation of Visualizer
   TCanvas *canvas = new TCanvas( "Diff Demo", "Diff Demo", 200, 10, 1000, 600);
   TPad *pad = new TPad("pad", "pad",0.15,0.11,0.85,0.79);
   canvas->Divide(4,2);
-
+  
   // Processed Raw data to read in as vector of vectors size NxM
   // Where N = nCh and M = nSamples per channel.
   std::vector< std::vector< float >  >  vWF;
@@ -345,11 +346,7 @@ void DataReader::ProcessEvents(){
   // !! EVENT LOOP
   for( int ev = 0; ev < tree->GetEntries(); ev++ ){
     
-    // Uncomment to run a few events at a time
-    if(ev==8) break;
-    
-    // Uncomment to run a single event
-    //if(ev!=8) continue;
+
   
     tree->GetEntry( ev );
     
@@ -372,19 +369,34 @@ void DataReader::ProcessEvents(){
     // Note that at the moment none of this methods is doing anything
     for( auto& ana : m_ana ){
       //raw data analysis
-      //ana->AnalyzeEvent( zdc1->GetChannelsVector()  );
-      //ana->AnalyzeEvent( zdc2->GetChannelsVector(), canvas->cd() );
-      //ana->AnalyzeEvent( rpd->GetChannelsVector() );
-      ana->AnalyzeEvent( rpd->GetChannelsVector(), canvas->cd(ev+1) );
+      if(m_debug){    
+        // Uncomment to run a few events at a time
+        //if(ev==8) break;
+    
+        // Uncomment to run a single event
+        if(ev!=8) continue;
+        
+        //ana->AnalyzeEvent( zdc1->GetChannelsVector(), canvas->cd() );
+        //ana->AnalyzeEvent( zdc2->GetChannelsVector(), canvas->cd() );
+        ana->AnalyzeEvent( rpd->GetChannelsVector() , canvas->cd() );
+      }else{
+      ana->AnalyzeEvent( zdc1->GetChannelsVector() );
+      ana->AnalyzeEvent( zdc2->GetChannelsVector() );
+      ana->AnalyzeEvent( rpd->GetChannelsVector()  );
       //already processed wf analysis
       //ana->AnalyzeEvent( vWFH );
       //ana->AnalyzeEvent( vWF  );
+      }
     }
   } // End event loop
   
-  pad->Update();
-  canvas->Draw();
-  canvas->Print( "Output.pdf" );
+  
+  //Added for debug/demo purposes. Remove after implementation of Visualizer
+  if(m_debug){
+    pad->Update();
+    canvas->Draw();
+    canvas->Print( "Output.pdf" );
+  }
 
   for( auto& h : vWFH ){ delete h; }
 }
