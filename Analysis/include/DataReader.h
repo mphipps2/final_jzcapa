@@ -45,6 +45,7 @@ class DataReader{
 
   void LoadAlignmentFile(std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/Alignment_2018.xml"));
   void LoadConfigurationFile(std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/ConfigFile2018.xml"));
+  void SetDebugMode() { m_debug = true; }
 
   Detector* GetDetector( std::string _detName );
 
@@ -90,6 +91,9 @@ class DataReader{
 
   //XML parser
   XMLSettingsReader *m_XMLparser;
+
+  //DebugVariable
+  bool m_debug = false;
 };
 
 #endif
