@@ -182,7 +182,14 @@ void DataReader::LoadConfigurationFile(std::string _inFile ){
         m_XMLparser->getChildValue("channel",i,"is_on",buffer_ch->is_on);
         m_XMLparser->getChildValue("channel",i,"Vop",buffer_ch->Vop);
 
-        channelEntries.push_back(buffer_ch);
+        bool isNew(true);
+        for( int k = 0; k < channelEntries.size(); k++){
+            if(buffer_ch->name == channelEntries.at(k)->name){
+                std::cout << "WARNING!!! Redundancy in your settings file for " << buffer_ch->name << ". Check it carefully. The second entry found will be skipped..." << std::endl;
+                isNew = false;
+            }
+        }
+        if(isNew) channelEntries.push_back(buffer_ch);
     }
 
     std::cout << "Loaded " << channelEntries.size() << " configuration entries " << std::endl;
@@ -346,14 +353,15 @@ void DataReader::ProcessEvents(){
   // !! EVENT LOOP
   for( int ev = 0; ev < tree->GetEntries(); ev++ ){
     
-
-  
     tree->GetEntry( ev );
     
+    std::cout << "Event : " << ev << std::endl;
 
     // Fill the raw waveforms
     for( uint detID = 0; detID < (int) m_detectors.size(); detID++ )
         m_detectors.at(detID)->FillHistograms();
+
+    std::cout << "Event : " << ev << std::endl;
 
    //Here if you're interested in already processed waveform
    for( uint ch = 0; ch < m_nCh; ch++ ) {
@@ -372,7 +380,6 @@ void DataReader::ProcessEvents(){
       if(m_debug){    
         // Uncomment to run a few events at a time
         //if(ev==8) break;
-    
         // Uncomment to run a single event
         if(ev!=8) continue;
         
