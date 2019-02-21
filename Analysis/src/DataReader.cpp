@@ -170,7 +170,6 @@ void DataReader::LoadConfigurationFile(std::string _inFile ){
         //Discard entries for any channel that does not apply to our run
         if(m_runNumber < first_run || m_runNumber > last_run) continue;
 
-
         //If the entry applies, we store it in the vector
         m_XMLparser->getChildValue("channel",i,"detector",buffer_ch->detector);
         m_XMLparser->getChildValue("channel",i,"name",buffer_ch->name);
@@ -355,13 +354,9 @@ void DataReader::ProcessEvents(){
     
     tree->GetEntry( ev );
     
-    std::cout << "Event : " << ev << std::endl;
-
     // Fill the raw waveforms
     for( uint detID = 0; detID < (int) m_detectors.size(); detID++ )
         m_detectors.at(detID)->FillHistograms();
-
-    std::cout << "Event : " << ev << std::endl;
 
    //Here if you're interested in already processed waveform
    for( uint ch = 0; ch < m_nCh; ch++ ) {
