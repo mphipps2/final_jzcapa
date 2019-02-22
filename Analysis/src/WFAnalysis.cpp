@@ -127,54 +127,6 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
     
 }
 
-/**
- * @brief Analyze Event method for WF analysis
- * @param vCh A vector of pointers to Channel objects
- * @param pad Pointer to a pad to be drawn to
- *
- *  Receives a  const vector of Channels. Loops over all Channels within
- *  the vector for analysis. Also receives a pointer to a TVirtualPad for graphical output
- *  Example of how to retrieve raw data and associated histograms are provided
- *
- */
-void WFAnalysis::AnalyzeEvent( std::vector<Channel*> vCh, TVirtualPad* pad ){
-    int  ch = 0;
-    int  dWindow = 50;
-    bool debug = true;
-    
-    for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
-      //retrieving information for each channel as a histogram
-        TH1D* h = vCh.at(ch)->WF_histo;
-        TH1D* hDiff = vCh.at(ch)->FirstDerivative;
-        
-      //retrieve information as a vector of floats
-        std::vector < float > chEntries = vCh.at(ch)->WF;
-      
-        GetDifferential( h, hDiff, dWindow );
-        vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff, debug );
-
-        
-        
-        if(debug){
-            float dScale = vCh.at(ch)->FirstDerivative->GetMaximum();
-            OverlayHistos( h, hDiff, pad, debug);
-            //Determine scale for the RMS line
-            float sRMS = 3.5*vCh.at(ch)->FirstDerivativeRMS*h->GetMaximum()/dScale; 
-            pad->cd();
-                    
-            //Draw two horizontal lines showing the RMS thresholds
-            TLine lineLow (0, -sRMS, h->GetNbinsX(), -sRMS );
-            TLine lineHigh(0,  sRMS, h->GetNbinsX(),  sRMS );
-            lineLow.SetLineColor ( kGreen );
-            lineHigh.SetLineColor( kGreen );
-            lineLow.DrawClone( );
-            lineHigh.DrawClone( );
-            pad->Print("inEvent.pdf");
-        }    
-    }
-}
-
-
 /** @brief GetDifferential method for WFAnalysis
  *  @param hIN Histogram to be differentiated
  *  @param hOUT Output histogram
@@ -251,47 +203,6 @@ double WFAnalysis::GetRMS( TH1D *h , int diff_window, bool debug){
     //Return parameter 2. "gaus" is [0]*exp(-0.5*((x-[1])/[2])**2)
     return f.GetParameter(2);
     
-}
-
-/** @brief OverlayHistos method for WFAnalysis
- *  @param h1 Base histogram (left y-axis)
- *  @param h2 Overlayed histogram (right y-axis)
- *  @param pad Address of a pad (TPad or TCanvas) to be drawn on
- *  @param debug Saves the result of the overlay if true
- *
- *  Plots two input histograms on the same, specified pad with 
- *  separate axis. Saves the plots as PDFs with the name of the 
- *  base histogram if debug is set to true
- *
- */
-void WFAnalysis::OverlayHistos( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool debug){
-    
-    // If there is no pad or no data in the histograms, return
-    if( pad == nullptr ) {std::cerr<< "WARNING: No pad to overlay histos onto" << std::endl; return;}
-    if( !h1->GetMinimum() && !h1->GetMaximum()) {std::cerr << "WARNING: "<< h1->GetTitle() << " is empty. Can't overlay" << std::endl; return;}
-    
-    //Remove Stat box and double the y-axis range to include negative values
-    gStyle->SetOptStat( kFALSE );
-    h1->Draw();
-    h1->SetAxisRange( -h1->GetMaximum()*1.1, h1->GetMaximum()*1.1, "Y");
-    pad->Update();
-    
-   //scale h2 to the pad coordinates
-   float rightmax = 1.1*h2->GetMaximum();
-   float scale = gPad->GetUymax()/rightmax;
-   h2->SetLineColor( kRed );
-   h2->Scale( scale );
-   h2->DrawCopy( "same" );
-
-   //draw an axis on the right side
-   TGaxis axis( gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax(), -rightmax, rightmax, 510, "+L");
-   axis.SetLineColor( kRed );
-   axis.SetLabelColor( kRed );
-   axis.DrawClone();
-
-   //Rescale h2 back to the original size
-   h2->Scale( 1/scale );
-   if( debug ) pad->Print( Form( "%s_Overlay.pdf", h1->GetTitle() ) ) ;
 }
 
 /** @brief Finalize method for WFAnalysis
