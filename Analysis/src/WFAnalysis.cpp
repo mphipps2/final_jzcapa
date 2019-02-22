@@ -114,17 +114,16 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
     int  dWindow = 50;
     
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
-      //retrieving information for each channel
+      //retrieving information for each channel as a histogram
         TH1D* h = vCh.at(ch)->WF_histo;
+        TH1D* hDiff = vCh.at(ch)->FirstDerivative;
+        
+      //retrieve information as a vector of floats
         std::vector < float > chEntries = vCh.at(ch)->WF;
-        ProcessedWF proWF;
-        proWF.FirstDerivative = new TH1D( Form( "%s Differential", h->GetTitle() ), "diff;samp;derivative", h->GetNbinsX()-dWindow, 0, h->GetNbinsX() );
       
-        GetDifferential( h,  proWF.FirstDerivative, dWindow );
-        double RMS = GetRMS( proWF.FirstDerivative, dWindow );
+        GetDifferential( h, hDiff, dWindow );
+        vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff, dWindow );
         
-        
-        delete proWF.FirstDerivative;
     }
     
 }
@@ -144,21 +143,23 @@ void WFAnalysis::AnalyzeEvent( std::vector<Channel*> vCh, TVirtualPad* pad ){
     bool debug = true;
     
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
-      //retrieving information for each channel
+      //retrieving information for each channel as a histogram
         TH1D* h = vCh.at(ch)->WF_histo;
-        std::vector < float > chEntries = vCh.at(ch)->WF;
-        ProcessedWF proWF;
-        proWF.FirstDerivative = new TH1D( Form( "%s Differential", h->GetTitle() ), "diff;samp;derivative", h->GetNbinsX()-dWindow, 0, h->GetNbinsX() );
-      
-        GetDifferential( h, proWF.FirstDerivative, dWindow );
-        double dScale = proWF.FirstDerivative->GetMaximum();
-        double RMS = GetRMS( proWF.FirstDerivative, dWindow, debug);
+        TH1D* hDiff = vCh.at(ch)->FirstDerivative;
         
+      //retrieve information as a vector of floats
+        std::vector < float > chEntries = vCh.at(ch)->WF;
+      
+        GetDifferential( h, hDiff, dWindow );
+        vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff, debug );
 
+        
+        
         if(debug){
-            OverlayHistos( h, proWF.FirstDerivative, pad, debug);
+            float dScale = vCh.at(ch)->FirstDerivative->GetMaximum();
+            OverlayHistos( h, hDiff, pad, debug);
             //Determine scale for the RMS line
-            float sRMS = 3.5*RMS*h->GetMaximum()/dScale; 
+            float sRMS = 3.5*vCh.at(ch)->FirstDerivativeRMS*h->GetMaximum()/dScale; 
             pad->cd();
                     
             //Draw two horizontal lines showing the RMS thresholds
@@ -261,7 +262,10 @@ double WFAnalysis::GetRMS( TH1D *h , int diff_window, bool debug){
  */
 void WFAnalysis::OverlayHistos( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool debug){
     
+    // If there is no pad or no data in the histograms, return
     if( pad == nullptr ) {std::cerr<< "WARNING: No pad to overlay histos onto" << std::endl; return;}
+    if( !h1->GetMinimum() && !h1->GetMaximum()) {std::cerr << "WARNING: "<< h1->GetTitle() << " is empty. Can't overlay" << std::endl; return;}
+    
     //Remove Stat box and double the y-axis range to include negative values
     gStyle->SetOptStat( kFALSE );
     h1->Draw();
@@ -273,7 +277,7 @@ void WFAnalysis::OverlayHistos( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool debu
    float scale = gPad->GetUymax()/rightmax;
    h2->SetLineColor( kRed );
    h2->Scale( scale );
-   h2->Draw( "same" );
+   h2->DrawCopy( "same" );
 
    //draw an axis on the right side
    TGaxis axis( gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax(), -rightmax, rightmax, 510, "+L");
@@ -281,6 +285,8 @@ void WFAnalysis::OverlayHistos( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool debu
    axis.SetLabelColor( kRed );
    axis.DrawClone();
 
+   //Rescale h2 back to the original size
+   h2->Scale( 1/scale );
    if( debug ) pad->Print( Form( "%s_Overlay.pdf", h1->GetTitle() ) ) ;
 }
 
