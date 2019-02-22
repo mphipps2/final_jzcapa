@@ -219,6 +219,8 @@ double WFAnalysis::GetRMS( TH1D *h , int diff_window, bool debug){
     //Make a histogram with x-range to match the y-range of the input
     Double_t xmin,xmax;
     h->GetMinimumAndMaximum(xmin,xmax);
+    if(xmax == 0) return 0;
+    
     TH1D hRMS("RMS","RMS",5*(xmax-xmin)/diff_window,xmin,xmax);
     gStyle->SetOptFit(0001);
     
