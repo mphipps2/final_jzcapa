@@ -18,6 +18,12 @@
 
 #include "Visualizer.h"
 
+/** @brief Visualizer Constructor for Visualizer.
+ */
+Visualizer::Visualizer( ){
+
+}
+
 Visualizer::Visualizer( std::string _style ){
     m_style = _style;
     if(m_style == "ATLAS" || m_style == "atlas") Visualizer::SetAtlasStyle();

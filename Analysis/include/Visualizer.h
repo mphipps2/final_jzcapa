@@ -17,6 +17,7 @@
 class Visualizer {
 
     public :
+    Visualizer();
     Visualizer( std::string _style );
 
     //Styles (so fa only ATLAS)
