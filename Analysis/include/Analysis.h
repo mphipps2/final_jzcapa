@@ -34,7 +34,6 @@ class Analysis{
   virtual void AnalyzeEvent   ( const std::vector< TH1* >& ) = 0;
   virtual void AnalyzeEvent   ( const std::vector< std::vector< float > >& ) = 0;
   virtual void AnalyzeEvent   ( const std::vector< Channel* > ) = 0;
-  virtual void AnalyzeEvent   ( const std::vector< Channel* > vCh, TVirtualPad* pad ) = 0;
   virtual void Finalize       ( ) = 0;
 };
 

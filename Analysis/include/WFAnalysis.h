@@ -29,11 +29,9 @@ class WFAnalysis : public Analysis{
   virtual void   SetupHistograms( );
   virtual void   GetDifferential( TH1D *hIN, TH1D *hOUT, int N);
   virtual double GetRMS         ( TH1D *h, int diff_window, bool debug = false) ;
-  virtual void   OverlayHistos  ( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool debug = false );
   virtual void   AnalyzeEvent   ( const std::vector< TH1* >& );
   virtual void   AnalyzeEvent   ( const std::vector< std::vector< float > >& );
   virtual void   AnalyzeEvent   ( const std::vector< Channel* > vCh );
-  virtual void   AnalyzeEvent   ( const std::vector< Channel* > vCh, TVirtualPad* pad );
   virtual void   Finalize       ( );
 
 };
