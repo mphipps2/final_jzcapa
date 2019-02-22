@@ -301,31 +301,6 @@ void DataReader::Initialize(){
  *  @return none
  */
 void DataReader::ProcessEvents(){
-  
-  //Added for debug/demo purposes. Remove after implementation of Visualizer
-  TCanvas *canvas = new TCanvas( "Diff Demo", "Diff Demo", 200, 10, 1000, 600);
-  TPad *pad = new TPad("pad", "pad",0.15,0.11,0.85,0.79);
-  canvas->Divide(4,2);
-  
-  std::string style = "ATLAS";
-  //Visualizer vis;
-  std::vector< TH1* > raw;
-  std::vector< TH1* > diff;
-  
-  
-  // Processed Raw data to read in as vector of vectors size NxM
-  // Where N = nCh and M = nSamples per channel.
-  std::vector< std::vector< float >  >  vWF;
-  std::vector< std::vector< float >* > pvWF;
-
-  // Histograms (N of them) for the raw waveforms from each event.
-  // They will go to AnalyzeEvent for processing
-  std::vector< TH1* > vWFH;
-
-  // Resize these to be of size nCh.
-  vWF .resize( m_nCh );
-  pvWF.resize( m_nCh );
-  vWFH.resize( m_nCh );
 
   /** TODO : add reading for list of files
     * Please note that many of the implementations are now for a single-file treatment
@@ -344,16 +319,6 @@ void DataReader::ProcessEvents(){
        m_detectors.at(detID)->DeclareHistograms();
   }
 
-  // Connect raw data to tree. For the moment, the only reading implemented is the raw data from each channel.
-  // Other items should be implemented in the same way if needed.
-  // Also create the histograms to fill
-  for( uint ch = 0; ch < m_nCh; ch++ ){
-    //Example - here we retrieve the already processed waveform (M.Phipps approach during the data production)
-    pvWF[ ch ] = &vWF[ ch ];
-    tree->SetBranchAddress( Form( "C%d", ch ), &pvWF[ ch ] );
-    vWFH[ ch ] = new TH1D( Form( "hWF%d", ch ), Form( "hWF%d;samp;amp", ch ), m_nSamp, 0, m_nSamp );
-  }
-
   std::cout << "File: " << m_fIn->GetName() << " has " << tree->GetEntries() << " events." << std::endl;
   
   // !! EVENT LOOP
@@ -365,54 +330,17 @@ void DataReader::ProcessEvents(){
     for( uint detID = 0; detID < (int) m_detectors.size(); detID++ )
         m_detectors.at(detID)->FillHistograms();
 
-   //Here if you're interested in already processed waveform
-   for( uint ch = 0; ch < m_nCh; ch++ ) {
-   // Loop over samples in each channel
-    for( uint samp = 0; samp < m_nSamp; samp++ ){
-      vWFH[ ch ]->SetBinContent( samp + 1, vWF[ ch ][ samp ] );
-      } // End loop over samples in each channel
-    } // End loop over channels
-
     // Now call all analysis and run their AnalyzeEvent.
     // Can either send a vector of histos, or a 2D vector
     // Of all the data, depending on what you want to do.
     // Note that at the moment none of this methods is doing anything
     for( auto& ana : m_ana ){
       //raw data analysis
-      if(m_debug){    
-        // Uncomment to run a few events at a time
-        //if(ev==8) break;
-        // Uncomment to run a single event
-        if(ev!=8) continue;
-        
-        //ana->AnalyzeEvent( zdc1->GetChannelsVector(), canvas->cd() );
-        //ana->AnalyzeEvent( zdc2->GetChannelsVector(), canvas->cd() );
-        ana->AnalyzeEvent( rpd->GetChannelsVector() , canvas->cd() );
-        for(int test = 0; test<16; test ++){
-          raw.push_back( rpd->GetChannelsVector().at(test)->WF_histo);
-          diff.push_back( rpd->GetChannelsVector().at(test)->FirstDerivative);
-        }
-        //vis.ManyPadsPlot(raw,diff,4,4,Form("Event %d" ,ev),"Overlay");
-      }else{
       ana->AnalyzeEvent( zdc1->GetChannelsVector() );
       ana->AnalyzeEvent( zdc2->GetChannelsVector() );
       ana->AnalyzeEvent( rpd->GetChannelsVector()  );
-      //already processed wf analysis
-      //ana->AnalyzeEvent( vWFH );
-      //ana->AnalyzeEvent( vWF  );
-      }
     }
   } // End event loop
-  
-  
-  //Added for debug/demo purposes. Remove after implementation of Visualizer
-  if(m_debug){
-    pad->Update();
-    canvas->Draw();
-    canvas->Print( "Output.pdf" );
-  }
-
-  for( auto& h : vWFH ){ delete h; }
 }
 
 /** @brief Finalize method for DataReader
