@@ -52,6 +52,12 @@ class Channel {
     std::vector < float > *pWF = &WF;
     /** Histrogram for visualization and analysis of the waveform */
     TH1D* WF_histo;
+    /** Histogram with first derivative **/
+    TH1D* FirstDerivative;
+    /** RMS value of the first derrivative of the waveform **/
+    double FirstDerivativeRMS;
+    /** Crossing zero points - dummy - to be checked by Sheng **/
+    std::vector < int > CrossZeroPoints;
 
 };
 
@@ -78,15 +84,5 @@ class Alignment {
 
 };
 
-class ProcessedWF {
-    
-  public:
-  
-    /** Histogram with first derivative **/
-    TH1D* FirstDerivative;
-    /** Crossing zero points - dummy - to be checked by Sheng **/
-    std::vector < int > CrossZeroPoints;
-
-};
 
 #endif
