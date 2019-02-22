@@ -23,6 +23,7 @@
 #include "Containers.h"
 #include "RPD.h"
 #include "ZDC.h"
+#include "Visualizer.h"
 
 /** @brief Default Constructor for DataReader.
  */
@@ -306,6 +307,12 @@ void DataReader::ProcessEvents(){
   TPad *pad = new TPad("pad", "pad",0.15,0.11,0.85,0.79);
   canvas->Divide(4,2);
   
+  std::string style = "ATLAS";
+  //Visualizer vis;
+  std::vector< TH1* > raw;
+  std::vector< TH1* > diff;
+  
+  
   // Processed Raw data to read in as vector of vectors size NxM
   // Where N = nCh and M = nSamples per channel.
   std::vector< std::vector< float >  >  vWF;
@@ -381,6 +388,11 @@ void DataReader::ProcessEvents(){
         //ana->AnalyzeEvent( zdc1->GetChannelsVector(), canvas->cd() );
         //ana->AnalyzeEvent( zdc2->GetChannelsVector(), canvas->cd() );
         ana->AnalyzeEvent( rpd->GetChannelsVector() , canvas->cd() );
+        for(int test = 0; test<16; test ++){
+          raw.push_back( rpd->GetChannelsVector().at(test)->WF_histo);
+          diff.push_back( rpd->GetChannelsVector().at(test)->FirstDerivative);
+        }
+        //vis.ManyPadsPlot(raw,diff,4,4,Form("Event %d" ,ev),"Overlay");
       }else{
       ana->AnalyzeEvent( zdc1->GetChannelsVector() );
       ana->AnalyzeEvent( zdc2->GetChannelsVector() );
