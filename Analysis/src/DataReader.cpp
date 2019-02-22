@@ -32,8 +32,8 @@ DataReader::DataReader() : DataReader( 0, 0, "", 0 ){
 
 /** @brief Constructor for DataReader.
  *
- *  @param1 Number of channels being read
- *  @param2 Number of samples per channel
+ *  @param nCh Number of channels being read
+ *  @param nSamp Number of samples per channel
  */
 DataReader::DataReader( const unsigned int nCh, const unsigned int nSamp )
   : DataReader( nCh, nSamp, "", 0 ){
@@ -45,9 +45,9 @@ DataReader::DataReader( const unsigned int nCh, const unsigned int nSamp )
 
 /** @brief Constructor for DataReader.
  *
- *  @param1 Number of channels being read
- *  @param2 Number of samples per channel
- *  @param3 Input filename.
+ *  @param nCh Number of channels being read
+ *  @param nSamp Number of samples per channel
+ *  @param fNameIn Input filename.
  */
 DataReader::DataReader( const uint nCh, const uint nSamp,
 			const std::string& fNameIn )
@@ -58,10 +58,10 @@ DataReader::DataReader( const uint nCh, const uint nSamp,
 
 /** @brief Constructor for DataReader.
  *
- *  @param1 Number of channels being read
- *  @param2 Number of samples per channel
- *  @param4 Output file name (custom)
- *  @param3 Run number being used.
+ *  @param nCh Number of channels being read
+ *  @param nSamp Number of samples per channel
+ *  @param4 fNameIn Output file name (custom)
+ *  @param3 runNum Run number being used.
  
  */
 DataReader::DataReader( const uint nCh, const uint nSamp,
@@ -83,7 +83,7 @@ DataReader::~DataReader(){
 
 /** @brief Adds an analysis to vector of analysis
  *
- *  @param1 Pointer to an Analysis.
+ *  @param ana Pointer to an Analysis.
  *
  *  @return none
  */
@@ -94,7 +94,7 @@ void DataReader::AddAnalysis( Analysis* ana ){
 
 /** @brief Enables the read from list of files option for DataReader
  *
- *  @param1 name of the list of files to be processed (with the full path if it's not in the execution folder)
+ *  @param listname name of the list of files to be processed (with the full path if it's not in the execution folder)
  *
  *  @return none
  */
@@ -228,11 +228,11 @@ Detector* DataReader::GetDetector( std::string _detName ){
 
 
 /** @brief Run method for DataReader
+ *  @return none
  *
  *  Call Initialize, ProcessEvents, and Finalize
  *  Made so the driver class only has to call one method.
  *  
- *  @return none
  */
 void DataReader::Run(){
 

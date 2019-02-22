@@ -18,7 +18,14 @@ ZDC::ZDC( ){
 	
 }
 
-
+/** @brief Constructor for ZDC with vector of Channels and module number
+ *  @param _readOut Vector of Channels with all detector configs
+ *  @param _zdcNumber Number of the ZDC module
+ *
+ *  Creates a new ZDC type Detector with an assigned number and picks the
+ *  relevant Channel from the input vector.
+ *
+ */
 ZDC::ZDC( std::vector < Channel* > _readOut, int _zdcNumber){
 
     m_Number = _zdcNumber;

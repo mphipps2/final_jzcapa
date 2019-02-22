@@ -38,7 +38,6 @@ WFAnalysis::~WFAnalysis( ){
  *  perhaps not put into the constructor.
  *  I.e. a TTree, some tools. Etc.
  *
- *  @return none
  */
 void WFAnalysis::Initialize( ){
 
@@ -57,13 +56,12 @@ void WFAnalysis::SetupHistograms( ){
 
 
 /** @brief Analyze Events method for WFAnalysis
+ *  @param vWF 1D vector of all waveforms for N ch 
  *
  *  Here is the event-based analysis code.
  *  A const 1D vector of N TH1* is received.
  *  N is the number of channels
  *
- *  @param1 1D vector of all waveforms for N ch 
- *  @return none
  */
 void WFAnalysis::AnalyzeEvent( const std::vector< TH1* >& vWFH ){
 
@@ -79,13 +77,13 @@ void WFAnalysis::AnalyzeEvent( const std::vector< TH1* >& vWFH ){
 
 
 /** @brief Analyze Events method for WFAnalysis
+ *  @param vWF const 2D vector for all waveforms in event 
  *
  *  Here is the event-based analysis code.
  *  A const 2D vector of NxM is received.
  *  N is the number of channels
  *  M is the number of samples per channel
  *
- *  @param1 cosnt 2D vector for all waveforms in event 
  *  @return none
  */
 void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
@@ -103,11 +101,12 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
 
 /**
  * @brief Analyze Event method for WF analysis
+ * @param vCh A vector of pointers to Channel objects
+ *
  *  Receives a  const vector of Channels. Loops over all Channels within
  *  the vector for analysis.
  *  Example of how to retrieve raw data and associated histograms are provided
  *
- * @param1 A vector of pointers to Channel objects
  */
 void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
     int  ch = 0;
@@ -130,12 +129,13 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
 
 /**
  * @brief Analyze Event method for WF analysis
+ * @param vCh A vector of pointers to Channel objects
+ * @param pad Pointer to a pad to be drawn to
+ *
  *  Receives a  const vector of Channels. Loops over all Channels within
  *  the vector for analysis. Also receives a pointer to a TVirtualPad for graphical output
  *  Example of how to retrieve raw data and associated histograms are provided
  *
- * @param1 A vector of pointers to Channel objects
- * @param2 Pointer to a pad to be drawn to
  */
 void WFAnalysis::AnalyzeEvent( std::vector<Channel*> vCh, TVirtualPad* pad ){
     int  ch = 0;
@@ -176,15 +176,16 @@ void WFAnalysis::AnalyzeEvent( std::vector<Channel*> vCh, TVirtualPad* pad ){
 
 
 /** @brief GetDifferential method for WFAnalysis
+ *  @param hIN Histogram to be differentiated
+ *  @param hOUT Output histogram
+ *  @param N Number of points used for summation window 
  *
  * The derivative is calculated as the difference of the summation N points before and after the ith point
- * i.e new_sample[i] = sum(samp[i+k])-sum(samp[i-k]), k =1, 2, 3 ... sample_range.
+ *  @f[
+ *       \delta_i(N)= \sum_{k=1}^{N} (s_i + k)  -  \sum_{k=1}^{N} (s_i - k)
+ *  @f]
  *
  *
- *  @param1 Histogram to be differentiated
- *  @param2 Output histogram
- *  @param3 Number of points used for summation window
- *  @return truncated (M-2*window) TH1 histogram 
  */
 void WFAnalysis::GetDifferential( TH1D *hIN, TH1D *hOUT, int N){
     
@@ -208,12 +209,15 @@ void WFAnalysis::GetDifferential( TH1D *hIN, TH1D *hOUT, int N){
 }
 
 /** @brief GetRMS method for WFAnalysis
+ *  @param h Input histogram
+ *  @param diff_window Averaging window used in GetDifferential
+ *  @param debug Saves a PDF of the RMS histogram if true
+ *  @return Width of gaussian fit excluding tails created by peaks
  *
  *  Given an input histogram, outputs an RMS value
- *  based on a gaussian fit concentrating on the center
+ *  based on a gaussian fit concentrating on the center.
+ *  The result can be saved to a PDF if debug is set to true.
  *
- *  @param1 Input histogram
- *  @return RMS value of central peak
  */
 double WFAnalysis::GetRMS( TH1D *h , int diff_window, bool debug){
     
@@ -250,15 +254,15 @@ double WFAnalysis::GetRMS( TH1D *h , int diff_window, bool debug){
 }
 
 /** @brief OverlayHistos method for WFAnalysis
+ *  @param h1 Base histogram (left y-axis)
+ *  @param h2 Overlayed histogram (right y-axis)
+ *  @param pad Address of a pad (TPad or TCanvas) to be drawn on
+ *  @param debug Saves the result of the overlay if true
  *
  *  Plots two input histograms on the same, specified pad with 
  *  separate axis. Saves the plots as PDFs with the name of the 
- *  base histogram if given the option.
+ *  base histogram if debug is set to true
  *
- *  @param1 Base histogram (left y-axis)
- *  @param2 Overlayed histogram (right y-axis)
- *  @param3 Address of a pad (TPad or TCanvas) to be drawn on
- *  @param4 Save option. If true, save a .pdf
  */
 void WFAnalysis::OverlayHistos( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool debug){
     
@@ -291,10 +295,10 @@ void WFAnalysis::OverlayHistos( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool debu
 }
 
 /** @brief Finalize method for WFAnalysis
+ *  @return none
  *
  *  Write histograms, TTree if it exists.
  *
- *  @return none
  */
 void WFAnalysis::Finalize( ){
 

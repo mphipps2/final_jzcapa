@@ -27,6 +27,9 @@ Detector::~Detector( ){
 }
 
 /** @brief Get the properties of a detector element
+ *  @param row Row of element to be accessed
+ *  @param column Column of element to be accessed
+ *  @return Pointer to the Channel of the requested element
  *
  * Returns a pointer to the Channel stored in m_Elements with the
  * requested row and column.
