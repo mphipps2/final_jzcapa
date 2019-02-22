@@ -21,17 +21,20 @@ class Visualizer {
 
     //Styles (so fa only ATLAS)
     TStyle* AtlasStyle();
-    //Methods to set a give style
+    //Methods to set a given style
     void SetAtlasStyle();
 
+    /** @brief allow the user to define the extension of the plots once they're printed. ".pdf" by default */
+    void SetPlotExtension( std::string _extension ) { m_extension = _extension; }
+
     /** @brief make the argument true to activate the debug mode. False to deactivate it*/
-    void SetDebugMode( bool _isDebugon ) { m_debug = _isDebugon; }
+    void   SetDebugMode   ( bool _isDebugon ) { m_debug = _isDebugon; }
 
     //Special plot treatments
-    void   OverlayHistos  ( TH1D *h1, TH1D *h2 , TVirtualPad* pad);
+    void   OverlayHistos  ( TH1 *h1, TH1 *h2 , TVirtualPad* pad);
 
     //Main visualization methods
-    void ManyPadsPlot( std:: vector < TH1 > raw_form, std::vector < TH1 > der_form, int nx, int ny, std::string out_name, std::string treatment );
+    void   ManyPadsPlot   ( std::vector< TH1* > _first_form, std::vector< TH1* > _second_form, int _ncol, int _nrow, std::string _out_name, std::string _treatment );
 
 
     private :
@@ -39,6 +42,8 @@ class Visualizer {
     std::string m_style;
     /** Debug flag */
     bool m_debug = false;
+    /** String defining the extension used to print the plots */
+    std::string m_extension = ".pdf";
 };
 
 #endif

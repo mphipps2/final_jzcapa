@@ -12,6 +12,7 @@
 #include <TAxis.h>
 #include <TGaxis.h>
 #include <TPad.h>
+#include <TCanvas.h>
 
 #include <iostream>
 
@@ -125,7 +126,7 @@ void Visualizer::SetAtlasStyle(){
  *  @param3 Address of a pad (TPad or TCanvas) to be drawn on
  *  @param4 Save option. If true, save a .pdf
  */
-void Visualizer::OverlayHistos( TH1D *h1, TH1D *h2 , TVirtualPad* pad){
+void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad){
 
     // If there is no pad or no data in the histograms, return
     if( pad == nullptr ) {std::cerr<< "WARNING: No pad to overlay histos onto" << std::endl; return;}
@@ -153,5 +154,50 @@ void Visualizer::OverlayHistos( TH1D *h1, TH1D *h2 , TVirtualPad* pad){
    //Rescale h2 back to the original size
    h2->Scale( 1/scale );
    if( m_debug ) pad->Print( Form( "%s_Overlay.pdf", h1->GetTitle() ) ) ;
+}
+
+/**
+ * @brief Implementation of Visualizer::ManyPadsPlot. This method takes two vector of histograms that needs to be treated in a peculiar way and
+ * takes care of plot those together in a canvas with a given number of columns and rows.
+ * @param _first_form - vector of the first type of histograms to be plotted
+ * @param _second_form - vector of the second type of histograms to be plotted s
+ * @param _ncol - number of columns of the canvas
+ * @param _nrow - number of rows of the canvas
+ * @param _out_name - name of the plot (w/o extension, that's defined by a data member [ .pdf by default ]
+ * @param _treatment - treatment of the plots (at the moment only one available, overlay)
+ */
+void Visualizer::ManyPadsPlot( std::vector< TH1* > _first_form, std::vector< TH1* > _second_form, int _ncol, int _nrow, std::string _out_name, std::string _treatment){
+
+    if(_treatment != "overlay" && _treatment != "OVERLAY" && _treatment != "Overlay"){
+        std::cerr << "WARNING!!! You're looking for a treatment that has not been implemented yet! Please check it carefully" << std::endl;
+        std::cerr << "Exiting w/o doing anything .." << std::endl;
+        return;
+    }
+
+    if(_first_form.size() != _second_form.size())
+        std::cerr << "WARNING!!! The two vectors of histograms "
+                     "have different size. May result in a crash..." << std::endl;
+
+    if( _first_form.size() < _ncol*_nrow ||  _second_form.size() < _ncol*_nrow )
+        std::cerr << "WARNING!!! You have selected a vector of histrograms that will not fill all your pads"
+                     "This may result in a crash..." << std::endl;
+
+    if( _first_form.size() > _ncol*_nrow ||  _second_form.size() > _ncol*_nrow )
+        std::cerr << "WARNING!!! You have selected a vector of histrograms that is bigger than the number of requested pads"
+                     "This may result in histograms lost w/o plotting..." << std::endl;
+
+    //This for the moment is hardcoded. Maybe can be moved to data member to have more general usage also for single plots.
+    int squared_pad_size = 300;
+    TCanvas* canv = new TCanvas( _out_name.c_str(),_out_name.c_str(),
+                                 squared_pad_size*_ncol, squared_pad_size*_nrow);
+    canv->Divide(_ncol,_nrow);
+    for( int idraw = 0; idraw < _first_form.size(); idraw++){
+        canv->cd(idraw+1);
+        if( _treatment == "overlay" || _treatment != "OVERLAY" || _treatment != "Overlay" ){
+            OverlayHistos( _first_form.at(idraw), _second_form.at(idraw), gPad);
+        }
+    }
+    canv->Print(( _out_name + m_extension ).c_str());
+
 }
 
