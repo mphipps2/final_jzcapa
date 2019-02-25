@@ -124,15 +124,15 @@ void Visualizer::SetAtlasStyle(){
 /** @brief OverlayHistos method for Visualizer
  *
  *  Plots two input histograms on the same, specified pad with
- *  separate axis. Saves the plots as PDFs with the name of the
- *  base histogram if given the option.
+ *  separate axis. Draws two horizontal lines at +_line and -_line 
+ *  if f _line is non-zero.
  *
- *  @param1 Base histogram (left y-axis)
- *  @param2 Overlayed histogram (right y-axis)
- *  @param3 Address of a pad (TPad or TCanvas) to be drawn on
- *  @param4 Save option. If true, save a .pdf
+ *  @param h1 - Base histogram (left y-axis)
+ *  @param h2 - Overlayed histogram (right y-axis)
+ *  @param pad - Address of a pad to be drawn on
+ *  @param _line - y value for which a horizontal line will be drawn
  */
-void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad){
+void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad, float _line){
 
     // If there is no pad or no data in the histograms, return
     if( pad == nullptr ) {std::cerr<< "WARNING: No pad to overlay histos onto" << std::endl; return;}
@@ -140,7 +140,7 @@ void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad){
 
     //Remove Stat box and double the y-axis range to include negative values
     gStyle->SetOptStat( kFALSE );
-    h1->Draw();
+    h1->DrawCopy();
     h1->SetAxisRange( -h1->GetMaximum()*1.1, h1->GetMaximum()*1.1, "Y");
     pad->Update();
 
@@ -156,6 +156,16 @@ void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad){
    axis.SetLineColor( kRed );
    axis.SetLabelColor( kRed );
    axis.DrawClone();
+   
+   //Draw two horizontal lines
+   if(_line != 0){
+     TLine lineLow (0, -sRMS*scale, h1->GetNbinsX(), -sRMS*scale );
+     TLine lineHigh(0,  sRMS*scale, h1->GetNbinsX(),  sRMS*scale );
+     lineLow.SetLineColor ( kGreen );
+     lineHigh.SetLineColor( kGreen );
+     lineLow.DrawClone( );
+     lineHigh.DrawClone( );
+   }    
 
    //Rescale h2 back to the original size
    h2->Scale( 1/scale );
@@ -205,5 +215,75 @@ void Visualizer::ManyPadsPlot( std::vector< TH1* > _first_form, std::vector< TH1
     }
     canv->Print(( _out_name + m_extension ).c_str());
 
+}
+
+/**
+ * @brief Implementation of Visualizer::SinglePadPlot. This method takes two vectors of floats and plots them on a single pad with the requested "treatment".
+ * Currently supports scatter plot and overlay
+ * @param _v1 - vector of floats. Can represent x values for a scatter, or y values of a histogram
+ * @param _v2 - vector of the second type of histograms to be plotted s
+ * @param _out_name - name of the plot (w/o extension, that's defined by a data member [ .pdf by default ]
+ * @param _treatment - treatment of the plots (scatter, overlay, overlay with lines)
+ * @param _line - y value for which a horizontal line will be drawn
+ */
+void Visualizer::SinglePlot( std::vector< float > _v1, std::vector< float > _v2, std::string _out_name, std::string _treatment, float _line){
+        
+    if(_v1.size() != _v2.size())
+    std::cerr << "WARNING!!! The two vectors have different size. "
+                 "May result in a crash..." << std::endl;
+                     
+    int sw = -1;
+    if( _treatment == "overlay" || _treatment != "OVERLAY" || _treatment != "Overlay" ) sw = 0;
+    if( _treatment == "overlay with lines" || _treatment != "OVERLAY WITH LINES" || _treatment != "Overlay with lines" ) sw = 1;
+    if( _treatment == "scatter" || _treatment != "SCATTER" || _treatment != "Scatter" ) sw = 2;
+    
+    if(sw == -1){
+        std::cerr << "WARNING!!! You're looking for a treatment that has not been implemented yet! Please check it carefully" << std::endl;
+        std::cerr << "Exiting w/o doing anything .." << std::endl;
+        return;
+    }
+    
+    int squared_pad_size = 300;
+    TCanvas* canv = new TCanvas( _out_name.c_str(),_out_name.c_str(),
+                                 squared_pad_size*_ncol, squared_pad_size*_nrow);
+    canv->cd();
+    
+    if(sw == 0 || sw == 1){
+        TH1D* h1 = new TH1D( _out_name.c_str(), _out_name.c_str(), _v1.size(), _v1.at(0), _v1.at(_v1.size()-1));
+        TH1D* h2 = new TH1D( (_out_name + "(1)").c_str(), (_out_name + "(1)").c_str(), _v1.size(), _v2.at(0), _v2.at(_v1.size()-1));
+        
+        //Fill each histogram separately in case they are different sizes
+        for(int bin = 0; bin < _v1.size(); bin++){
+            h1->SetBinContent(bin,_v1.at(bin));
+        }
+        for(int bin = 0; bin < _v2.size(); bin++){
+            h2->SetBinContent(bin,_v2.at(bin));
+        }
+        
+        //Draw the overlayed histos either with or without lines, depending on the selection
+        if(sw == 0) OverlayHistos( h1, h2, gpad);
+        if(sw == 1) OverlayHistos( h1, h2, gpad, _line);
+    }
+    if(sw == 2){
+        ScatterPlot(_v1, _v2, gpad);
+    }
+    
+    canv->Print(( _out_name + m_extension ).c_str());
+}
+
+/** 
+ * @brief Draws a scatter plot from two vectors 
+ *
+ * @param _vx - Vector of x values
+ * @param _vy - Vector of y values
+ * @param pad - Address of a pad to be drawn on
+ */
+void Visualizer::ScatterPlot( std::vector< float > _vx, std::vector< float > _vy, TVirtualPad* pad){
+    //Declare TVectors using the input std::vectors
+    TVector< float > _TVx( _vx.size(), &_vx[0]);
+    TVector< float > _TVy( _vy.size(), &_vy[0]);
+    
+    TGraph g(_TVx, _TVy);
+    g.DrawCopy("ap"); 
 }
 
