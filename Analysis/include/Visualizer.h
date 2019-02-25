@@ -37,7 +37,7 @@ class Visualizer {
 
     //Main visualization methods
     void   ManyPadsPlot   ( std::vector< TH1* > _first_form, std::vector< TH1* > _second_form, int _ncol, int _nrow, std::string _out_name, std::string _treatment );
-
+    void   SinglePlot     ( std::vector< double > _v1, std::vector< double > _v2, std::string _out_name, std::string _treatment, double _line);
 
     private :
     /** String identifying the style to be applied */
