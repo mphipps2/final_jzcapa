@@ -195,11 +195,11 @@ void Visualizer::ManyPadsPlot( std::vector< TH1* > _first_form, std::vector< TH1
                      "have different size. May result in a crash..." << std::endl;
 
     if( _first_form.size() < _ncol*_nrow ||  _second_form.size() < _ncol*_nrow )
-        std::cerr << "WARNING!!! You have selected a vector of histrograms that will not fill all your pads"
+        std::cerr << "WARNING!!! You have selected a vector of histrograms that will not fill all your pads "
                      "This may result in a crash..." << std::endl;
 
     if( _first_form.size() > _ncol*_nrow ||  _second_form.size() > _ncol*_nrow )
-        std::cerr << "WARNING!!! You have selected a vector of histrograms that is bigger than the number of requested pads"
+        std::cerr << "WARNING!!! You have selected a vector of histrograms that is bigger than the number of requested pads "
                      "This may result in histograms lost w/o plotting..." << std::endl;
 
     //This for the moment is hardcoded. Maybe can be moved to data member to have more general usage also for single plots.
@@ -245,8 +245,8 @@ void Visualizer::SinglePlot( std::vector< double > _v1, std::vector< double > _v
     
     int squared_pad_size = 300;
     TCanvas* canv = new TCanvas( _out_name.c_str(),_out_name.c_str(),
-                                 squared_pad_size*_ncol, squared_pad_size*_nrow);
-    canv->cd();
+                                 squared_pad_size, squared_pad_size*2);
+    //TVirtualPad *gpad = canv->cd();
     
     if(sw == 0 || sw == 1){
         TH1D* h1 = new TH1D( _out_name.c_str(), _out_name.c_str(), _v1.size(), _v1.at(0), _v1.at(_v1.size()-1));
@@ -261,11 +261,11 @@ void Visualizer::SinglePlot( std::vector< double > _v1, std::vector< double > _v
         }
         
         //Draw the overlayed histos either with or without lines, depending on the selection
-        if(sw == 0) OverlayHistos( h1, h2, gpad);
-        if(sw == 1) OverlayHistos( h1, h2, gpad, _line);
+        if(sw == 0) OverlayHistos( h1, h2, canv->cd());
+        if(sw == 1) OverlayHistos( h1, h2, canv->cd(), _line);
     }
     if(sw == 2){
-        ScatterPlot(_v1, _v2, gpad);
+        ScatterPlot(_v1, _v2, canv->cd());
     }
     
     canv->Print(( _out_name + m_extension ).c_str());
@@ -280,10 +280,12 @@ void Visualizer::SinglePlot( std::vector< double > _v1, std::vector< double > _v
  */
 void Visualizer::ScatterPlot( std::vector< double > _vx, std::vector< double > _vy, TVirtualPad* pad){
     //Declare TVectors using the input std::vectors
-    TVector< double > _TVx( _vx.size(), &_vx[0]);
-    TVector< double > _TVy( _vy.size(), &_vy[0]);
+    TVectorD TVx;
+    TVx.Use(_vx.size(),&_vx[0]);
+    TVectorD TVy;
+    TVy.Use(_vy.size(),&_vy[0]);
     
-    TGraph g(_TVx, _TVy);
-    g.DrawCopy("ap"); 
+    TGraph g(TVx, TVy);
+    g.DrawClone("ap"); 
 }
 
