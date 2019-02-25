@@ -20,7 +20,7 @@ class Visualizer {
     Visualizer();
     Visualizer( std::string _style );
 
-    //Styles (so fa only ATLAS)
+    //Styles (so far only ATLAS)
     TStyle* AtlasStyle();
     //Methods to set a given style
     void SetAtlasStyle();
@@ -32,7 +32,8 @@ class Visualizer {
     void   SetDebugMode   ( bool _isDebugon ) { m_debug = _isDebugon; }
 
     //Special plot treatments
-    void   OverlayHistos  ( TH1 *h1, TH1 *h2 , TVirtualPad* pad);
+    void   OverlayHistos  ( TH1 *h1, TH1 *h2 , TVirtualPad* pad, float _line = 0);
+    void   ScatterPlot    ( std::vector< float > _v1, std::vector< float > _v2, TVirtualPad* pad);
 
     //Main visualization methods
     void   ManyPadsPlot   ( std::vector< TH1* > _first_form, std::vector< TH1* > _second_form, int _ncol, int _nrow, std::string _out_name, std::string _treatment );
