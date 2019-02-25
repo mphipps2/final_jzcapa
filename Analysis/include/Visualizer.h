@@ -10,6 +10,8 @@
 
 #include "TH1.h"
 #include "TStyle.h"
+#include "TVector.h"
+#include "TGraph.h"
 
 #include <iostream>
 #include <vector>
@@ -32,12 +34,12 @@ class Visualizer {
     void   SetDebugMode   ( bool _isDebugon ) { m_debug = _isDebugon; }
 
     //Special plot treatments
-    void   OverlayHistos  ( TH1 *h1, TH1 *h2 , TVirtualPad* pad, float _line = 0);
-    void   ScatterPlot    ( std::vector< float > _v1, std::vector< float > _v2, TVirtualPad* pad);
+    void   OverlayHistos  ( TH1 *h1, TH1 *h2 , TVirtualPad* pad, double _line = 0);
+    void   ScatterPlot    ( std::vector< double > _v1, std::vector< double > _v2, TVirtualPad* pad);
 
     //Main visualization methods
     void   ManyPadsPlot   ( std::vector< TH1* > _first_form, std::vector< TH1* > _second_form, int _ncol, int _nrow, std::string _out_name, std::string _treatment );
-    void   SinglePlot     ( std::vector< double > _v1, std::vector< double > _v2, std::string _out_name, std::string _treatment, double _line);
+    void   SinglePlot     ( std::vector< double > _v1, std::vector< double > _v2, std::string _out_name, std::string _treatment, double _line = 0);
 
     private :
     /** String identifying the style to be applied */
