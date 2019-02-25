@@ -125,14 +125,14 @@ void Visualizer::SetAtlasStyle(){
  *
  *  Plots two input histograms on the same, specified pad with
  *  separate axis. Draws two horizontal lines at +_line and -_line 
- *  if f _line is non-zero.
+ *  on h2's axis if f _line is non-zero.
  *
  *  @param h1 - Base histogram (left y-axis)
  *  @param h2 - Overlayed histogram (right y-axis)
  *  @param pad - Address of a pad to be drawn on
  *  @param _line - y value for which a horizontal line will be drawn
  */
-void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad, float _line){
+void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad, double _line){
 
     // If there is no pad or no data in the histograms, return
     if( pad == nullptr ) {std::cerr<< "WARNING: No pad to overlay histos onto" << std::endl; return;}
@@ -159,8 +159,8 @@ void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad, float _line
    
    //Draw two horizontal lines
    if(_line != 0){
-     TLine lineLow (0, -sRMS*scale, h1->GetNbinsX(), -sRMS*scale );
-     TLine lineHigh(0,  sRMS*scale, h1->GetNbinsX(),  sRMS*scale );
+     TLine lineLow (0, -_line*scale, h1->GetNbinsX(), -_line*scale );
+     TLine lineHigh(0,  _line*scale, h1->GetNbinsX(),  _line*scale );
      lineLow.SetLineColor ( kGreen );
      lineHigh.SetLineColor( kGreen );
      lineLow.DrawClone( );
@@ -226,7 +226,7 @@ void Visualizer::ManyPadsPlot( std::vector< TH1* > _first_form, std::vector< TH1
  * @param _treatment - treatment of the plots (scatter, overlay, overlay with lines)
  * @param _line - y value for which a horizontal line will be drawn
  */
-void Visualizer::SinglePlot( std::vector< float > _v1, std::vector< float > _v2, std::string _out_name, std::string _treatment, float _line){
+void Visualizer::SinglePlot( std::vector< double > _v1, std::vector< double > _v2, std::string _out_name, std::string _treatment, double _line){
         
     if(_v1.size() != _v2.size())
     std::cerr << "WARNING!!! The two vectors have different size. "
@@ -278,10 +278,10 @@ void Visualizer::SinglePlot( std::vector< float > _v1, std::vector< float > _v2,
  * @param _vy - Vector of y values
  * @param pad - Address of a pad to be drawn on
  */
-void Visualizer::ScatterPlot( std::vector< float > _vx, std::vector< float > _vy, TVirtualPad* pad){
+void Visualizer::ScatterPlot( std::vector< double > _vx, std::vector< double > _vy, TVirtualPad* pad){
     //Declare TVectors using the input std::vectors
-    TVector< float > _TVx( _vx.size(), &_vx[0]);
-    TVector< float > _TVy( _vy.size(), &_vy[0]);
+    TVector< double > _TVx( _vx.size(), &_vx[0]);
+    TVector< double > _TVy( _vy.size(), &_vy[0]);
     
     TGraph g(_TVx, _TVy);
     g.DrawCopy("ap"); 
