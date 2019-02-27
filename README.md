@@ -112,3 +112,22 @@ If you are on a cluster and xerces-c is not installed/available by default, is s
 If you are going for the source installation, please note that, for an easier detection by cmake, it is adviced to define the variables $XERCESC_DIR, $XERCESC_INCLUDE_DIR and $XERCESC_LIBRARY
 Thanks to the .xml settings file support (hopefully) all the 2018 test beam settings will be loaded automatically when starting the analysis and associated to detectors objects (ZDC1, ZDC2 or RPD). 
 More information can be added if needed, just formulate a request or do the implementation yourself!  
+
+#### Install JZCaPA on LXPLUS #### 
+Given the forthcoming migration to centos 7 of the whole lxplus system (2nd April 2019), the configuration was established directly for this OS. 
+The alias of lxplus will switch automatically to centos 7 from 2nd April 2019. Until this time, to profit of this configuration do 
+
+```
+ssh your_username@lxplus7.cern.ch 
+```
+
+If you are using bash, after logging in, add ${JZCaPA}/Utils/jcapa_env_lxplus.sh to your .bashrc
+Please be sure to comment out the source of other softwares/compilers. This may conflict with the view that is being loaded by the script. 
+After this modification, log-out and in again. You will have all the dependencies needed (ROOT >= 6.08, Geant4 and xerces-c) loaded in your environment.
+Go to the JZCaPA_BUILD directory and cmake using the flag 
+
+```
+-DJZCaPA_ON_LXPLUS=YES
+```
+
+and compile the software (with or w/o MC support, depending on your needings). The software should now compile fully.
