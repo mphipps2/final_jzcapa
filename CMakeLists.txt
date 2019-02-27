@@ -78,4 +78,5 @@ install(TARGETS test_JZCaPA RUNTIME DESTINATION bin)
 install(FILES doxygen/JZCaPA_doxy.cnf DESTINATION doxygen)
 install(FILES Utils/ConfigFile2018.xml DESTINATION Utils)
 install(FILES Utils/Alignment_2018.xml DESTINATION Utils)
+install(FILES Utils/jcapa_env_lxplus.sh DESTINATION Utils)
 
