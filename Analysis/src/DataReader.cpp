@@ -12,9 +12,7 @@
 
 #include <TFile.h>
 #include <TTree.h>
-#include <TH1.h>
-#include <TCanvas.h>
-#include <TChain.h>
+#include <TSystem.h>
 
 #include <iostream>
 
@@ -24,6 +22,8 @@
 #include "RPD.h"
 #include "ZDC.h"
 #include "Visualizer.h"
+#include "EventTimer.h"
+
 
 /** @brief Default Constructor for DataReader.
  */
@@ -228,6 +228,35 @@ Detector* DataReader::GetDetector( std::string _detName ){
 }
 
 
+/** @brief Console output update
+ *  @return none
+ *
+ *  Called by the TTimer in ProcessEvents
+ *  Updates the console with CPU and RAM usage,
+ *  number of events processed and events/second
+ */
+void DataReader::UpdateConsole(){
+
+    MemInfo_t memInfo;
+    CpuInfo_t cpuInfo;
+ 
+    // Get CPU information
+    gSystem->GetCpuInfo(&cpuInfo, 100);
+    // Get Memory information
+    gSystem->GetMemInfo(&memInfo);
+    // Get events/second
+    double rate = 1000*(m_event-m_event_old)/m_update_rate;
+    m_event_old = m_event;
+    
+    std::cout << "\r" << std::left <<  Form("Processed %d events", m_event);
+    //std::cout << Form("Processed %d events, ", m_event);
+    std::cout << Form( "%4.1f ev/s, ", rate);
+    std::cout << Form( "CPU: %d", (int)cpuInfo.fTotal) << "%, ";
+    std::cout << Form( "RAM:%4.1f/%4.1fGB ", (double)memInfo.fMemUsed/1024, (double)memInfo.fMemTotal/1024);
+    //std::cout << std::endl;
+    std::cout << std::flush;
+}
+
 /** @brief Run method for DataReader
  *  @return none
  *
@@ -321,8 +350,15 @@ void DataReader::ProcessEvents(){
 
   std::cout << "File: " << m_fIn->GetName() << " has " << tree->GetEntries() << " events." << std::endl;
   
+  EventTimer timer(500, this);
+  timer.TurnOn();
+  
   // !! EVENT LOOP
   for( int ev = 0; ev < tree->GetEntries(); ev++ ){
+    m_event = ev;
+    
+    if(ev != 0 && ev%500 == 0){ std::cout << "\r" << std::left << ev << std::flush;}
+    //std::cout << "\r" << std::left << ev << std::flush;
     
     tree->GetEntry( ev );
     
@@ -341,6 +377,9 @@ void DataReader::ProcessEvents(){
       ana->AnalyzeEvent( rpd->GetChannelsVector()  );
     }
   } // End event loop
+  
+  timer.TurnOff();
+  UpdateConsole();
 }
 
 /** @brief Finalize method for DataReader
