@@ -31,7 +31,8 @@ int main(int argc, char *argv[]){
 
   r->LoadConfigurationFile();
   r->LoadAlignmentFile();
-
+  r->SetVerbosity(0);
+  
   r->Run();
   
   delete r;
