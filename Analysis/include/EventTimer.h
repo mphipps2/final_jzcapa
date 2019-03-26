@@ -12,6 +12,7 @@
 #define EVENTTIMER_H
 
 #include "TTimer.h"
+#include "DataReader.h"
  
 class EventTimer : public TTimer {
   public:

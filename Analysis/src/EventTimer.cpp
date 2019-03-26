@@ -9,13 +9,14 @@
  *  @bug No known bugs.
  */
 
+#include "EventTimer.h"
 
 /** @brief Default constructor for EventTimer
  *
  */
-EventTimer::EventTimer(Long_t milliSec, DataReader* obj, Bool_t mode){
+EventTimer::EventTimer(Long_t milliSec, DataReader* obj, Bool_t mode)
+    : TTimer(milliSec, mode){
     m_object = obj;
-    : EventTimer(milliSec, mode);
 }
 
 /** @brief Default destructor for EventTimer
@@ -32,9 +33,9 @@ EventTimer::~EventTimer(){
  *  The timer is always reset. To stop the timer 
  *  call TurnOff().
  */
-Bool_t TTimer::Notify(){
+Bool_t EventTimer::Notify(){
     Timeout();       // emit Timeout() signal
-    if (object) m_object->Update();
+    if (m_object) m_object->UpdateConsole();
     
     Reset();
     return kTRUE;
