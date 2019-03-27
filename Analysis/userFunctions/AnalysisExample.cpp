@@ -17,9 +17,9 @@ int main(int argc, char *argv[]){
 
   int nCh    = 20;   // 5 DRS4 x 4 ch/board - 16 RPD channels
   int nSamp  = 1024; // Default number of samples?
-  int runNum = 54;   // !! Change for your test !!
+  int runNum = 99;   // !! Change for your test !!
 
-  string fNameIn = Form("TreeZDCBeamTestRun%d.root", runNum); // !! Change for your test !!
+  string fNameIn = Form("ZDCBeamTestRun%d.root", runNum); // !! Change for your test !!
 
   // DataReader is the main class. It reads data and also
   // has analysis classes in it. User should only have to
