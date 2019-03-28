@@ -17,6 +17,7 @@
 EventTimer::EventTimer(Long_t milliSec, DataReader* obj, Bool_t mode)
     : TTimer(milliSec, mode){
     m_object = obj;
+    m_rate = milliSec;
 }
 
 /** @brief Default destructor for EventTimer
@@ -35,7 +36,7 @@ EventTimer::~EventTimer(){
  */
 Bool_t EventTimer::Notify(){
     Timeout();       // emit Timeout() signal
-    if (m_object) m_object->UpdateConsole();
+    if (m_object) m_object->UpdateConsole( m_rate );
     
     Reset();
     return kTRUE;

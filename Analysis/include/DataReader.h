@@ -23,6 +23,7 @@
 #include "Containers.h"
 #include "Detector.h"
 
+
 #include <TChain.h>
 
 class TFile;
@@ -47,7 +48,7 @@ class DataReader{
   void LoadConfigurationFile (std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/ConfigFile2018.xml"));
   void SetDebugMode          ( ) { m_debug = true; }
   void SetVerbosity          ( int _level ){ m_verbose = _level; }
-  void UpdateConsole         ( );
+  void UpdateConsole         ( Long_t _updateRate);
 
   Detector* GetDetector( std::string _detName );
 
@@ -98,8 +99,6 @@ class DataReader{
   int m_event;
   //Event number of last update
   int m_event_old = 0;
-  //Rate of console updates in ms
-  int m_update_rate = 1000;
 
   //DebugVariable
   bool m_debug = false;

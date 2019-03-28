@@ -22,7 +22,7 @@
 #include "RPD.h"
 #include "ZDC.h"
 #include "Visualizer.h"
-#include "EventTimer.h"
+//#include "EventTimer.h"
 
 
 /** @brief Default Constructor for DataReader.
@@ -235,26 +235,26 @@ Detector* DataReader::GetDetector( std::string _detName ){
  *  Updates the console with CPU and RAM usage,
  *  number of events processed and events/second
  */
-void DataReader::UpdateConsole(){
+void DataReader::UpdateConsole( Long_t _updateRate){
 
-    MemInfo_t memInfo;
-    CpuInfo_t cpuInfo;
- 
-    // Get CPU information
-    gSystem->GetCpuInfo(&cpuInfo, 100);
-    // Get Memory information
-    gSystem->GetMemInfo(&memInfo);
-    // Get events/second
-    double rate = 1000*(m_event-m_event_old)/m_update_rate;
-    m_event_old = m_event;
+    if(m_event!=0){
+        MemInfo_t memInfo;
+        CpuInfo_t cpuInfo;
     
-    std::cout << "\r" << std::left <<  Form("Processed %d events", m_event);
-    //std::cout << Form("Processed %d events, ", m_event);
-    std::cout << Form( "%4.1f ev/s, ", rate);
-    std::cout << Form( "CPU: %d", (int)cpuInfo.fTotal) << "%, ";
-    std::cout << Form( "RAM:%4.1f/%4.1fGB ", (double)memInfo.fMemUsed/1024, (double)memInfo.fMemTotal/1024);
-    //std::cout << std::endl;
-    std::cout << std::flush;
+        // Get CPU information
+        gSystem->GetCpuInfo(&cpuInfo, 100);
+        // Get Memory information
+        gSystem->GetMemInfo(&memInfo);
+        // Get events/second
+        double rate = 1000*(m_event-m_event_old)/_updateRate;
+        m_event_old = m_event;
+    
+        std::cout << "\r" << std::left <<  Form("Processed %d events, ", m_event);
+        std::cout << Form( "%4.1f ev/s, ", rate);
+        std::cout << Form( "CPU: %d", (int)cpuInfo.fTotal) << "%, ";
+        std::cout << Form( "RAM:%4.1f/%4.1fGB    ", (double)memInfo.fMemUsed/1024, (double)memInfo.fMemTotal/1024);
+        std::cout << std::flush;
+    }
 }
 
 /** @brief Run method for DataReader
@@ -350,8 +350,7 @@ void DataReader::ProcessEvents(){
 
   std::cout << "File: " << m_fIn->GetName() << " has " << tree->GetEntries() << " events." << std::endl;
   
-  EventTimer timer(500, this);
-  timer.TurnOn();
+
   
   // !! EVENT LOOP
   for( int ev = 0; ev < tree->GetEntries(); ev++ ){
@@ -377,9 +376,6 @@ void DataReader::ProcessEvents(){
       ana->AnalyzeEvent( rpd->GetChannelsVector()  );
     }
   } // End event loop
-  
-  timer.TurnOff();
-  UpdateConsole();
 }
 
 /** @brief Finalize method for DataReader

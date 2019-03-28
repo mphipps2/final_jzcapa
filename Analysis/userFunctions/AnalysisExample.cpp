@@ -8,8 +8,10 @@
 
 #include "DataReader.h"
 #include "WFAnalysis.h"
+#include "EventTimer.h"
 
 using namespace std;
+
 
 int main(int argc, char *argv[]){
 
@@ -33,10 +35,15 @@ int main(int argc, char *argv[]){
   r->LoadAlignmentFile();
   r->SetVerbosity(0);
   
+  EventTimer timer(1000, r, kFALSE);
+  timer.TurnOn();
+  
   r->Run();
+  
+  timer.TurnOff();
+  std::cout << std::endl << "Finished!" << std::endl;
   
   delete r;
   
   return 0;
 }
-

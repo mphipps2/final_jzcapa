@@ -22,6 +22,7 @@ class EventTimer : public TTimer {
     virtual Bool_t Notify();
 
     DataReader* m_object;
+    Long_t m_rate;
 };
 
 #endif
