@@ -141,11 +141,13 @@ void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad, double _lin
     //Remove Stat box and double the y-axis range to include negative values
     gStyle->SetOptStat( kFALSE );
     h1->DrawCopy();
-    h1->SetAxisRange( -h1->GetMaximum()*1.1, h1->GetMaximum()*1.1, "Y");
+    //h1->SetAxisRange( -h1->GetMaximum()*1.1, h1->GetMaximum()*1.1, "Y");
+    h1->SetAxisRange( -500., 500., "Y");
     pad->Update();
 
    //scale h2 to the pad coordinates
-   float rightmax = 1.1*h2->GetMaximum();
+   //float rightmax = 1.1*h2->GetMaximum();
+   float rightmax = 1.1*27500;
    float scale = gPad->GetUymax()/rightmax;
    h2->SetLineColor( kRed );
    h2->Scale( scale );
