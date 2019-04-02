@@ -110,11 +110,13 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
  */
 void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
     int  ch = 0;
-    int  dWindow = 50;
+    int  dWindow = 25;
+    int  RMSthreshold = 3.5;
     
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
       //retrieving information for each channel as a histogram
         TH1D* h = vCh.at(ch)->WF_histo;
+        TH1D* hProcessed = vCh.at(ch)->PWF_histo;
         TH1D* hDiff = vCh.at(ch)->FirstDerivative;
         
       //retrieve information as a vector of floats
@@ -122,6 +124,7 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
       
         GetDifferential( h, hDiff, dWindow );
         vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff, dWindow );
+        FindHitWindow( vCh.at(ch), RMSthreshold);
         
     }
     
@@ -179,7 +182,7 @@ double WFAnalysis::GetRMS( TH1D *h , int diff_window, bool debug){
     if(xmax == 0) return 0;
     
     TH1D hRMS("RMS","RMS",5*(xmax-xmin)/diff_window,xmin,xmax);
-    gStyle->SetOptFit(0001);
+    
     
     //Loop over the histogram excluding the window used for differentiating to fill hRMS
     Int_t nbins = h->GetNbinsX();
@@ -203,6 +206,48 @@ double WFAnalysis::GetRMS( TH1D *h , int diff_window, bool debug){
     //Return parameter 2. "gaus" is [0]*exp(-0.5*((x-[1])/[2])**2)
     return f.GetParameter(2);
     
+}
+
+
+/** @brief Defines the hit window for a given channel
+ *  @param ch
+ *
+ *  Determines the hit window using the first derivative and first derivative RMS.
+ *  Also determines the peak height and peak center using the raw waveform value 
+ *  at the first derivative zero crossing. Saves the results to Channel members.
+ */
+void WFAnalysis::FindHitWindow( Channel* ch, double threshMultiple){
+    int risingEdge = ch->FirstDerivative->GetMaximumBin();
+    int fallingEdge = ch->FirstDerivative->GetMinimumBin();
+    int nBins = ch->FirstDerivative->GetNbinsX();
+    
+    ch->Diff_max = ch->FirstDerivative->GetMaximum();
+    double diffThresh = threshMultiple*ch->FirstDerivativeRMS;
+    
+    // Find the beginning of the hit window
+    for(int bin = risingEdge; bin > 0; bin--){
+        if(ch->FirstDerivative->GetBinContent(bin) < diffThresh){
+            ch->hit_window.first = bin;
+            break;
+        }
+    }
+    
+    // Find the peak center using the derivative
+    for(int bin = risingEdge; bin < fallingEdge; bin++){
+        if(ch->FirstDerivative->GetBinContent(bin) < 0){
+            ch->Peak_center = bin;
+            ch->Peak_max = ch->WF_histo->GetBinContent(bin) - ch->offset;
+            break;
+        }
+    }
+    
+    // Find the end of the hit window
+    for(int bin = fallingEdge; bin < nBins; bin++){
+        if(ch->FirstDerivative->GetBinContent(bin) > -1*diffThresh){
+            ch->hit_window.second = bin;
+            break;
+        }
+    }
 }
 
 /** @brief Finalize method for WFAnalysis
