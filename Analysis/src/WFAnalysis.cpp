@@ -125,6 +125,8 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
         GetDifferential( h, hDiff, dWindow );
         vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff, dWindow );
         FindHitWindow( vCh.at(ch), RMSthreshold);
+        GetPedestal( vCh.at(ch) );
+        //vCh.at(ch)->Charge = vCh.at(ch)->PWF_histo->Integral( vCh.at(ch)->hit_window.first, vCh.at(ch)->hit_window.second );
         
     }
     
@@ -210,23 +212,38 @@ double WFAnalysis::GetRMS( TH1D *h , int diff_window, bool debug){
 
 
 /** @brief Defines the hit window for a given channel
- *  @param ch
+ *  @param ch Channel to be processed
+ *  @param threshMultiple Threshold multiplier. threshMultiple*FirstDerivativeRMS = threshold
  *
- *  Determines the hit window using the first derivative and first derivative RMS.
- *  Also determines the peak height and peak center using the raw waveform value 
- *  at the first derivative zero crossing. Saves the results to Channel members.
+ *  Determines if the channel was hit first, then determines the hit window using 
+ *  the first derivative and first derivative RMS. Also determines the peak height 
+ *  and peak center using the raw waveform value at the first derivative zero crossing. 
+ *  Saves the results to Channel members.
  */
 void WFAnalysis::FindHitWindow( Channel* ch, double threshMultiple){
+    
+    double threshold = threshMultiple*ch->FirstDerivativeRMS;
+    ch->Diff_max = ch->FirstDerivative->GetMaximum();
+    
+    //////////////////////////////////////////////////////////////////
+    //  Hit condition likely needs to be refined
+    if( ch->Diff_max <= threshold || ch->FirstDerivative->GetMinimum() >= -1*threshold ){
+        if( ch->is_on && m_verbose > 1){ std::cerr << std::endl << "No hit found on " << ch->name << std::endl; }
+        ch->was_hit = false;
+        ch->Peak_center = ch->hit_window.first = ch->hit_window.second = -1;
+        ch->Peak_max = 0.0;
+        return;
+    }
+    
+    ch->was_hit = true;
+    
     int risingEdge = ch->FirstDerivative->GetMaximumBin();
     int fallingEdge = ch->FirstDerivative->GetMinimumBin();
     int nBins = ch->FirstDerivative->GetNbinsX();
     
-    ch->Diff_max = ch->FirstDerivative->GetMaximum();
-    double diffThresh = threshMultiple*ch->FirstDerivativeRMS;
-    
     // Find the beginning of the hit window
     for(int bin = risingEdge; bin > 0; bin--){
-        if(ch->FirstDerivative->GetBinContent(bin) < diffThresh){
+        if(ch->FirstDerivative->GetBinContent(bin) < threshold){
             ch->hit_window.first = bin;
             break;
         }
@@ -243,9 +260,49 @@ void WFAnalysis::FindHitWindow( Channel* ch, double threshMultiple){
     
     // Find the end of the hit window
     for(int bin = fallingEdge; bin < nBins; bin++){
-        if(ch->FirstDerivative->GetBinContent(bin) > -1*diffThresh){
+        if(ch->FirstDerivative->GetBinContent(bin) > -1*threshold){
             ch->hit_window.second = bin;
             break;
+        }
+    }
+}
+
+
+/** @brief Finds the pedestal and pedestal rms of the raw waveform
+ *  @param ch Channel to be processed
+ *
+ *  Histograms data from the raw waveform excluding the hit window.
+ *  Saves the mean and rms of that histogram as PedMean and PedRMS.
+ *  Also saves a pedestal subtracted, zero supressed version of WF_histo to PWF_histo.
+ */
+void WFAnalysis::GetPedestal( Channel* ch ){
+    int nBins = ch->WF_histo->GetNbinsX();
+    TH1D h("ped","ped", nBins, 0, nBins);
+    
+    if( ch->was_hit && ch->hit_window.first > ch->hit_window.second ){
+        if(ch->is_on && m_verbose > 1){
+            std::cerr << std::endl << "Bad hit window on " << ch->name << ": Cannot get pedestal" << std::endl;
+        }
+        return;
+    }
+    // Find PedMean and PedRMS
+    for(int bin = 0; bin < nBins; bin++){
+        // Skip the hit window
+        if( bin == ch->hit_window.first ){ bin = ch->hit_window.second; }
+        
+        h.Fill( ch->WF_histo->GetBinContent(bin) );
+    }
+    
+    ch->PedMean = h.GetMean();
+    ch->PedRMS  = h.GetRMS();
+    
+    // Use PedMean and PedRMS to generate a processed waveform
+    for(int bin = 0; bin < nBins; bin++){
+        double content = ch->WF_histo->GetBinContent(bin) - ch->PedMean;
+        if( content <= ch->PedRMS ){
+            ch->PWF_histo->SetBinContent( bin, 0 );
+        }else{
+            ch->PWF_histo->SetBinContent( bin, content );
         }
     }
 }
