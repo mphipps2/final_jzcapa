@@ -34,7 +34,12 @@ class Analysis{
   virtual void AnalyzeEvent   ( const std::vector< TH1* >& ) = 0;
   virtual void AnalyzeEvent   ( const std::vector< std::vector< float > >& ) = 0;
   virtual void AnalyzeEvent   ( const std::vector< Channel* > ) = 0;
+  virtual void SetVerbosity   ( int _level ){ m_verbose = _level; }
   virtual void Finalize       ( ) = 0;
+  
+ protected:
+  /** Verbosity level */
+  int m_verbose = 0;
 };
 
 #endif

@@ -22,7 +22,6 @@
 #include "RPD.h"
 #include "ZDC.h"
 #include "Visualizer.h"
-//#include "EventTimer.h"
 
 
 /** @brief Default Constructor for DataReader.
@@ -89,6 +88,7 @@ DataReader::~DataReader(){
  *  @return none
  */
 void DataReader::AddAnalysis( Analysis* ana ){
+  ana->SetVerbosity( m_verbose );
   m_ana.push_back( ana );
 }
 
@@ -234,9 +234,11 @@ Detector* DataReader::GetDetector( std::string _detName ){
  *  Called by the TTimer in ProcessEvents
  *  Updates the console with CPU and RAM usage,
  *  number of events processed and events/second
+ *  if verbosity is not zero
  */
 void DataReader::UpdateConsole( Long_t _updateRate){
 
+    if( m_verbose == 0 ){ return; }
     if(m_event!=0){
         MemInfo_t memInfo;
         CpuInfo_t cpuInfo;
@@ -355,9 +357,6 @@ void DataReader::ProcessEvents(){
   // !! EVENT LOOP
   for( int ev = 0; ev < tree->GetEntries(); ev++ ){
     m_event = ev;
-    
-    if(ev != 0 && ev%500 == 0){ std::cout << "\r" << std::left << ev << std::flush;}
-    //std::cout << "\r" << std::left << ev << std::flush;
     
     tree->GetEntry( ev );
     
