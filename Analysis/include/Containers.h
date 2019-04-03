@@ -69,6 +69,14 @@ class Channel {
     int DiscriminatorTime;
     /** Start and end of the hit window*/
     std::pair< int, int > hit_window;
+    /** Flag if the channel was hit */
+    bool was_hit;
+    /** Pedestal of raw waveform */
+    double PedMean;
+    /** Pedestal RMS of raw waveform */
+    double PedRMS;
+    /** Integral of PWF_histo in the hit window */
+    double Charge;
     /** Crossing zero points - dummy - to be checked by Sheng **/
     std::vector < int > CrossZeroPoints;
 
