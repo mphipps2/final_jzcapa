@@ -28,12 +28,11 @@ int main(int argc, char *argv[]){
   // modify the analysis classes and add output in them.
   // User has to add their analysis to DataReader.
   DataReader* r = new DataReader( nCh, nSamp, fNameIn, runNum );
-
+  r->SetVerbosity(1);
+  
   r->AddAnalysis( new WFAnalysis() );
-
   r->LoadConfigurationFile();
   r->LoadAlignmentFile();
-  r->SetVerbosity(0);
   
   EventTimer timer(1000, r, kFALSE);
   timer.TurnOn();
