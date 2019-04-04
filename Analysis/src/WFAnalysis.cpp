@@ -109,9 +109,6 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
  *
  */
 void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
-    int  ch = 0;
-    int  dWindow = 25;
-    int  RMSthreshold = 3.5;
     
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
       //retrieving information for each channel as a histogram
@@ -122,40 +119,40 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
       //retrieve information as a vector of floats
         std::vector < float > chEntries = vCh.at(ch)->WF;
       
-        GetDifferential( h, hDiff, dWindow );
-        vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff, dWindow );
-        FindHitWindow( vCh.at(ch), RMSthreshold);
-        GetPedestal( vCh.at(ch) );
-        //vCh.at(ch)->Charge = vCh.at(ch)->PWF_histo->Integral( vCh.at(ch)->hit_window.first, vCh.at(ch)->hit_window.second );
+        GetDifferential( h, hDiff );
+        vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff );
+        FindHitWindow( vCh.at(ch) );
         
+        if( vCh.at(ch)->was_hit ){
+            GetPedestal( vCh.at(ch) );
+            vCh.at(ch)->Charge = hProcessed->Integral( vCh.at(ch)->hit_window.first, vCh.at(ch)->hit_window.second );
+        }
     }
-    
 }
 
 /** @brief GetDifferential method for WFAnalysis
  *  @param hIN Histogram to be differentiated
  *  @param hOUT Output histogram
- *  @param N Number of points used for summation window 
  *
  * The derivative is calculated as the difference of the summation N points before and after the ith point
  *  @f[
  *       \delta_i(N)= \sum_{k=1}^{N} (s_i + k)  -  \sum_{k=1}^{N} (s_i - k)
  *  @f]
  *
- *
+ * N is given by m_diffSens and is set by the constructor or SetDiffSense()
  */
-void WFAnalysis::GetDifferential( TH1D *hIN, TH1D *hOUT, int N){
+void WFAnalysis::GetDifferential( TH1D *hIN, TH1D *hOUT ){
     
     if(!hIN)  std::cerr <<    "WARNING: Nothing to differentiate"     << std::endl;
     if(!hOUT) std::cerr << "WARNING: Nowhere to put the differential" << std::endl;
 
     // Loop over histogram
-    for( unsigned int bin = N; bin < hIN->GetNbinsX() - N ; bin++ ){
+    for( unsigned int bin = m_diffSens; bin < hIN->GetNbinsX() - m_diffSens ; bin++ ){
       //decalare temp variable to store the sum before and after the i data point
       double sum_before = 0;
       double sum_after = 0;
       //calculate the sum before and after the i data point
-      for (int i = 0; i < N; i++  ){
+      for (int i = 0; i < m_diffSens; i++  ){
         sum_before += hIN->GetBinContent( bin - i );
         sum_after  += hIN->GetBinContent( bin + i );
       }
@@ -176,19 +173,19 @@ void WFAnalysis::GetDifferential( TH1D *hIN, TH1D *hOUT, int N){
  *  The result can be saved to a PDF if debug is set to true.
  *
  */
-double WFAnalysis::GetRMS( TH1D *h , int diff_window, bool debug){
+double WFAnalysis::GetRMS( TH1D *h, bool debug){
     
     //Make a histogram with x-range to match the y-range of the input
     Double_t xmin,xmax;
     h->GetMinimumAndMaximum(xmin,xmax);
     if(xmax == 0) return 0;
     
-    TH1D hRMS("RMS","RMS",5*(xmax-xmin)/diff_window,xmin,xmax);
+    TH1D hRMS("RMS","RMS",5*(xmax-xmin)/m_diffSens,xmin,xmax);
     
     
     //Loop over the histogram excluding the window used for differentiating to fill hRMS
     Int_t nbins = h->GetNbinsX();
-    for(int bin = diff_window; bin < nbins - diff_window; bin++){
+    for(int bin = m_diffSens; bin < nbins - m_diffSens; bin++){
         hRMS.Fill( h->GetBinContent( bin ) );
     }
     
@@ -213,16 +210,15 @@ double WFAnalysis::GetRMS( TH1D *h , int diff_window, bool debug){
 
 /** @brief Defines the hit window for a given channel
  *  @param ch Channel to be processed
- *  @param threshMultiple Threshold multiplier. threshMultiple*FirstDerivativeRMS = threshold
  *
  *  Determines if the channel was hit first, then determines the hit window using 
  *  the first derivative and first derivative RMS. Also determines the peak height 
  *  and peak center using the raw waveform value at the first derivative zero crossing. 
  *  Saves the results to Channel members.
  */
-void WFAnalysis::FindHitWindow( Channel* ch, double threshMultiple){
+void WFAnalysis::FindHitWindow( Channel* ch ){
     
-    double threshold = threshMultiple*ch->FirstDerivativeRMS;
+    double threshold = m_Tmultiple*ch->FirstDerivativeRMS;
     ch->Diff_max = ch->FirstDerivative->GetMaximum();
     
     //////////////////////////////////////////////////////////////////
