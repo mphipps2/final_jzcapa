@@ -23,14 +23,15 @@ class WFAnalysis : public Analysis{
 
  public :
   WFAnalysis( );
+  WFAnalysis( int _sensitivity, double _threshold ){ m_diffSens = _sensitivity; m_Tmultiple = _threshold; }
   virtual ~WFAnalysis( );
 
   virtual void   Initialize     ( );
   virtual void   SetupHistograms( );
-  virtual void   GetDifferential( TH1D *hIN, TH1D *hOUT, int N);
-  virtual double GetRMS         ( TH1D *h, int diff_window, bool debug = false) ;
+  virtual void   GetDifferential( TH1D *hIN, TH1D *hOUT );
+  virtual double GetRMS         ( TH1D *h, bool debug = false) ;
   virtual void   GetPedestal    ( Channel* ch );
-  virtual void   FindHitWindow  ( Channel* ch, double threshMultiple );
+  virtual void   FindHitWindow  ( Channel* ch );
   virtual void   AnalyzeEvent   ( const std::vector< TH1* >& );
   virtual void   AnalyzeEvent   ( const std::vector< std::vector< float > >& );
   virtual void   AnalyzeEvent   ( const std::vector< Channel* > vCh );
