@@ -235,9 +235,9 @@ void Visualizer::SinglePlot( std::vector< double > _v1, std::vector< double > _v
                  "May result in a crash..." << std::endl;
                      
     int sw = -1;
-    if( _treatment == "overlay" || _treatment != "OVERLAY" || _treatment != "Overlay" ) sw = 0;
-    if( _treatment == "overlay with lines" || _treatment != "OVERLAY WITH LINES" || _treatment != "Overlay with lines" ) sw = 1;
-    if( _treatment == "scatter" || _treatment != "SCATTER" || _treatment != "Scatter" ) sw = 2;
+    if( _treatment == "overlay" || _treatment == "OVERLAY" || _treatment == "Overlay" ){ sw = 0; }
+    if( _treatment == "overlay with lines" || _treatment == "OVERLAY WITH LINES" || _treatment == "Overlay with lines" ){ sw = 1; }
+    if( _treatment == "scatter" || _treatment == "SCATTER" || _treatment == "Scatter" ){ sw = 2; }
     
     if(sw == -1){
         std::cerr << "WARNING!!! You're looking for a treatment that has not been implemented yet! Please check it carefully" << std::endl;
