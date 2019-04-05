@@ -110,6 +110,8 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
  */
 void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
     
+    bool filter = false;
+    
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
       //retrieving information for each channel as a histogram
         TH1D* h = vCh.at(ch)->WF_histo;
@@ -120,11 +122,16 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
         std::vector < float > chEntries = vCh.at(ch)->WF;
       
         GetDifferential( h, hDiff );
-        vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff );
+        vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff ); 
+        
         FindHitWindow( vCh.at(ch) );
+        GetPedestal( vCh.at(ch) );
+        if( filter ){ LowPassFilter( vCh.at(ch), hProcessed ); }
         
         if( vCh.at(ch)->was_hit ){
-            GetPedestal( vCh.at(ch) );
+            ZeroSuppress( vCh.at(ch) );
+            //vCh.at(ch)->Peak_max = vCh.at(ch)->PWF_histo->GetMaximum();
+            vCh.at(ch)->Peak_max = vCh.at(ch)->PWF_histo->GetBinContent(vCh.at(ch)->Peak_center);
             vCh.at(ch)->Charge = hProcessed->Integral( vCh.at(ch)->hit_window.first, vCh.at(ch)->hit_window.second );
         }
     }
@@ -182,7 +189,6 @@ double WFAnalysis::GetRMS( TH1D *h, bool debug){
     
     TH1D hRMS("RMS","RMS",5*(xmax-xmin)/m_diffSens,xmin,xmax);
     
-    
     //Loop over the histogram excluding the window used for differentiating to fill hRMS
     Int_t nbins = h->GetNbinsX();
     for(int bin = m_diffSens; bin < nbins - m_diffSens; bin++){
@@ -190,7 +196,7 @@ double WFAnalysis::GetRMS( TH1D *h, bool debug){
     }
     
     //Make a gaussian fit and apply it to our histogram quietly and using our range
-    TF1 f("f","gaus",-250,250);
+    TF1 f("f","gaus",-50,50);
     hRMS.Fit("f","qR+");
     
     if( debug ){
@@ -249,7 +255,6 @@ void WFAnalysis::FindHitWindow( Channel* ch ){
     for(int bin = risingEdge; bin < fallingEdge; bin++){
         if(ch->FirstDerivative->GetBinContent(bin) < 0){
             ch->Peak_center = bin;
-            ch->Peak_max = ch->WF_histo->GetBinContent(bin) - ch->offset;
             break;
         }
     }
@@ -270,10 +275,12 @@ void WFAnalysis::FindHitWindow( Channel* ch ){
  *  Histograms data from the raw waveform excluding the hit window.
  *  Saves the mean and rms of that histogram as PedMean and PedRMS.
  *  Also saves a pedestal subtracted, zero supressed version of WF_histo to PWF_histo.
+ *  Allows for a reference histogram to be supplied i.e. PWF_histo. Otherwise, defaults to WF_histo.
  */
-void WFAnalysis::GetPedestal( Channel* ch ){
-    int nBins = ch->WF_histo->GetNbinsX();
-    TH1D h("ped","ped", nBins, 0, nBins);
+void WFAnalysis::GetPedestal( Channel* ch, TH1D* hRef ){
+    if(!hRef){hRef = ch->WF_histo; }
+    int nBins = hRef->GetNbinsX();
+    TH1D h("ped","ped", nBins, -nBins/2, nBins/2);
     
     if( ch->was_hit && ch->hit_window.first > ch->hit_window.second ){
         if(ch->is_on && m_verbose > 1){
@@ -286,21 +293,73 @@ void WFAnalysis::GetPedestal( Channel* ch ){
         // Skip the hit window
         if( bin == ch->hit_window.first ){ bin = ch->hit_window.second; }
         
-        h.Fill( ch->WF_histo->GetBinContent(bin) );
+        h.Fill( hRef->GetBinContent(bin) );
     }
     
     ch->PedMean = h.GetMean();
     ch->PedRMS  = h.GetRMS();
     
-    // Use PedMean and PedRMS to generate a processed waveform
+    // Subtract PedMean from PWF_histo
     for(int bin = 0; bin < nBins; bin++){
-        double content = ch->WF_histo->GetBinContent(bin) - ch->PedMean;
-        if( content <= ch->PedRMS ){
-            ch->PWF_histo->SetBinContent( bin, 0 );
-        }else{
-            ch->PWF_histo->SetBinContent( bin, content );
-        }
+        double content = hRef->GetBinContent(bin) - ch->PedMean;
+        ch->PWF_histo->SetBinContent( bin, content );
     }
+}
+
+/** @brief Supress values below PedRMS
+ *
+ *  Changes all values smaller than PedRMS after
+ *  pedestal subtraction to zero.
+ */
+void WFAnalysis::ZeroSuppress( Channel* ch ){
+    int nBins = ch->PWF_histo->GetNbinsX();
+    
+    for(int bin = 0; bin < nBins; bin++){
+        double content = ch->PWF_histo->GetBinContent(bin);
+        if( bin > ch->hit_window.first && bin < ch->hit_window.second  ){ continue; }
+        if( content <= ch->PedRMS ){ ch->PWF_histo->SetBinContent( bin, 0 ); }
+    }
+}
+
+/** @brief Applies a low pass filter to the processed waveform
+ *  @param ch Channel to be processed
+ *
+ *  Applies FFT to the raw waveform, removes high frequencies
+ *  and reconstructs the signal in PWF_histo.
+ */
+void WFAnalysis::LowPassFilter( Channel* ch, TH1D* hIn ){
+   if(!hIn){ hIn = ch->WF_histo; }
+   Int_t n = hIn->GetNbinsX();
+   double re[n], im[n], reOut[n], imOut[n];
+   
+   TH1 *hm =0;
+   hm = hIn->FFT(hm, "MAG");
+   
+   // Apply the filter
+   TVirtualFFT *fft = TVirtualFFT::GetCurrentTransform();  
+   fft->GetPointsComplex(re,im);
+   for(int i = 0; i< fCutoff; i++){
+       reOut[i] = re[i];
+       imOut[i] = im[i];
+   }
+   for(int i = fCutoff; i < n; i++){
+       reOut[i] = 0.0;
+       imOut[i] = 0.0;
+   }
+
+   //Make a new TVirtualFFT with an inverse transform. Set the filtered points and apply the transform
+   TVirtualFFT *fft_back = TVirtualFFT::FFT(1, &n, "C2R M K");
+   fft_back->SetPointsComplex(reOut,imOut);
+   fft_back->Transform();
+   ch->PWF_histo = (TH1D*)TH1::TransformHisto(fft_back,ch->PWF_histo,"MAG");
+   
+   //The transform scales the signal by sqrt(n) each time, so rescale by 1/n
+   ch->PWF_histo->Scale(1.0/n);
+   
+   delete hm;
+   delete fft;
+   delete fft_back;
+   
 }
 
 /** @brief Finalize method for WFAnalysis
