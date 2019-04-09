@@ -14,6 +14,14 @@
 /** @brief Default constructor for EventTimer
  *
  */
+EventTimer::EventTimer( ) : TTimer( ){
+
+}
+
+/** @brief Custom constructor for EventTimer
+ *
+ *  Makes a TTimer and sets the object member of EventTimer
+ */
 EventTimer::EventTimer(Long_t milliSec, DataReader* obj, Bool_t mode)
     : TTimer(milliSec, mode){
     m_object = obj;

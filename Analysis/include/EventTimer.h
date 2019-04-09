@@ -16,6 +16,7 @@
  
 class EventTimer : public TTimer {
   public:
+    EventTimer( );
     EventTimer(Long_t milliSec = 0, DataReader* obj = 0, Bool_t mode = kTRUE);
     ~EventTimer();
     
