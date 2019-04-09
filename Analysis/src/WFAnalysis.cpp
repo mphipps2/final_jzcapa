@@ -99,6 +99,43 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
   }
 }
 
+/** @brief Analyze Event method for WF analysis
+ *  @param vCh A vector of pointers to Channel objects
+ *  @param detector Name of the detector to be processed
+ *
+ *  If the detector name contains "Z" i.e. "ZDC" sets some values specific to processing
+ *  the ZDC data and runs AnalyzeEvent( const std::vector< Channel* > vCh ). 
+ *  Otherwise runs with default values. WFAnalysis default values are set to be compatible with the RPD.
+ *  Resets the values to default after processing is done.
+ */
+void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh, std::string detector ){
+    
+    if( detector.find("Z") != std::string::npos ){
+        // Copy the current values to buffers
+        bool inv_buff  = invert;
+        int diffS_buff = m_diffSens;
+        double Tm_buff = m_Tmultiple;
+        int cut_buff   = fCutoff;
+        
+        // Set values for ZDC processing
+        invert = true;
+        m_diffSens = 7;
+        m_Tmultiple = 3.5;
+        fCutoff = 50;
+        
+        // Process
+        AnalyzeEvent( vCh );
+        
+        // Reset Defaults
+        invert = inv_buff;
+        m_diffSens = diffS_buff;
+        m_Tmultiple = Tm_buff;
+        fCutoff = cut_buff;
+    }else{
+        AnalyzeEvent( vCh );
+    }
+}
+
 /**
  * @brief Analyze Event method for WF analysis
  * @param vCh A vector of pointers to Channel objects
@@ -109,7 +146,7 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
  *
  */
 void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
-    
+
     bool filter = false;
     
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
@@ -121,6 +158,14 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
       //retrieve information as a vector of floats
         std::vector < float > chEntries = vCh.at(ch)->WF;
       
+      //invert the signal if necessary
+        if( invert ){ 
+            vCh.at(ch)->offset = -1*vCh.at(ch)->offset;
+            for(int bin = 0; bin < h->GetNbinsX(); bin++){
+                h->SetBinContent( bin, -1*h->GetBinContent(bin) );
+            }
+        }
+        
         GetDifferential( h, hDiff );
         vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff ); 
         
