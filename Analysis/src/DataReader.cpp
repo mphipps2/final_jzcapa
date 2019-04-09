@@ -370,9 +370,9 @@ void DataReader::ProcessEvents(){
     // Note that at the moment none of this methods is doing anything
     for( auto& ana : m_ana ){
       //raw data analysis
-      ana->AnalyzeEvent( zdc1->GetChannelsVector() );
-      ana->AnalyzeEvent( zdc2->GetChannelsVector() );
-      ana->AnalyzeEvent( rpd->GetChannelsVector()  );
+      ana->AnalyzeEvent( zdc1->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
+      ana->AnalyzeEvent( zdc2->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
+      ana->AnalyzeEvent( rpd->GetChannelsVector(),  rpd->GetChannelsVector().at(0)->detector );
     }
   } // End event loop
 }
