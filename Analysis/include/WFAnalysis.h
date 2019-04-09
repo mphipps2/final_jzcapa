@@ -39,6 +39,7 @@ class WFAnalysis : public Analysis{
   virtual void   AnalyzeEvent   ( const std::vector< TH1* >& );
   virtual void   AnalyzeEvent   ( const std::vector< std::vector< float > >& );
   virtual void   AnalyzeEvent   ( const std::vector< Channel* > vCh );
+  virtual void   AnalyzeEvent   ( const std::vector< Channel* > vCh, std::string detector );
   virtual void   Finalize       ( );
 
  private :
@@ -48,6 +49,8 @@ class WFAnalysis : public Analysis{
   double m_Tmultiple = 3.5;
   /** Frequency threshold for low pass filter */
   int fCutoff = 50;
+  /** Flag for inverting PMT signals */
+  bool invert = false;
 };
 
 #endif
