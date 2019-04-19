@@ -13,11 +13,11 @@
 # 1000 events
 #
 #/testhadr/ionPhysics FTF
-/run/initialize
-/gun/particle proton
+#/run/initialize
+#/gun/particle proton
 #/gun/particle ion
 #/gun/ion Z A charge excitationEnergy
 #/gun/ion 82 208 0 0.0
-/gun/energy 3.5 TeV
+#/gun/energy 3.5 TeV
 #
-/run/beamOn 1
+#/run/beamOn 1

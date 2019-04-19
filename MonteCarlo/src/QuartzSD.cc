@@ -88,18 +88,22 @@ void QuartzSD::Initialize(G4HCofThisEvent* HCE){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4bool QuartzSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
+	
 
   TEnv* config = m_sd->GetConfig();
+
   G4int    modNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(2);
+
+
   char modName[256];
   sprintf(modName,"mod%dType",modNum+1);
   G4int    nModules            = config->GetValue( "nModules",4);
   G4int modType[5]; G4int modNStripsPerGap[5];
   //G4int modNRadiators[5]; 
   //  G4double coreDiameter[5]; G4double claddingThickness[5]; G4double modCladdingIndexRefraction[5];
-  
-  modType[0]            = config->GetValue( "modType1",1);
-  modType[1]            = config->GetValue( "modType2",2);
+
+  modType[0]            = config->GetValue( "modType1",5);
+  modType[1]            = config->GetValue( "modType2",5);
   modType[2]            = config->GetValue( "modType3",3);
   modType[3]            = config->GetValue( "modType4",3);
   modType[4]            = config->GetValue( "modType5",3);      
@@ -114,7 +118,7 @@ G4bool QuartzSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     //    sprintf(variable,"mod%dCladdingIndexRefraction",i+1);
     //    modCladdingIndexRefraction[i] = config->GetValue( variable,1.43);    
   }
-  
+
   G4double eDep   = aStep->GetTotalEnergyDeposit();
   
   G4int    totalRodNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
@@ -128,7 +132,7 @@ G4bool QuartzSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     radNum = totalRodNum / modNStripsPerGap[modNum];
     rodNum = totalRodNum % modNStripsPerGap[modNum];
   }
-
+  
   G4double energy = aStep->GetPreStepPoint()->GetTotalEnergy();
   G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentum();
   G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
@@ -138,7 +142,6 @@ G4bool QuartzSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
   int capturedPhotons = CalculateCherenkovs(aStep,modNum);
 
-  
   QuartzHit* newHit = new QuartzHit();
 
   newHit->setCharge        ( charge );
@@ -160,16 +163,19 @@ G4bool QuartzSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int QuartzSD::CalculateCherenkovs(G4Step* aStep,int modNum) {
-
+ 
+	
   const G4DynamicParticle* aParticle = aStep->GetTrack()->GetDynamicParticle();
   const G4double           charge    = aParticle->GetDefinition()->GetPDGCharge();
   //  LogStream<<MSG::INFO<<"ZDC stripCharge "<< charge << endreq;
 
+  
   if (charge==0) { return false; }
 
   const G4StepPoint*       pPreStepPoint  = aStep->GetPreStepPoint();
   const G4StepPoint*       pPostStepPoint = aStep->GetPostStepPoint();
   const G4double           beta           = (pPreStepPoint ->GetBeta() + pPostStepPoint->GetBeta())/2.;
+ 
   if (beta==0) { return false; }
 
   TEnv* config = m_sd->GetConfig();  

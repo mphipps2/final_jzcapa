@@ -49,8 +49,10 @@ SteppingAction::~SteppingAction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void SteppingAction::UserSteppingAction(const G4Step* step)
-{}
+void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* step  )
+{
+	
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

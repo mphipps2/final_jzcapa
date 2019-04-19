@@ -65,16 +65,13 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 
 void EventAction::EndOfEventAction(const G4Event* evt)
 {
-  G4cout << ">>> Event " << evt->GetEventID() << G4endl;
 
-  //  if(hitsCollID<0) return;
-  //  float n = 1.46;
-  //  float c = 300.;
-  //  float alpha = 1/137;
+  G4cout << ">>> Event " << evt->GetEventID() << G4endl;
   G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
   QuartzHitsCollection* HC = 0;
   G4int nCollections =  HCE->GetNumberOfCollections();
   int totalPhotons = 0;
+  
   if(HCE) {
     while (hitsCollID < nCollections) {
       HC = (QuartzHitsCollection*)(HCE->GetHC(hitsCollID));
@@ -85,7 +82,7 @@ void EventAction::EndOfEventAction(const G4Event* evt)
       for ( int i = 0 ; i < n_hit; i++){
      
         G4int         radiatorNo  = (*HC)[i]->getRadNb();
-	G4int         rodNo  = (*HC)[i]->getRodNb();
+		G4int         rodNo  = (*HC)[i]->getRodNb();
         G4double      eDep =  (*HC)[i]->getEdep();
         G4int         modNb =  (*HC)[i]->getModNb();
         G4int         trackID =  (*HC)[i]->getTrackID();
@@ -93,7 +90,7 @@ void EventAction::EndOfEventAction(const G4Event* evt)
         G4ThreeVector momentum = (*HC)[i]->getMomentum();
         G4double      energy   = (*HC)[i]->getEnergy();
         G4int         pid      = (*HC)[i]->getParticle()->GetPDGEncoding();
-	G4int         nCherenkovs = (*HC)[i]->getNCherenkovs();
+		G4int         nCherenkovs = (*HC)[i]->getNCherenkovs();
         G4double      charge   = (*HC)[i]->getCharge();
         G4double      velocity   = (*HC)[i]->getVelocity();
         G4double      beta   = (*HC)[i]->getBeta();
@@ -124,7 +121,6 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	  fRunAction->SetPosition(position);	 
 	  fRunAction->SetMomentum(momentum);
 	  fRunAction->SetEnergy(energy);
-	  //	  if (pid > 100000) pid = -1;
 	  fRunAction->SetPid(pid);
 	  fRunAction->SetEventNo(fEventNo);
 	  fRunAction->SetCharge(charge);

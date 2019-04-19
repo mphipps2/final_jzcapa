@@ -16,9 +16,55 @@
 #include <TH1.h>
 #include <TTree.h>
 #include <TLorentzVector.h>
+#include "XMLSettingsReader.hh"
 
 #include <iostream>
 #include <string>
+
+class Survey {
+
+ public :
+  
+	/** Type of detector - ZDC or RPD **/
+    std::string detector;
+    /** x_pos for this survey */
+    double x_pos;
+	/** y_pos for this survey */
+    double y_pos;
+	/** z_pos for this survey */
+    double z_pos;
+	/** cos_x for this survey */
+    double cos_x;
+	/** cos_y for this survey */
+    double cos_y;
+	/** cos_z for this survey */
+    double cos_z;
+	
+};
+
+class Alignment {
+
+ public:
+
+    /** X position of the Desy Table **/
+    double x_table;
+    /** Y position of the Desy Table **/
+    double y_table;
+    /** First detector met by the beam **/
+    std::string upstream_Det;
+    /** Second detector met by the beam **/
+    std::string mid_Det;
+    /** Third detector met by the beam **/
+    std::string downstream_Det;
+    /** GOLIATH magnet status **/
+    bool magnet_On;
+    /** Target in **/
+    bool target_In;
+    /** Lead absorber in **/
+    bool lead_In;
+
+};
+
 
 class SharedData{
   
@@ -32,12 +78,11 @@ public:
   SharedData& operator= ( const SharedData& ) = delete ;
 
   // Only want MyRunManager to access these 
-public:
+
   void   Initialize();
   void   EndOfEvent();
   void   Finalize(); 
    
-public:
   template<class T> 
   void   AddOutputToTree    ( const std::string&, T*);
 
@@ -48,6 +93,15 @@ public:
   bool   DoPrint          ();
   inline TTree* GetTree          () {return m_tree;}
   inline int GetEventNo       () {return m_eventCounter;}
+  
+  Survey* GetSurvey(std::string name);
+  Alignment* GetAlignment();
+  
+  void LoadConfigurationFile(int runNum, std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/Survey_2018.xml"));
+  void LoadAlignmentFile(int runNum, std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/Alignment_2018.xml"));
+   
+   
+   
 private:
   TEnv*   m_config;
   TFile*  m_fout;
@@ -58,6 +112,16 @@ private:
 
   std::string  m_outputFileName;
   std::string  m_configFileName;
+  
+   //XML parser
+  XMLSettingsReader *m_XMLparser;
+
+  //Alignment information for the given run
+	Alignment* 	m_alignment;
+  //Survey information for the given run
+	Survey* m_survey;
+	std::vector < Survey* > surveyEntries;
+	
 };
 
 /** @brief Function to add an object to the tree

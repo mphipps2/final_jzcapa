@@ -203,15 +203,17 @@ G4bool CherenkovSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+
 void CherenkovSD::EndOfEvent(G4HCofThisEvent* HCE)
 {
-  /*
+	
+  
   //  G4String name = HCE->GetHC()->GetName();
   //if(HCID<0) return;
    std::cout << " HCID end of event " << HCID << std::endl;
   CherenkovHitsCollection* HC = 0;
-  G4int nCollections =  HCE->GetNumberOfCollections();
-  G4int hitsCollID = 0;
+	__attribute__((unused)) G4int nCollections =  HCE->GetNumberOfCollections();
+  __attribute__((unused)) G4int hitsCollID = 0;
 
   
   if(HCE) {
@@ -260,8 +262,9 @@ void CherenkovSD::EndOfEvent(G4HCofThisEvent* HCE)
       // }
   }
   //  std::cout << " vec size " << v_fRadNb.size() << std::endl;
-  */
+  
 }
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

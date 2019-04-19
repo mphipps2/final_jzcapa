@@ -22,6 +22,7 @@ SharedData :: SharedData ()
   m_configFileName.replace(m_configFileName.length()-15,15,"/JZCaPA/MonteCarlo/config/config.cfg");
  // std::cout << "* current config file path * = " << m_configFileName << std::endl;
  // m_configFileName = "config/config.cfg";
+
   m_fout = NULL;
   m_tree = NULL;
   m_config = NULL;
@@ -39,6 +40,7 @@ SharedData :: SharedData ( const std::string& outputFileName,
   m_outputFileName = outputFileName;
   m_configFileName = configFileName;
  // std::cout << "* current config file path * = " << m_configFileName << std::endl;
+ 
   m_fout = NULL ;
   m_tree = NULL;
   m_config = NULL;
@@ -125,7 +127,6 @@ bool SharedData :: DoPrint()
 void SharedData :: Finalize() 
 {
   m_fout->cd();
-  
   m_tree->Write();
   for( auto& h : m_v_hists ) { h->Write(); }
   
@@ -143,3 +144,103 @@ void SharedData :: AddIntToTree( const std::string& name, std::vector<int> *pObj
   m_tree->Branch( name.c_str(), "std::vector<int>", &pObj );
 }
 */
+
+
+//***********************************************************************************
+// READ Survey_2018.xml and Alignment_2018.xml
+//***********************************************************************************
+/**
+ * @brief Reads the .xml configuration file and load characteristics for all the alignments, immediately sorted into alignment objects
+ * @param _inFile
+ */
+ 
+void SharedData::LoadConfigurationFile( int m_runNumber, std::string _inFile  ){
+
+    m_XMLparser = new XMLSettingsReader();
+	
+	 
+    if (!m_XMLparser->parseFile(_inFile)) {
+            std::cerr << " Data Reader could not parse file : " << _inFile << std::endl;
+            return;
+    }
+	
+    std::cout << "Loading .xml Configuration File..." << std::endl;
+    std::cout << "Found " << m_XMLparser->getBaseNodeCount("Survey") << " survey entries " << std::endl;
+
+    int first_run, last_run;
+
+    for (int i = 0; i < m_XMLparser->getBaseNodeCount("Survey"); i++) { //this was unsigned int i = 0
+        
+        m_XMLparser->getChildValue("Survey",i,"start_run",first_run);
+        m_XMLparser->getChildValue("Survey",i,"end_run",last_run);
+
+        //Discard entries for any alignment that does not apply to our run
+        if(m_runNumber < first_run || m_runNumber > last_run) continue;
+		m_survey = new Survey();
+
+        //If the entry applies, we store it in the vector
+        m_XMLparser->getChildValue("Survey",i,"detector",m_survey->detector);
+        m_XMLparser->getChildValue("Survey",i,"x_pos",m_survey->x_pos);
+        m_XMLparser->getChildValue("Survey",i,"y_pos",m_survey->y_pos);
+        m_XMLparser->getChildValue("Survey",i,"z_pos",m_survey->z_pos);
+        m_XMLparser->getChildValue("Survey",i,"cos_x",m_survey->cos_x);
+        m_XMLparser->getChildValue("Survey",i,"cos_y",m_survey->cos_y);
+        m_XMLparser->getChildValue("Survey",i,"cos_z",m_survey->cos_z);
+  
+		surveyEntries.push_back(m_survey);
+    }
+
+	if(surveyEntries.size() == 0) std::cout << "WARNING: SURVEY NOT FOUND!!!" << std::endl;		
+
+	return;
+}
+
+/**
+ * @brief Reads the .xml configuration file and load characteristics for all the channels, immediately sorted into detectors objects
+ * @param _inFile
+ */
+void SharedData::LoadAlignmentFile( int m_runNumber, std::string _inFile ){
+
+    m_XMLparser = new XMLSettingsReader();
+
+    if (!m_XMLparser->parseFile(_inFile)) {
+            std::cerr << " Data Reader could not parse file : " << _inFile << std::endl;
+            return;
+    }
+
+    m_alignment = new Alignment();
+
+    std::cout << "Loading .xml Alignment File..." << std::endl;
+    std::cout << "Found " << m_XMLparser->getBaseNodeCount("Alignment") << " alignment entries " << std::endl;
+    std::cout << "Retrieving the information for run " << m_runNumber << std::endl;
+
+    int run;
+    for ( int i = 0; i < m_XMLparser->getBaseNodeCount("Alignment"); i++) {
+        m_XMLparser->getChildValue("Alignment",i,"run",run);
+        if(run != m_runNumber) continue;
+        std::cout << "Found Run Entry in Alignment file for run " << m_runNumber << std::endl;
+        m_XMLparser->getChildValue("Alignment",i,"x_table",m_alignment->x_table);
+        m_XMLparser->getChildValue("Alignment",i,"y_table",m_alignment->y_table);
+        m_XMLparser->getChildValue("Alignment",i,"upstream_Det",m_alignment->upstream_Det);
+        m_XMLparser->getChildValue("Alignment",i,"mid_Det",m_alignment->mid_Det);
+        m_XMLparser->getChildValue("Alignment",i,"downstream_Det",m_alignment->downstream_Det);
+        m_XMLparser->getChildValue("Alignment",i,"target_In",m_alignment->target_In);
+        m_XMLparser->getChildValue("Alignment",i,"lead_In",m_alignment->lead_In);
+        m_XMLparser->getChildValue("Alignment",i,"magnet_On",m_alignment->magnet_On);
+    }
+
+    if(m_alignment == NULL) std::cout << "WARNING: ALIGNMENT NOT FOUND!!!" << std::endl;
+    return;
+}
+
+Survey* SharedData::GetSurvey(std::string name){
+	for(unsigned int i = 0; i < surveyEntries.size(); i++){	
+		if( name == surveyEntries[i]->detector ){ return surveyEntries[i]; }
+	}
+	Survey* empty=NULL;
+	return empty;
+}
+
+Alignment* SharedData::GetAlignment(){
+	return m_alignment;
+}

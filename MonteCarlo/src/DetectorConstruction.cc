@@ -52,6 +52,28 @@
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 
+#include "G4FieldManager.hh"
+#include "G4TransportationManager.hh"
+#include "G4EqMagElectricField.hh"
+#include "PurgMagTabulatedField3D.hh"
+#include "G4ChordFinder.hh"
+#include "G4Mag_UsualEqRhs.hh"
+#include "G4PVParameterised.hh"
+#include "G4ThreeVector.hh"
+#include "G4PVReplica.hh"
+#include "G4UniformMagField.hh"
+#include "G4ExplicitEuler.hh"
+#include "G4ImplicitEuler.hh"
+#include "G4SimpleRunge.hh"
+#include "G4SimpleHeum.hh"
+#include "G4ClassicalRK4.hh"
+#include "G4HelixExplicitEuler.hh"
+#include "G4HelixImplicitEuler.hh"
+#include "G4HelixSimpleRunge.hh"
+#include "G4CashKarpRKF45.hh"
+#include "G4RKG3_Stepper.hh"
+
+
 #include <iostream>
 #include <stdio.h>
 
@@ -98,20 +120,101 @@ void DetectorConstruction :: DefineBorderProperties()
 
 G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 {
-  // Get Config
-  TEnv* config = m_sd->GetConfig();
+	// Get Config
+	TEnv* config = m_sd->GetConfig();
+	int ZDC_SETUP = config->GetValue("ZDC_SETUP", 0);
+	int runNum = config->GetValue( "RunNumber", -1);
+	
+	m_sd->LoadConfigurationFile(runNum);
+	m_sd->LoadAlignmentFile(runNum);
+
+	// Create variables to be used in beamtest 2018 simulation
+	
+	G4ThreeVector zdc1Pos,zdc2Pos, rpdPos;
+	bool 		mag_on = false, targ_in = false, lead_in = false, 
+				ZDC1 = false, ZDC2 = false, RPD = false;
+	G4double 	mag_zOffset=0, density=0, fractionmass=0, leadblockZ=0, worldZoffset=16000*mm,
+				zdc1X=0,zdc1Y=0,zdc1Z=0,zdc2X=0,zdc2Y=0,zdc2Z=0,rpdX=0,rpdY=0,rpdZ=0,
+				tableX_shift=0, tableY_shift=0;
+	std::string detector[3];
+	G4int   	ncomponents;  
+	Survey		*srvy_zdc1 = m_sd->GetSurvey("ZDC1"), 
+				*srvy_zdc2 = m_sd->GetSurvey("ZDC2"), 
+				*srvy_rpd = m_sd->GetSurvey("RPD");;
+	Alignment	*align_run 	= m_sd->GetAlignment();
+
+	//################################ SURVEY/ALIGNMENT_SETUP
+	if(ZDC_SETUP == 1){
+	
+	//table(-2250,500) -> rpd/beam(0,0)	where 100=0.1cm in table coordinates
+	tableX_shift = (-2250.0 - (align_run->x_table)  )/100*mm ;
+	tableY_shift = (500.0   - (align_run->y_table)  )/100*mm ;
+		
+	rpdX  = (srvy_rpd ->x_pos)   *1000.0			 					*mm;	
+	zdc1X = (( (srvy_zdc1->x_pos)*1000.0 ) - rpdX + tableX_shift    )	*mm;
+	zdc2X = (( (srvy_zdc2->x_pos)*1000.0 ) - rpdX + tableX_shift	)	*mm;
+	rpdX  =  tableX_shift;
+		
+	rpdY  = (srvy_rpd ->y_pos)   *1000.0								*mm;	
+	zdc1Y = (( (srvy_zdc1->y_pos)*1000.0 ) - 320 - rpdY + tableY_shift)	*mm;
+	zdc2Y = (( (srvy_zdc2->y_pos)*1000.0 ) - 320 - rpdY + tableY_shift)	*mm;
+	rpdY  =  tableY_shift;
+	
+	rpdZ  = (( (srvy_rpd ->z_pos)*1000.0 ) -(worldZoffset) )*mm;
+	zdc1Z = (( (srvy_zdc1->z_pos)*1000.0 ) -(worldZoffset) )*mm;
+	zdc2Z = (( (srvy_zdc2->z_pos)*1000.0 ) -(worldZoffset) )*mm;
+	
+	 
+	//-320mm is offset to get from zdc mid to active area mid
+	zdc1Pos = G4ThreeVector( zdc1X, zdc1Y, zdc1Z); 
+	zdc2Pos = G4ThreeVector( zdc2X, zdc2Y, zdc2Z);
+	rpdPos 	= G4ThreeVector( rpdX , rpdY , rpdZ );
   
-  // Get nist material manager
+	
+	detector[0]=align_run->upstream_Det;
+	detector[1]=align_run->mid_Det;
+	detector[2]=align_run->downstream_Det;
+	
+	for(int i=0; i<3; i++){
+		if(detector[i]=="ZDC1") {
+			ZDC1 = true;
+		}
+		if(detector[i]=="ZDC2") {
+			ZDC2 = true;
+		}
+		if(detector[i]=="RPD") {
+			RPD = true;
+		}
+	}
+	
+	// Assign lead block position in mm
+	leadblockZ = ( zdc1Z- 250)*mm; //approximate position
+	
+	
+	targ_in =  	align_run->target_In;
+	mag_on 	= 	align_run->magnet_On;
+	lead_in = 	align_run->lead_In;
+	}
+	//################################ SURVEY/ALIGNMENT_END
+	
+	
   G4NistManager* nist = G4NistManager::Instance();
+		
+		G4Element* Pb = nist->FindOrBuildElement(82);
+		G4Material* Lead = new G4Material("Lead", density= 11.35*g/cm3, ncomponents=1);
+		Lead->AddElement(Pb, fractionmass=1.0);  
+	
+  // Get nist material manager
+  // G4NistManager* nist = G4NistManager::Instance();
 
   //----------------------------------------------     
   // Set Some Values
   //----------------------------------------------
   G4double modSizeX[5]; G4double modSizeY[5]; G4double modSizeZ[5]; G4double modCasingThickness[5]; G4double modWidth[5]; G4String modAbsorberMat[5]; G4double modAbsorberThickness[5]; G4double modAbsorberHeight[5]; G4double modAbsorberWidth[5]; G4double modCoreDiameter[5]; G4double modCladdingThickness[5]; G4int modNRadiators[5]; G4int modNAbsorbers[5]; G4int modType[5]; bool cladding[5]; G4double modRadiatorGapLength[5]; G4double stripPitch[5]; G4int modNStripsPerGap[5];
   
-  G4int    nModules            = config->GetValue( "nModules",4);
-  modType[0]            = config->GetValue( "mod1Type",4);
-  modType[1]            = config->GetValue( "mod2Type",2);
+  G4int    nModules            = config->GetValue( "nModules",2);
+  modType[0]            = config->GetValue( "mod1Type",5);
+  modType[1]            = config->GetValue( "mod2Type",5);
   modType[2]            = config->GetValue( "mod3Type",3);
   modType[3]            = config->GetValue( "mod4Type",3);
   modType[4]            = config->GetValue( "mod5Type",3);    
@@ -158,6 +261,46 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
       modSizeZ[i] = 2*modCasingThickness[i]+modNRadiators[i]*modRadiatorGapLength[i] + modNAbsorbers[i]*modAbsorberThickness[i];
       
     }
+	if(ZDC_SETUP==1){
+		if (modType[i] == 5) {
+		char variable[256];
+		std::string modCladding;
+		sprintf(variable,"mod%dCasingThickness",5);
+		modCasingThickness[i] = config->GetValue(variable,.605);
+		sprintf(variable,"mod%dAbsorberThickness",5);
+		modAbsorberThickness[i] = config->GetValue(variable,10.);
+		sprintf(variable,"mod%dAbsorberHeight",5);
+		modAbsorberHeight[i] = config->GetValue(variable,180.);
+		sprintf(variable,"mod%dAbsorberWidth",5);
+		modAbsorberWidth[i] = config->GetValue(variable,100.);
+		sprintf(variable,"mod%dRadiatorGapLength",5);
+		modRadiatorGapLength[i] = config->GetValue(variable,2.);
+		sprintf(variable,"mod%dCoreDiameter",5);
+		modCoreDiameter[i] = config->GetValue(variable,1.5);
+		sprintf(variable,"mod%dCladding",5);
+		modCladding = config->GetValue(variable,"true");
+		sprintf(variable,"mod%dCladdingThickness",5);
+		modCladdingThickness[i] = config->GetValue(variable,0.605);
+		sprintf(variable,"mod%dNRadiators",5);
+		modNRadiators[i] = config->GetValue(variable,12);
+		sprintf(variable,"mod%dNStripsPerGap",5);
+		modNStripsPerGap[i] = config->GetValue(variable,52);
+		modNAbsorbers[i] = modNRadiators[i] - 1;
+		stripPitch[i] = modCoreDiameter[i] + 2*modCladdingThickness[i];
+		if (modNRadiators[i] != 0) modWidth[i] = modNStripsPerGap[i]*stripPitch[i];
+		else modWidth[i] = modAbsorberWidth[i];
+		std::transform(modCladding.begin(), modCladding.end(), modCladding.begin(), ::tolower);
+		cladding[i] = modCladding == "true" ?  true : false;
+		if (cladding[i]) modCladdingThickness[i] = 0.;
+		if (modNRadiators[i] == 0) {
+				modNAbsorbers[i] = 1; // the case where you are defining a solid absorber block with no active channels
+			}
+		modSizeX[i] = modWidth[i] + 2*modCasingThickness[i];
+		modSizeY[i] = 2*modCasingThickness[i]+modAbsorberHeight[i];
+		modSizeZ[i] = 2*modCasingThickness[i]+modNRadiators[i]*modRadiatorGapLength[i] + modNAbsorbers[i]*modAbsorberThickness[i];
+      
+		}
+	}
     else {
       modSizeX[i] = 90.78;
       modSizeY[i] = 200.;
@@ -183,11 +326,21 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
     //    std::cout << " modSizeZ " << modSizeZ[i] << std::endl;
   }
 
-  G4double worldSizeX       = 1.1 * maxModSizeX * mm;    // mm
-  G4double worldSizeY       = 1.1 * maxModSizeY * mm;    // mm
-  G4double worldSizeZ       = 1.2 * totalModSizeZ * mm;
-  //  std::cout << " totalmodsizeZ " << totalModSizeZ << " worldSizeZ " << worldSizeZ << std::endl;
+  G4double worldSizeX       = 1.1 * maxModSizeX * mm;    	// mm //1.1
+  G4double worldSizeY       = 1.1 * maxModSizeY * mm;    	// mm //1.1
+  G4double worldSizeZ       = 1.2 * totalModSizeZ * mm; 	//was 1.2
   
+   
+   if(ZDC_SETUP==1){
+		worldSizeZ= 32000*mm;
+		//worldZoffset=(worldSizeZ/2)*mm;
+		//320mm is offset to get from zdc mid to active area mid
+		if( std::abs(zdc1X) < std::abs(zdc2X) ) worldSizeX = 1.1 * 2 * ( std::abs(zdc2X)+ maxModSizeX/2 ) * mm;
+		else  															worldSizeX = 1.1 * 2 * ( std::abs(zdc1X) + maxModSizeX/2 ) * mm;
+		if( std::abs(zdc1Y) < std::abs(zdc2Y) ) worldSizeY = 1.1 * 2 * ( std::abs(zdc2Y) + maxModSizeY/2  ) * mm; 
+		else  															worldSizeY = 1.1 * 2 * ( std::abs(zdc1Y)+ maxModSizeY/2  ) * mm;
+   }
+
   G4Material* g4Air = nist->FindOrBuildMaterial("G4_AIR");
   
   printf( "Building world with x %5.1f y %5.1f z %5.1f\n",
@@ -214,8 +367,12 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
                       0,                  //copy number
                       checkOverlaps);     //overlaps checking
   
+  
+  G4VisAttributes* boxVisAtt_world= new G4VisAttributes(G4Colour(0.5,0.5,0.5)); 
+
+		m_logicWorld ->SetVisAttributes(boxVisAtt_world);
   //----------------------------------------------     
-  // Build EMCal Module
+  // Build ZDC Setup
   //----------------------------------------------
     // air spacing between modules
   G4double dZ = 10 * mm;
@@ -243,6 +400,87 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
     if (i != nModules - 1) zCoord -= ( modSizeZ[i]/2 + modSizeZ[i+1]/2 + dZ );
     //    std::cout << " z coord " << zCoord << " incremented by " << modSizeZ[i]/2 + modSizeZ[i+1]/2 + dZ  << std::endl;
   }
+  
+  
+  if(ZDC_SETUP==1){
+
+	  std::cout << "(" << zdc1Pos.getX() << ", " << zdc1Pos.getY() << ", " << zdc1Pos.getZ() << ")" << std::endl;
+	  std::cout << "(" << zdc2Pos.getX() << ", " << zdc2Pos.getY() << ", " << zdc2Pos.getZ() << ")" << std::endl;
+	  std::cout << "(" << rpdPos.getX()  << ", " << rpdPos.getY()  << ", " << rpdPos.getZ()  << ")" << std::endl;
+	  
+	  ModTypeZDC *mod1 = new ModTypeZDC(0,zdc1Pos,m_logicWorld,m_sd); 
+	  ModTypeZDC *mod2 = new ModTypeZDC(1,zdc2Pos,m_logicWorld,m_sd); 
+	  ModTypeRPD *mod3 = new ModTypeRPD(0,rpdPos, m_logicWorld,m_sd); 
+	  
+	 if(ZDC1) mod1->Construct();
+	 if(ZDC2) mod2->Construct();
+	 if(RPD)  mod3->Construct();
+		
+	  
+		// Setup magnetic field
+	if( mag_on )
+    {
+		mag_zOffset=-9.55*m;
+		//Field grid in A9.TABLE. File must be accessible from run directory. 
+		G4MagneticField* PurgMagField= new PurgMagTabulatedField3D((std::getenv("JZCaPA") + std::string("/Utils/PurgMag3D.TABLE")).c_str(), mag_zOffset+(worldZoffset/1000.0));
+		fField.Put(PurgMagField);
+      
+		//This is thread-local
+		G4FieldManager* pFieldMgr = G4TransportationManager::GetTransportationManager()->GetFieldManager();
+           
+		//G4cout<< "DeltaStep "<<pFieldMgr->GetDeltaOneStep()/mm <<"mm" <<endl;
+		//G4ChordFinder *pChordFinder = new G4ChordFinder(PurgMagField);
+
+		pFieldMgr->SetDetectorField(fField.Get());
+		pFieldMgr->CreateChordFinder(fField.Get());
+	}
+		// Setup lead target
+   if( targ_in ){
+		G4Box* leadTarget = new G4Box("Target",5*cm, 5*cm, 1.3*cm);
+    
+		logic_leadTarget
+		= new G4LogicalVolume(leadTarget,
+                          Lead,
+                          "LeadTarget");
+    
+		new G4PVPlacement(0,
+                      G4ThreeVector(0.0, 0.0, (2600-worldZoffset)*mm),
+                      logic_leadTarget,
+                      "LeadTarget1",
+                      m_logicWorld,
+                      false,
+                      0
+                      );
+
+		// Visualization attributes
+		G4VisAttributes* boxVisAtt_lead= new G4VisAttributes(G4Colour(1.0,0.0,1.0)); //magenta
+		logic_leadTarget ->SetVisAttributes(boxVisAtt_lead);
+		
+   }
+	if( lead_in ){  
+		G4Box* leadBlock = new G4Box("LeadBlock",10*cm, 10*cm, 20*cm);
+    
+		logic_leadBlock
+		= new G4LogicalVolume(leadBlock,
+                          Lead,
+                          "LeadBlock");
+    
+		new G4PVPlacement(0,
+                      G4ThreeVector(0.0, 0.0, (leadblockZ-worldZoffset)*mm),
+                      logic_leadBlock,
+                      "LeadBlock1",
+                      m_logicWorld,
+                      false,
+                      0
+                      );
+
+		// Visualization attributes
+		G4VisAttributes* boxVisAtt_leadblk= new G4VisAttributes(G4Colour(1.0,0.0,1.0)); //magenta
+		logic_leadBlock ->SetVisAttributes(boxVisAtt_leadblk);
+		cout << "Placed Lead Block at Z = " << leadblockZ*mm << "mm" <<  std::endl;
+	}
+	  
+  }//END_ZDC_SETUP
   
   return m_physWorld;
 }

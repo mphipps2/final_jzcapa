@@ -29,6 +29,10 @@ include(${Geant4_USE_FILE})
 find_package (ROOT REQUIRED)
 include_directories (${ROOT_INCLUDE_DIR})
 
+#Xerces-C support
+find_package (Xerces REQUIRED)
+include_directories (${XERCESC_INCLUDE})
+
 # Add ROOTs header paths
 
 #message(${CMAKE_MODULE_PATH} )
@@ -63,7 +67,8 @@ if(useROOT)
 endif(useROOT)
 
 
-target_link_libraries(zdc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+target_link_libraries(zdc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${XERCESC_LIBRARY})
+
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we

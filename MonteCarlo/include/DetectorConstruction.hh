@@ -37,7 +37,10 @@
 #include "ModType2.hh"
 #include "ModType3.hh"
 #include "ModTypeCustom.hh"
-
+#include "ModTypeZDC.hh"
+#include "ModTypeRPD.hh"
+#include "G4Cache.hh"
+#include "G4MagneticField.hh"
 #include <vector>
 
 class G4Box;
@@ -46,6 +49,10 @@ class G4VPhysicalVolume;
 class G4LogicalVolume;
 class G4Material;
 class SharedData;
+
+class G4UniformMagField;
+class PurgMagTabulatedField3D;
+
 
 /// Detector construction class to define materials and geometry.
 
@@ -69,6 +76,11 @@ protected:
   G4Box*               m_solidWorld;
   G4LogicalVolume*     m_logicWorld;
   G4VPhysicalVolume*   m_physWorld;
+  G4LogicalVolume*     logic_leadTarget;
+  G4LogicalVolume*     logic_leadBlock;
+
+private:
+	G4Cache<G4MagneticField*> fField;  //pointer to the thread-local fields
   
 };
 

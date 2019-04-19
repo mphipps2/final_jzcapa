@@ -77,6 +77,7 @@ class RunAction : public G4UserRunAction
         fVelocity_v.clear();
         fBeta_v.clear();}
   inline SharedData* GetSharedData() {return fSharedData;}
+  
   inline  void SetRadNo(G4int rNo) {fRadNb_v.push_back(rNo);}
   inline  void SetRodNo(G4int rNo) {fRodNb_v.push_back(rNo);}  
   inline  void SetEdep(G4double edep) {fEdep_v.push_back(edep);}

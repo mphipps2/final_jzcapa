@@ -33,98 +33,52 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Box.hh"
+#include "G4Event.hh"
 #include "G4RunManager.hh"
 #include "G4ParticleGun.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4SystemOfUnits.hh"
 #include "Randomize.hh"
+#include "G4GeneralParticleSource.hh"
 
 #include <iostream>
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),
-  m_particleGun(0), 
-  m_world(0)
+  fParticleGun(0)
 {
-  G4int n_particle = 1;
-  m_particleGun  = new G4ParticleGun(n_particle);
-
-  // default particle kinematic
-  /*
-  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  G4String particleName;
-  G4ParticleDefinition* particle
-  */
-  // G4IonTable* IonTable = G4IonTable::GetIonTable();
-  // G4String IonName;
-  // G4ParticleDefinition* particle
-    //    = particleTable->FindParticle(particleName="proton");
-  //   = ionTable->FindIon(82,207,0.);
-  //      = particleTable->FindParticle(particleName="opticalphoton");
-  // m_particleGun->SetParticleDefinition(particle);
-  //  m_particleGun->SetParticleMomentumDirection(G4ThreeVector(.5,.5,.5));
-      m_particleGun->SetParticleMomentumDirection(G4ThreeVector(0,0,-1.));
-
-      //m_particleGun->SetParticleEnergy(3.* eV);
-     m_particleGun->SetParticleEnergy(150.* GeV);
+  fParticleGun = new G4GeneralParticleSource(); 
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
-  delete m_particleGun;
+  delete fParticleGun;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-  //this function is called at the begining of ecah event
-  //
-
-  // In order to avoid dependence of PrimaryGeneratorAction
-  // on DetectorConstruction class we get Module volume
-  // from G4LogicalVolumeStore.
-  
-  //  G4double worldSizeX = 0;
-  //  G4double worldSizeY = 0;
-  G4double worldSizeZ = 0;
-
-  if ( !m_world )
-  {
-    G4LogicalVolume* moduleLV
-      = G4LogicalVolumeStore::GetInstance()->GetVolume("World");
-    if ( moduleLV ) m_world = dynamic_cast<G4Box*>(moduleLV->GetSolid());
-  }
-  if ( m_world ) {
-    //    worldSizeX = m_world->GetXHalfLength()*2.;
-    //    worldSizeY = m_world->GetYHalfLength()*2.;
-    worldSizeZ = m_world->GetZHalfLength()*2.;
-  }  
-  else  {
-    G4ExceptionDescription msg;
-    msg << "Module volume of box shape not found.\n"; 
-    msg << "Perhaps you have changed geometry.\n";
-    msg << "The gun will be place at the center.";
-    G4Exception("PrimaryGeneratorAction::GeneratePrimaries()",
-     "MyCode0002",JustWarning,msg);
-  }
-
-  //  G4double size = 0.25; 
-  //  G4double x0 = size * worldSizeX * (G4UniformRand()-0.5) * mm;
-  //  G4double y0 = size * worldSizeY * (G4UniformRand()-0.5) * mm;
-  G4double z0 = 0.5 * worldSizeZ * mm;
-  //  x0 = 0.5;
-  //  y0 = 0.5;
-  std::cout << " particle gun position x 0. y 0. z " << z0 << std::endl;
-  //  m_particleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
-  m_particleGun->SetParticlePosition(G4ThreeVector(0.,0.,z0));
-
-  m_particleGun->GeneratePrimaryVertex(anEvent);
+  fParticleGun->GeneratePrimaryVertex(anEvent);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

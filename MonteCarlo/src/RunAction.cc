@@ -63,12 +63,12 @@ RunAction::~RunAction()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void RunAction::BeginOfRunAction(const G4Run* run)
+void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 { 
   // inform the runManager to save random number seed
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
-  //  G4int nbEventInRun = run->GetNumberOfEventToBeProcessed();
-
+  //G4int nbEventInRun = run->GetNumberOfEventToBeProcessed();
+	
   fSharedData->AddOutputToTree("ID",&fTrackID_v);
   fSharedData->AddOutputToTree("ModNb",&fModNb_v);
   fSharedData->AddOutputToTree("RadNb",&fRadNb_v);

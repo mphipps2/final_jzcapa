@@ -344,7 +344,7 @@ void ModType1::ConstructDetector()
   airColor->SetForceSolid(true);
   m_AirGapLogical->SetVisAttributes( airColor );
   
-  int modOffset = 100000; //  just a convention to organize copy numbers for different modules
+ __attribute__((unused))  int modOffset = 100000; //  just a convention to organize copy numbers for different modules
   cn = 0;
   // Create Pixel and air cylinder that fill radiator gap in pixel modules
   for(int K=0;K<nRadGaps;K++) {    // 12 radiator gaps; 11 absorber gaps

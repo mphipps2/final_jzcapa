@@ -80,6 +80,7 @@ int main(int argc,char** argv)
     arg = TString( argv[3] );
     if( arg.Contains("config") || arg.Contains("cfg") )
       cfgName = arg;
+ 
   }
   std::string outputName;
   outputName = "analysis/temp.root";
@@ -111,6 +112,7 @@ int main(int argc,char** argv)
   G4RunManager* runManager = new MyRunManager( sharedData );
   // Set mandatory initialization classes
   //
+  
   // Detector construction
   runManager->SetUserInitialization(new DetectorConstruction( sharedData ) );
   
@@ -128,7 +130,7 @@ int main(int argc,char** argv)
   runManager->SetUserInitialization(new ActionInitialization(sharedData));
   
   // Initialize visualization
-  //
+
   G4VisManager* visManager = new G4VisExecutive;
   // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
   // G4VisManager* visManager = new G4VisExecutive("Quiet");
@@ -140,10 +142,12 @@ int main(int argc,char** argv)
   // Process macro or start UI session
   //
   if ( ! ui ) { 
+  
     // batch mode
     G4String command = "/control/execute ";
     G4String fileName = argv[1];
     UImanager->ApplyCommand(command+fileName);
+	
   }
   else {
     // interactive mode
@@ -160,7 +164,7 @@ int main(int argc,char** argv)
   std::cerr << "\nAbout to delete sharedData - " << sharedData << std::endl;  
   // WHY THIS NOT WORKING???
   // delete sharedData; 
-  
+
   delete visManager;
   delete runManager;
 
