@@ -5,9 +5,9 @@
         <start_run>79</start_run>
         <end_run>177</end_run>
         <detector>RPD</detector>
-        <x_pos>1</x_pos>
-        <y_pos>2</y_pos>
-        <z_pos>3</z_pos>
+        <x_pos>0.1542</x_pos>
+        <y_pos>-0.489</y_pos>
+        <z_pos>30.88</z_pos>
         <cos_x>0.01</cos_x>
         <cos_y>0.01</cos_y>
         <cos_z>0.01</cos_z>
