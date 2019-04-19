@@ -95,8 +95,6 @@ G4bool RpdSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   //G4int    modNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
   
   G4int    modNum = 0;
-  G4cout << "modNum = " << modNum << G4endl;
-
   
     G4int modNStripsPerGap;
 
@@ -110,15 +108,15 @@ G4bool RpdSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   G4double eDep   = aStep->GetTotalEnergyDeposit();
   
   G4int    totalRodNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
-  G4cout << "totalRodNum = " << totalRodNum << G4endl;
+ // G4cout << "totalRodNum = " << totalRodNum << G4endl;
   G4int    radNum;
   G4int    rodNum;
   
  
     radNum = totalRodNum / modNStripsPerGap;
-	G4cout << "radNum = " << radNum << G4endl;
+	//G4cout << "radNum = " << radNum << G4endl;
     rodNum = totalRodNum % modNStripsPerGap;
-	G4cout << "rodNum = " << rodNum << G4endl;
+	//G4cout << "rodNum = " << rodNum << G4endl;
   
   G4double energy = aStep->GetPreStepPoint()->GetTotalEnergy();
   G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentum();
