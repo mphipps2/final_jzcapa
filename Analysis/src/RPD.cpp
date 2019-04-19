@@ -21,6 +21,10 @@ RPD::RPD( ){
 }
 
 /** @brief Constructor that takes the whole vector of channels readout and selects and stores only the RPD ones
+ *  @param _readOut Vector of Channels with all detector configs
+ *
+ *  Creates a new RPD type Detector and picks the relevant Channels from the input vector.
+ *
 */
 
 RPD::RPD( std::vector < Channel* > _readOut){
@@ -47,6 +51,9 @@ RPD::~RPD( ){
 }
 
 /** @brief Get the properties of a detector element
+ *  @param row Row of element to be accessed
+ *  @param column Column of element to be accessed
+ *  @return Pointer to the Channel of the requested element
  *
  * If m_SortedElements is populated, return the element in 
  * m_SortedElements[row][column].

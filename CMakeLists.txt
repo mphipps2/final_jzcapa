@@ -36,6 +36,11 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 add_compile_options(-std=c++11)
 #add_compile_options(-arch x86_64)
 
+if (${JZCaPA_ON_LXPLUS} MATCHES "YES")
+message("${BoldWhite} LXPLUS modern compiler support enabled! ${ColourReset}")
+add_compile_options(-std=c++1y)
+endif (${JZCaPA_ON_LXPLUS} MATCHES "YES")
+
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmakeModules/)
 
 #Root support
@@ -65,7 +70,6 @@ add_subdirectory(Analysis)
 if (${JZCaPA_ENABLE_MC} MATCHES "YES")
     message("${BoldGreen} Monte Carlo extension enabled! ${ColourReset}")
     add_subdirectory(MonteCarlo)
-
 endif (${JZCaPA_ENABLE_MC} MATCHES "YES")
 
 #Install test
@@ -77,4 +81,5 @@ install(FILES Utils/Alignment_2018.xml DESTINATION Utils)
 install(FILES Utils/Survey_2018.xml DESTINATION Utils)
 install(FILES Utils/PurgMag3D.TABLE DESTINATION Utils)
 
+install(FILES Utils/jcapa_env_lxplus.sh DESTINATION Utils)
 

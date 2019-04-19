@@ -213,6 +213,7 @@ void  XMLSettingsReader::getChildValue(std::string _baseNode, int _baseNumber,
 
 /*! @brief This routine loads data from a file
  *  @param _fileName
+ *  @return true if parsing was successful, false otherwise.
  *  This Routine loads the XML-Tree from a given file.
  */
 bool XMLSettingsReader::parseFile(std::string _fileName){

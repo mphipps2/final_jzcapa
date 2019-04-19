@@ -27,6 +27,9 @@ Detector::~Detector( ){
 }
 
 /** @brief Get the properties of a detector element
+ *  @param row Row of element to be accessed
+ *  @param column Column of element to be accessed
+ *  @return Pointer to the Channel of the requested element
  *
  * Returns a pointer to the Channel stored in m_Elements with the
  * requested row and column.
@@ -80,7 +83,9 @@ void Detector::SetBranches( TTree *_dataTree ){
 void Detector::DeclareHistograms(){
 
     for( uint ch = 0; ch < m_Element.size(); ch++ ){
-        m_Element.at(ch)->WF_histo = new TH1D(m_Element.at(ch)->name.c_str(), (m_Element.at(ch)->name + ", " + m_Element.at(ch)->detector).c_str(), m_nSamp, 0, m_nSamp);
+        m_Element.at(ch)->WF_histo        = new TH1D( m_Element.at(ch)->name.c_str(), (m_Element.at(ch)->name + ", " + m_Element.at(ch)->detector).c_str(), m_nSamp, 0, m_nSamp);
+        m_Element.at(ch)->PWF_histo       = new TH1D((m_Element.at(ch)->name + " Processed").c_str(),  (m_Element.at(ch)->name + ", " + m_Element.at(ch)->detector + " Processed").c_str() , m_nSamp, 0, m_nSamp);
+        m_Element.at(ch)->FirstDerivative = new TH1D((m_Element.at(ch)->name + " Derivative").c_str(), (m_Element.at(ch)->name + ", " + m_Element.at(ch)->detector + " Derivative").c_str(), m_nSamp, 0, m_nSamp);
     }
 
 }
@@ -91,6 +96,10 @@ void Detector::DeclareHistograms(){
 void Detector::FillHistograms(){
     for( uint ch = 0; ch < m_Element.size(); ch++ ){
         m_Element.at(ch)->WF_histo->Reset();
+        m_Element.at(ch)->PWF_histo->Reset();
+        m_Element.at(ch)->FirstDerivative->Reset();
+        m_Element.at(ch)->FirstDerivativeRMS = 0;
+        m_Element.at(ch)->CrossZeroPoints.clear();
         // Loop over samples in each channel
         for( uint samp = 0; samp < m_nSamp; samp++ ){
           m_Element.at(ch)->WF_histo->SetBinContent( samp + 1, m_Element.at(ch)->WF[ samp ] );

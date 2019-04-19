@@ -13,6 +13,8 @@
 
 #include "Analysis.h"
 #include "Containers.h"
+#include "TVirtualFFT.h"
+#include "TF1.h"
 #include "TStyle.h"
 #include "TGaxis.h"
 #include "TF1.h"
@@ -23,20 +25,32 @@ class WFAnalysis : public Analysis{
 
  public :
   WFAnalysis( );
+  WFAnalysis( int _sensitivity, double _threshold ){ m_diffSens = _sensitivity; m_Tmultiple = _threshold; }
   virtual ~WFAnalysis( );
 
   virtual void   Initialize     ( );
   virtual void   SetupHistograms( );
-  virtual TH1   *GetDifferential( TH1D *h, int window, bool debug = false );
-  virtual double GetRMS         ( TH1D *h, int diff_window, bool save = false) ;
-  virtual void   OverlayHistos  ( TH1D *h1, TH1D *h2 , TVirtualPad* pad, bool save = false );
-  virtual void   OverlayHistos  ( TH1D *h1, TH1D *h2 , bool save = true );
+  virtual void   GetDifferential( TH1D *hIN, TH1D *hOUT );
+  virtual double GetRMS         ( TH1D *h, bool debug = false) ;
+  virtual void   GetPedestal    ( Channel* ch, TH1D* hRef = 0 );
+  virtual void   FindHitWindow  ( Channel* ch );
+  virtual void   ZeroSuppress   ( Channel* ch );
+  virtual void   LowPassFilter  ( Channel* ch, TH1D* hIn = 0 );
   virtual void   AnalyzeEvent   ( const std::vector< TH1* >& );
   virtual void   AnalyzeEvent   ( const std::vector< std::vector< float > >& );
   virtual void   AnalyzeEvent   ( const std::vector< Channel* > vCh );
-  virtual void   AnalyzeEvent   ( const std::vector< Channel* > vCh, TVirtualPad* pad );
+  virtual void   AnalyzeEvent   ( const std::vector< Channel* > vCh, std::string detector );
   virtual void   Finalize       ( );
 
+ private :
+  /** Sensitivity level to hits (differentiation window) */
+  int m_diffSens = 25;
+  /** Hit threshold multiplier */
+  double m_Tmultiple = 3.5;
+  /** Frequency threshold for low pass filter */
+  int fCutoff = 50;
+  /** Flag for inverting PMT signals */
+  bool invert = false;
 };
 
 #endif

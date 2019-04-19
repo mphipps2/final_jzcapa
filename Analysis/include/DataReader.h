@@ -23,6 +23,7 @@
 #include "Containers.h"
 #include "Detector.h"
 
+
 #include <TChain.h>
 
 class TFile;
@@ -34,18 +35,20 @@ class DataReader{
   DataReader( );
   DataReader( const unsigned int = 0,  const unsigned int = 0 );
   DataReader( const unsigned int = 0,  const unsigned int = 0,
-	      const std::string& = "" );
+              const std::string& = "" );
   DataReader( const unsigned int = 0,  const unsigned int = 0,
-	      const std::string& = "", const unsigned int = 0 );
+              const std::string& = "", const unsigned int = 0 );
   virtual ~DataReader();
 
   void AddAnalysis  ( Analysis* );
   
   void ReadListOfFiles( std::string listname );
 
-  void LoadAlignmentFile(std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/Alignment_2018.xml"));
-  void LoadConfigurationFile(std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/ConfigFile2018.xml"));
-  void SetDebugMode() { m_debug = true; }
+  void LoadAlignmentFile     (std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/Alignment_2018.xml"));
+  void LoadConfigurationFile (std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/ConfigFile2018.xml"));
+  void SetDebugMode          ( ) { m_debug = true; }
+  void SetVerbosity          ( int _level ){ m_verbose = _level; }
+  void UpdateConsole         ( Long_t _updateRate);
 
   Detector* GetDetector( std::string _detName );
 
@@ -91,9 +94,16 @@ class DataReader{
 
   //XML parser
   XMLSettingsReader *m_XMLparser;
+  
+  //Current event
+  int m_event;
+  //Event number of last update
+  int m_event_old = 0;
 
   //DebugVariable
   bool m_debug = false;
+  //Verbosity level
+  int m_verbose = 0;
 };
 
 #endif

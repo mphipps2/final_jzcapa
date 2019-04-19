@@ -12,9 +12,7 @@
 
 #include <TFile.h>
 #include <TTree.h>
-#include <TH1.h>
-#include <TCanvas.h>
-#include <TChain.h>
+#include <TSystem.h>
 
 #include <iostream>
 
@@ -23,6 +21,8 @@
 #include "Containers.h"
 #include "RPD.h"
 #include "ZDC.h"
+#include "Visualizer.h"
+
 
 /** @brief Default Constructor for DataReader.
  */
@@ -32,8 +32,8 @@ DataReader::DataReader() : DataReader( 0, 0, "", 0 ){
 
 /** @brief Constructor for DataReader.
  *
- *  @param1 Number of channels being read
- *  @param2 Number of samples per channel
+ *  @param nCh Number of channels being read
+ *  @param nSamp Number of samples per channel
  */
 DataReader::DataReader( const unsigned int nCh, const unsigned int nSamp )
   : DataReader( nCh, nSamp, "", 0 ){
@@ -45,9 +45,9 @@ DataReader::DataReader( const unsigned int nCh, const unsigned int nSamp )
 
 /** @brief Constructor for DataReader.
  *
- *  @param1 Number of channels being read
- *  @param2 Number of samples per channel
- *  @param3 Input filename.
+ *  @param nCh Number of channels being read
+ *  @param nSamp Number of samples per channel
+ *  @param fNameIn Input filename.
  */
 DataReader::DataReader( const uint nCh, const uint nSamp,
 			const std::string& fNameIn )
@@ -58,10 +58,10 @@ DataReader::DataReader( const uint nCh, const uint nSamp,
 
 /** @brief Constructor for DataReader.
  *
- *  @param1 Number of channels being read
- *  @param2 Number of samples per channel
- *  @param4 Output file name (custom)
- *  @param3 Run number being used.
+ *  @param nCh Number of channels being read
+ *  @param nSamp Number of samples per channel
+ *  @param4 fNameIn Output file name (custom)
+ *  @param3 runNum Run number being used.
  
  */
 DataReader::DataReader( const uint nCh, const uint nSamp,
@@ -83,18 +83,19 @@ DataReader::~DataReader(){
 
 /** @brief Adds an analysis to vector of analysis
  *
- *  @param1 Pointer to an Analysis.
+ *  @param ana Pointer to an Analysis.
  *
  *  @return none
  */
 void DataReader::AddAnalysis( Analysis* ana ){
+  ana->SetVerbosity( m_verbose );
   m_ana.push_back( ana );
 }
 
 
 /** @brief Enables the read from list of files option for DataReader
  *
- *  @param1 name of the list of files to be processed (with the full path if it's not in the execution folder)
+ *  @param listname name of the list of files to be processed (with the full path if it's not in the execution folder)
  *
  *  @return none
  */
@@ -170,7 +171,6 @@ void DataReader::LoadConfigurationFile(std::string _inFile ){
         //Discard entries for any channel that does not apply to our run
         if(m_runNumber < first_run || m_runNumber > last_run) continue;
 
-
         //If the entry applies, we store it in the vector
         m_XMLparser->getChildValue("channel",i,"detector",buffer_ch->detector);
         m_XMLparser->getChildValue("channel",i,"name",buffer_ch->name);
@@ -182,7 +182,14 @@ void DataReader::LoadConfigurationFile(std::string _inFile ){
         m_XMLparser->getChildValue("channel",i,"is_on",buffer_ch->is_on);
         m_XMLparser->getChildValue("channel",i,"Vop",buffer_ch->Vop);
 
-        channelEntries.push_back(buffer_ch);
+        bool isNew(true);
+        for( int k = 0; k < channelEntries.size(); k++){
+            if(buffer_ch->name == channelEntries.at(k)->name){
+                std::cout << "WARNING!!! Redundancy in your settings file for " << buffer_ch->name << ". Check it carefully. The second entry found will be skipped..." << std::endl;
+                isNew = false;
+            }
+        }
+        if(isNew) channelEntries.push_back(buffer_ch);
     }
 
     std::cout << "Loaded " << channelEntries.size() << " configuration entries " << std::endl;
@@ -221,12 +228,43 @@ Detector* DataReader::GetDetector( std::string _detName ){
 }
 
 
+/** @brief Console output update
+ *  @return none
+ *
+ *  Called by the TTimer in ProcessEvents
+ *  Updates the console with CPU and RAM usage,
+ *  number of events processed and events/second
+ *  if verbosity is not zero
+ */
+void DataReader::UpdateConsole( Long_t _updateRate){
+
+    if( m_verbose == 0 ){ return; }
+    if(m_event!=0){
+        MemInfo_t memInfo;
+        CpuInfo_t cpuInfo;
+    
+        // Get CPU information
+        gSystem->GetCpuInfo(&cpuInfo, 100);
+        // Get Memory information
+        gSystem->GetMemInfo(&memInfo);
+        // Get events/second
+        double rate = 1000*(m_event-m_event_old)/_updateRate;
+        m_event_old = m_event;
+    
+        std::cout << "\r" << std::left <<  Form("Processed %d events, ", m_event);
+        std::cout << Form( "%4.1f ev/s, ", rate);
+        std::cout << Form( "CPU: %d", (int)cpuInfo.fTotal) << "%, ";
+        std::cout << Form( "RAM:%4.1f/%4.1fGB    ", (double)memInfo.fMemUsed/1024, (double)memInfo.fMemTotal/1024);
+        std::cout << std::flush;
+    }
+}
+
 /** @brief Run method for DataReader
+ *  @return none
  *
  *  Call Initialize, ProcessEvents, and Finalize
  *  Made so the driver class only has to call one method.
  *  
- *  @return none
  */
 void DataReader::Run(){
 
@@ -294,24 +332,6 @@ void DataReader::Initialize(){
  *  @return none
  */
 void DataReader::ProcessEvents(){
-    
-  TCanvas *canvas = new TCanvas( "Diff Demo", "Diff Demo", 200, 10, 1000, 600);
-  TPad *pad = new TPad("pad", "pad",0.15,0.11,0.85,0.79);
-  canvas->Divide(4,2);
-
-  // Processed Raw data to read in as vector of vectors size NxM
-  // Where N = nCh and M = nSamples per channel.
-  std::vector< std::vector< float >  >  vWF;
-  std::vector< std::vector< float >* > pvWF;
-
-  // Histograms (N of them) for the raw waveforms from each event.
-  // They will go to AnalyzeEvent for processing
-  std::vector< TH1* > vWFH;
-
-  // Resize these to be of size nCh.
-  vWF .resize( m_nCh );
-  pvWF.resize( m_nCh );
-  vWFH.resize( m_nCh );
 
   /** TODO : add reading for list of files
     * Please note that many of the implementations are now for a single-file treatment
@@ -330,41 +350,19 @@ void DataReader::ProcessEvents(){
        m_detectors.at(detID)->DeclareHistograms();
   }
 
-  // Connect raw data to tree. For the moment, the only reading implemented is the raw data from each channel.
-  // Other items should be implemented in the same way if needed.
-  // Also create the histograms to fill
-  for( uint ch = 0; ch < m_nCh; ch++ ){
-    //Example - here we retrieve the already processed waveform (M.Phipps approach during the data production)
-    pvWF[ ch ] = &vWF[ ch ];
-    tree->SetBranchAddress( Form( "C%d", ch ), &pvWF[ ch ] );
-    vWFH[ ch ] = new TH1D( Form( "hWF%d", ch ), Form( "hWF%d;samp;amp", ch ), m_nSamp, 0, m_nSamp );
-  }
-
   std::cout << "File: " << m_fIn->GetName() << " has " << tree->GetEntries() << " events." << std::endl;
+  
+
   
   // !! EVENT LOOP
   for( int ev = 0; ev < tree->GetEntries(); ev++ ){
+    m_event = ev;
     
-    // Uncomment to run a few events at a time
-    if(ev==8) break;
-    
-    // Uncomment to run a single event
-    //if(ev!=8) continue;
-  
     tree->GetEntry( ev );
     
-
     // Fill the raw waveforms
     for( uint detID = 0; detID < (int) m_detectors.size(); detID++ )
         m_detectors.at(detID)->FillHistograms();
-
-   //Here if you're interested in already processed waveform
-   for( uint ch = 0; ch < m_nCh; ch++ ) {
-   // Loop over samples in each channel
-    for( uint samp = 0; samp < m_nSamp; samp++ ){
-      vWFH[ ch ]->SetBinContent( samp + 1, vWF[ ch ][ samp ] );
-      } // End loop over samples in each channel
-    } // End loop over channels
 
     // Now call all analysis and run their AnalyzeEvent.
     // Can either send a vector of histos, or a 2D vector
@@ -372,21 +370,11 @@ void DataReader::ProcessEvents(){
     // Note that at the moment none of this methods is doing anything
     for( auto& ana : m_ana ){
       //raw data analysis
-      //ana->AnalyzeEvent( zdc1->GetChannelsVector()  );
-      //ana->AnalyzeEvent( zdc2->GetChannelsVector(), canvas->cd() );
-      //ana->AnalyzeEvent( rpd->GetChannelsVector() );
-      ana->AnalyzeEvent( rpd->GetChannelsVector(), canvas->cd(ev+1) );
-      //already processed wf analysis
-      //ana->AnalyzeEvent( vWFH );
-      //ana->AnalyzeEvent( vWF  );
+      ana->AnalyzeEvent( zdc1->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
+      ana->AnalyzeEvent( zdc2->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
+      ana->AnalyzeEvent( rpd->GetChannelsVector(),  rpd->GetChannelsVector().at(0)->detector );
     }
   } // End event loop
-  
-  pad->Update();
-  canvas->Draw();
-  canvas->Print( "Output.pdf" );
-
-  for( auto& h : vWFH ){ delete h; }
 }
 
 /** @brief Finalize method for DataReader
