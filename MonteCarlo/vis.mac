@@ -79,7 +79,7 @@
 
 
 #  To increase display limit
-/vis/ogl/set/displayListLimit 5000000
+#/vis/ogl/set/displayListLimit 5000000
 # to filter out uncharge particles
 
 #/vis/filtering/trajectories/create/chargeFilter

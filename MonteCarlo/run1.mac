@@ -14,14 +14,14 @@
 /run/particle/verbose 1
 
 
-#/gps/particle ion
-#/gps/ion 82 208 0 0.0
-#/gps/energy 31.2 TeV
+/gps/particle ion
+/gps/ion 82 208 0 0.0
+/gps/energy 31.2 TeV
 
 # using alphas is useful if you would like to visualize the tracks (Pb ions require much more computing time)
-/gps/particle ion
-/gps/ion 2 4 0 0.0
-/gps/energy 600 GeV
+#/gps/particle ion
+#/gps/ion 2 4 0 0.0
+#/gps/energy 600 GeV
 
 #/gps/particle proton
 #/gps/particle neutron
@@ -55,8 +55,8 @@
 # 1.0milliradians   0.057 deg 
 #
 
-#if using these commands in interactive mode to visualize, use this to allow more events to be displayed
-/vis/ogl/set/displayListLimit 1000000
+#if using these commands in interactive mode to visualize, use this to allow more events to be displayed (do not use in batch mode)
+#/vis/ogl/set/displayListLimit 1000000
 
 ##############################################################
 ##############################################################
