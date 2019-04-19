@@ -73,6 +73,7 @@ void SharedData :: Initialize()
   m_config       = new TEnv ();
   int success;
   success = m_config->ReadFile( m_configFileName.c_str(), EEnvLevel(0));
+  if(success == -1){m_config->ReadFile( "config.cfg", EEnvLevel(0));}
   std::cout << " Config File path = " <<  m_configFileName.c_str() << " Check if read successfully (0 = success) " << success << std::endl;
 }
 
@@ -160,8 +161,11 @@ void SharedData::LoadConfigurationFile( int m_runNumber, std::string _inFile  ){
 	
 	 
     if (!m_XMLparser->parseFile(_inFile)) {
-            std::cerr << " Data Reader could not parse file : " << _inFile << std::endl;
-            return;
+      if(!m_XMLparser->parseFile("Survey_2018.xml")){
+	  std::cerr << " Data Reader could not parse file : " << _inFile << std::endl;
+	  return;
+	}
+      std::cout << " Found Survey_2018.xml in executable directory " << std::endl;
     }
 	
     std::cout << "Loading .xml Configuration File..." << std::endl;
@@ -204,8 +208,11 @@ void SharedData::LoadAlignmentFile( int m_runNumber, std::string _inFile ){
     m_XMLparser = new XMLSettingsReader();
 
     if (!m_XMLparser->parseFile(_inFile)) {
-            std::cerr << " Data Reader could not parse file : " << _inFile << std::endl;
-            return;
+        if(!m_XMLparser->parseFile("Alignment_2018.xml")){
+	   std::cerr << " Data Reader could not parse file : " << _inFile << std::endl;
+	   return;
+        }
+	std::cout << " Found Alignment_2018.xml in executable directory " << std::endl;
     }
 
     m_alignment = new Alignment();
