@@ -24,7 +24,8 @@ SharedData :: SharedData ()
  // m_configFileName = "config/config.cfg";
 
   m_fout = NULL;
-  m_tree = NULL;
+  m_treeZDC = NULL;
+  m_treeRPD = NULL;
   m_config = NULL;
 
 }
@@ -42,7 +43,8 @@ SharedData :: SharedData ( const std::string& outputFileName,
  // std::cout << "* current config file path * = " << m_configFileName << std::endl;
  
   m_fout = NULL ;
-  m_tree = NULL;
+  m_treeZDC = NULL;
+  m_treeRPD = NULL;
   m_config = NULL;
 }
 
@@ -52,7 +54,8 @@ SharedData :: SharedData ( const std::string& outputFileName,
  */
 SharedData :: ~SharedData() 
 {
-  delete m_tree;
+  delete m_treeZDC;
+  delete m_treeRPD;
   delete m_fout;
   delete m_config;
 }
@@ -67,9 +70,10 @@ SharedData :: ~SharedData()
 
 void SharedData :: Initialize()
 {
-  m_fout         = new TFile( m_outputFileName.c_str(), "RECREATE" );
-  m_tree         = new TTree( "tree"                  , "tree"     );
-
+  m_fout         	= new TFile( m_outputFileName.c_str(), "RECREATE" );
+  m_treeZDC         = new TTree( "ZDCtree"                  , "ZDCtree"     );
+  m_treeRPD         = new TTree( "RPDtree"                  , "RPDtree"     );
+  
   m_config       = new TEnv ();
   int success;
   success = m_config->ReadFile( m_configFileName.c_str(), EEnvLevel(0));
@@ -86,6 +90,9 @@ void SharedData :: AddOutputHistogram( TH1* h )
 {
   m_v_hists.push_back( h );
 }
+
+
+
 /** @brief End of event
  *
  *  Fill the tree, increment event counter 
@@ -127,7 +134,8 @@ bool SharedData :: DoPrint()
 void SharedData :: Finalize() 
 {
   m_fout->cd();
-  m_tree->Write();
+  m_treeZDC->Write();
+  m_treeRPD->Write();
   for( auto& h : m_v_hists ) { h->Write(); }
   
   m_fout->Close();

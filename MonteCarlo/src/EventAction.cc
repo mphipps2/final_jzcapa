@@ -71,11 +71,12 @@ void EventAction::EndOfEventAction(const G4Event* evt)
   QuartzHitsCollection* HC = 0;
   G4int nCollections =  HCE->GetNumberOfCollections();
   int totalPhotons = 0;
-  
+  int IDholder = 0;
   if(HCE) {
     while (hitsCollID < nCollections) {
       HC = (QuartzHitsCollection*)(HCE->GetHC(hitsCollID));
       int n_hit = HC->entries();
+	  IDholder  = hitsCollID;
       int prevTrackId = 0;
       int prevRadiatorNo = 0;
       std::cout  << " hitsCollId " << hitsCollID << " nHits " << n_hit << std::endl;
@@ -112,6 +113,24 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	    << "  energy deposit: " << G4BestUnit(eDep,"Energy")
 	    << "  position: " << G4BestUnit(position,"Length") << G4endl;
 	  */
+	  
+	  if(IDholder==2){ //2 corresponds to the RPD hitsCollID
+	  fRunAction->SetRadNo_rpd(radiatorNo);
+	  fRunAction->SetRodNo_rpd(rodNo);
+	  fRunAction->SetNCherenkovs_rpd(nCherenkovs);
+	  fRunAction->SetEdep_rpd(eDep);
+	  fRunAction->SetModNb_rpd(modNb);
+	  fRunAction->SetTrackID_rpd(trackID);
+	  fRunAction->SetPosition_rpd(position);	 
+	  fRunAction->SetMomentum_rpd(momentum);
+	  fRunAction->SetEnergy_rpd(energy);
+	  fRunAction->SetPid_rpd(pid);
+	  fRunAction->SetEventNo_rpd(fEventNo);
+	  fRunAction->SetCharge_rpd(charge);
+	  fRunAction->SetVelocity_rpd(velocity);
+	  fRunAction->SetBeta_rpd(beta);}
+	  else{
+	  totalPhotons += nCherenkovs; //not being used currently
 	  fRunAction->SetRadNo(radiatorNo);
 	  fRunAction->SetRodNo(rodNo);
 	  fRunAction->SetNCherenkovs(nCherenkovs);
@@ -125,15 +144,21 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	  fRunAction->SetEventNo(fEventNo);
 	  fRunAction->SetCharge(charge);
 	  fRunAction->SetVelocity(velocity);
-	  fRunAction->SetBeta(beta);
-	  totalPhotons += nCherenkovs;
+	  fRunAction->SetBeta(beta);}
 	}
 	prevTrackId = trackID;
 	prevRadiatorNo = radiatorNo;
       }
       hitsCollID++;
     }
-    fRunAction->GetSharedData()->GetTree()->Fill();
+    
+	
+	fRunAction->GetSharedData()->GetRPDTree()->Fill();
+	
+	fRunAction->GetSharedData()->GetZDCTree()->Fill();
+	
+	
+	
   }
 
   fRunAction->ClearVectors();

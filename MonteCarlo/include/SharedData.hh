@@ -84,14 +84,18 @@ public:
   void   Finalize(); 
    
   template<class T> 
-  void   AddOutputToTree    ( const std::string&, T*);
-
+  void   AddOutputToZDCTree    ( const std::string&, T*);
+  template<class T> 
+  void   AddOutputToRPDTree    ( const std::string&, T*);
+  
   void   AddOutputHistogram ( TH1* );
    
   TEnv*  GetConfig        () { return m_config; }
 
   bool   DoPrint          ();
-  inline TTree* GetTree          () {return m_tree;}
+  inline TTree* GetZDCTree          () {return m_treeZDC;}
+  inline TTree* GetRPDTree          () {return m_treeRPD;}
+  
   inline int GetEventNo       () {return m_eventCounter;}
   
   Survey* GetSurvey(std::string name);
@@ -105,7 +109,9 @@ public:
 private:
   TEnv*   m_config;
   TFile*  m_fout;
-  TTree*  m_tree;
+  TTree*  m_treeZDC;
+  TTree*  m_treeRPD;
+  
   std::vector< TH1* > m_v_hists;
   
   int     m_eventCounter;
@@ -134,11 +140,17 @@ private:
 
 template<class T>
 
-void SharedData :: AddOutputToTree( const std::string& name, T* pObj ){
+void SharedData :: AddOutputToZDCTree( const std::string& name, T* pObj ){
   std::cout << "Adding " << name << std::endl;
-  m_tree->Branch( name.c_str(), pObj );
+   m_treeZDC->Branch( name.c_str(), pObj );
 }
 
+template<class T>
+
+void SharedData :: AddOutputToRPDTree( const std::string& name, T* pObj ){
+  std::cout << "Adding " << name << std::endl;
+   m_treeRPD->Branch( name.c_str(), pObj );
+}
 
 
 #endif

@@ -69,24 +69,43 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
   //G4int nbEventInRun = run->GetNumberOfEventToBeProcessed();
 	
-  fSharedData->AddOutputToTree("ID",&fTrackID_v);
-  fSharedData->AddOutputToTree("ModNb",&fModNb_v);
-  fSharedData->AddOutputToTree("RadNb",&fRadNb_v);
-  fSharedData->AddOutputToTree("RodNb",&fRodNb_v);
-  fSharedData->AddOutputToTree("EDep",&fEdep_v);
-  fSharedData->AddOutputToTree("Pid",&fPid_v);
-  fSharedData->AddOutputToTree("X",&fX_v);
-  fSharedData->AddOutputToTree("Y",&fY_v);
-  fSharedData->AddOutputToTree("Z",&fZ_v);
-  fSharedData->AddOutputToTree("Px",&fPx_v);
-  fSharedData->AddOutputToTree("Py",&fPy_v);
-  fSharedData->AddOutputToTree("Pz",&fPz_v);
-  fSharedData->AddOutputToTree("EventNo",&fEventNo_v);
-  fSharedData->AddOutputToTree("Energy",&fEnergy_v);
-  fSharedData->AddOutputToTree("Charge",&fCharge_v);
-  fSharedData->AddOutputToTree("Velocity",&fVelocity_v);
-  fSharedData->AddOutputToTree("NCherenkovs",&fNCherenkovs_v);
-  fSharedData->AddOutputToTree("Beta",&fBeta_v);
+  fSharedData->AddOutputToZDCTree("ID",&fTrackID_v);
+  fSharedData->AddOutputToZDCTree("ModNb",&fModNb_v);
+  fSharedData->AddOutputToZDCTree("RadNb",&fRadNb_v);
+  fSharedData->AddOutputToZDCTree("RodNb",&fRodNb_v);
+  fSharedData->AddOutputToZDCTree("EDep",&fEdep_v);
+  fSharedData->AddOutputToZDCTree("Pid",&fPid_v);
+  fSharedData->AddOutputToZDCTree("X",&fX_v);
+  fSharedData->AddOutputToZDCTree("Y",&fY_v);
+  fSharedData->AddOutputToZDCTree("Z",&fZ_v);
+  fSharedData->AddOutputToZDCTree("Px",&fPx_v);
+  fSharedData->AddOutputToZDCTree("Py",&fPy_v);
+  fSharedData->AddOutputToZDCTree("Pz",&fPz_v);
+  fSharedData->AddOutputToZDCTree("EventNo",&fEventNo_v);
+  fSharedData->AddOutputToZDCTree("Energy",&fEnergy_v);
+  fSharedData->AddOutputToZDCTree("Charge",&fCharge_v);
+  fSharedData->AddOutputToZDCTree("Velocity",&fVelocity_v);
+  fSharedData->AddOutputToZDCTree("NCherenkovs",&fNCherenkovs_v);
+  fSharedData->AddOutputToZDCTree("Beta",&fBeta_v);
+  
+  fSharedData->AddOutputToRPDTree("ID",&fTrackID_v2);
+  fSharedData->AddOutputToRPDTree("ModNb",&fModNb_v2);
+  fSharedData->AddOutputToRPDTree("RadNb",&fRadNb_v2);
+  fSharedData->AddOutputToRPDTree("RodNb",&fRodNb_v2);
+  fSharedData->AddOutputToRPDTree("EDep",&fEdep_v2);
+  fSharedData->AddOutputToRPDTree("Pid",&fPid_v2);
+  fSharedData->AddOutputToRPDTree("X",&fX_v2);
+  fSharedData->AddOutputToRPDTree("Y",&fY_v2);
+  fSharedData->AddOutputToRPDTree("Z",&fZ_v2);
+  fSharedData->AddOutputToRPDTree("Px",&fPx_v2);
+  fSharedData->AddOutputToRPDTree("Py",&fPy_v2);
+  fSharedData->AddOutputToRPDTree("Pz",&fPz_v2);
+  fSharedData->AddOutputToRPDTree("EventNo",&fEventNo_v2);
+  fSharedData->AddOutputToRPDTree("Energy",&fEnergy_v2);
+  fSharedData->AddOutputToRPDTree("Charge",&fCharge_v2);
+  fSharedData->AddOutputToRPDTree("Velocity",&fVelocity_v2);
+  fSharedData->AddOutputToRPDTree("NCherenkovs",&fNCherenkovs_v2);
+  fSharedData->AddOutputToRPDTree("Beta",&fBeta_v2);
   
   // reset parameters to their initial values
 #if G4VERSION_NUMBER > 999

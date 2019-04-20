@@ -252,7 +252,10 @@ void CherenkovSD::EndOfEvent(G4HCofThisEvent* HCE)
           fCharge = (*HC)[i]->getCharge();	  
 	  //	  std::cout << " print " << std::endl;
 	  //      (*radiatorCollection)[i]->Print();
-	  m_sd->GetTree()->Fill();
+	  
+	  //RPD hitsCollID is 2, use this to fill separate tree
+	  if(hitsCollID==2) 	m_sd->GetRPDTree()->Fill();
+	  else 					m_sd->GetZDCTree()->Fill();
 	}
         prevTrackId = trackID;
         prevCherenkovNo = radiatorNo;
