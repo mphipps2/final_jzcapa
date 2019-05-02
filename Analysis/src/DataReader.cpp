@@ -347,6 +347,10 @@ void DataReader::Initialize(){
     ana->Initialize();
     ana->SetupHistograms();
   }
+  for( auto& det_ana : m_det_ana ){
+    det_ana->Initialize();
+    det_ana->SetupHistograms();
+  }
 }
 
 
@@ -365,6 +369,7 @@ void DataReader::Initialize(){
  *  @return none
  */
 void DataReader::ProcessEvents(){
+
 
   /** TODO : add reading for list of files
     * Please note that many of the implementations are now for a single-file treatment
@@ -403,14 +408,16 @@ void DataReader::ProcessEvents(){
     // Note that at the moment none of this methods is doing anything
     for( auto& ana : m_ana ){
       //raw data analysis
-        if(useZDC1) ana->AnalyzeEvent( zdc1->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
-        if(useZDC2) ana->AnalyzeEvent( zdc2->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
-        if(useRPD) ana->AnalyzeEvent( rpd->GetChannelsVector(),  rpd->GetChannelsVector().at(0)->detector );    }
+        if(useZDC1) ana->AnalyzeEvent( zdc1->GetChannelsVector() );
+        if(useZDC2) ana->AnalyzeEvent( zdc2->GetChannelsVector() );
+        if(useRPD) ana->AnalyzeEvent( rpd->GetChannelsVector() ); 
+        }
     for( auto& det_ana : m_det_ana ){
-      //raw data analysis
-      if(useZDC1) det_ana->AnalyzeEvent( zdc1->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
-      if(useZDC2) det_ana->AnalyzeEvent( zdc2->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
-      if(useRPD)  det_ana->AnalyzeEvent( rpd->GetChannelsVector(),  rpd->GetChannelsVector().at(0)->detector );
+      //Detector level analysis
+      det_ana->AnalyzeEvent( m_detectors );
+      //if(useZDC1) det_ana->AnalyzeEvent( m_detectors );
+      //if(useZDC2) det_ana->AnalyzeEvent( m_detectors );
+      //if(useRPD)  det_ana->AnalyzeEvent( m_detectors );
     }
   } // End event loop
 }
@@ -434,6 +441,9 @@ void DataReader::Finalize(){
 
   for( auto& ana : m_ana ){
     ana->Finalize();
+  }
+  for( auto& det_ana : m_det_ana ){
+    det_ana->Finalize();
   }
 
   m_fOut->Close();
