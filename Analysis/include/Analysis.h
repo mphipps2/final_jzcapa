@@ -15,6 +15,7 @@
 #include <vector>
 #include "TVirtualPad.h"
 
+#include "Detector.h"
 #include "Containers.h"
 
 class TFile;
@@ -34,7 +35,7 @@ class Analysis{
   virtual void AnalyzeEvent   ( const std::vector< TH1* >& ) = 0;
   virtual void AnalyzeEvent   ( const std::vector< std::vector< float > >& ) = 0;
   virtual void AnalyzeEvent   ( const std::vector< Channel* > ) = 0;
-  virtual void AnalyzeEvent   ( const std::vector< Channel* >, std::string ) = 0;
+  virtual void AnalyzeEvent   ( std::vector < Detector* > ) = 0;
   virtual void SetVerbosity   ( int _level ){ m_verbose = _level; }
   virtual void Finalize       ( ) = 0;
   
