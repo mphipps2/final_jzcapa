@@ -22,6 +22,8 @@
 #include "XMLSettingsReader.h"
 #include "Containers.h"
 #include "Detector.h"
+#include "ZDC.h"
+#include "RPD.h"
 
 
 #include <TChain.h>
@@ -40,8 +42,10 @@ class DataReader{
               const std::string& = "", const unsigned int = 0 );
   virtual ~DataReader();
 
-  void AddAnalysis  ( Analysis* );
-  
+  void AddPreAnalysis  ( Analysis* );
+  void AddDetectorAnalysis  ( Analysis* );
+  void SelectDetectorForAnalysis ( bool _useZDC1, bool _useZDC2, bool _useRPD );
+
   void ReadListOfFiles( std::string listname );
 
   void LoadAlignmentFile     (std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/Alignment_2018.xml"));
@@ -62,8 +66,10 @@ class DataReader{
   // output file
   TFile* m_fOut;
   
-  // vector of all analysis
+  // vector of pre-detector analysis
   std::vector< Analysis* > m_ana;
+  // vector of detector analysis
+  std::vector< Analysis* > m_det_ana;
 
   //Number of channels to be read
   unsigned int m_nCh;
@@ -89,6 +95,8 @@ class DataReader{
   //Vector of detectors placed in the 2018 setup (2 ZDCs, 1 RPD)
   std::vector < Detector* > m_detectors;
 
+  //Vectors of
+
   //Alignment information for the given run
   Alignment* m_alignment;
 
@@ -99,6 +107,9 @@ class DataReader{
   int m_event;
   //Event number of last update
   int m_event_old = 0;
+
+  //Booleans for analysis selection
+  bool useZDC1, useZDC2, useRPD;
 
   //DebugVariable
   bool m_debug = false;

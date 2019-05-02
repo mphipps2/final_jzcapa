@@ -29,8 +29,9 @@ int main(int argc, char *argv[]){
   // User has to add their analysis to DataReader.
   DataReader* r = new DataReader( nCh, nSamp, fNameIn, runNum );
   r->SetVerbosity(1);
-  
-  r->AddAnalysis( new WFAnalysis() );
+
+  r->SelectDetectorForAnalysis(true,true,false);
+  r->AddPreAnalysis( new WFAnalysis() );
   r->LoadConfigurationFile();
   r->LoadAlignmentFile();
   

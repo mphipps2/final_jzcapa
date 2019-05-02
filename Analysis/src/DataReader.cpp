@@ -81,17 +81,50 @@ DataReader::~DataReader(){
   }
 }
 
-/** @brief Adds an analysis to vector of analysis
+/** @brief Adds an analysis to vector of analysis to be executed before the detector analysis (e.g. WaveForm Analysis)
  *
  *  @param ana Pointer to an Analysis.
  *
  *  @return none
  */
-void DataReader::AddAnalysis( Analysis* ana ){
+void DataReader::AddPreAnalysis( Analysis* ana ){
   ana->SetVerbosity( m_verbose );
   m_ana.push_back( ana );
 }
 
+/** @brief Adds an analysis to vector of detector analysis (e.g. ZDC, RPD or combined)
+ *
+ *  @param ana Pointer to an Analysis.
+ *
+ *  @return none
+ */
+void DataReader::AddDetectorAnalysis( Analysis* det_ana ){
+  det_ana->SetVerbosity( m_verbose );
+  m_det_ana.push_back( det_ana );
+}
+
+/**
+ * @brief Allows the user to select which detectors will enter the waveform analysis and the detector analysis s
+ * @param _useZDC1 set it true to look to ZDC1
+ * @param _useZDC2 set it true to look to ZDC2
+ * @param _useRPD  set it true to look to the RPD
+ */
+void DataReader::SelectDetectorForAnalysis(bool _useZDC1, bool _useZDC2, bool _useRPD){
+
+    useZDC1 = _useZDC1;
+    useZDC2 = _useZDC2;
+    useRPD = _useRPD;
+
+    std::string enableDet;
+    enableDet = "Detectors Selected for Analysis: ";
+
+    if (useZDC1) enableDet += " ZDC1 " ;
+    if (useZDC2) enableDet += " ZDC2 " ;
+    if (useRPD) enableDet += " RPD " ;
+
+    enableDet += ";";
+    std::cout << enableDet << std::endl;
+}
 
 /** @brief Enables the read from list of files option for DataReader
  *
@@ -370,9 +403,14 @@ void DataReader::ProcessEvents(){
     // Note that at the moment none of this methods is doing anything
     for( auto& ana : m_ana ){
       //raw data analysis
-      ana->AnalyzeEvent( zdc1->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
-      ana->AnalyzeEvent( zdc2->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
-      ana->AnalyzeEvent( rpd->GetChannelsVector(),  rpd->GetChannelsVector().at(0)->detector );
+        if(useZDC1) ana->AnalyzeEvent( zdc1->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
+        if(useZDC2) ana->AnalyzeEvent( zdc2->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
+        if(useRPD) ana->AnalyzeEvent( rpd->GetChannelsVector(),  rpd->GetChannelsVector().at(0)->detector );    }
+    for( auto& det_ana : m_det_ana ){
+      //raw data analysis
+      if(useZDC1) det_ana->AnalyzeEvent( zdc1->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
+      if(useZDC2) det_ana->AnalyzeEvent( zdc2->GetChannelsVector(), zdc1->GetChannelsVector().at(0)->detector );
+      if(useRPD)  det_ana->AnalyzeEvent( rpd->GetChannelsVector(),  rpd->GetChannelsVector().at(0)->detector );
     }
   } // End event loop
 }
