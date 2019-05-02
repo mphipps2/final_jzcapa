@@ -39,18 +39,28 @@ class WFAnalysis : public Analysis{
   virtual void   AnalyzeEvent   ( const std::vector< TH1* >& );
   virtual void   AnalyzeEvent   ( const std::vector< std::vector< float > >& );
   virtual void   AnalyzeEvent   ( const std::vector< Channel* > vCh );
-  virtual void   AnalyzeEvent   ( const std::vector< Channel* > vCh, std::string detector );
+  virtual void   AnalyzeEvent   ( std::vector < Detector* > ){};
   virtual void   Finalize       ( );
 
  private :
   /** Sensitivity level to hits (differentiation window) */
-  int m_diffSens = 25;
+  int m_diffSens;
   /** Hit threshold multiplier */
-  double m_Tmultiple = 3.5;
+  double m_Tmultiple;
   /** Frequency threshold for low pass filter */
-  int fCutoff = 50;
-  /** Flag for inverting PMT signals */
-  bool invert = false;
+  int fCutoff;
+  /** Sensitivity level to hits (differentiation window) for RPD channels*/
+  int m_RPDdiffSens = 25;
+  /** Hit threshold multiplier for RPD channels*/
+  double m_RPDTmultiple = 3.5;
+  /** Frequency threshold for low pass filter for RPD channels*/
+  int m_RPDfCutoff = 50;
+  /** Sensitivity level to hits (differentiation window) for ZDC channels*/
+  int m_ZDCdiffSens = 7;
+  /** Hit threshold multiplier for ZDC channels*/
+  double m_ZDCTmultiple = 3.5;
+  /** Frequency threshold for low pass filter for ZDC channels*/
+  int m_ZDCfCutoff = 50;
 };
 
 #endif

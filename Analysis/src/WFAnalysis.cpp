@@ -7,7 +7,7 @@
  *  Also includes methods that accept all waveforms in an event. 
  *  This is where the analysis should be done.
  *
- *  @author Yakov Kulinich
+ *  @author Sheng Yang, Chad Lantz, Yakov Kulinich
  *  @bug No known bugs.
  */
 
@@ -99,42 +99,6 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
   }
 }
 
-/** @brief Analyze Event method for WF analysis
- *  @param vCh A vector of pointers to Channel objects
- *  @param detector Name of the detector to be processed
- *
- *  If the detector name contains "Z" i.e. "ZDC" sets some values specific to processing
- *  the ZDC data and runs AnalyzeEvent( const std::vector< Channel* > vCh ). 
- *  Otherwise runs with default values. WFAnalysis default values are set to be compatible with the RPD.
- *  Resets the values to default after processing is done.
- */
-void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh, std::string detector ){
-    
-    if( detector.find("Z") != std::string::npos ){
-        // Copy the current values to buffers
-        bool inv_buff  = invert;
-        int diffS_buff = m_diffSens;
-        double Tm_buff = m_Tmultiple;
-        int cut_buff   = fCutoff;
-        
-        // Set values for ZDC processing
-        invert = true;
-        m_diffSens = 7;
-        m_Tmultiple = 3.5;
-        fCutoff = 50;
-        
-        // Process
-        AnalyzeEvent( vCh );
-        
-        // Reset Defaults
-        invert = inv_buff;
-        m_diffSens = diffS_buff;
-        m_Tmultiple = Tm_buff;
-        fCutoff = cut_buff;
-    }else{
-        AnalyzeEvent( vCh );
-    }
-}
 
 /**
  * @brief Analyze Event method for WF analysis
@@ -158,8 +122,16 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
       //retrieve information as a vector of floats
         std::vector < float > chEntries = vCh.at(ch)->WF;
       
-      //invert the signal if necessary
-        if( invert ){ 
+      //If row != 0 (i.e. not ZDC channel), set RPD processing values
+        if( vCh.at(ch)->mapping_row ){
+            m_diffSens  = m_RPDdiffSens;
+            m_Tmultiple = m_RPDTmultiple;
+            fCutoff     = m_RPDfCutoff;
+        }else{ // If row = 0 (ZDC) set ZDC processing values and invert the signal
+            m_diffSens  = m_ZDCdiffSens;
+            m_Tmultiple = m_ZDCTmultiple;
+            fCutoff     = m_ZDCfCutoff;
+            
             vCh.at(ch)->offset = -1*vCh.at(ch)->offset;
             for(int bin = 0; bin < h->GetNbinsX(); bin++){
                 h->SetBinContent( bin, -1*h->GetBinContent(bin) );
