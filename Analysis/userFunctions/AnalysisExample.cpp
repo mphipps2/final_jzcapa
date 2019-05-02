@@ -8,6 +8,7 @@
 
 #include "DataReader.h"
 #include "WFAnalysis.h"
+#include "ZDCAnalysis.h"
 #include "EventTimer.h"
 
 using namespace std;
@@ -32,6 +33,7 @@ int main(int argc, char *argv[]){
 
   r->SelectDetectorForAnalysis(true,true,false);
   r->AddPreAnalysis( new WFAnalysis() );
+  r->AddDetectorAnalysis( new ZDCAnalysis() );
   r->LoadConfigurationFile();
   r->LoadAlignmentFile();
   
