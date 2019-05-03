@@ -114,6 +114,7 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
     bool filter = false;
     
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
+        if( !vCh.at(ch)->is_on){continue;}
       //retrieving information for each channel as a histogram
         TH1D* h = vCh.at(ch)->WF_histo;
         TH1D* hProcessed = vCh.at(ch)->PWF_histo;
