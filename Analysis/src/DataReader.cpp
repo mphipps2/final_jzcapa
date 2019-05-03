@@ -348,7 +348,7 @@ void DataReader::Initialize(){
     ana->SetupHistograms();
   }
   for( auto& det_ana : m_det_ana ){
-    det_ana->Initialize();
+    det_ana->Initialize( m_detectors );
     det_ana->SetupHistograms();
   }
 }
@@ -414,10 +414,7 @@ void DataReader::ProcessEvents(){
         }
     for( auto& det_ana : m_det_ana ){
       //Detector level analysis
-      det_ana->AnalyzeEvent( m_detectors );
-      //if(useZDC1) det_ana->AnalyzeEvent( m_detectors );
-      //if(useZDC2) det_ana->AnalyzeEvent( m_detectors );
-      //if(useRPD)  det_ana->AnalyzeEvent( m_detectors );
+      det_ana->AnalyzeEvent(  );
     }
   } // End event loop
 }
