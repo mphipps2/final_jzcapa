@@ -547,8 +547,8 @@
                 <end_run>311</end_run>
                 <detector>RPD</detector>
                 <name>Signal13</name>
-                <mapping_row>3</mapping_row>
-                <mapping_column>2</mapping_column>
+                <mapping_row>4</mapping_row>
+                <mapping_column>3</mapping_column>
                 <delay>61</delay>
                 <offset>-210</offset>
                 <HV>69.2</HV>
@@ -612,8 +612,8 @@
                 <end_run>311</end_run>
                 <detector>RPD</detector>
                 <name>Signal18</name>
-                <mapping_row>4</mapping_row>
-                <mapping_column>3</mapping_column>
+                <mapping_row>3</mapping_row>
+                <mapping_column>2</mapping_column>
                 <delay>50</delay>
                 <offset>-210</offset>
                 <HV>69.2</HV>
@@ -756,8 +756,8 @@
                 <end_run>333</end_run>
                 <detector>RPD</detector>
                 <name>Signal13</name>
-                <mapping_row>3</mapping_row>
-                <mapping_column>2</mapping_column>
+                <mapping_row>4</mapping_row>
+                <mapping_column>3</mapping_column>
                 <delay>61</delay>
                 <offset>-210</offset>
                 <HV>69.2</HV>
@@ -817,12 +817,12 @@
                 <Vop>69.41</Vop>
         </channel>
         <channel>
-                <start_run>178</start_run>
+                <start_run>312</start_run>
                 <end_run>333</end_run>
                 <detector>RPD</detector>
                 <name>Signal18</name>
-                <mapping_row>4</mapping_row>
-                <mapping_column>3</mapping_column>
+                <mapping_row>3</mapping_row>
+                <mapping_column>2</mapping_column>
                 <delay>50</delay>
                 <offset>-210</offset>
                 <HV>69.2</HV>
@@ -830,7 +830,7 @@
                 <Vop>69.42</Vop>
         </channel>
         <channel>
-                <start_run>178</start_run>
+                <start_run>312</start_run>
                 <end_run>333</end_run>
                 <detector>RPD</detector>
                 <name>Signal19</name>
