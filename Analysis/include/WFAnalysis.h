@@ -29,6 +29,7 @@ class WFAnalysis : public Analysis{
   virtual ~WFAnalysis( );
 
   virtual void   Initialize     ( );
+  virtual void   Initialize     ( std::vector < Detector* > ){};
   virtual void   SetupHistograms( );
   virtual void   GetDifferential( TH1D *hIN, TH1D *hOUT );
   virtual double GetRMS         ( TH1D *h, bool debug = false) ;
@@ -36,10 +37,10 @@ class WFAnalysis : public Analysis{
   virtual void   FindHitWindow  ( Channel* ch );
   virtual void   ZeroSuppress   ( Channel* ch );
   virtual void   LowPassFilter  ( Channel* ch, TH1D* hIn = 0 );
+  virtual void   AnalyzeEvent   ( ){};
   virtual void   AnalyzeEvent   ( const std::vector< TH1* >& );
   virtual void   AnalyzeEvent   ( const std::vector< std::vector< float > >& );
   virtual void   AnalyzeEvent   ( const std::vector< Channel* > vCh );
-  virtual void   AnalyzeEvent   ( std::vector < Detector* > ){};
   virtual void   Finalize       ( );
 
  private :

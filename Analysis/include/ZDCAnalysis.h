@@ -23,11 +23,12 @@ class ZDCAnalysis : public Analysis{
   virtual ~ZDCAnalysis( );
   
   virtual void   Initialize     ( );
+  virtual void   Initialize     ( std::vector < Detector* > _vDet);
   virtual void   SetupHistograms( );
+  virtual void   AnalyzeEvent   ( );
   virtual void   AnalyzeEvent   ( const std::vector< TH1* >& ){};
   virtual void   AnalyzeEvent   ( const std::vector< std::vector< float > >& ){};
   virtual void   AnalyzeEvent   ( const std::vector< Channel* > ){};
-  virtual void   AnalyzeEvent   ( std::vector < Detector* > _vDet );
   virtual void   Finalize       ( );
 
   
