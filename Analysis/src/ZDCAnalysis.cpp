@@ -42,6 +42,26 @@ void ZDCAnalysis::Initialize( ){
 
 }
 
+/** @brief Initialization method for ZDCAnalysis
+ *
+ *  Takes a vector of detectors, picks out the ZDCs
+ *  and assigns them to member pointers
+ *
+ */
+void ZDCAnalysis::Initialize( std::vector < Detector* > _vDet ){
+
+    for( auto& det : _vDet ){
+        if( det->GetChannelsVector().at(0)->detector == "ZDC" && det->GetChannelsVector()[0]->mapping_column == 1){
+            m_zdc1 = (ZDC*)det;
+            zdc1 = det->GetElement(0,1);
+        }
+        if( det->GetChannelsVector().at(0)->detector == "ZDC" && det->GetChannelsVector()[0]->mapping_column == 2){
+            m_zdc2 = (ZDC*)det;
+            zdc2 = det->GetElement(0,2);
+        }
+    }
+}
+
 
 /** @brief Historgam Setup method for ZDCAnalysis
  *
@@ -51,8 +71,8 @@ void ZDCAnalysis::Initialize( ){
  */
 void ZDCAnalysis::SetupHistograms( ){
   
-    hCharge = new TH2D("ZDC Charge Correlation", "ZDC Charge Correlation", 1000, 0, 15000, 1000, 0, 15000);
-    hPeak   = new TH2D("ZDC Peak Correlation", "ZDC Peak Correlation", 1000, 0, 500, 1000, 0, 500);
+    hCharge = new TH2D("ZDC Charge Correlation", "ZDC Charge Correlation", 100, 0, 15000, 100, 0, 9500);
+    hPeak   = new TH2D("ZDC Peak Correlation", "ZDC Peak Correlation", 100, 0, 1200, 100, 0, 1200);
   
 }
 
@@ -61,25 +81,8 @@ void ZDCAnalysis::SetupHistograms( ){
  *
  *
  */
-void ZDCAnalysis::AnalyzeEvent( std::vector < Detector* > _vDet ){
+void ZDCAnalysis::AnalyzeEvent( ){
 
-    // If the detectors haven't been filled, fill them
-    if( m_zdc1 == 0 || m_zdc2 == 0 ){
-        for( auto& det : _vDet ){
-            if(det->GetChannelsVector().size() > 1 ){continue;}
-            if(det->GetElement(0,1) != nullptr ){ 
-                m_zdc1 = (ZDC*)det; 
-                std::cout << "ZDC1 assigned row " << det->GetElement(0,1)->mapping_row << ", column " << det->GetElement(0,1)->mapping_column << std::endl;
-            }
-            if(det->GetElement(0,2) != nullptr){ 
-                m_zdc2 = (ZDC*)det; 
-                std::cout << "ZDC2 assigned row " << det->GetElement(0,2)->mapping_row << ", column " << det->GetElement(0,2)->mapping_column << std::endl;
-            }
-        }
-        std::cout << " ^^^^ Don't worry about those warnings ^^^^" << std::endl;
-        std::cout << "      Unless there are wanings below...  " << std::endl;
-        
-    }
     
     zdc1 = m_zdc1->GetElement(0,1);
     zdc2 = m_zdc2->GetElement(0,2);
@@ -97,12 +100,15 @@ void ZDCAnalysis::AnalyzeEvent( std::vector < Detector* > _vDet ){
  */
 void ZDCAnalysis::Finalize( ){
     
+    std::string output =  std::getenv("JZCaPA");
+    output += "/results/";
+    
     TCanvas *c = new TCanvas("ZDCAnalysis","ZDCAnalysis",800,600);
     c->cd();
     hCharge->Draw("COLZ");
-    c->Print("output/ZDC_charge.png");
+    c->Print( (output + "ZDC_charge.png").c_str() );
     hPeak->Draw("COLZ");
-    c->Print("output/ZDC_peak.png");
+    c->Print( (output + "ZDC_peak.png").c_str() );
     delete c;
     
     
