@@ -31,12 +31,21 @@ class ZDCAnalysis : public Analysis{
   virtual void   AnalyzeEvent   ( const std::vector< Channel* > ){};
   virtual void   Finalize       ( );
 
-  
+  /** Ratio between the Charge detected in the two ZDCs **/
+  TH1D* hChargeRatio;
+  /** Ratio between the peak heights of the two ZDCs **/
+  TH1D* hPeakRatio;
+
+
   /** Charge correlation */
   TH2D *hCharge;
   /** Peak height correlation */
   TH2D *hPeak;
-  
+  /** Charge-Peak correlation, ZDC1 */
+  TH2D* hChargePeakZDC1;
+  /** Charge-Peak correlation, ZDC2 */
+  TH2D* hChargePeakZDC2;
+
  private :
   /** Pointer to the first ZDC module */
   Detector *m_zdc1 = 0;
