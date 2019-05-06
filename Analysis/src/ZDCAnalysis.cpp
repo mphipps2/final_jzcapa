@@ -133,18 +133,15 @@ void ZDCAnalysis::Finalize( ){
 
     Visualizer* viz = new Visualizer( "ATLAS" );
 
-    hChargeRatio->Draw();
-    c->Print( (output + "ZDC_chargeRatio.png").c_str() );
-    hPeakRatio->Draw();
-    c->Print( (output + "ZDC_peakRatio.png").c_str() );
+    viz->DrawPlot(hChargeRatio,"Q_{ZDC2}/Q_{ZDC1}","Counts","ZDC_chargeRatio.png","");
+    viz->DrawPlot(hChargeRatio,"Peak_{ZDC2}/Peak_{ZDC1}","Counts","ZDC_peakRatio.png","");
 
-    viz->Draw2DPlot(hCharge,"Q_{ZDC1}","Q_{ZDC2}","ZDC_charge.png","COLZ");
-    viz->Draw2DPlot(hPeak,"Peak_{ZDC1}","Peak_{ZDC2}","ZDC_peak.png","COLZ");
-    viz->Draw2DPlot(hChargePeakZDC1,"Q_{ZDC1}","Peak_{ZDC1}","ZDC1_ChargePeak.png","COLZ");
-    viz->Draw2DPlot(hChargePeakZDC2,"Q_{ZDC2}","Peak_{ZDC2}","ZDC2_ChargePeak.png","COLZ");
+    viz->DrawPlot(hCharge,"Q_{ZDC1}","Q_{ZDC2}","ZDC_charge.png","COLZ");
+    viz->DrawPlot(hPeak,"Peak_{ZDC1}","Peak_{ZDC2}","ZDC_peak.png","COLZ");
+    viz->DrawPlot(hChargePeakZDC1,"Q_{ZDC1}","Peak_{ZDC1}","ZDC1_ChargePeak.png","COLZ");
+    viz->DrawPlot(hChargePeakZDC2,"Q_{ZDC2}","Peak_{ZDC2}","ZDC2_ChargePeak.png","COLZ");
 
     delete c;
-    
     
 }
 
