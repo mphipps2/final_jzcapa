@@ -30,6 +30,7 @@ WFAnalysis::WFAnalysis( ){
  */
 WFAnalysis::~WFAnalysis( ){
 
+    //delete hRMS;
 }
 
 /** @brief Initialization method for WFAnalysis
@@ -51,6 +52,9 @@ void WFAnalysis::Initialize( ){
  *  @return none
  */
 void WFAnalysis::SetupHistograms( ){
+  
+  f = new TF1("f","gaus",-50,50);
+  hRMS = new TH1D("RMS","RMS",75,-75,75);
   
 }
 
@@ -205,29 +209,28 @@ double WFAnalysis::GetRMS( TH1D *h, bool debug){
     h->GetMinimumAndMaximum(xmin,xmax);
     if(xmax == 0) return 0;
     
-    TH1D hRMS("RMS","RMS",5*(xmax-xmin)/m_diffSens,xmin,xmax);
-    
     //Loop over the histogram excluding the window used for differentiating to fill hRMS
     Int_t nbins = h->GetNbinsX();
     for(int bin = m_diffSens; bin < nbins - m_diffSens; bin++){
-        hRMS.Fill( h->GetBinContent( bin ) );
+        hRMS->Fill( h->GetBinContent( bin ) );
     }
     
     //Make a gaussian fit and apply it to our histogram quietly and using our range
-    TF1 f("f","gaus",-50,50);
-    hRMS.Fit("f","qR+");
+    hRMS->Fit("f","qR");
     
     if( debug ){
         TCanvas c( "RMS" , "RMS", 200, 10, 1000, 600);
         c.cd();
-        hRMS.Draw();
-        f.Draw("same");
+        hRMS->Draw();
+        f->Draw("same");
         c.Draw();
         c.Print( "RMS.pdf" );
     }
     
     //Return parameter 2. "gaus" is [0]*exp(-0.5*((x-[1])/[2])**2)
-    return f.GetParameter(2);
+    //And reset the histogram
+    hRMS->Reset();
+    return f->GetParameter(2);
     
 }
 
