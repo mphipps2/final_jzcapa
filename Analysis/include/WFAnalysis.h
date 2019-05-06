@@ -62,6 +62,10 @@ class WFAnalysis : public Analysis{
   double m_ZDCTmultiple = 3.5;
   /** Frequency threshold for low pass filter for ZDC channels*/
   int m_ZDCfCutoff = 50;
+  /** Histogram used to get derivative RMS */
+  TH1D *hRMS = 0;
+  /** Fit used to get RMS value */
+  TF1 *f = 0;
 };
 
 #endif
