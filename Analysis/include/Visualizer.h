@@ -9,9 +9,11 @@
 #define VISUALIZER_H
 
 #include "TH1.h"
+#include "TH2.h"
 #include "TStyle.h"
 #include "TVector.h"
 #include "TGraph.h"
+
 
 #include <iostream>
 #include <vector>
@@ -41,6 +43,7 @@ class Visualizer {
     void   ManyPadsPlot   ( std::vector< TH1* > _first_form, std::vector< TH1* > _second_form, int _ncol, int _nrow, std::string _out_name, std::string _treatment );
     void   SinglePlot     ( std::vector< double > _v1, std::vector< double > _v2, std::string _out_name, std::string _treatment, double _line = 0);
 
+    void   Draw2DPlot (TH2* h2, std::string _xTitle, std::string _yTitle, std::string _saveName, std::string _opt, std::string _oFolder = "${JZCaPA}/results/");
     private :
     /** String identifying the style to be applied */
     std::string m_style;

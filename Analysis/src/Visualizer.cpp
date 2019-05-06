@@ -291,3 +291,17 @@ void Visualizer::ScatterPlot( std::vector< double > _vx, std::vector< double > _
     g.DrawClone("ap"); 
 }
 
+
+void Visualizer::Draw2DPlot(TH2 *h2, std::string _xTitle, std::string _yTitle, std::string _saveName, std::string _opt, std::string _oFolder)
+{
+    TCanvas* c1 = new TCanvas(_saveName.c_str(),"c1",600,500);
+    c1->cd();
+    gPad->SetLeftMargin(0.15);
+    gPad->SetRightMargin(0.12);
+    h2->Draw(_opt.c_str());
+    h2->GetXaxis()->SetTitle(_xTitle.c_str());
+    h2->GetYaxis()->SetTitle(_yTitle.c_str());
+    c1->Print( ( _oFolder + "/" + _saveName).c_str() );
+    delete c1;
+
+}
