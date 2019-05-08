@@ -80,17 +80,17 @@ void ZDCAnalysis::SetupHistograms( ){
     hPeakRatio->SetCanExtend(TH1::kXaxis);
 
     //TH2D
-    hCharge = new TH2D("ZDC_Charge_Correlation", "ZDC Charge Correlation", 100, 0, 750, 100, 0, 750);
+    hCharge = new TH2D("ZDC_Charge_Correlation", "ZDC Charge Correlation", 100, 0, 7000, 100, 0, 7000);
     hCharge->SetCanExtend(TH1::kAllAxes);
 
-    hPeak   = new TH2D("ZDC_Peak_Correlation", "ZDC Peak Correlation", 100, 0, 100, 100, 0, 100);
+    hPeak   = new TH2D("ZDC_Peak_Correlation", "ZDC Peak Correlation", 100, 0, 350, 100, 0, 350);
     hPeak->SetCanExtend(TH1::kAllAxes);
 
-    hChargePeakZDC1 = new TH2D("ZDC1_ChargePeakCorrelation","Q_{ZDC1} vs Peak_{ZDC1}",50,0,750,50,0,600);
-    hChargePeakZDC1->SetCanExtend(TH1::kAllAxes);
+    hChargePeakZDC1 = new TH2D("ZDC1_ChargePeakCorrelation","Q_{ZDC1} vs Peak_{ZDC1}",50,0,10000,50,0,1000);
+    //hChargePeakZDC1->SetCanExtend(TH1::kAllAxes);
 
-    hChargePeakZDC2 = new TH2D("ZDC2_ChargePeakCorrelation","Q_{ZDC2} vs Peak_{ZDC2}",50,0,750,50,0,600);
-    hChargePeakZDC2->SetCanExtend(TH1::kAllAxes);
+    hChargePeakZDC2 = new TH2D("ZDC2_ChargePeakCorrelation","Q_{ZDC2} vs Peak_{ZDC2}",50,0,10000,50,0,1000);
+    //hChargePeakZDC2->SetCanExtend(TH1::kAllAxes);
 
 }
 
