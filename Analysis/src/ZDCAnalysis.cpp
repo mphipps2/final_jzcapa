@@ -80,8 +80,8 @@ void ZDCAnalysis::SetupHistograms( ){
     hPeakRatio->SetCanExtend(TH1::kXaxis);
 
     //TH2D
-    hCharge = new TH2D("ZDC_Charge_Correlation", "ZDC Charge Correlation", 100, 0, 7000, 100, 0, 7000);
-    hCharge->SetCanExtend(TH1::kAllAxes);
+    hCharge = new TH2D("ZDC_Charge_Correlation", "ZDC Charge Correlation", 100, 0, 40000, 100, 0, 40000);
+    //hCharge->SetCanExtend(TH1::kAllAxes);
 
     hPeak   = new TH2D("ZDC_Peak_Correlation", "ZDC Peak Correlation", 100, 0, 350, 100, 0, 350);
     hPeak->SetCanExtend(TH1::kAllAxes);
@@ -94,6 +94,27 @@ void ZDCAnalysis::SetupHistograms( ){
 
 }
 
+/** @brief Branch setup method for ZDCAnalysis
+ *
+ *  Adds branches with data created by the analysis
+ *
+ */
+void ZDCAnalysis::SetBranches( TTree* _tree ){
+    AnalysisTree = _tree;
+    
+    AnalysisTree->Branch("zdc1_Charge",           &zdc1->Charge,           "zdc1->Charge/D" );
+    AnalysisTree->Branch("zdc1_Peak_max",         &zdc1->Peak_max,         "zdc1->Peak_max/D" );
+    AnalysisTree->Branch("zdc1_Diff_max",         &zdc1->Diff_max,         "zdc1->Diff_max/D" );
+    AnalysisTree->Branch("zdc1_Peak_center",      &zdc1->Peak_center,      "zdc1->Peak_center/I" );
+    AnalysisTree->Branch("zdc1_Diff_Peak_center", &zdc1->Diff_Peak_center, "zdc1->Diff_Peak_center/I" );
+    
+    AnalysisTree->Branch("zdc2_Charge",           &zdc2->Charge,           "zdc2->Charge/D" );
+    AnalysisTree->Branch("zdc2_Peak_max",         &zdc2->Peak_max,         "zdc2->Peak_max/D" );
+    AnalysisTree->Branch("zdc2_Diff_max",         &zdc2->Diff_max,         "zdc2->Diff_max/D" );
+    AnalysisTree->Branch("zdc2_Peak_center",      &zdc2->Peak_center,      "zdc2->Peak_center/I" );
+    AnalysisTree->Branch("zdc2_Diff_Peak_center", &zdc2->Diff_Peak_center, "zdc2->Diff_Peak_center/I" );
+    
+}
 
 /** @brief Analyze Events method for ZDCAnalysis
  *
@@ -102,8 +123,8 @@ void ZDCAnalysis::SetupHistograms( ){
 void ZDCAnalysis::AnalyzeEvent( ){
 
     
-    zdc1 = m_zdc1->GetElement(0,1);
-    zdc2 = m_zdc2->GetElement(0,2);
+    //zdc1 = m_zdc1->GetElement(0,1);
+    //zdc2 = m_zdc2->GetElement(0,2);
     
     if(zdc1 && zdc2){
 

@@ -29,6 +29,7 @@ class RPDAnalysis : public Analysis{
   virtual void   AnalyzeEvent   ( const std::vector< TH1* >& ){};
   virtual void   AnalyzeEvent   ( const std::vector< std::vector< float > >& ){};
   virtual void   AnalyzeEvent   ( const std::vector< Channel* > ){};
+  virtual void   SetBranches    ( TTree* _tree );
   virtual void   Finalize       ( );
 
   
@@ -36,6 +37,14 @@ class RPDAnalysis : public Analysis{
   double m_charge[5][5];
   /** Running average of charges */
   double m_peak[5][5];
+  /** Center of mass x */
+  double xCoM;
+  /** Center of mass y */
+  double yCoM;
+  /** Sum of all channel charges */
+  double ChargeSum;
+  /** Sum of all channel peak heights */
+  double PeakSum;
   /** Average charge per tile */
   TH2D *hCharge;
   /** Average peak height per tile */

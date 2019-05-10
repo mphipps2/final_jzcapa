@@ -29,6 +29,7 @@ class ZDCAnalysis : public Analysis{
   virtual void   AnalyzeEvent   ( const std::vector< TH1* >& ){};
   virtual void   AnalyzeEvent   ( const std::vector< std::vector< float > >& ){};
   virtual void   AnalyzeEvent   ( const std::vector< Channel* > ){};
+  virtual void   SetBranches    ( TTree* _tree );
   virtual void   Finalize       ( );
 
   /** Ratio between the Charge detected in the two ZDCs **/

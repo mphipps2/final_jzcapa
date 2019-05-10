@@ -66,18 +66,46 @@ void RPDAnalysis::SetupHistograms( ){
   
 }
 
+/** @brief Branch setup method for ZDCAnalysis
+ *
+ *  Adds branches with data created by the analysis
+ *
+ */
+void RPDAnalysis::SetBranches( TTree* _tree ){
+    AnalysisTree = _tree;
+    
+    for(int row = 1; row <= 4; row++){
+        for(int col = 1; col <= 4; col++){
+            AnalysisTree->Branch( Form("rpd%d_%d_Charge", row, col),           &rpd[row][col]->Charge,           Form("rpd%d_%d_Charge/D", row, col) );
+            AnalysisTree->Branch( Form("rpd%d_%d_Peak_max", row, col),         &rpd[row][col]->Peak_max,         Form("rpd%d_%d_Peak_max/D", row, col) );
+            AnalysisTree->Branch( Form("rpd%d_%d_Diff_max", row, col),         &rpd[row][col]->Diff_max,         Form("rpd%d_%d_Diff_max/D", row, col) );
+            AnalysisTree->Branch( Form("rpd%d_%d_Peak_center", row, col),      &rpd[row][col]->Peak_center,      Form("rpd%d_%d_Peak_center/I", row, col) );
+            AnalysisTree->Branch( Form("rpd%d_%d_Diff_Peak_center", row, col), &rpd[row][col]->Diff_Peak_center, Form("rpd%d_%d_Diff_Peak_center/I", row, col) );
+        }
+    }
+   
+    AnalysisTree->Branch("rpd_xCoM", &xCoM, "xCoM/D" );
+    AnalysisTree->Branch("rpd_yCoM", &yCoM, "yCoM/D" );
+    AnalysisTree->Branch("rpd_Charge_sum", &ChargeSum, "ChargeSum/D" );
+    AnalysisTree->Branch("rpd_Peak_sum",   &PeakSum,   "PeakSum/D" );
+    
+}
 
 /** @brief Analyze Events method for RPDAnalysis
  *
  *
  */
 void RPDAnalysis::AnalyzeEvent( ){
-    
+    ChargeSum = 0;
+    PeakSum = 0;
     
     //This loop takes the running average of charge and peak height per tile
     for(int row = 1; row <= 4; row++){
         for(int col = 1; col <= 4; col++){
             if( rpd[row][col]->is_on && rpd[row][col]->was_hit ){
+                ChargeSum += rpd[row][col]->Charge;
+                PeakSum   += rpd[row][col]->Peak_max;
+                
                 m_charge[row][col] = (m_charge[row][col] + rpd[row][col]->Charge  )/2;
                 m_peak[row][col] =   (m_peak[row][col]   + rpd[row][col]->Peak_max)/2;
             }
@@ -99,9 +127,9 @@ void RPDAnalysis::AnalyzeEvent( ){
             }
         }
     }
-    double xCM = weightedRow/totalCharge;
-    double yCM = weightedCol/totalCharge;
-    hCenter->Fill(xCM,yCM);
+    xCoM = weightedRow/totalCharge;
+    yCoM = weightedCol/totalCharge;
+    hCenter->Fill(xCoM,yCoM);
 
 
  
