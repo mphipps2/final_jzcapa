@@ -61,6 +61,8 @@ class Channel {
     double FirstDerivativeRMS;
     /** Bin number of the peak center*/
     int Peak_center;
+    /** Bin number of the derivative peak */
+    int Diff_Peak_center;
     /** Height of the peak */
     double Peak_max;
     /** Max value of the derivative */

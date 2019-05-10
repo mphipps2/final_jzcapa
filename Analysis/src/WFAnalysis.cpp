@@ -253,14 +253,14 @@ void WFAnalysis::FindHitWindow( Channel* ch ){
     if( ch->Diff_max <= threshold || ch->FirstDerivative->GetMinimum() >= -1*threshold ){
         if( ch->is_on && m_verbose > 1){ std::cerr << std::endl << "No hit found on " << ch->name << std::endl; }
         ch->was_hit = false;
-        ch->Peak_center = ch->hit_window.first = ch->hit_window.second = -1;
+        ch->Peak_center = ch->Diff_Peak_center = ch->hit_window.first = ch->hit_window.second = -1;
         ch->Peak_max = 0.0;
         return;
     }
     
     ch->was_hit = true;
     
-    int risingEdge = ch->FirstDerivative->GetMaximumBin();
+    int risingEdge = ch->Diff_Peak_center = ch->FirstDerivative->GetMaximumBin();
     int fallingEdge = ch->FirstDerivative->GetMinimumBin();
     int nBins = ch->FirstDerivative->GetNbinsX();
     
