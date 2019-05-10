@@ -65,6 +65,8 @@ class DataReader{
  private:
   // output file
   TFile* m_fOut;
+  // Output TTree
+  TTree* m_tOut;
   
   // vector of pre-detector analysis
   std::vector< Analysis* > m_ana;

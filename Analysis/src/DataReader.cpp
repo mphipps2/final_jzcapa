@@ -339,9 +339,12 @@ void DataReader::Initialize(){
   // make default name output.root, otherwise make it
   // outputN.root, where N is a run number of a file.
   std::string fNameOut = m_readListOfFiles ?
-    "output.root" : Form( "output%d.root", m_runNumber );
+    ((std::string)std::getenv("JZCaPA") + "/results/output.root") : Form( ((std::string)std::getenv("JZCaPA") + "/results/output%d.root").c_str(), m_runNumber );
 
   m_fOut = new TFile( fNameOut.c_str(), "RECREATE" );
+  m_tOut = new TTree("AnalysisTree","AnalysisTree");
+  m_tOut->Branch("runNumber", &m_runNumber, "m_runNumber/i");
+  m_tOut->Branch("evNo", &m_event, "m_event/I");
   
   for( auto& ana : m_ana ){
     ana->Initialize();
@@ -350,6 +353,7 @@ void DataReader::Initialize(){
   for( auto& det_ana : m_det_ana ){
     det_ana->Initialize( m_detectors );
     det_ana->SetupHistograms();
+    det_ana->SetBranches( m_tOut );
   }
 }
 
@@ -416,6 +420,9 @@ void DataReader::ProcessEvents(){
       //Detector level analysis
       det_ana->AnalyzeEvent(  );
     }
+  
+  m_tOut->Fill();
+  
   } // End event loop
 }
 
@@ -443,6 +450,7 @@ void DataReader::Finalize(){
     det_ana->Finalize();
   }
 
+  m_tOut->Write();
   m_fOut->Close();
 }
 
