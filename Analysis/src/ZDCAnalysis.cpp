@@ -100,19 +100,19 @@ void ZDCAnalysis::SetupHistograms( ){
  *
  */
 void ZDCAnalysis::SetBranches( TTree* _tree ){
-    AnalysisTree = _tree;
+    m_AnalysisTree = _tree;
     
-    AnalysisTree->Branch("zdc1_Charge",           &zdc1->Charge,           "zdc1->Charge/D" );
-    AnalysisTree->Branch("zdc1_Peak_max",         &zdc1->Peak_max,         "zdc1->Peak_max/D" );
-    AnalysisTree->Branch("zdc1_Diff_max",         &zdc1->Diff_max,         "zdc1->Diff_max/D" );
-    AnalysisTree->Branch("zdc1_Peak_center",      &zdc1->Peak_center,      "zdc1->Peak_center/I" );
-    AnalysisTree->Branch("zdc1_Diff_Peak_center", &zdc1->Diff_Peak_center, "zdc1->Diff_Peak_center/I" );
+    m_AnalysisTree->Branch("zdc1_Charge",           &zdc1->Charge,           "zdc1->Charge/D" );
+    m_AnalysisTree->Branch("zdc1_Peak_max",         &zdc1->Peak_max,         "zdc1->Peak_max/D" );
+    m_AnalysisTree->Branch("zdc1_Diff_max",         &zdc1->Diff_max,         "zdc1->Diff_max/D" );
+    m_AnalysisTree->Branch("zdc1_Peak_center",      &zdc1->Peak_center,      "zdc1->Peak_center/I" );
+    m_AnalysisTree->Branch("zdc1_Diff_Peak_center", &zdc1->Diff_Peak_center, "zdc1->Diff_Peak_center/I" );
     
-    AnalysisTree->Branch("zdc2_Charge",           &zdc2->Charge,           "zdc2->Charge/D" );
-    AnalysisTree->Branch("zdc2_Peak_max",         &zdc2->Peak_max,         "zdc2->Peak_max/D" );
-    AnalysisTree->Branch("zdc2_Diff_max",         &zdc2->Diff_max,         "zdc2->Diff_max/D" );
-    AnalysisTree->Branch("zdc2_Peak_center",      &zdc2->Peak_center,      "zdc2->Peak_center/I" );
-    AnalysisTree->Branch("zdc2_Diff_Peak_center", &zdc2->Diff_Peak_center, "zdc2->Diff_Peak_center/I" );
+    m_AnalysisTree->Branch("zdc2_Charge",           &zdc2->Charge,           "zdc2->Charge/D" );
+    m_AnalysisTree->Branch("zdc2_Peak_max",         &zdc2->Peak_max,         "zdc2->Peak_max/D" );
+    m_AnalysisTree->Branch("zdc2_Diff_max",         &zdc2->Diff_max,         "zdc2->Diff_max/D" );
+    m_AnalysisTree->Branch("zdc2_Peak_center",      &zdc2->Peak_center,      "zdc2->Peak_center/I" );
+    m_AnalysisTree->Branch("zdc2_Diff_Peak_center", &zdc2->Diff_Peak_center, "zdc2->Diff_Peak_center/I" );
     
 }
 
@@ -152,15 +152,15 @@ void ZDCAnalysis::Finalize( ){
     TCanvas *c = new TCanvas("ZDCAnalysis","ZDCAnalysis",800,600);
     c->cd();
 
-    Visualizer* viz = new Visualizer( "ATLAS" );
+    if(m_viz == NULL) m_viz = new Visualizer( "ATLAS" );
 
-    viz->DrawPlot(hChargeRatio,"Q_{ZDC2}/Q_{ZDC1}","Counts","ZDC_chargeRatio.png","");
-    viz->DrawPlot(hChargeRatio,"Peak_{ZDC2}/Peak_{ZDC1}","Counts","ZDC_peakRatio.png","");
+    m_viz->DrawPlot(hChargeRatio,"Q_{ZDC2}/Q_{ZDC1}","Counts","ZDC_chargeRatio.png","");
+    m_viz->DrawPlot(hChargeRatio,"Peak_{ZDC2}/Peak_{ZDC1}","Counts","ZDC_peakRatio.png","");
 
-    viz->DrawPlot(hCharge,"Q_{ZDC1}","Q_{ZDC2}","ZDC_charge.png","COLZ");
-    viz->DrawPlot(hPeak,"Peak_{ZDC1}","Peak_{ZDC2}","ZDC_peak.png","COLZ");
-    viz->DrawPlot(hChargePeakZDC1,"Q_{ZDC1}","Peak_{ZDC1}","ZDC1_ChargePeak.png","COLZ");
-    viz->DrawPlot(hChargePeakZDC2,"Q_{ZDC2}","Peak_{ZDC2}","ZDC2_ChargePeak.png","COLZ");
+    m_viz->DrawPlot(hCharge,"Q_{ZDC1}","Q_{ZDC2}","ZDC_charge.png","COLZ");
+    m_viz->DrawPlot(hPeak,"Peak_{ZDC1}","Peak_{ZDC2}","ZDC_peak.png","COLZ");
+    m_viz->DrawPlot(hChargePeakZDC1,"Q_{ZDC1}","Peak_{ZDC1}","ZDC1_ChargePeak.png","COLZ");
+    m_viz->DrawPlot(hChargePeakZDC2,"Q_{ZDC2}","Peak_{ZDC2}","ZDC2_ChargePeak.png","COLZ");
 
     delete c;
     

@@ -54,6 +54,8 @@ class DataReader{
   void SetVerbosity          ( int _level ){ m_verbose = _level; }
   void UpdateConsole         ( Long_t _updateRate);
 
+  void EnablePlotLabel       (  ) { useLabel = true; }
+
   Detector* GetDetector( std::string _detName );
 
   void Run();
@@ -112,6 +114,8 @@ class DataReader{
 
   //Booleans for analysis selection
   bool useZDC1, useZDC2, useRPD;
+  //Boolean to enable plot labelling
+  bool useLabel = false;
 
   //DebugVariable
   bool m_debug = false;

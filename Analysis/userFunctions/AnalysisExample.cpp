@@ -38,6 +38,7 @@ int main(int argc, char *argv[]){
   //r->AddDetectorAnalysis( new RPDAnalysis() );
   r->LoadConfigurationFile();
   r->LoadAlignmentFile();
+  r->EnablePlotLabel();
   
   EventTimer timer(1000, r, kFALSE);
   timer.TurnOn();

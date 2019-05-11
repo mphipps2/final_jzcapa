@@ -13,6 +13,8 @@
 #include <TGaxis.h>
 #include <TPad.h>
 #include <TCanvas.h>
+#include <TLatex.h>
+#include <TClass.h>
 
 #include <iostream>
 
@@ -298,10 +300,33 @@ void Visualizer::DrawPlot(TH1 *h2, std::string _xTitle, std::string _yTitle, std
     c1->cd();
     gPad->SetLeftMargin(0.15);
     gPad->SetRightMargin(0.12);
+    gPad->SetTopMargin(0.10);
     h2->Draw(_opt.c_str());
     h2->SetFillColorAlpha(kAzure+1,0.3);
+    h2->SetLineColor(kAzure+1);
     h2->GetXaxis()->SetTitle(_xTitle.c_str());
+    h2->GetXaxis()->SetTitleOffset(1.4);
     h2->GetYaxis()->SetTitle(_yTitle.c_str());
+    h2->GetYaxis()->SetTitleOffset(1.4);
+    TLatex* lx = new TLatex();
+    lx->SetTextFont( 62 );
+    lx->SetTextSize( 0.048 );
+    if (!h2->InheritsFrom("TH2")){
+        lx->DrawLatexNDC(0.49,0.83,("ZDC Beam Test " + year).c_str());
+        lx->SetTextFont( 42 );
+        lx->SetTextSize( 0.038 );
+        lx->DrawLatexNDC(0.49,0.79,beam.c_str());
+        lx->SetTextFont( 52 );
+        lx->DrawLatexNDC(0.49,0.75,"Ongoing Analysis");
+    }
+    if (h2->InheritsFrom("TH2")){
+        lx->DrawLatexNDC(0.15,0.93,("ZDC Beam Test " + year).c_str());
+        lx->SetTextFont( 42 );
+        lx->SetTextSize( 0.038 );
+        lx->DrawLatexNDC(0.55,0.95,beam.c_str());
+        lx->SetTextFont( 52 );
+        lx->DrawLatexNDC(0.55,0.91,"Ongoing Analysis");
+    }
     c1->Print( ( _oFolder + "/" + _saveName).c_str() );
     delete c1;
 

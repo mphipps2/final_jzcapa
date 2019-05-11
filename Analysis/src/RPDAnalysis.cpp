@@ -72,22 +72,22 @@ void RPDAnalysis::SetupHistograms( ){
  *
  */
 void RPDAnalysis::SetBranches( TTree* _tree ){
-    AnalysisTree = _tree;
+    m_AnalysisTree = _tree;
     
     for(int row = 1; row <= 4; row++){
         for(int col = 1; col <= 4; col++){
-            AnalysisTree->Branch( Form("rpd%d_%d_Charge", row, col),           &rpd[row][col]->Charge,           Form("rpd%d_%d_Charge/D", row, col) );
-            AnalysisTree->Branch( Form("rpd%d_%d_Peak_max", row, col),         &rpd[row][col]->Peak_max,         Form("rpd%d_%d_Peak_max/D", row, col) );
-            AnalysisTree->Branch( Form("rpd%d_%d_Diff_max", row, col),         &rpd[row][col]->Diff_max,         Form("rpd%d_%d_Diff_max/D", row, col) );
-            AnalysisTree->Branch( Form("rpd%d_%d_Peak_center", row, col),      &rpd[row][col]->Peak_center,      Form("rpd%d_%d_Peak_center/I", row, col) );
-            AnalysisTree->Branch( Form("rpd%d_%d_Diff_Peak_center", row, col), &rpd[row][col]->Diff_Peak_center, Form("rpd%d_%d_Diff_Peak_center/I", row, col) );
+            m_AnalysisTree->Branch( Form("rpd%d_%d_Charge", row, col),           &rpd[row][col]->Charge,           Form("rpd%d_%d_Charge/D", row, col) );
+            m_AnalysisTree->Branch( Form("rpd%d_%d_Peak_max", row, col),         &rpd[row][col]->Peak_max,         Form("rpd%d_%d_Peak_max/D", row, col) );
+            m_AnalysisTree->Branch( Form("rpd%d_%d_Diff_max", row, col),         &rpd[row][col]->Diff_max,         Form("rpd%d_%d_Diff_max/D", row, col) );
+            m_AnalysisTree->Branch( Form("rpd%d_%d_Peak_center", row, col),      &rpd[row][col]->Peak_center,      Form("rpd%d_%d_Peak_center/I", row, col) );
+            m_AnalysisTree->Branch( Form("rpd%d_%d_Diff_Peak_center", row, col), &rpd[row][col]->Diff_Peak_center, Form("rpd%d_%d_Diff_Peak_center/I", row, col) );
         }
     }
    
-    AnalysisTree->Branch("rpd_xCoM", &xCoM, "xCoM/D" );
-    AnalysisTree->Branch("rpd_yCoM", &yCoM, "yCoM/D" );
-    AnalysisTree->Branch("rpd_Charge_sum", &ChargeSum, "ChargeSum/D" );
-    AnalysisTree->Branch("rpd_Peak_sum",   &PeakSum,   "PeakSum/D" );
+    m_AnalysisTree->Branch("rpd_xCoM", &xCoM, "xCoM/D" );
+    m_AnalysisTree->Branch("rpd_yCoM", &yCoM, "yCoM/D" );
+    m_AnalysisTree->Branch("rpd_Charge_sum", &ChargeSum, "ChargeSum/D" );
+    m_AnalysisTree->Branch("rpd_Peak_sum",   &PeakSum,   "PeakSum/D" );
     
 }
 
@@ -140,6 +140,8 @@ void RPDAnalysis::AnalyzeEvent( ){
  *
  */
 void RPDAnalysis::Finalize( ){
+
+    if(m_viz == NULL) m_viz = new Visualizer( "ATLAS" );
     
     TCanvas c("RPD","RPD",800,600);
     for(int row = 1; row <= 4; row++){

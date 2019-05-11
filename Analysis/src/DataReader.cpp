@@ -394,12 +394,9 @@ void DataReader::ProcessEvents(){
 
   std::cout << "File: " << m_fIn->GetName() << " has " << tree->GetEntries() << " events." << std::endl;
   
-
-  
   // !! EVENT LOOP
   for( int ev = 0; ev < tree->GetEntries(); ev++ ){
     m_event = ev;
-    
     tree->GetEntry( ev );
     
     // Fill the raw waveforms
@@ -443,10 +440,25 @@ void DataReader::Finalize(){
   // we will be writing to it now.
   m_fOut->cd();
 
+  //Add label, if wanted
+  //To understand the kind of measurement, we use alignments
+  Visualizer* viz = new Visualizer( "ATLAS" );
+
+  if(useLabel){
+      std::string year, beam;
+      if(m_runNumber <= 405) year = "2018";
+      if(m_alignment->magnet_On && m_alignment->target_In) beam = "Fragments - Magnet On";
+      if(!m_alignment->magnet_On && m_alignment->target_In) beam = "Fragments - Magnet Off";
+      if(!m_alignment->magnet_On && m_alignment->target_In && m_alignment->lead_In) beam = "Fragments - Magnet Off - Pb absorber";
+      if(!m_alignment->magnet_On && !m_alignment->target_In && !m_alignment->lead_In) beam = "Pb ions, 150 GeV/A";
+      viz->SetTestBeamLabel( year, beam);
+  }
+
   for( auto& ana : m_ana ){
     ana->Finalize();
   }
   for( auto& det_ana : m_det_ana ){
+    det_ana->AssignVisualizer( viz );
     det_ana->Finalize();
   }
 

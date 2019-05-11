@@ -32,6 +32,7 @@ class ZDCAnalysis : public Analysis{
   virtual void   SetBranches    ( TTree* _tree );
   virtual void   Finalize       ( );
 
+
   /** Ratio between the Charge detected in the two ZDCs **/
   TH1D* hChargeRatio;
   /** Ratio between the peak heights of the two ZDCs **/

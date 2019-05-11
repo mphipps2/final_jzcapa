@@ -29,6 +29,9 @@ class Visualizer {
     //Methods to set a given style
     void SetAtlasStyle();
 
+    /** @brief Sets the label to be printed on each plot **/
+    void SetTestBeamLabel(std::string _year, std::string _beam) { year = _year; beam = _beam; }
+
     /** @brief allow the user to define the extension of the plots once they're printed. ".pdf" by default */
     void SetPlotExtension( std::string _extension ) { m_extension = _extension; }
 
@@ -44,11 +47,16 @@ class Visualizer {
     void   SinglePlot     ( std::vector< double > _v1, std::vector< double > _v2, std::string _out_name, std::string _treatment, double _line = 0);
 
     void   DrawPlot (TH1* h2, std::string _xTitle, std::string _yTitle, std::string _saveName, std::string _opt, std::string _oFolder = "${JZCaPA}/results/");
+
     private :
     /** String identifying the style to be applied */
     std::string m_style;
+    /** Strings encoding the year of the test and the beam **/
+    std::string year = "NO";
+    std::string beam = "NO";
     /** Debug flag */
     bool m_debug = false;
+
     /** String defining the extension used to print the plots */
     std::string m_extension = ".pdf";
 };
