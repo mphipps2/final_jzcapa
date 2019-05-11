@@ -13,7 +13,8 @@
 MESSAGE(STATUS "Looking for Root...")
 
 SET(ROOT_CONFIG_SEARCHPATH
-  /Users/rlongo/Library/build_root/bin
+  ${SIMPATH}/tools/root/bin
+  $ENV{ROOTSYS}/bin
 )
 
 SET(ROOT_DEFINITIONS "")
