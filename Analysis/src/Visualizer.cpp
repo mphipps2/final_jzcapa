@@ -294,7 +294,7 @@ void Visualizer::ScatterPlot( std::vector< double > _vx, std::vector< double > _
 }
 
 
-void Visualizer::DrawPlot(TH1 *h2, std::string _xTitle, std::string _yTitle, std::string _saveName, std::string _opt, std::string _oFolder)
+void Visualizer::DrawPlot(TH1 *h2, std::string _xTitle, std::string _yTitle, std::string _saveName, std::string _opt, TMarker* _marker, std::string _oFolder)
 {
     TCanvas* c1 = new TCanvas(_saveName.c_str(),"c1",600,500);
     c1->cd();
@@ -326,6 +326,9 @@ void Visualizer::DrawPlot(TH1 *h2, std::string _xTitle, std::string _yTitle, std
         lx->DrawLatexNDC(0.55,0.95,beam.c_str());
         lx->SetTextFont( 52 );
         lx->DrawLatexNDC(0.55,0.91,"Ongoing Analysis");
+    }
+    if(_marker){
+        _marker->Draw();
     }
     c1->Print( ( _oFolder + "/" + _saveName).c_str() );
     delete c1;
