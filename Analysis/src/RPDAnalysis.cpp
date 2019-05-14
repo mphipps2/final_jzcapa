@@ -15,6 +15,7 @@
 #include "RPDAnalysis.h"
 #include "RPD.h"
 #include "Containers.h"
+#include "TMarker.h"
 #include "TH2D.h"
 #include "TCanvas.h"
 
@@ -42,7 +43,7 @@ void RPDAnalysis::Initialize( std::vector < Detector* > _vDet ){
     for( auto& det : _vDet ){
         if(det->GetChannelsVector().at(0)->detector == "RPD" ){
             m_RPD = (RPD*) det;
-            
+            m_alignment = m_RPD->GetAlignment();
             for(int row = 1; row <= 4; row++){
                 for(int col = 1; col <= 4; col++){
                     rpd[row][col] = m_RPD->GetElement(row,col);
@@ -50,6 +51,8 @@ void RPDAnalysis::Initialize( std::vector < Detector* > _vDet ){
             }
         }
     }
+    beamPosX = -(m_alignment->x_table + 2250)/100;
+    beamPosY = -(m_alignment->y_table - 500)/100;
 }
 
 /** @brief Historgam Setup method for RPDAnalysis
@@ -144,6 +147,8 @@ void RPDAnalysis::Finalize( ){
     if(m_viz == NULL) m_viz = new Visualizer( "ATLAS" );
     
     TCanvas c("RPD","RPD",800,600);
+    c.Divide(4,4);
+    
     for(int row = 1; row <= 4; row++){
         for(int col = 1; col <= 4; col++){
             hCharge->SetBinContent(5-col, 5-row, m_charge[row][col]);
@@ -154,16 +159,13 @@ void RPDAnalysis::Finalize( ){
     std::string output =  std::getenv("JZCaPA");
     output += "/results/";
     
-    c.cd();
-    hCharge->Draw("COLZ text");
-    c.Print( (output + "RPD_charge.C").c_str() );
-    c.Print( (output + "RPD_charge.png").c_str() );
-    hPeak->Draw("COLZ text");
-    c.Print( (output + "RPD_peak.png").c_str() );
-    c.Print( (output + "RPD_peak.C").c_str() );
-    hCenter->Draw("COLZ");
-    c.Print( (output + "RPD_CoM.png").c_str() );
-    c.Print( (output + "RPD_Com.C").c_str() );
+    TMarker *marker = new TMarker(beamPosX,beamPosY,5);
+    marker->SetMarkerColor(kRed);
+    marker->SetMarkerSize(4);
+    
+    m_viz->DrawPlot(hCharge,"Row","Col","RPD_Charge.png","COLZ",marker);
+    m_viz->DrawPlot(hPeak,"Row","Col","RPD_Peak.png","COLZ",marker);
+    m_viz->DrawPlot(hCenter,"x (mm)","y (mm)","RPD_CoM.png","COLZ",marker);
     
 }
 

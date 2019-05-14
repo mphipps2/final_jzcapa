@@ -61,6 +61,7 @@ void ZDCAnalysis::Initialize( std::vector < Detector* > _vDet ){
             zdc2 = det->GetElement(0,2);
         }
     }
+    m_alignment = m_zdc1->GetAlignment();
 }
 
 
