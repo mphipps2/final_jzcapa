@@ -45,12 +45,30 @@ class RPDAnalysis : public Analysis{
   double ChargeSum;
   /** Sum of all channel peak heights */
   double PeakSum;
+  /** Sum of all channel differential peak heights */
+  double DiffPeakSum;
   /** Average charge per tile */
   TH2D *hCharge;
   /** Average peak height per tile */
   TH2D *hPeak;
   /** Calculated center of mass */
   TH2D *hCenter;
+  /** Charge vs peak height */
+  TH2D *hChgVsPk;
+  /** Peak height vs differential peak height */
+  TH2D *hPkVsDiffPk;
+  /** Charge sum histogram */
+  TH1D *hChargeSum;
+  /** Peak height sum histogram */
+  TH1D *hPeakSum;
+  /** Differential peak height sum histogram */
+  TH1D *hDiffPeakSum;
+  /** Array of charge histograms. One per tile */
+  TH1D *hChargeArr[5][5];
+  /** Array of peak height histograms. One per tile */
+  TH1D *hPeakArr[5][5];
+  /** Array of differential peak histograms. One per tile */
+  TH1D *hDPeakArr[5][5];
   /** Center of tiles in X mm */
   double xPos[4] = {32.34,10.79,-10.79,-32.37};
   /** Gap between tiles in Y mm */
