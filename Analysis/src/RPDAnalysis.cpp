@@ -149,14 +149,13 @@ void RPDAnalysis::AnalyzeEvent( ){
         for(int j = 1; j <= 4; j++){
             if( rpd[i][j]->is_on && rpd[i][j]->was_hit ){
                 totalCharge += m_charge[i][j];
-                
-                weightedCol += m_charge[j][i] * yPos[j];
-                weightedRow += m_charge[i][j] * xPos[j];
+                weightedRow += m_charge[i][j] * yPos[i];
+                weightedCol += m_charge[i][j] * xPos[j];
             }
         }
     }
-    xCoM = weightedRow/totalCharge;
-    yCoM = weightedCol/totalCharge;
+    xCoM = weightedCol/totalCharge;
+    yCoM = weightedRow/totalCharge;
     hCenter->Fill(xCoM,yCoM);
     
     hChargeSum->Fill(ChargeSum);

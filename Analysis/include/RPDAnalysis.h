@@ -70,9 +70,9 @@ class RPDAnalysis : public Analysis{
   /** Array of differential peak histograms. One per tile */
   TH1D *hDPeakArr[5][5];
   /** Center of tiles in X mm */
-  double xPos[4] = {32.34,10.79,-10.79,-32.37};
+  double xPos[5] = {0,32.34,10.79,-10.79,-32.37};
   /** Gap between tiles in Y mm */
-  double yPos[4] = {30.75,10.25,-10.25,-30.75}; 
+  double yPos[5] = {0,30.75,10.25,-10.25,-30.75}; 
   /** Estimated position of the beam calculated form table position */
   double beamPosX, beamPosY;
   
