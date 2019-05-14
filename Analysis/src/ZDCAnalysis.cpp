@@ -156,7 +156,7 @@ void ZDCAnalysis::Finalize( ){
     if(m_viz == NULL) m_viz = new Visualizer( "ATLAS" );
 
     m_viz->DrawPlot(hChargeRatio,"Q_{ZDC2}/Q_{ZDC1}","Counts","ZDC_chargeRatio.png","");
-    m_viz->DrawPlot(hChargeRatio,"Peak_{ZDC2}/Peak_{ZDC1}","Counts","ZDC_peakRatio.png","");
+    m_viz->DrawPlot(hPeakRatio,"Peak_{ZDC2}/Peak_{ZDC1}","Counts","ZDC_peakRatio.png","");
 
     m_viz->DrawPlot(hCharge,"Q_{ZDC1}","Q_{ZDC2}","ZDC_charge.png","COLZ");
     m_viz->DrawPlot(hPeak,"Peak_{ZDC1}","Peak_{ZDC2}","ZDC_peak.png","COLZ");
