@@ -21,6 +21,18 @@ add_executable(AnalysisExample ${DEPENDENCIES} userFunctions/AnalysisExample.cpp
 TARGET_LINK_LIBRARIES(AnalysisExample ${ROOT_LIBRARIES})
 TARGET_LINK_LIBRARIES(AnalysisExample ${XERCESC_LIBRARY})
 
-
 install(TARGETS AnalysisExample RUNTIME DESTINATION bin)
 
+
+add_executable(myAnalysis ${DEPENDENCIES} userFunctions/myAnalysis.cpp)
+TARGET_LINK_LIBRARIES(myAnalysis ${ROOT_LIBRARIES})
+TARGET_LINK_LIBRARIES(myAnalysis ${XERCESC_LIBRARY})
+
+install(TARGETS myAnalysis RUNTIME DESTINATION bin)
+
+
+add_executable(postAnalysis ${DEPENDENCIES} userFunctions/postAnalysis.cpp)
+TARGET_LINK_LIBRARIES(postAnalysis ${ROOT_LIBRARIES})
+TARGET_LINK_LIBRARIES(postAnalysis ${XERCESC_LIBRARY})
+
+install(TARGETS postAnalysis RUNTIME DESTINATION bin)
