@@ -75,8 +75,13 @@ void RPDAnalysis::SetupHistograms( ){
    for(int row = 1; row <=4; row++){
        for(int col = 1; col <= 4; col++){
             hChargeArr[row][col] = new TH1D(Form("rpd%d_%d_Charge",row,col),Form("rpd%d_%d_Charge",row,col), 200 , 0, 15000);
+            hChargeArr[row][col]->SetAxisRange(0,1500,"Y");
+            
             hPeakArr[row][col]   = new TH1D(Form("rpd%d_%d_Peak",row,col),Form("rpd%d_%d_Peak",row,col), 200, 0, 300);
+            hPeakArr[row][col]->SetAxisRange(0,1500,"Y");
+            
             hDPeakArr[row][col]  = new TH1D(Form("rpd%d_%d_Diff_peak",row,col),Form("rpd%d_%d_Diff_peak",row,col), 200, 0, 5000);
+            hDPeakArr[row][col]->SetAxisRange(0,1500,"Y");
        }
    }
   
@@ -203,12 +208,12 @@ void RPDAnalysis::Finalize( ){
     marker->SetMarkerColor(kRed);
     marker->SetMarkerSize(4);
     
-    cCharge.Print("RPD_Charge_per_tile.png");
-    cPeak.Print("RPD_Peak_per_tile.png");
-    cDpeak.Print("RPD_Diff_peak_per_tile.png");
+    cCharge.Print( (output + "RPD_Charge_per_tile.png").c_str() );
+    cPeak.Print( (output + "RPD_Peak_per_tile.png").c_str() );
+    cDpeak.Print( (output + "RPD_Diff_peak_per_tile.png").c_str() );
     
-    m_viz->DrawPlot(hChargeSum,"Q","Counts","RPD_TotalCharge.png","");
-    m_viz->DrawPlot(hPeakSum,"Peak","Counts","RPD_PeakSum.png","");
+    m_viz->DrawPlot(hChargeSum,"RPD Q_{total}","Counts","RPD_TotalCharge.png","");
+    m_viz->DrawPlot(hPeakSum,"RPD Peak_{sum}","Counts","RPD_PeakSum.png","");
     m_viz->DrawPlot(hDiffPeakSum,"$\frac{#partial V}{#partial t}_{max}$","Counts","RPD_DiffSum.png","");
     m_viz->DrawPlot(hCharge,"Row","Col","RPD_Charge.png","COLZ",marker);
     m_viz->DrawPlot(hPeak,"Row","Col","RPD_Peak.png","COLZ",marker);
