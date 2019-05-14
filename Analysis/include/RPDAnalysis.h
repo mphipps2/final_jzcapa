@@ -55,6 +55,8 @@ class RPDAnalysis : public Analysis{
   double xPos[4] = {32.34,10.79,-10.79,-32.37};
   /** Gap between tiles in Y mm */
   double yPos[4] = {30.75,10.25,-10.25,-30.75}; 
+  /** Estimated position of the beam calculated form table position */
+  double beamPosX, beamPosY;
   
  private :
   /** Pointer to the RPD */

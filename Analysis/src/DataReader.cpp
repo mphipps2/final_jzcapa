@@ -345,7 +345,12 @@ void DataReader::Initialize(){
   m_tOut = new TTree("AnalysisTree","AnalysisTree");
   m_tOut->Branch("runNumber", &m_runNumber, "m_runNumber/i");
   m_tOut->Branch("evNo", &m_event, "m_event/I");
+  m_tOut->Branch("x_table", &m_alignment->x_table, "x_table/D");
+  m_tOut->Branch("y_table", &m_alignment->y_table, "y_table/D");
   
+  for( uint detID = 0; detID < (int) m_detectors.size(); detID++ ){
+     m_detectors.at(detID)->SetAlignment(m_alignment);
+  }
   for( auto& ana : m_ana ){
     ana->Initialize();
     ana->SetupHistograms();

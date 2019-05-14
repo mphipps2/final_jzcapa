@@ -50,6 +50,8 @@ class Analysis{
   TTree *m_AnalysisTree = 0;
   /** Visualizer for plots **/
   Visualizer* m_viz = 0;
+  /** Alignment information for the given run */
+  Alignment* m_alignment;
 };
 
 #endif
