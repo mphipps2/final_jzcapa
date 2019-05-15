@@ -302,6 +302,10 @@ void DataReader::UpdateConsole( Long_t _updateRate){
 void DataReader::Run(){
 
   Initialize();
+  if( !m_fIn ){
+      std::cerr << "Input file didn't open... exiting" << std::endl;
+      return;
+  }
   ProcessEvents();
   Finalize();
 }
@@ -338,8 +342,11 @@ void DataReader::Initialize(){
   // If we are reading a list of files, or have no run number
   // make default name output.root, otherwise make it
   // outputN.root, where N is a run number of a file.
+  // An output directory is created for each run in $JZCaPA/results
+  m_outputDir = (std::string)std::getenv("JZCaPA") + Form("/results/run%d/",m_runNumber);
+  gSystem->Exec( ("mkdir -p " + m_outputDir).c_str() );
   std::string fNameOut = m_readListOfFiles ?
-    ((std::string)std::getenv("JZCaPA") + "/results/output.root") : Form( ((std::string)std::getenv("JZCaPA") + "/results/output%d.root").c_str(), m_runNumber );
+    (m_outputDir + "output.root") : Form( (m_outputDir + "output%d.root").c_str(), m_runNumber );
 
   m_fOut = new TFile( fNameOut.c_str(), "RECREATE" );
   m_tOut = new TTree("AnalysisTree","AnalysisTree");
@@ -456,6 +463,7 @@ void DataReader::Finalize(){
       if(!m_alignment->magnet_On && m_alignment->target_In) beam = "Fragments - Magnet Off";
       if(!m_alignment->magnet_On && m_alignment->target_In && m_alignment->lead_In) beam = "Fragments - Magnet Off - Pb absorber";
       if(!m_alignment->magnet_On && !m_alignment->target_In && !m_alignment->lead_In) beam = "Pb ions, 150 GeV/A";
+      viz->SetOutputDirectory( m_outputDir );
       viz->SetTestBeamLabel( year, beam);
   }
 

@@ -66,7 +66,7 @@ void RPDAnalysis::SetupHistograms( ){
    hCharge     = new TH2D("RPD Charge", "average charge per tile", 4, 0, 4, 4, 0, 4);
    hPeak       = new TH2D("RPD Peak", "average peak height per tile", 4, 1, 5, 4, 1, 5);
    hCenter     = new TH2D("Shower Center", "Calculated center of mass", 200, -50, 50, 200, -50, 50);
-   hChgVsPk    = new TH2D("Charge vs Peak height","Q vs Peak; Q; Peak", 300, 0, 10000, 300, 0, 1100);
+   hChgVsPk    = new TH2D("Charge vs Peak height","Q vs Peak; Q; Peak", 300, 0, 300000, 300, 0, 1100);
    hPkVsDiffPk = new TH2D("Peak height vs Differential peak height","Peak vs Diff Peak", 200, 0, 5000, 200, 0, 300);
    hChargeSum  = new TH1D("RPD Integrated Signal","RPD Integrated Signal", 200, 0, 160000);
    hPeakSum    = new TH1D("RPD Peak Height Sum","RPD Peak Height Sum", 200, 0, 3000);
@@ -207,13 +207,15 @@ void RPDAnalysis::Finalize( ){
     marker->SetMarkerColor(kRed);
     marker->SetMarkerSize(4);
     
-    cCharge.Print( (output + "RPD_Charge_per_tile.png").c_str() );
-    cPeak.Print( (output + "RPD_Peak_per_tile.png").c_str() );
-    cDpeak.Print( (output + "RPD_Diff_peak_per_tile.png").c_str() );
+    //cCharge.Print( (output + "RPD_Charge_per_tile.png").c_str() );
+    //cPeak.Print( (output + "RPD_Peak_per_tile.png").c_str() );
+    //cDpeak.Print( (output + "RPD_Diff_peak_per_tile.png").c_str() );
     
+    m_viz->DrawPlot(hChgVsPk,"RPD Q_{total}","RPD Peak_{sum}","RPD_TotalCharge.png","");
+    m_viz->DrawPlot(hPkVsDiffPk,"RPD Peak_{sum}","#frac{#partial V}{#partial t}_{max}","RPD_TotalCharge.png","");
     m_viz->DrawPlot(hChargeSum,"RPD Q_{total}","Counts","RPD_TotalCharge.png","");
     m_viz->DrawPlot(hPeakSum,"RPD Peak_{sum}","Counts","RPD_PeakSum.png","");
-    m_viz->DrawPlot(hDiffPeakSum,"$\frac{#partial V}{#partial t}_{max}$","Counts","RPD_DiffSum.png","");
+    m_viz->DrawPlot(hDiffPeakSum,"#frac{#partial V}{#partial t}_{max}","Counts","RPD_DiffSum.png","");
     m_viz->DrawPlot(hCharge,"Row","Col","RPD_Charge.png","COLZ",marker);
     m_viz->DrawPlot(hPeak,"Row","Col","RPD_Peak.png","COLZ",marker);
     m_viz->DrawPlot(hCenter,"x (mm)","y (mm)","RPD_CoM.png","COLZ",marker);

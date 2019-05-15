@@ -330,7 +330,8 @@ void Visualizer::DrawPlot(TH1 *h2, std::string _xTitle, std::string _yTitle, std
     if(_marker){
         _marker->Draw();
     }
-    c1->Print( ( _oFolder + "/" + _saveName).c_str() );
+    if( _oFolder == "" ){ _oFolder = m_oFolder; }
+    c1->Print( ( _oFolder + _saveName).c_str() );
     delete c1;
 
 }
