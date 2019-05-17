@@ -55,6 +55,7 @@ void WFAnalysis::SetupHistograms( ){
   
   f = new TF1("f","gaus",-50,50);
   hRMS = new TH1D("RMS","RMS",75,-75,75);
+  hPed = new TH1D("ped","ped", 1024, -512, 512);
   
 }
 
@@ -139,11 +140,12 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
             
             vCh.at(ch)->offset = -1*vCh.at(ch)->offset;
             for(int bin = 0; bin < h->GetNbinsX(); bin++){
-                h->SetBinContent( bin, -1*h->GetBinContent(bin) );
+                h->SetBinContent( bin, -1*vCh.at(ch)->pWF->at(bin) );
+                vCh.at(ch)->pWF->at(bin) *= -1;
             }
         }
         
-        GetDifferential( h, hDiff );
+        GetDifferential( vCh.at(ch) );
         vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff ); 
         
         FindHitWindow( vCh.at(ch) );
@@ -160,8 +162,7 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
 }
 
 /** @brief GetDifferential method for WFAnalysis
- *  @param hIN Histogram to be differentiated
- *  @param hOUT Output histogram
+ *  @param Ch channel who's waveform will be differentiated
  *
  * The derivative is calculated as the difference of the summation N points before and after the ith point
  *  @f[
@@ -170,23 +171,22 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
  *
  * N is given by m_diffSens and is set by the constructor or SetDiffSense()
  */
-void WFAnalysis::GetDifferential( TH1D *hIN, TH1D *hOUT ){
+void WFAnalysis::GetDifferential( Channel* Ch ){
     
-    if(!hIN)  std::cerr <<    "WARNING: Nothing to differentiate"     << std::endl;
-    if(!hOUT) std::cerr << "WARNING: Nowhere to put the differential" << std::endl;
+    
 
     // Loop over histogram
-    for( unsigned int bin = m_diffSens; bin < hIN->GetNbinsX() - m_diffSens ; bin++ ){
+    for( unsigned int bin = m_diffSens; bin < Ch->WF_histo->GetNbinsX() - m_diffSens ; bin++ ){
       //decalare temp variable to store the sum before and after the i data point
       double sum_before = 0;
       double sum_after = 0;
       //calculate the sum before and after the i data point
       for (int i = 0; i < m_diffSens; i++  ){
-        sum_before += hIN->GetBinContent( bin - i );
-        sum_after  += hIN->GetBinContent( bin + i );
+        sum_before += Ch->WF.at( bin - i );
+        sum_after  += Ch->WF.at( bin + i );
       }
         //set the bin to the calculated derivative value     
-        hOUT->SetBinContent(bin,(sum_after - sum_before));
+        Ch->FirstDerivative->SetBinContent(bin,(sum_after - sum_before));
         
     }//end derivative loop
 }
@@ -298,10 +298,9 @@ void WFAnalysis::FindHitWindow( Channel* ch ){
  *  Also saves a pedestal subtracted, zero supressed version of WF_histo to PWF_histo.
  *  Allows for a reference histogram to be supplied i.e. PWF_histo. Otherwise, defaults to WF_histo.
  */
-void WFAnalysis::GetPedestal( Channel* ch, TH1D* hRef ){
-    if(!hRef){hRef = ch->WF_histo; }
-    int nBins = hRef->GetNbinsX();
-    TH1D h("ped","ped", nBins, -nBins/2, nBins/2);
+void WFAnalysis::GetPedestal( Channel* ch ){
+    int nBins = ch->WF_histo->GetNbinsX();
+    //TH1D h("ped","ped", nBins, -nBins/2, nBins/2);
     
     if( ch->was_hit && ch->hit_window.first > ch->hit_window.second ){
         if(ch->is_on && m_verbose > 1){
@@ -314,15 +313,15 @@ void WFAnalysis::GetPedestal( Channel* ch, TH1D* hRef ){
         // Skip the hit window
         if( bin == ch->hit_window.first ){ bin = ch->hit_window.second; }
         
-        h.Fill( hRef->GetBinContent(bin) );
+        hPed->Fill( ch->pWF->at(bin) );
     }
     
-    ch->PedMean = h.GetMean();
-    ch->PedRMS  = h.GetRMS();
+    ch->PedMean = hPed->GetMean();
+    ch->PedRMS  = hPed->GetRMS();
     
     // Subtract PedMean from PWF_histo
     for(int bin = 0; bin < nBins; bin++){
-        double content = hRef->GetBinContent(bin) - ch->PedMean;
+        double content = ch->pWF->at(bin) - ch->PedMean;
         ch->PWF_histo->SetBinContent( bin, content );
     }
 }
