@@ -216,8 +216,8 @@ void RPDAnalysis::Finalize( ){
     m_viz->DrawPlot(hChargeSum,"RPD Q_{total}","Counts","RPD_TotalCharge.png","");
     m_viz->DrawPlot(hPeakSum,"RPD Peak_{sum}","Counts","RPD_PeakSum.png","");
     m_viz->DrawPlot(hDiffPeakSum,"#frac{#partial V}{#partial t}_{max}","Counts","RPD_DiffSum.png","");
-    m_viz->DrawPlot(hCharge,"Row","Col","RPD_Charge.png","COLZ",marker);
-    m_viz->DrawPlot(hPeak,"Row","Col","RPD_Peak.png","COLZ",marker);
+    m_viz->DrawPlot(hCharge,"Row","Col","RPD_Charge.png","COLZ text",marker);
+    m_viz->DrawPlot(hPeak,"Row","Col","RPD_Peak.png","COLZ text",marker);
     m_viz->DrawPlot(hCenter,"x (mm)","y (mm)","RPD_CoM.png","COLZ",marker);
     
 }
