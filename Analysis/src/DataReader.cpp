@@ -339,12 +339,16 @@ void DataReader::Initialize(){
     m_fIn = TFile::Open( m_fNameIn.c_str() );
   }
 
+  // If no output directory is specified by the user
+  // one is created for this run in $JZCaPA/results
+  if( m_outputDir == "" ){
+      m_outputDir = (std::string)std::getenv("JZCaPA") + Form("/results/run%d/",m_runNumber);
+      gSystem->Exec( ("mkdir -p " + m_outputDir).c_str() );
+  }
+  
   // If we are reading a list of files, or have no run number
   // make default name output.root, otherwise make it
   // outputN.root, where N is a run number of a file.
-  // An output directory is created for each run in $JZCaPA/results
-  m_outputDir = (std::string)std::getenv("JZCaPA") + Form("/results/run%d/",m_runNumber);
-  gSystem->Exec( ("mkdir -p " + m_outputDir).c_str() );
   std::string fNameOut = m_readListOfFiles ?
     (m_outputDir + "output.root") : Form( (m_outputDir + "output%d.root").c_str(), m_runNumber );
 

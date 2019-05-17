@@ -52,6 +52,7 @@ class DataReader{
   void LoadConfigurationFile (std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/ConfigFile2018.xml"));
   void SetDebugMode          ( ) { m_debug = true; }
   void SetVerbosity          ( int _level ){ m_verbose = _level; }
+  void SetOutputDirectory    ( std::string _dir ){ m_outputDir = _dir; }
   void UpdateConsole         ( Long_t _updateRate);
 
   void EnablePlotLabel       (  ) { useLabel = true; }
@@ -70,7 +71,7 @@ class DataReader{
   // Output TTree
   TTree* m_tOut;
   // Output directory
-  std::string m_outputDir;
+  std::string m_outputDir = "";
   
   // vector of pre-detector analysis
   std::vector< Analysis* > m_ana;
