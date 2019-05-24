@@ -85,4 +85,4 @@ install(FILES MonteCarlo/config/config.cfg DESTINATION Utils)
 install(FILES Utils/jcapa_env_lxplus.sh DESTINATION Utils)
 install(FILES Utils/jzcapa_env_uiuc.sh DESTINATION Utils)
 install(DIRECTORY DESTINATION results)
-
+install(DIRECTORY Utils/2018Timing_data DESTINATION Utils)

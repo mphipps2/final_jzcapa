@@ -51,6 +51,8 @@ class Channel {
     std::vector < float > WF;
     /** Pointer to the WF vector */
     std::vector < float > *pWF = &WF;
+    /** Pointer to the DRS4 time vector */
+    std::vector < float > *pTimeVec = 0;
     /** Histrogram for visualization and analysis of the waveform */
     TH1D* WF_histo;
     /** Histogram of the processed waveform */

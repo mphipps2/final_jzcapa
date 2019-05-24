@@ -12,6 +12,7 @@
 #include "ZDCAnalysis.h"
 #include "RPDAnalysis.h"
 #include "EventTimer.h"
+#include "TSystem.h"
 
 using namespace std;
 
@@ -38,6 +39,7 @@ int main(int argc, char *argv[]){
       return 0;
   }
   string fNameIn = Form("/data/phenix/data/TestBeam2018/new_processed_runs/Scan%d/ZDCBeamTestRun%d.root", scanNum, runNum); // !! Change for your test !!
+  gSystem->Exec( Form("mkdir -p /data/phenix/data/TestBeam2018/Post_processing/run%d", runNum) );
 
   // DataReader is the main class. It reads data and also
   // has analysis classes in it. User should only have to
@@ -52,6 +54,8 @@ int main(int argc, char *argv[]){
   r->AddDetectorAnalysis( new RPDAnalysis() );
   r->LoadConfigurationFile();
   r->LoadAlignmentFile();
+  r->LoadTimingFile();
+  r->SetOutputDirectory( Form("/data/phenix/data/TestBeam2018/Post_processing/run%d/", runNum) );
   r->EnablePlotLabel();
   
   EventTimer timer(1000, r, kFALSE);

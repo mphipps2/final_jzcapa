@@ -15,6 +15,7 @@
 #include <TSystem.h>
 
 #include <iostream>
+#include <fstream>
 
 #include "DataReader.h"
 #include "Analysis.h"
@@ -238,6 +239,99 @@ void DataReader::LoadConfigurationFile(std::string _inFile ){
     std::cout << "Detector configuration: loading complete! " << std::endl;
 
     return;
+}
+
+
+/** @brief Loads calibrated timing information for DRS4 modules based on run number
+ *  @param _inFile Optional argument for loading a custom file
+ *
+ *  Uses run number to determine scan number and loads the appropriate DRS4 timing
+ *  information from the 2018 Testbeam. After loading, we hand each Channel a
+ *  pointer to its timing vector. Must be run after LoadConfigurationFile()
+ *
+ */
+void DataReader::LoadTimingFile(std::string _inFile){
+    
+    std::string inFile,buffer;
+    char data[12];
+    float dat;
+    std::vector< Channel* > vChannel;
+    m_time.resize(5);
+    for(int i = 0; i < 5; i++){
+        m_time[i] = new std::vector< float >;
+    }
+    
+    int chNo;
+    int start[] = {79,  152, 190, 202, 215, 258 };
+    int stop[]  = {112, 171, 200, 213, 231, 413 };
+    int scanNum = 0;
+    
+    //If the user has selected a file, use it and skip determining the scan number
+    if(_inFile != ""){
+        std::cout << "Using timing file definied by user " << _inFile << std::endl;
+        inFile = _inFile;
+        goto open;
+    }
+    
+    //Determine scan number using ranges defined by start and stop.
+    //Scan 6-13 have identical timing data, so we treat them all as scan 6
+    for(int i = 0; i < 6; i++){
+        if(start[i]<=m_runNumber && stop[i]>=m_runNumber){
+            scanNum = i+1;
+        }
+    }
+    if(scanNum == 0){
+        std::cerr << "Scan number not defined, defaulting timing data to Scan 1" << std::endl;
+        scanNum = 1;
+    }
+    inFile = (std::string)std::getenv("JZCaPA") + Form("/Utils/2018Timing_data/scan%d.txt",scanNum);
+    
+    open:
+    std::ifstream file( inFile.c_str() );
+    if( !file.is_open() ){
+        std::cerr << "WARNING: Timing data file didn't open " << inFile << std::endl;
+        return;
+    }
+    
+    //Get the headers out
+    getline(file,buffer);
+    getline(file,buffer);
+    
+    while(!file.eof()){
+        getline(file,buffer);
+        if(buffer == "") break;
+        
+        //Loop through the DRS4 modules pushing the data into the vector 
+        //and chopping off the front of the string
+        for(int drs = 0; drs<4; drs++){
+            buffer.copy( data , 11 );
+            dat = atof(data);
+            m_time[drs]->push_back( dat );
+            buffer.erase(buffer.front(),11);
+        }
+        //The spacing on the file is a bit weird, so fill the last one differently
+        m_time[4]->push_back( atof( buffer.c_str() ) );
+    }
+    file.close();
+    
+    //Loop through the detector vector and their Channel vectors assigning the
+    //time vector based on hardware channel number (Channel::name)
+    for( auto& det : m_detectors ){
+        vChannel = det->GetChannelsVector();
+        for( Channel* ch : vChannel ){
+            buffer = ch->name;
+            //Remove "Signal" from name and convert to int
+            buffer.erase(0,6);
+            chNo = atoi( buffer.c_str() );
+            
+            //If the channel already has a time vector, print an error and continue
+            if(ch->pTimeVec != 0){
+                std::cerr << "WARNING: Overwriting Channel time vector" << std::endl;
+            }
+            ch->pTimeVec = m_time[chNo/4];
+        }
+    }
+    std::cout << "DRS4 Timing: loading complete " << std::endl;
 }
 
 /**

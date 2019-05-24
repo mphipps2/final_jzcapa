@@ -50,6 +50,7 @@ class DataReader{
 
   void LoadAlignmentFile     (std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/Alignment_2018.xml"));
   void LoadConfigurationFile (std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/ConfigFile2018.xml"));
+  void LoadTimingFile        (std::string _inFile = "" );
   void SetDebugMode          ( ) { m_debug = true; }
   void SetVerbosity          ( int _level ){ m_verbose = _level; }
   void SetOutputDirectory    ( std::string _dir ){ m_outputDir = _dir; }
@@ -77,6 +78,8 @@ class DataReader{
   std::vector< Analysis* > m_ana;
   // vector of detector analysis
   std::vector< Analysis* > m_det_ana;
+  // Vector of time vectors for DRS4 modules
+  std::vector< std::vector< float >* > m_time;
 
   //Number of channels to be read
   unsigned int m_nCh;
