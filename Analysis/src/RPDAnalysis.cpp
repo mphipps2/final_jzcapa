@@ -133,9 +133,6 @@ void RPDAnalysis::AnalyzeEvent( ){
                 hChargeArr[row][col]->Fill(rpd[row][col]->Charge);
                 hPeakArr[row][col]->Fill(rpd[row][col]->Peak_max);
                 hDPeakArr[row][col]->Fill(rpd[row][col]->Diff_max);
-                
-                m_charge[row][col] = (m_charge[row][col] + rpd[row][col]->Charge  )/2;
-                m_peak[row][col] =   (m_peak[row][col]   + rpd[row][col]->Peak_max)/2;
             }
         }
     }
@@ -195,8 +192,8 @@ void RPDAnalysis::Finalize( ){
             cDpeak.cd(pad);
             hDPeakArr[row][col]->Draw();
             
-            hCharge->SetBinContent(5-col, 5-row, m_charge[row][col]);
-            hPeak->SetBinContent(  5-col, 5-row, m_peak[row][col]  );
+            hCharge->SetBinContent(5-col, 5-row, hChargeArr[row][col]->GetMean() );
+            hPeak->SetBinContent(  5-col, 5-row, hPeakArr[row][col]->GetMean()  );
         }
     }
     
