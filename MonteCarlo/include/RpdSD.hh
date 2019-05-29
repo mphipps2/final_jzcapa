@@ -33,6 +33,7 @@
 
 #include "G4VSensitiveDetector.hh"
 #include "RpdHit.hh"
+#include "FiberHit.hh"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -62,6 +63,7 @@ private:
   int HCID;
   G4double m_modCoreIndexRefraction;  
   RpdHitsCollection* rpdCollection;
+  FiberHitsCollection* fiberCollection;
   G4int m_modNum;
   TH2D* h2_rodNum_eDep;
 };

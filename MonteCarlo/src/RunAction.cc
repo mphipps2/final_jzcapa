@@ -66,6 +66,12 @@ RunAction::~RunAction()
 void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 { 
   // inform the runManager to save random number seed
+  
+  long seeds[2];
+  long systime = time(NULL);
+  seeds[0] = (long) systime;
+  seeds[1] = (long) (systime*G4UniformRand());
+  G4Random::setTheSeeds(seeds); 
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
   //G4int nbEventInRun = run->GetNumberOfEventToBeProcessed();
 	
@@ -106,6 +112,25 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
   fSharedData->AddOutputToRPDTree("Velocity",&fVelocity_v2);
   fSharedData->AddOutputToRPDTree("NCherenkovs",&fNCherenkovs_v2);
   fSharedData->AddOutputToRPDTree("Beta",&fBeta_v2);
+  
+  fSharedData->AddOutputToFiberTree("ID",&fTrackID_v3);
+  fSharedData->AddOutputToFiberTree("ModNb",&fModNb_v3);
+  fSharedData->AddOutputToFiberTree("RadNb",&fRadNb_v3);
+  fSharedData->AddOutputToFiberTree("RodNb",&fRodNb_v3);
+  fSharedData->AddOutputToFiberTree("EDep",&fEdep_v3);
+  fSharedData->AddOutputToFiberTree("Pid",&fPid_v3);
+  fSharedData->AddOutputToFiberTree("X",&fX_v3);
+  fSharedData->AddOutputToFiberTree("Y",&fY_v3);
+  fSharedData->AddOutputToFiberTree("Z",&fZ_v3);
+  fSharedData->AddOutputToFiberTree("Px",&fPx_v3);
+  fSharedData->AddOutputToFiberTree("Py",&fPy_v3);
+  fSharedData->AddOutputToFiberTree("Pz",&fPz_v3);
+  fSharedData->AddOutputToFiberTree("EventNo",&fEventNo_v3);
+  fSharedData->AddOutputToFiberTree("Energy",&fEnergy_v3);
+  fSharedData->AddOutputToFiberTree("Charge",&fCharge_v3);
+  fSharedData->AddOutputToFiberTree("Velocity",&fVelocity_v3);
+  fSharedData->AddOutputToFiberTree("NCherenkovs",&fNCherenkovs_v3);
+  fSharedData->AddOutputToFiberTree("Beta",&fBeta_v3);
   
   // reset parameters to their initial values
 #if G4VERSION_NUMBER > 999

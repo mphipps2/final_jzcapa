@@ -62,6 +62,7 @@ class RunAction : public G4UserRunAction
         fTrackID_v.clear();
 		fModNb_v.clear();
         fRadNb_v.clear();
+		fRodNb_v.clear();
         fEdep_v.clear();
         fPid_v.clear();
         fNCherenkovs_v.clear();
@@ -80,6 +81,7 @@ class RunAction : public G4UserRunAction
 		fTrackID_v2.clear();
 		fModNb_v2.clear();
         fRadNb_v2.clear();
+		fRodNb_v2.clear();
         fEdep_v2.clear();
         fPid_v2.clear();
         fNCherenkovs_v2.clear();
@@ -94,6 +96,25 @@ class RunAction : public G4UserRunAction
         fCharge_v2.clear();
         fVelocity_v2.clear();
         fBeta_v2.clear();
+		
+		fTrackID_v3.clear();
+		fModNb_v3.clear();
+        fRadNb_v3.clear();
+		fRodNb_v3.clear();
+        fEdep_v3.clear();
+        fPid_v3.clear();
+        fNCherenkovs_v3.clear();
+        fX_v3.clear();
+        fY_v3.clear();
+        fZ_v3.clear();
+        fPx_v3.clear();
+        fPy_v3.clear();
+        fPz_v3.clear();
+        fEventNo_v3.clear();  
+        fEnergy_v3.clear();
+        fCharge_v3.clear();
+        fVelocity_v3.clear();
+        fBeta_v3.clear();
 		}
 		
   inline SharedData* GetSharedData() {return fSharedData;}
@@ -127,6 +148,21 @@ class RunAction : public G4UserRunAction
   inline  void SetCharge_rpd(G4double charge) {fCharge_v2.push_back(charge);}
   inline  void SetVelocity_rpd(G4double velocity) {fVelocity_v2.push_back(velocity);}
   inline  void SetBeta_rpd(G4double beta) {fBeta_v2.push_back(beta);}
+  
+  inline  void SetRadNo_fiber(G4int rNo) {fRadNb_v3.push_back(rNo);}
+  inline  void SetRodNo_fiber(G4int rNo) {fRodNb_v3.push_back(rNo);}  
+  inline  void SetEdep_fiber(G4double edep) {fEdep_v3.push_back(edep);}
+  inline  void SetModNb_fiber(G4int mNo) {fModNb_v3.push_back(mNo);}
+  inline  void SetTrackID_fiber(G4int trackid) {fTrackID_v3.push_back(trackid);}
+  void SetPosition_fiber(G4ThreeVector pos) {fX_v3.push_back(pos.getX()); fY_v3.push_back(pos.getY()); fZ_v3.push_back(pos.getZ());}
+  void SetMomentum_fiber(G4ThreeVector p) {fPx_v3.push_back(p.getX()); fPy_v3.push_back(p.getY()); fPz_v3.push_back(p.getZ());}
+  inline  void SetEnergy_fiber(G4double e) {fEnergy_v3.push_back(e);}
+  inline  void SetPid_fiber(G4int pid) {fPid_v3.push_back(pid);}
+  inline  void SetNCherenkovs_fiber(G4int cherenkovs) {fNCherenkovs_v3.push_back(cherenkovs);}
+  inline  void SetEventNo_fiber(G4int eventNo) {fEventNo_v3.push_back(eventNo);}
+  inline  void SetCharge_fiber(G4double charge) {fCharge_v3.push_back(charge);}
+  inline  void SetVelocity_fiber(G4double velocity) {fVelocity_v3.push_back(velocity);}
+  inline  void SetBeta_fiber(G4double beta) {fBeta_v3.push_back(beta);}
   
   private:
     SharedData *fSharedData;
@@ -167,6 +203,25 @@ class RunAction : public G4UserRunAction
   std::vector<double>      fCharge_v2;
   std::vector<double>      fVelocity_v2;
   std::vector<double>      fBeta_v2;
+  
+  std::vector<int>         fTrackID_v3;
+  std::vector<int>         fModNb_v3;
+  std::vector<int>         fRadNb_v3;
+  std::vector<int>         fRodNb_v3;  
+  std::vector<double>      fEdep_v3;
+  std::vector<int>         fPid_v3;
+  std::vector<double>      fX_v3;
+  std::vector<double>      fY_v3;
+  std::vector<double>      fZ_v3;
+  std::vector<double>      fPx_v3;
+  std::vector<double>      fPy_v3;
+  std::vector<double>      fPz_v3;
+  std::vector<int>         fEventNo_v3;
+  std::vector<int>         fNCherenkovs_v3;  
+  std::vector<double>      fEnergy_v3;
+  std::vector<double>      fCharge_v3;
+  std::vector<double>      fVelocity_v3;
+  std::vector<double>      fBeta_v3;
   
   
     

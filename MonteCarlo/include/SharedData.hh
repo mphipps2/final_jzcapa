@@ -87,6 +87,8 @@ public:
   void   AddOutputToZDCTree    ( const std::string&, T*);
   template<class T> 
   void   AddOutputToRPDTree    ( const std::string&, T*);
+  template<class T> 
+  void   AddOutputToFiberTree    ( const std::string&, T*);
   
   void   AddOutputHistogram ( TH1* );
    
@@ -95,6 +97,7 @@ public:
   bool   DoPrint          ();
   inline TTree* GetZDCTree          () {return m_treeZDC;}
   inline TTree* GetRPDTree          () {return m_treeRPD;}
+  inline TTree* GetFiberTree          () {return m_treeFiber;}
   
   inline int GetEventNo       () {return m_eventCounter;}
   
@@ -111,6 +114,7 @@ private:
   TFile*  m_fout;
   TTree*  m_treeZDC;
   TTree*  m_treeRPD;
+  TTree*  m_treeFiber;
   
   std::vector< TH1* > m_v_hists;
   
@@ -152,5 +156,11 @@ void SharedData :: AddOutputToRPDTree( const std::string& name, T* pObj ){
    m_treeRPD->Branch( name.c_str(), pObj );
 }
 
+template<class T>
+
+void SharedData :: AddOutputToFiberTree( const std::string& name, T* pObj ){
+  std::cout << "Adding " << name << std::endl;
+   m_treeFiber->Branch( name.c_str(), pObj );
+}
 
 #endif

@@ -26,6 +26,7 @@ SharedData :: SharedData ()
   m_fout = NULL;
   m_treeZDC = NULL;
   m_treeRPD = NULL;
+  m_treeFiber = NULL;
   m_config = NULL;
 
 }
@@ -45,6 +46,7 @@ SharedData :: SharedData ( const std::string& outputFileName,
   m_fout = NULL ;
   m_treeZDC = NULL;
   m_treeRPD = NULL;
+  m_treeFiber = NULL;
   m_config = NULL;
 }
 
@@ -56,6 +58,7 @@ SharedData :: ~SharedData()
 {
   delete m_treeZDC;
   delete m_treeRPD;
+  delete m_treeFiber;
   delete m_fout;
   delete m_config;
 }
@@ -73,6 +76,7 @@ void SharedData :: Initialize()
   m_fout         	= new TFile( m_outputFileName.c_str(), "RECREATE" );
   m_treeZDC         = new TTree( "ZDCtree"                  , "ZDCtree"     );
   m_treeRPD         = new TTree( "RPDtree"                  , "RPDtree"     );
+  m_treeFiber        = new TTree( "Fibertree"                  , "Fibertree"     );
   
   m_config       = new TEnv ();
   int success;
@@ -137,22 +141,12 @@ void SharedData :: Finalize()
   m_fout->cd();
   m_treeZDC->Write();
   m_treeRPD->Write();
+  m_treeFiber->Write();
   for( auto& h : m_v_hists ) { h->Write(); }
   
   m_fout->Close();
 }
 
-/*
-void SharedData :: AddDoubleToTree( const std::string& name, std::vector<double> *pObj ){
-  std::cout << "Adding " << name << std::endl;
-  m_tree->Branch( name.c_str(), "std::vector<double>", &pObj );
-}
-
-void SharedData :: AddIntToTree( const std::string& name, std::vector<int> *pObj ){
-  std::cout << "Adding " << name << std::endl;
-  m_tree->Branch( name.c_str(), "std::vector<int>", &pObj );
-}
-*/
 
 
 //***********************************************************************************

@@ -96,13 +96,9 @@ void EventAction::EndOfEventAction(const G4Event* evt)
         G4double      velocity   = (*HC)[i]->getVelocity();
         G4double      beta   = (*HC)[i]->getBeta();
       
-	/*		
-         G4cout << "  trackID: " << trackID
-	 << "  mod: " << modNb << "  rad: " << radiatorNo
-	 << "  energy deposit: " << G4BestUnit(eDep,"Energy")
-	 << "  position: " << G4BestUnit(position,"Length") <<
-	   " beta " << beta << " velocity " << velocity << G4endl;
-	*/
+		
+        
+	
 
         //Add energy from every step in scoring volume as well as every particle
 	if (trackID != prevTrackId || radiatorNo != prevRadiatorNo || eDep != 0) {
@@ -129,6 +125,21 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	  fRunAction->SetCharge_rpd(charge);
 	  fRunAction->SetVelocity_rpd(velocity);
 	  fRunAction->SetBeta_rpd(beta);}
+	  else if(IDholder==3){ //3 corresponds to the Fiber hitsCollID
+	  fRunAction->SetRadNo_fiber(radiatorNo);
+	  fRunAction->SetRodNo_fiber(rodNo);
+	  fRunAction->SetNCherenkovs_fiber(nCherenkovs);
+	  fRunAction->SetEdep_fiber(eDep);
+	  fRunAction->SetModNb_fiber(modNb);
+	  fRunAction->SetTrackID_fiber(trackID);
+	  fRunAction->SetPosition_fiber(position);	 
+	  fRunAction->SetMomentum_fiber(momentum);
+	  fRunAction->SetEnergy_fiber(energy);
+	  fRunAction->SetPid_fiber(pid);
+	  fRunAction->SetEventNo_fiber(fEventNo);
+	  fRunAction->SetCharge_fiber(charge);
+	  fRunAction->SetVelocity_fiber(velocity);
+	  fRunAction->SetBeta_fiber(beta);}
 	  else{
 	  totalPhotons += nCherenkovs; //not being used currently
 	  fRunAction->SetRadNo(radiatorNo);
@@ -156,6 +167,8 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	fRunAction->GetSharedData()->GetRPDTree()->Fill();
 	
 	fRunAction->GetSharedData()->GetZDCTree()->Fill();
+	
+	fRunAction->GetSharedData()->GetFiberTree()->Fill();
 	
 	
 	

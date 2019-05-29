@@ -29,6 +29,7 @@
 #include "ModTypeRPD.hh"
 #include "QuartzSD.hh"
 #include "RpdSD.hh"
+#include "FiberSD.hh"
 #include "CherenkovSD.hh"
 #include "SharedData.hh"
 
@@ -154,13 +155,13 @@ void ModTypeRPD::ConstructDetector()
   G4RotationMatrix* nullRotation = new G4RotationMatrix();
 
   m_tile		 = new G4Box("tile",(tileX/2)*mm, (tileY/2)*mm, (tileZ/2)*mm);
-  m_tileLogical	 = new G4LogicalVolume(m_tile, m_matQuartz, "tile_Logical");
+  m_tileLogical	 = new G4LogicalVolume(m_tile, m_matQuartz, "tile_Logical");		
  
   G4VisAttributes* quartzColor  = new G4VisAttributes( G4Colour::Cyan() );
 	//quartzColor->SetForceSolid(true);  
 	m_tileLogical->SetVisAttributes( quartzColor );
 
-	int cn = 0;
+	int cn = 0, cn_fiber = 0;
 	
 	float RPD_centerX = m_pos.getX();
 	float RPD_centerY = m_pos.getY();
@@ -169,12 +170,40 @@ void ModTypeRPD::ConstructDetector()
 	float RPD_startX = RPD_centerX + 3*halfX_gap + 1.5*tileX;
 	float RPD_startY = RPD_centerY + 3*halfY_gap + 1.5*tileY;
 	
+	// Readout fibers behind RPD
+	G4RotationMatrix* stripRotation = new G4RotationMatrix();
+	stripRotation->rotateX(90.*deg);
+	float fiberHeightY[4]; 
+	
+	
+	for(int k=0;k<4;k++) {
+		fiberHeightY[k]=((k+1)*tileY)+(k*2*halfY_gap);
+		
+		sprintf(name,"fiber_a %d", k);
+		
+		m_fiber[k] 		= new G4Tubs( name, 
+							0.0*mm, 
+							1.5/2*mm, 
+							fiberHeightY[k]*mm/2.0 , 
+							0.0*deg, 
+							360.0*deg);
+							
+		sprintf(name,"fiberLogical_a %d", k);					
+		
+		m_fiberLogical[k] 	= new G4LogicalVolume(m_fiber[k]          
+							,m_matQuartz, 
+							name);
+		m_fiberLogical[k]->SetVisAttributes( G4Colour::Green() );				
+	}
+	
+	
+	
 	
   for(int j=0;j<4;j++) {  
     for(int i=0;i<4;i++) { 
       
-      sprintf(name,"tile_a %d", cn);
-      m_tilePhysical[i][j] = new G4PVPlacement(
+		sprintf(name,"tile %d", cn);
+    m_tilePhysical[i][j] = new G4PVPlacement(
 							nullRotation,
 							G4ThreeVector( ( RPD_startX - (i*( tileX+(2*halfX_gap) ) ) )  	*mm ,   
 										   ( RPD_startY - (j*( tileY+(2*halfY_gap) ) ) )	*mm ,
@@ -184,8 +213,50 @@ void ModTypeRPD::ConstructDetector()
 							m_logicMother,
 							false,
 							cn,
-							checkOverlaps);     
-      std::cout << "Sx = " 
+							checkOverlaps);  
+		
+		for(int k=0;k<4;k++) { 
+			//sprintf(name,"fiber %d_%d_%d_%d",i, j, k, cn_fiber );
+			sprintf(name,"%d%d%d",i, j, k);
+			
+			m_fiberPhysical[cn_fiber]		  = new G4PVPlacement(   //m_fiberPhysical[cn_fiber][j]
+							stripRotation,
+							G4ThreeVector( ( RPD_startX - (j*( tileX+(2*halfX_gap) ) ) ) + (tileX/2) - ((i+1)*tileX/5) *mm ,   
+										   ( RPD_startY + tileY/2 - (fiberHeightY[k]/2)  )	 *mm ,
+											 RPD_centerZ + tileZ + (k * 2)					 *mm),
+							m_fiberLogical[k],
+							name,
+							m_logicMother,
+							false,
+							cn_fiber,
+							checkOverlaps);
+							
+							cn_fiber++;
+							
+				std::cout << cn_fiber-1 
+				<< " height = "
+				<< fiberHeightY[k]
+				<< ", name = " 
+				<< name
+				<<  ": Fx = " 
+				<< ( RPD_startX - (j*( tileX+(2*halfX_gap) ) ) ) + (tileX/2) - ((i+1)*tileX/5) 
+				<< ", Fy = " 
+				<<  ( RPD_startY + tileY/2 - (fiberHeightY[k]/2)  )
+				<< ", Fz = " 
+				<< RPD_centerZ + tileZ + (k * 2) 
+				<< ", ("
+				<< i 
+				<< "," 
+				<< j 
+				<< ","
+				<< k
+				<< ")" 
+				<< std::endl;	
+							
+		}
+
+							
+      std::cout  << std:: endl << "Sx = " 
 				<<  RPD_startX - (i*( tileX+(2*halfX_gap) ) )  
 				<< ", Sy = " 
 				<<  RPD_startY - (j*( tileY+(2*halfY_gap) ) ) 
@@ -196,11 +267,19 @@ void ModTypeRPD::ConstructDetector()
 				<< "," 
 				<< j 
 				<< ")" 
-				<< std::endl;	
+				<< std::endl << std::endl;	
       ++cn;
     }
   }
-			
+		
+	
+	
+	
+  
+
+
+
+		
   //----------------------------------------------     
   // Define Surface/Border Properties
   //----------------------------------------------  
@@ -223,6 +302,24 @@ void ModTypeRPD::ConstructDetector()
   SDman->AddNewDetector( aRpdSD );
   m_tileLogical->SetSensitiveDetector( aRpdSD );
 
+   char fiberSDname[256];
+  sprintf( fiberSDname, "Fiber_SD%d", m_modNum+2);
+  
+  
+  FiberSD* aFiberSD = new FiberSD( fiberSDname, m_sd, m_modNum+3 );
+  aFiberSD->HistInitialize();
+  SDman->AddNewDetector( aFiberSD );
+  for(int k=0;k<4;k++) {					
+		m_fiberLogical[k]->SetSensitiveDetector( aFiberSD );
+  }
+  
+  
+
+  
+  
+  
+  
+  
   
   /*
   if (m_simCherenkov) {

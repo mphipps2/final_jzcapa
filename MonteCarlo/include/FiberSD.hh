@@ -23,64 +23,48 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// Author: Michael Phipps
+// 
+//
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-#ifndef ModTypeRPD_h
-#define ModTypeRPD_h 1
+#ifndef FiberSD_h
+#define FiberSD_h 1
 
+#include "G4VSensitiveDetector.hh"
+#include "RpdHit.hh"
+#include "FiberHit.hh"
 
-#include "globals.hh"
-#include "G4PVPlacement.hh"
-
-#include <vector>
-
-
-class G4VPhysicalVolume;
-class G4LogicalVolume;
-class G4VSolid;
-class G4Material;
+#include "TH1D.h"
+#include "TH2D.h"
+#include "TH3D.h"
 
 class SharedData;
+class G4Step;
+class G4HCofThisEvent;
 
-/// Detector construction class to define materials and geometry.
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class ModTypeRPD
+class FiberSD : public G4VSensitiveDetector
 {
 public:
-  ModTypeRPD(const int,
-	 const G4ThreeVector&,
-	 G4LogicalVolume*, SharedData*);
-  ModTypeRPD();
-  ~ModTypeRPD();
-  
-  virtual void  Construct();
-  
-  virtual void  DefineMaterials();  
-//  virtual void  DefineBorderProperties();
+  FiberSD(G4String, SharedData*, G4int);
+  ~FiberSD();
 
-  virtual void  ConstructDetector();
-  
-protected:
-  const int            m_modNum;  
-  const G4ThreeVector  m_pos;
-  G4LogicalVolume*     m_logicMother;
-  SharedData*          m_sd;
+  void HistInitialize();
+ 
+  void Initialize(G4HCofThisEvent*);
+  int CalculateCherenkovs(G4Step*,int);
+  G4bool ProcessHits(G4Step*, G4TouchableHistory*);
+  void EndOfEvent(G4HCofThisEvent*);
 
-protected:
-  
-  G4Material*        m_matQuartz;
-
-  bool               m_simCherenkov;
-  
-  G4VSolid*          m_tile;
-  G4LogicalVolume*   m_tileLogical;
-  G4VPhysicalVolume* m_tilePhysical[4][4];
-  
-  G4VSolid*          m_fiber[4];
-  G4LogicalVolume*   m_fiberLogical[4];
-  G4VPhysicalVolume* m_fiberPhysical[64]; // [16][4]
-  
-  
+private:
+  SharedData* m_sd;
+  int HCID;
+  G4double m_modCoreIndexRefraction;  
+  FiberHitsCollection* fiberCollection;
+  G4int m_modNum;
+  TH2D* h2_rodNum_eDep;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

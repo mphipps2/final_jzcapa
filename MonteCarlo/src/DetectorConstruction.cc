@@ -147,8 +147,8 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 	if(ZDC_SETUP == 1){
 	
 	//table(-2250,500) -> rpd/beam(0,0)	where 100=0.1cm in table coordinates
-	tableX_shift = (-2250.0 - (align_run->x_table)  )/100*mm ;
-	tableY_shift = (500.0   - (align_run->y_table)  )/100*mm ;
+	tableX_shift = (-2257.0 - (align_run->x_table)  )/100*mm ;
+	tableY_shift = (501.0   - (align_run->y_table)  )/100*mm ;
 		
 	rpdX  = (srvy_rpd ->x_pos)   *1000.0			 					*mm;	
 	zdc1X = (( (srvy_zdc1->x_pos)*1000.0 ) - rpdX + tableX_shift    )	*mm;
@@ -164,6 +164,19 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 	zdc1Z = (( (srvy_zdc1->z_pos)*1000.0 ) -(worldZoffset) )*mm;
 	zdc2Z = (( (srvy_zdc2->z_pos)*1000.0 ) -(worldZoffset) )*mm;
 	
+	 
+	 if(true){
+		 rpdX=0.0*mm;
+		 rpdY=0.0*mm;
+		 
+		 zdc1X = 0 *mm;
+		zdc2X = (0)	*mm;
+		
+		
+		
+		zdc1Y = (0)	*mm;
+		zdc2Y = (0)	*mm;
+	 }
 	 
 	//-320mm is offset to get from zdc mid to active area mid
 	zdc1Pos = G4ThreeVector( zdc1X, zdc1Y, zdc1Z); 

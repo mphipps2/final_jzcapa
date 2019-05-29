@@ -25,7 +25,7 @@
 //
 // Author: Michael Phipps
 
-#include "RpdSD.hh"
+#include "FiberSD.hh"
 #include "SharedData.hh"
 
 #include "G4HCofThisEvent.hh"
@@ -43,7 +43,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-RpdSD::RpdSD(G4String sdName, SharedData* sd, G4int modNum)
+FiberSD::FiberSD(G4String sdName, SharedData* sd, G4int modNum)
   :G4VSensitiveDetector(sdName), m_sd(sd), m_modNum(modNum) {
   collectionName.insert(sdName);
   HCID = -1; 
@@ -52,11 +52,11 @@ RpdSD::RpdSD(G4String sdName, SharedData* sd, G4int modNum)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-RpdSD::~RpdSD(){ }
+FiberSD::~FiberSD(){ }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void RpdSD::HistInitialize(){
+void FiberSD::HistInitialize(){
   std::string name = GetName();
   /*  
   // Add some histograms
@@ -70,8 +70,9 @@ void RpdSD::HistInitialize(){
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void RpdSD::Initialize(G4HCofThisEvent* HCE){
-  rpdCollection = new RpdHitsCollection(SensitiveDetectorName,
+void FiberSD::Initialize(G4HCofThisEvent* HCE){
+	
+  fiberCollection = new FiberHitsCollection(SensitiveDetectorName,
 					      m_modNum); 
 
   std::string name = collectionName[0];					    
@@ -81,42 +82,54 @@ void RpdSD::Initialize(G4HCofThisEvent* HCE){
   if(HCID<0)
     { HCID = G4SDManager::GetSDMpointer()->GetCollectionID( name );}
   
-  HCE->AddHitsCollection( HCID, rpdCollection );
+  HCE->AddHitsCollection( HCID, fiberCollection );
   G4cout << " HCID " << HCID << " name " << name << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4bool RpdSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
+G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	
 
   TEnv* config = m_sd->GetConfig();
 
-  //G4int    modNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
   
-  G4int    modNum = 0;
+    G4int    modNum = m_modNum;
   
-    G4int modNStripsPerGap;
-
+    //G4int modNStripsPerGap;
+	//modNStripsPerGap = 64;
+	
     char variable[256];
     sprintf(variable,"mod%dCoreIndexRefraction",6);
     m_modCoreIndexRefraction = config->GetValue( variable,1.46);
-    sprintf(variable,"mod%dNStripsPerGap",6);
-    modNStripsPerGap = config->GetValue(variable,16);
+   
     
 
   G4double eDep   = aStep->GetTotalEnergyDeposit();
   
   G4int    totalRodNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
- // G4cout << "totalRodNum = " << totalRodNum << G4endl;
-  G4int    radNum;
-  G4int    rodNum;
-  
  
-    radNum = totalRodNum / modNStripsPerGap;
-	//G4cout << "radNum = " << radNum << G4endl;
-    rodNum = totalRodNum % modNStripsPerGap;
-	//G4cout << "rodNum = " << rodNum << G4endl;
+  G4String    radNum_s = "7" +  aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() + "0";
+  
+  G4int    rodNum;
+  G4int    radNum;
+   
+    //radNum = totalRodNum / modNStripsPerGap;
+    //rodNum = totalRodNum % modNStripsPerGap;
+	
+	
+	 
+	
+	rodNum = totalRodNum;
+	
+	radNum = (std::stoi (radNum_s)*100)+rodNum;
+	
+	/*
+	G4cout << G4endl << "TrackID: " << aStep->GetTrack()->GetTrackID() << G4endl;
+	G4cout << "RodNum = " << rodNum << G4endl;
+	G4cout << "physvol " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() << G4endl;
+	G4cout << "logvol  " << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName() << G4endl;
+	*/
   
   G4double energy = aStep->GetPreStepPoint()->GetTotalEnergy();
   G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentum();
@@ -126,7 +139,7 @@ G4bool RpdSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
   int capturedPhotons = CalculateCherenkovs(aStep, modNum);
 
-  RpdHit* newHit = new RpdHit();
+  FiberHit* newHit = new FiberHit();
 
   newHit->setCharge        ( charge );
   newHit->setTrackID       (aStep->GetTrack()->GetTrackID() );
@@ -140,13 +153,14 @@ G4bool RpdSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   newHit->setMomentum      (momentum);
   newHit->setNCherenkovs   (capturedPhotons);
   //  if (capturedPhotons != 0 ) std::cout << " capturedPhotons " << capturedPhotons << std::endl;
-  rpdCollection->insert (newHit );
+  fiberCollection->insert (newHit );
+  
 
   return true;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-int RpdSD::CalculateCherenkovs(G4Step* aStep,__attribute__((unused)) int modNum) {
+int FiberSD::CalculateCherenkovs(G4Step* aStep,__attribute__((unused)) int modNum) {
  
 	
   const G4DynamicParticle* aParticle = aStep->GetTrack()->GetDynamicParticle();
@@ -252,10 +266,10 @@ int RpdSD::CalculateCherenkovs(G4Step* aStep,__attribute__((unused)) int modNum)
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void RpdSD::EndOfEvent(G4HCofThisEvent*)
+void FiberSD::EndOfEvent(G4HCofThisEvent*)
 {
 
-  //  G4int NbHits = rpdCollection->entries();
+  //  G4int NbHits = fiberCollection->entries();
 
   /*
   if(verboseLevel>0) {
@@ -264,7 +278,7 @@ void RpdSD::EndOfEvent(G4HCofThisEvent*)
 		<< " hits in the calorimeter cells: " << std::endl;
       for (G4int i=0;i<NbHits;i++) {
 	if (i %100 == 0) std::cout << " i " << i << std::endl;
-	(*rpdCollection)[i]->Print();
+	(*fiberCollection)[i]->Print();
       }
   }
   */
