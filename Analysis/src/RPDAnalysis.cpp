@@ -145,9 +145,9 @@ void RPDAnalysis::AnalyzeEvent( ){
     for(int i = 1; i <= 4; i++){
         for(int j = 1; j <= 4; j++){
             if( rpd[i][j]->is_on && rpd[i][j]->was_hit ){
-                totalCharge += m_charge[i][j];
-                weightedRow += m_charge[i][j] * yPos[i];
-                weightedCol += m_charge[i][j] * xPos[j];
+                totalCharge += rpd[i][j]->Charge;
+                weightedRow += rpd[i][j]->Charge * yPos[i];
+                weightedCol += rpd[i][j]->Charge * xPos[j];
             }
         }
     }
