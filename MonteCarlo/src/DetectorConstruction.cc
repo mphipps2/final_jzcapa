@@ -165,18 +165,24 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 	zdc2Z = (( (srvy_zdc2->z_pos)*1000.0 ) -(worldZoffset) )*mm;
 	
 	 
-	 if(true){
-		 rpdX=0.0*mm;
-		 rpdY=0.0*mm;
+	std::string forcedet = config->GetValue("ForceDetectorPosition", "NO");
+	
+	
+	if( std::strcmp(forcedet.c_str(), "YES") == 0){
+			 
+			std::cout << "******************************************" 
+			<< std::endl << "PLACING DETECTORS MANUALLY" << std::endl 
+			<< "******************************************" << std::endl;
+			
+		rpdX	= ( config->GetValue("RPDx", 0) )*mm;
+		rpdY 	= ( config->GetValue("RPDy", 0) )*mm;
 		 
-		 zdc1X = 0 *mm;
-		zdc2X = (0)	*mm;
+		zdc1X 	= ( config->GetValue("ZDC1x", 0) )*mm;
+		zdc2X 	= ( config->GetValue("ZDC2x", 0) )*mm;
 		
-		
-		
-		zdc1Y = (0)	*mm;
-		zdc2Y = (0)	*mm;
-	 }
+		zdc1Y 	= ( config->GetValue("ZDC1y", 0) )*mm;
+		zdc2Y 	= ( config->GetValue("ZDC2y", 0) )*mm;
+	}
 	 
 	//-320mm is offset to get from zdc mid to active area mid
 	zdc1Pos = G4ThreeVector( zdc1X, zdc1Y, zdc1Z); 

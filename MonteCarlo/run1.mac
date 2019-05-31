@@ -14,9 +14,9 @@
 /run/particle/verbose 1
 
 
-/gps/particle ion
-/gps/ion 82 208 0 0.0
-/gps/energy 31.2 TeV
+#/gps/particle ion
+#/gps/ion 82 208 0 0.0
+#/gps/energy 31.2 TeV
 
 # using alphas is useful if you would like to visualize the tracks (Pb ions require much more computing time)
 #/gps/particle ion
@@ -24,12 +24,12 @@
 #/gps/energy 600 GeV
 
 #/gps/particle proton
-#/gps/particle neutron
+/gps/particle neutron
 
 # the beam energy is in gaussian profile
-#/gps/ene/type Gauss
-#/gps/ene/mono 16.8 GeV
-#/gps/ene/sigma 0.3 MeV
+/gps/ene/type Gauss
+/gps/ene/mono 150 GeV
+/gps/ene/sigma 1 MeV
 
 
 # General particle source  
@@ -61,6 +61,6 @@
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 2
+/run/beamOn 100
 ##############################################################
 ##############################################################
