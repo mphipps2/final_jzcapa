@@ -34,9 +34,11 @@ class WFAnalysis : public Analysis{
   virtual void   GetDifferential( Channel* Ch );
   virtual double GetRMS         ( TH1D *h, bool debug = false) ;
   virtual void   GetPedestal    ( Channel* ch );
+  virtual void   GetCharge      ( Channel* ch );
   virtual void   FindHitWindow  ( Channel* ch );
   virtual void   ZeroSuppress   ( Channel* ch );
   virtual void   LowPassFilter  ( Channel* ch, TH1D* hIn = 0 );
+  virtual void   DRS4Cal        ( Channel* ch );
   virtual void   AnalyzeEvent   ( ){};
   virtual void   AnalyzeEvent   ( const std::vector< TH1* >& );
   virtual void   AnalyzeEvent   ( const std::vector< std::vector< float > >& );
@@ -68,6 +70,10 @@ class WFAnalysis : public Analysis{
   TH1D *hPed = 0;
   /** Fit used to get RMS value */
   TF1 *f = 0;
+  /** TF1 used to correct for DRS4 non-linearity */
+  TF1 *nlFit = 0;
+  /** Input resistance of the DRS4 in ohms */
+  double Rin = 50.0;
 };
 
 #endif

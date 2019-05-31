@@ -41,6 +41,8 @@ WFAnalysis::~WFAnalysis( ){
  *
  */
 void WFAnalysis::Initialize( ){
+     
+     nlFit = new TF1("nl1", "(x<660)*(-0.188891+1.03623*x) + \(x>660 && x<850)*( -51210.2 + 260.781*x - 0.4916*pow(x,2) + 0.00041227*pow(x,3) - (1.29681e-7)*pow(x,4) ) + \(x>850)*( -526857 + 1844.37*x - 2.1493*pow(x,2) + 0.000834971*pow(x,3) )", 0, 1000);
 
 }
 
@@ -109,13 +111,13 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
  * @brief Analyze Event method for WF analysis
  * @param vCh A vector of pointers to Channel objects
  *
- *  Receives a  const vector of Channels. Loops over all Channels within
- *  the vector for analysis.
- *  Example of how to retrieve raw data and associated histograms are provided
+ *  Receives a const vector of Channels. Loops over all Channels within
+ *  the vector for analysis. Saves all outputs to members of each Channel
  *
  */
 void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
 
+    //FFT filter flag for testing purposes.
     bool filter = false;
     
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
@@ -124,9 +126,6 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
         TH1D* h = vCh.at(ch)->WF_histo;
         TH1D* hProcessed = vCh.at(ch)->PWF_histo;
         TH1D* hDiff = vCh.at(ch)->FirstDerivative;
-        
-      //retrieve information as a vector of floats
-        std::vector < float > chEntries = vCh.at(ch)->WF;
       
       //If row != 0 (i.e. not ZDC channel), set RPD processing values
         if( vCh.at(ch)->mapping_row ){
@@ -138,6 +137,9 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
             m_Tmultiple = m_ZDCTmultiple;
             fCutoff     = m_ZDCfCutoff;
             
+            //The channel has an offset we set at the time of the Testbeam. Invert that,
+            //then set the WF_histo with the inverted values of the raw WF vector. Finally,
+            //invert the raw WF vector.
             vCh.at(ch)->offset = -1*vCh.at(ch)->offset;
             for(int bin = 0; bin < h->GetNbinsX(); bin++){
                 h->SetBinContent( bin, -1*vCh.at(ch)->pWF->at(bin) );
@@ -145,18 +147,29 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
             }
         }
         
+        //Get the first derivative and determine the hit window from it
+        //if a valid hit window is not found was_hit is set to false
         GetDifferential( vCh.at(ch) );
         vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff ); 
-        
         FindHitWindow( vCh.at(ch) );
-        GetPedestal( vCh.at(ch) );
-        if( filter ){ LowPassFilter( vCh.at(ch), hProcessed ); }
         
+        //If the channel was hit, proceed with processing
         if( vCh.at(ch)->was_hit ){
+            //Get and subtract the pedestal from the data outside the hit window
+            GetPedestal( vCh.at(ch) );
+            //The DRS4 saturates around 800-900 mV. If we have those values, flag it as saturated
+            if( vCh.at(ch)->PWF_histo->GetMaximum() > 890.0 ){ vCh.at(ch)->saturated = true; }
+            
+            //Calibrate out the DRS4 non-linearity and apply FFT low pass filter if desired
+            DRS4Cal( vCh.at(ch) );
+            if( filter ){ LowPassFilter( vCh.at(ch), hProcessed ); }
+        
+            //Zero Suppress the processed waveform vector and retrieve the energy related values from it
             ZeroSuppress( vCh.at(ch) );
-            //vCh.at(ch)->Peak_max = vCh.at(ch)->PWF_histo->GetMaximum();
-            vCh.at(ch)->Peak_max = vCh.at(ch)->PWF_histo->GetBinContent(vCh.at(ch)->Peak_center);
-            vCh.at(ch)->Charge = hProcessed->Integral( vCh.at(ch)->hit_window.first, vCh.at(ch)->hit_window.second );
+            GetCharge( vCh.at(ch) );
+            vCh.at(ch)->Peak_max       =hProcessed->GetBinContent( vCh.at(ch)->Peak_center );
+            vCh.at(ch)->Peak_time      = vCh.at(ch)->pTimeVec->at( vCh.at(ch)->Peak_center );
+            vCh.at(ch)->Diff_Peak_time = vCh.at(ch)->pTimeVec->at( vCh.at(ch)->Diff_Peak_center );
         }
     }
 }
@@ -247,21 +260,21 @@ void WFAnalysis::FindHitWindow( Channel* ch ){
     
     double threshold = m_Tmultiple*ch->FirstDerivativeRMS;
     ch->Diff_max = ch->FirstDerivative->GetMaximum();
+    int risingEdge = ch->Diff_Peak_center = ch->FirstDerivative->GetMaximumBin();
+    int fallingEdge = ch->FirstDerivative->GetMinimumBin();
     
-    //////////////////////////////////////////////////////////////////
-    //  Hit condition likely needs to be refined
-    if( ch->Diff_max <= threshold || ch->FirstDerivative->GetMinimum() >= -1*threshold ){
+    //  If the derivative maximum or minimum are below threshold, no hit
+    //  Also, if the rising edge is after the falling edge (i.e. a negative pulse), no hit
+    if( ch->Diff_max <= threshold || ch->FirstDerivative->GetMinimum() >= -1*threshold || risingEdge > fallingEdge){
         if( ch->is_on && m_verbose > 1){ std::cerr << std::endl << "No hit found on " << ch->name << std::endl; }
         ch->was_hit = false;
         ch->Peak_center = ch->Diff_Peak_center = ch->hit_window.first = ch->hit_window.second = -1;
-        ch->Peak_max = 0.0;
+        ch->Peak_max = ch->Charge = ch->Diff_max = ch->Peak_time = ch->Diff_Peak_time = 0.0;
         return;
     }
     
+    //If it made it here, we probably have a hit and we can start processing
     ch->was_hit = true;
-    
-    int risingEdge = ch->Diff_Peak_center = ch->FirstDerivative->GetMaximumBin();
-    int fallingEdge = ch->FirstDerivative->GetMinimumBin();
     int nBins = ch->FirstDerivative->GetNbinsX();
     
     // Find the beginning of the hit window
@@ -380,6 +393,37 @@ void WFAnalysis::LowPassFilter( Channel* ch, TH1D* hIn ){
    delete fft;
    delete fft_back;
    
+}
+
+
+/** @brief Provides calibration for DRS4 voltage response
+ *  @param ch Channel to be processed
+ *
+ *  Uses a TF1 with the DRS4 response to convert from the recorded value in mV
+ *  to the actual value of the waveform in mV and reconstructs the signal in PWF_histo.
+ *
+ *  A new method needs to be used. This slows processing by > 90%
+ */
+void WFAnalysis::DRS4Cal( Channel* ch ){
+    
+    for(int bin = 0; bin < ch->PWF_histo->GetNbinsX(); bin++){
+        ch->PWF_histo->SetBinContent(bin, nlFit->Eval( ch->PWF_histo->GetBinContent(bin) ) );
+    }
+}
+
+/** @brief Uses time vector and input resistance to find the actual charge detected by the DRS4
+ *  @param ch Channel to be processed
+ *
+ * 
+ */
+void WFAnalysis::GetCharge( Channel* ch ){
+    ch->Charge = 0.0;
+    
+    for(int bin = ch->hit_window.first; bin < ch->hit_window.second; bin++){
+        //Charge for a given time bin = dt*I = (t(bin+1)-t(bin))*V/R
+        //Units are Charge(pC), time(ns), Voltage(mV), resistance(ohm), current(Amp = C/s)
+        ch->Charge += (ch->pTimeVec->at(bin+1) - ch->pTimeVec->at(bin)) * ch->PWF_histo->GetBinContent(bin)/Rin;
+    }
 }
 
 /** @brief Finalize method for WFAnalysis

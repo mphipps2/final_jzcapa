@@ -65,6 +65,10 @@ class Channel {
     int Peak_center;
     /** Bin number of the derivative peak */
     int Diff_Peak_center;
+    /** Calibrated time of the peak center in ns*/
+    double Peak_time;
+    /** Calibrated time of max slope in ns*/
+    double Diff_Peak_time;
     /** Height of the peak */
     double Peak_max;
     /** Max value of the derivative */
@@ -75,11 +79,13 @@ class Channel {
     std::pair< int, int > hit_window;
     /** Flag if the channel was hit */
     bool was_hit;
+    /** Flag if the waveform saturated */
+    bool saturated;
     /** Pedestal of raw waveform */
     double PedMean;
     /** Pedestal RMS of raw waveform */
     double PedRMS;
-    /** Integral of PWF_histo in the hit window */
+    /** Integral of PWF_histo in the hit window in pC */
     double Charge;
     /** Crossing zero points - dummy - to be checked by Sheng **/
     std::vector < int > CrossZeroPoints;

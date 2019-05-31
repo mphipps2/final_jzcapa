@@ -74,17 +74,17 @@ void ZDCAnalysis::Initialize( std::vector < Detector* > _vDet ){
 void ZDCAnalysis::SetupHistograms( ){
   
     //TH1D
-    hChargeRatio = new TH1D("ChargeZDC2_over_ChargeZDC1","Q_{ZDC2}/Q_{ZDC1}",100,0,1.);
-    hChargeRatio->SetCanExtend(TH1::kXaxis);
+    hChargeRatio = new TH1D("ChargeZDC2_over_ChargeZDC1","Q_{ZDC2}/Q_{ZDC1}",100,0,5);
+    //hChargeRatio->SetCanExtend(TH1::kXaxis);
 
-    hChargeSum = new TH1D("Charge_sum","Q_{total}",300,0,25000);
+    hChargeSum = new TH1D("Charge_sum","Q_{total} (pC)",300,0,450);
 
-    hPeakRatio = new TH1D("PeakZDC2_over_PeakZDC1","Peak_{ZDC2}/Peak_{ZDC1}",100,0,1.);
-    hPeakRatio->SetCanExtend(TH1::kXaxis);
+    hPeakRatio = new TH1D("PeakZDC2_over_PeakZDC1","Peak_{ZDC2}/Peak_{ZDC1}",100,0,5);
+    //hPeakRatio->SetCanExtend(TH1::kXaxis);
     
-    hCharge1 = new TH1D("ZDC1_Charge","Q_{ZDC1}",200,0,10000);
+    hCharge1 = new TH1D("ZDC1_Charge","Q_{ZDC1} (pC)",200,0,200);
     
-    hCharge2 = new TH1D("ZDC2_Charge","Q_{ZDC2}",200,0,10000);
+    hCharge2 = new TH1D("ZDC2_Charge","Q_{ZDC2} (pC)",200,0,200);
     
     hPeak1   = new TH1D("ZDC1_Peak","Peak_{ZDC1}",200,0,1000);
     
@@ -94,11 +94,11 @@ void ZDCAnalysis::SetupHistograms( ){
     
     hDpeak2  = new TH1D("ZDC2_Diff_Peak","#frac{#partial V}{#partial t}_{max ZDC2}",200,0,4500); 
 
-    hArrival1  = new TH1I("ZDC1_Arrival_time","Peak Center_{ZDC1}",150,240,390);
+    hArrival1  = new TH1D("ZDC1_Arrival_time","Peak Center_{ZDC1} (ns)",150,240,390);
     
-    hArrival2  = new TH1I("ZDC2_Arrival_time","Peak Center_{ZDC2}",150,240,390);
+    hArrival2  = new TH1D("ZDC2_Arrival_time","Peak Center_{ZDC2} (ns)",150,240,390);
     
-    hToF  = new TH1I("Time_of_Flight","Peak_Center_{ZDC1-ZDC2}",30,-15,15);
+    hToF  = new TH1D("Time_of_Flight","Peak_Center_{ZDC1-ZDC2} (ns)",30,-15,15);
 
     //TH2D
     hCharge = new TH2D("ZDC_Charge_Correlation", "ZDC Charge Correlation", 100, 0, 40000, 100, 0, 40000);
@@ -109,10 +109,10 @@ void ZDCAnalysis::SetupHistograms( ){
     
     hDpeak = new TH2D("ZDC_Diff_Peak_Correlation", "ZDC Diff Peak Correlation", 200, 0, 5000, 200, 0, 5000);
 
-    hChargePeakZDC1 = new TH2D("ZDC1_ChargePeakCorrelation","Q_{ZDC1} vs Peak_{ZDC1}",50,0,10000,50,0,1000);
+    hChargePeakZDC1 = new TH2D("ZDC1_ChargePeakCorrelation","Q_{ZDC1} (pC) vs Peak_{ZDC1}",50,0,200,50,0,1000);
     //hChargePeakZDC1->SetCanExtend(TH1::kAllAxes);
 
-    hChargePeakZDC2 = new TH2D("ZDC2_ChargePeakCorrelation","Q_{ZDC2} vs Peak_{ZDC2}",50,0,10000,50,0,1000);
+    hChargePeakZDC2 = new TH2D("ZDC2_ChargePeakCorrelation","Q_{ZDC2} (pC) vs Peak_{ZDC2}",50,0,200,50,0,1000);
     //hChargePeakZDC2->SetCanExtend(TH1::kAllAxes);
     
     
@@ -164,23 +164,25 @@ void ZDCAnalysis::AnalyzeEvent( ){
         hCharge2->Fill(zdc2->Charge);
         hChargeSum->Fill(zdc1->Charge + zdc2->Charge);
 
-        hToF->Fill(zdc2->Peak_center - zdc1->Peak_center);
+        hToF->Fill(zdc2->Diff_Peak_time - zdc1->Diff_Peak_time);
     }
     
     //If ZDC1 wasn't saturated
-    if( zdc1->Peak_max<750.0 && zdc1->was_hit){
+    if( zdc1->Peak_max<900.0 && zdc1->was_hit){
+    //if( zdc1->was_hit){
         hCharge1->Fill(zdc1->Charge);
         hPeak1->Fill(zdc1->Peak_max);
         hDpeak1->Fill(zdc1->Diff_max);
-        hArrival1->Fill(zdc1->Peak_center);
+        hArrival1->Fill(zdc1->Diff_Peak_time);
     }
     
     //If ZDC1 wasn't saturated
-    if( zdc2->Peak_max<750.0 && zdc2->was_hit ){
+    if( zdc2->Peak_max<900.0 && zdc2->was_hit ){
+    //if( zdc2->was_hit ){
         hCharge2->Fill(zdc2->Charge);
         hPeak2->Fill(zdc2->Peak_max);
         hDpeak2->Fill(zdc2->Diff_max);
-        hArrival2->Fill(zdc2->Peak_center);
+        hArrival2->Fill(zdc2->Diff_Peak_time);
     }
     
 }
@@ -211,14 +213,14 @@ void ZDCAnalysis::Finalize( ){
     m_viz->DrawPlot(hArrival2,"Arrival time_{ZDC2} (bin)","Counts","ZDC2_Arrival.png","");
 
     //Correlation plots
-    m_viz->DrawPlot(hCharge,"Q_{ZDC1}","Q_{ZDC2}","ZDC_charge.png","COLZ");
-    m_viz->DrawPlot(hPeak,"Peak_{ZDC1}","Peak_{ZDC2}","ZDC_peak.png","COLZ");
-    m_viz->DrawPlot(hChargePeakZDC1,"Q_{ZDC1}","Peak_{ZDC1}","ZDC1_ChargePeak.png","COLZ");
-    m_viz->DrawPlot(hChargePeakZDC2,"Q_{ZDC2}","Peak_{ZDC2}","ZDC2_ChargePeak.png","COLZ");
+    m_viz->DrawPlot(hCharge,"Q_{ZDC1} (pC)","Q_{ZDC2} (pC)","ZDC_charge.png","COLZ");
+    m_viz->DrawPlot(hPeak,"Peak_{ZDC1} (mV)","Peak_{ZDC2} (mV)","ZDC_peak.png","COLZ");
+    m_viz->DrawPlot(hChargePeakZDC1,"Q_{ZDC1} (pC)","Peak_{ZDC1} (mV)","ZDC1_ChargePeak.png","COLZ");
+    m_viz->DrawPlot(hChargePeakZDC2,"Q_{ZDC2} (pC)","Peak_{ZDC2} (mV)","ZDC2_ChargePeak.png","COLZ");
     m_viz->DrawPlot(hChargeRatio,"Q_{ZDC2}/Q_{ZDC1}","Counts","ZDC_chargeRatio.png","");
     m_viz->DrawPlot(hPeakRatio,"Peak_{ZDC2}/Peak_{ZDC1}","Counts","ZDC_peakRatio.png","");
-    m_viz->DrawPlot(hToF,"Time of Flight (bins)","Counts","ZDC_ToF.png","");
-    m_viz->DrawPlot(hChargeSum,"Q_{total}","Counts","ZDC_Qtot.png","");
+    m_viz->DrawPlot(hToF,"Time of Flight (ns)","Counts","ZDC_ToF.png","");
+    m_viz->DrawPlot(hChargeSum,"Q_{total} (pC)","Counts","ZDC_Qtot.png","");
     m_viz->DrawPlot(hDpeak,"#frac{#partial V}{#partial t}_{max ZDC1}","#frac{#partial V}{#partial t}_{max ZDC2}","ZDC_Dpeak_corr.png","COLZ");
     
     delete c;

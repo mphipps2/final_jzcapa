@@ -67,11 +67,11 @@ class ZDCAnalysis : public Analysis{
 ///// Timing histos
 
   /* ZDC1 peak center */
-  TH1I* hArrival1;
+  TH1D* hArrival1;
   /* ZDC2 peak center */
-  TH1I* hArrival2;
+  TH1D* hArrival2;
   /* Time of flight ZDC1 - ZDC2 */
-  TH1I* hToF;
+  TH1D* hToF;
   
 
  private :
