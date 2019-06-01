@@ -101,7 +101,7 @@ void ZDCAnalysis::SetupHistograms( ){
     hToF  = new TH1D("Time_of_Flight","Peak_Center_{ZDC1-ZDC2} (ns)",30,-15,15);
 
     //TH2D
-    hCharge = new TH2D("ZDC_Charge_Correlation", "ZDC Charge Correlation", 100, 0, 40000, 100, 0, 40000);
+    hCharge = new TH2D("ZDC_Charge_Correlation", "ZDC Charge Correlation", 100, 0, 450, 100, 0, 450);
     //hCharge->SetCanExtend(TH1::kAllAxes);
 
     hPeak   = new TH2D("ZDC_Peak_Correlation", "ZDC Peak Correlation", 100, 0, 1000, 100, 0, 1000);
@@ -203,14 +203,14 @@ void ZDCAnalysis::Finalize( ){
 
 
     //Raw data plots
-    m_viz->DrawPlot(hCharge1,"Q_{ZDC1}","Counts","ZDC1_Charge.png","");
-    m_viz->DrawPlot(hCharge2,"Q_{ZDC2}","Counts","ZDC2_Charge.png","");
-    m_viz->DrawPlot(hPeak1,"Peak_{max ZDC1}","Counts","ZDC1_Peak.png","");
-    m_viz->DrawPlot(hPeak2,"Peak_{max ZDC1}","Counts","ZDC2_Peak.png","");
+    m_viz->DrawPlot(hCharge1,"Q_{ZDC1} (pC)","Counts","ZDC1_Charge.png","");
+    m_viz->DrawPlot(hCharge2,"Q_{ZDC2} (pC)","Counts","ZDC2_Charge.png","");
+    m_viz->DrawPlot(hPeak1,"Peak_{max ZDC1} (mV)","Counts","ZDC1_Peak.png","");
+    m_viz->DrawPlot(hPeak2,"Peak_{max ZDC1} (mV)","Counts","ZDC2_Peak.png","");
     m_viz->DrawPlot(hDpeak1,"#frac{#partial V}{#partial t}_{max ZDC1}","Counts","ZDC1_DiffPeak.png","");
     m_viz->DrawPlot(hDpeak2,"#frac{#partial V}{#partial t}_{max ZDC2}","Counts","ZDC2_DiffPeak.png","");
-    m_viz->DrawPlot(hArrival1,"Arrival time_{ZDC1} (bin)","Counts","ZDC1_Arrival.png","");
-    m_viz->DrawPlot(hArrival2,"Arrival time_{ZDC2} (bin)","Counts","ZDC2_Arrival.png","");
+    m_viz->DrawPlot(hArrival1,"Arrival time_{ZDC1} (ns)","Counts","ZDC1_Arrival.png","");
+    m_viz->DrawPlot(hArrival2,"Arrival time_{ZDC2} (ns)","Counts","ZDC2_Arrival.png","");
 
     //Correlation plots
     m_viz->DrawPlot(hCharge,"Q_{ZDC1} (pC)","Q_{ZDC2} (pC)","ZDC_charge.png","COLZ");
