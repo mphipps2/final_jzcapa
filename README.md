@@ -131,3 +131,27 @@ Go to the JZCaPA_BUILD directory and cmake using the flag
 ```
 
 and compile the software (with or w/o MC support, depending on your needings). The software should now compile fully.
+
+#### Install JZCaPA on UIUC #### 
+The environment for UIUC is built in Centos 7 and uses an HTCondor cluster, similar to what is available on lxplus. However, a VPN is needed
+to access these resources. Instructions for download and setup can be found at https://techservices.illinois.edu/services/virtual-private-networking-vpn/download-and-set-up-the-vpn-client
+When you are connected to the VPN, you can access machines by
+
+```
+ssh your_username@jzcapa-vm#.physics.illinois.edu (where # is 1-6)
+or
+ssh your_username@htc-login.campuscluster.illinois.edu
+```
+
+The first time you log in, enter
+
+```
+source /path/to/JZCaPA/source/Utils/jzcapa_env_uiuc.sh
+
+echo 'source ${JZCaPA}/Utils/jzcapa_env_uiuc.sh' >> ~/.bashrc
+```
+
+The first line sources the required software so you can install JZCaPA, and the second line sources it for subsequent use.
+You will have all the dependencies needed (ROOT 6.16, Geant4 and xerces-c) loaded in your environment.
+Now you can follow the install instructions from the top and compile the software (with or w/o MC support, depending on your needs). 
+The software should now compile fully.
