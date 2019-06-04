@@ -29,7 +29,7 @@ mkdir JZCaPA_INSTALL
 ```
 at this stage, remember to add to your environment
 ```bash
-export JZCaPA=/path/to/your/JCaPA_INSTALL
+export JZCaPA=/path/to/your/JZCaPA_INSTALL
 
 cd JZCaPA_BUILD
 
