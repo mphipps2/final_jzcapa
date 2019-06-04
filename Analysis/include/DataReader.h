@@ -58,7 +58,8 @@ class DataReader{
 
   void EnablePlotLabel       (  ) { useLabel = true; }
 
-  Detector* GetDetector( std::string _detName );
+  Detector*   GetDetector( std::string _detName );
+  Alignment*  GetAlignment(){ return m_alignment; }
 
   void Run();
   
