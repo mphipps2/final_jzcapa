@@ -133,13 +133,17 @@ void ZDCAnalysis::SetBranches( TTree* _tree ){
     m_AnalysisTree->Branch("zdc1_Peak_max",         &zdc1->Peak_max,         "zdc1->Peak_max/D" );
     m_AnalysisTree->Branch("zdc1_Diff_max",         &zdc1->Diff_max,         "zdc1->Diff_max/D" );
     m_AnalysisTree->Branch("zdc1_Peak_center",      &zdc1->Peak_center,      "zdc1->Peak_center/I" );
+    m_AnalysisTree->Branch("zdc1_Peak_time",        &zdc1->Peak_time,        "zdc1->Peak_Peak_time/D" );
     m_AnalysisTree->Branch("zdc1_Diff_Peak_center", &zdc1->Diff_Peak_center, "zdc1->Diff_Peak_center/I" );
+    m_AnalysisTree->Branch("zdc1_Diff_Peak_time",   &zdc1->Diff_Peak_time,   "zdc1->Diff_Peak_Peak_time/D" );
     
     m_AnalysisTree->Branch("zdc2_Charge",           &zdc2->Charge,           "zdc2->Charge/D" );
     m_AnalysisTree->Branch("zdc2_Peak_max",         &zdc2->Peak_max,         "zdc2->Peak_max/D" );
     m_AnalysisTree->Branch("zdc2_Diff_max",         &zdc2->Diff_max,         "zdc2->Diff_max/D" );
     m_AnalysisTree->Branch("zdc2_Peak_center",      &zdc2->Peak_center,      "zdc2->Peak_center/I" );
+    m_AnalysisTree->Branch("zdc2_Peak_time",        &zdc2->Peak_time,        "zdc2->Peak_Peak_time/D" );
     m_AnalysisTree->Branch("zdc2_Diff_Peak_center", &zdc2->Diff_Peak_center, "zdc2->Diff_Peak_center/I" );
+    m_AnalysisTree->Branch("zdc2_Diff_Peak_time",   &zdc2->Diff_Peak_time,   "zdc2->Diff_Peak_Peak_time/D" );
     
 }
 
