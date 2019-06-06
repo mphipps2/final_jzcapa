@@ -30,7 +30,9 @@ WFAnalysis::WFAnalysis( ){
  */
 WFAnalysis::~WFAnalysis( ){
 
-    //delete hRMS;
+    delete f;
+    delete nlFit;
+    
 }
 
 /** @brief Initialization method for WFAnalysis
@@ -268,6 +270,8 @@ void WFAnalysis::FindHitWindow( Channel* ch ){
     if( ch->Diff_max <= threshold || ch->FirstDerivative->GetMinimum() >= -1*threshold || risingEdge > fallingEdge){
         if( ch->is_on && m_verbose > 1){ std::cerr << std::endl << "No hit found on " << ch->name << std::endl; }
         ch->was_hit = false;
+        
+        //If the channel didn't register a hit, set all values to -1 if int and 0.0 if double
         ch->Peak_center = ch->Diff_Peak_center = ch->hit_window.first = ch->hit_window.second = -1;
         ch->Peak_max = ch->Charge = ch->Diff_max = ch->Peak_time = ch->Diff_Peak_time = 0.0;
         return;

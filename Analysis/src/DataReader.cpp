@@ -12,7 +12,6 @@
 
 #include <TFile.h>
 #include <TTree.h>
-#include <TSystem.h>
 
 #include <iostream>
 #include <fstream>
@@ -77,9 +76,27 @@ DataReader::DataReader( const uint nCh, const uint nSamp,
  */
 DataReader::~DataReader(){
 
+  
+  for( auto& time : m_time ){
+      delete time; time = NULL;
+  }
+  for( auto& det : m_detectors ){
+      delete det; det = NULL;
+  }
   for( auto& ana : m_ana ){
     delete ana; ana = NULL;
   }
+  for( auto& det_ana : m_det_ana ){
+    delete det_ana; det_ana = NULL;
+  }
+  
+  //This line deletes all histograms so we don't have to
+  gDirectory->GetList()->Delete();
+  
+  delete m_alignment; m_alignment = NULL;
+  delete m_fOut; m_fOut = NULL;
+  delete m_fIn; m_fIn = NULL;
+  
 }
 
 /** @brief Adds an analysis to vector of analysis to be executed before the detector analysis (e.g. WaveForm Analysis)
@@ -175,7 +192,9 @@ void DataReader::LoadAlignmentFile(std::string _inFile ){
     }
 
     if(m_alignment == NULL) std::cout << "WARNING: ALIGNMENT NOT FOUND!!!" << std::endl;
+    delete m_XMLparser; m_XMLparser = NULL;
     return;
+    
 }
 
 /**
@@ -237,7 +256,7 @@ void DataReader::LoadConfigurationFile(std::string _inFile ){
     m_detectors.push_back(rpd); //Position 2 goes for the RPD
 
     std::cout << "Detector configuration: loading complete! " << std::endl;
-
+    delete m_XMLparser; m_XMLparser = NULL;
     return;
 }
 
@@ -367,21 +386,22 @@ void DataReader::UpdateConsole( Long_t _updateRate){
 
     if( m_verbose == 0 ){ return; }
     if(m_event!=0){
-        MemInfo_t memInfo;
-        CpuInfo_t cpuInfo;
+        
     
         // Get CPU information
         gSystem->GetCpuInfo(&cpuInfo, 100);
+        gSystem->GetProcInfo( &procInfo );
         // Get Memory information
         gSystem->GetMemInfo(&memInfo);
         // Get events/second
         double rate = 1000*(m_event-m_event_old)/_updateRate;
         m_event_old = m_event;
     
-        std::cout << "\r" << std::left <<  Form("Processed %d events, ", m_event);
-        std::cout << Form( "%4.1f ev/s, ", rate);
-        std::cout << Form( "CPU: %d", (int)cpuInfo.fTotal) << "%, ";
-        std::cout << Form( "RAM:%4.1f/%4.1fGB    ", (double)memInfo.fMemUsed/1024, (double)memInfo.fMemTotal/1024);
+        std::cout << "\r" << std::left <<  Form("Processed %5d events, ", m_event);
+        std::cout << Form( "%5.1f ev/s, ", rate);
+        std::cout << Form( "CPU use/time: %3d%%/%6.1f(s), ", (int)cpuInfo.fTotal, (double)procInfo.fCpuSys + procInfo.fCpuUser);
+        std::cout << Form( "RAM:%4.1f/%4.1fGB, ", (double)memInfo.fMemUsed/1024, (double)memInfo.fMemTotal/1024);
+        std::cout << Form( "RAM used by process: %ldMB   ", (procInfo.fMemResident + procInfo.fMemVirtual)/1024 );
         std::cout << std::flush;
     }
 }

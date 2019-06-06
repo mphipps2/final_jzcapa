@@ -27,6 +27,7 @@
 
 
 #include <TChain.h>
+#include <TSystem.h>
 
 class TFile;
 class Analysis;
@@ -128,6 +129,14 @@ class DataReader{
   bool m_debug = false;
   //Verbosity level
   int m_verbose = 0;
+  
+  
+  //Memory info container for UpdateConsole
+  MemInfo_t memInfo;
+  //CPU info container for UpdateConsole
+  CpuInfo_t cpuInfo;
+  //Process info container for UpdateConsole
+  ProcInfo_t procInfo;
 };
 
 #endif
