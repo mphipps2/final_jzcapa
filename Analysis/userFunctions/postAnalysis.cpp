@@ -33,7 +33,7 @@ int main(int argc, char *argv[]){
     //Open the file and exit if it fails
     int runNo = atoi(argv[1]);
     //string Path = (string)getenv("JZCaPA") + Form("/results/run%d", runNo);
-    string Path = Form("/data/phenix/data/TestBeam2018/Post_processing/run%d", runNo);
+    string Path = Form("/data/phenix/data/TestBeam2018/Post_processing/run%d/", runNo);
     string file = Path + Form("output%d.root", runNo);
     
     TFile *f = new TFile(file.c_str());
