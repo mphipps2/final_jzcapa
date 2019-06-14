@@ -81,17 +81,11 @@ int main(int argc, char *argv[]){
     //Create a DataReader to get run info and label plots with our Visualizer
     DataReader* r = new DataReader( 20, 1024, "", runNo );
     r->LoadAlignmentFile();
-    Alignment* al = r->GetAlignment();
     
-    //Set plot labels in the visualizer
-    std::string year, beam;
-    if(runNo <= 405) year = "2018";
-    if(al->magnet_On && al->target_In) beam = "Fragments - Magnet On";
-    if(!al->magnet_On && al->target_In) beam = "Fragments - Magnet Off";
-    if(!al->magnet_On && al->target_In && al->lead_In) beam = "Fragments - Magnet Off - Pb absorber";
-    if(!al->magnet_On && !al->target_In && !al->lead_In) beam = "Pb ions, 150 GeV/A";
+    //Set plot labels and output location in the visualizer
+    viz->SetTestBeamLabel( runNo, r->GetAlignment() );
     viz->SetOutputDirectory( Path );
-    viz->SetTestBeamLabel( year, beam);
+    
     
     
 
