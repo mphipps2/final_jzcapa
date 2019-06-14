@@ -32,7 +32,7 @@ class WFAnalysis : public Analysis{
   virtual void   Initialize     ( std::vector < Detector* > ){};
   virtual void   SetupHistograms( );
   virtual void   GetDifferential( Channel* Ch );
-  virtual double GetRMS         ( TH1D *h, bool debug = false) ;
+  virtual double GetRMS         ( Channel* Ch ) ;
   virtual void   GetPedestal    ( Channel* ch );
   virtual void   GetCharge      ( Channel* ch );
   virtual void   FindHitWindow  ( Channel* ch );
@@ -44,6 +44,11 @@ class WFAnalysis : public Analysis{
   virtual void   AnalyzeEvent   ( const std::vector< std::vector< float > >& );
   virtual void   AnalyzeEvent   ( const std::vector< Channel* > vCh );
   virtual void   Finalize       ( );
+
+  /** Histogram used to get derivative RMS */
+  TH1D *hRMS = 0;
+  TH1D *hRMSrpd = 0;
+  bool m_isRPD;
 
  private :
   /** Sensitivity level to hits (differentiation window) */
@@ -64,8 +69,7 @@ class WFAnalysis : public Analysis{
   double m_ZDCTmultiple = 3.5;
   /** Frequency threshold for low pass filter for ZDC channels*/
   int m_ZDCfCutoff = 50;
-  /** Histogram used to get derivative RMS */
-  TH1D *hRMS = 0;
+  
   /** Histogram used to find pedestal */
   TH1D *hPed = 0;
   /** Fit used to get RMS value */

@@ -14,6 +14,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
+#include <TRandom.h>
 #include <TTree.h>
 #include <TCanvas.h>//Sheng
 #include <iostream>
@@ -59,6 +60,7 @@ void WFAnalysis::SetupHistograms( ){
   
   f = new TF1("f","gaus",-50,50);
   hRMS = new TH1D("RMS","RMS",75,-75,75);
+  hRMSrpd = new TH1D("RMSrpd","RMSrpd",50,-30,30);
   hPed = new TH1D("ped","ped", 1024, -512, 512);
   
 }
@@ -121,7 +123,6 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
 
     //FFT filter flag for testing purposes.
     bool filter = false;
-    
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
         if( !vCh.at(ch)->is_on){continue;}
       //retrieving information for each channel as a histogram
@@ -134,11 +135,12 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
             m_diffSens  = m_RPDdiffSens;
             m_Tmultiple = m_RPDTmultiple;
             fCutoff     = m_RPDfCutoff;
+            m_isRPD     = true;
         }else{ // If row = 0 (ZDC) set ZDC processing values and invert the signal
             m_diffSens  = m_ZDCdiffSens;
             m_Tmultiple = m_ZDCTmultiple;
             fCutoff     = m_ZDCfCutoff;
-            
+            m_isRPD     = false;
             //The channel has an offset we set at the time of the Testbeam. Invert that,
             //then set the WF_histo with the inverted values of the raw WF vector. Finally,
             //invert the raw WF vector.
@@ -152,7 +154,10 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
         //Get the first derivative and determine the hit window from it
         //if a valid hit window is not found was_hit is set to false
         GetDifferential( vCh.at(ch) );
-        vCh.at(ch)->FirstDerivativeRMS = GetRMS( hDiff ); 
+        
+        //We set the offset of the DRS4 channels to -250 at first. This lead to clipping
+        //of the baseline. If that's the case, estimate the RMS to be 5 based on good runs.
+        vCh.at(ch)->FirstDerivativeRMS = ( vCh.at(ch)->offset != -250 ) ? GetRMS( vCh.at(ch) ) : 5.0; 
         FindHitWindow( vCh.at(ch) );
         
         //If the channel was hit, proceed with processing
@@ -169,9 +174,19 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
             //Zero Suppress the processed waveform vector and retrieve the energy related values from it
             ZeroSuppress( vCh.at(ch) );
             GetCharge( vCh.at(ch) );
-            vCh.at(ch)->Peak_max       =hProcessed->GetBinContent( vCh.at(ch)->Peak_center );
-            vCh.at(ch)->Peak_time      = vCh.at(ch)->pTimeVec->at( vCh.at(ch)->Peak_center );
             vCh.at(ch)->Diff_Peak_time = vCh.at(ch)->pTimeVec->at( vCh.at(ch)->Diff_Peak_center );
+            
+            //If the algorithm didn't work, go with a simpler method, just to get values that make sense.
+            //This should be changed to work better when I can think straight.
+            if( vCh.at(ch)->Peak_center == -1 ){
+                vCh.at(ch)->Peak_max  = vCh.at(ch)->PWF_histo->GetMaximum();
+                vCh.at(ch)->Peak_time = vCh.at(ch)->pTimeVec->at( vCh.at(ch)->PWF_histo->GetMaximumBin() );
+                
+            }else{
+                vCh.at(ch)->Peak_max  = hProcessed->GetBinContent( vCh.at(ch)->Peak_center );
+                vCh.at(ch)->Peak_time =  vCh.at(ch)->pTimeVec->at( vCh.at(ch)->Peak_center );
+
+            }
         }
     }
 }
@@ -187,8 +202,6 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
  * N is given by m_diffSens and is set by the constructor or SetDiffSense()
  */
 void WFAnalysis::GetDifferential( Channel* Ch ){
-    
-    
 
     // Loop over histogram
     for( unsigned int bin = m_diffSens; bin < Ch->WF_histo->GetNbinsX() - m_diffSens ; bin++ ){
@@ -207,44 +220,36 @@ void WFAnalysis::GetDifferential( Channel* Ch ){
 }
 
 /** @brief GetRMS method for WFAnalysis
- *  @param h Input histogram
- *  @param diff_window Averaging window used in GetDifferential
- *  @param debug Saves a PDF of the RMS histogram if true
- *  @return Width of gaussian fit excluding tails created by peaks
+ *  @param Input Channel
+ *  @return Width of gaussian fit
  *
- *  Given an input histogram, outputs an RMS value
- *  based on a gaussian fit concentrating on the center.
- *  The result can be saved to a PDF if debug is set to true.
+ *  Histgrams the second derivative for a given Channel and gets the baseline RMS
+ *  from a gaussian fit which ignores tails created by the peaks.
  *
  */
-double WFAnalysis::GetRMS( TH1D *h, bool debug){
-    
+double WFAnalysis::GetRMS( Channel* Ch ){
+
     //Make a histogram with x-range to match the y-range of the input
+    TH1D* hUsed = (m_isRPD) ? hRMSrpd : hRMS;
+    hUsed->Reset();
     Double_t xmin,xmax;
-    h->GetMinimumAndMaximum(xmin,xmax);
+    Ch->FirstDerivative->GetMinimumAndMaximum(xmin,xmax);
     if(xmax == 0) return 0;
     
     //Loop over the histogram excluding the window used for differentiating to fill hRMS
-    Int_t nbins = h->GetNbinsX();
+    Int_t nbins = Ch->FirstDerivative->GetNbinsX();
     for(int bin = m_diffSens; bin < nbins - m_diffSens; bin++){
-        hRMS->Fill( h->GetBinContent( bin ) );
+        hUsed->Fill( Ch->FirstDerivative->GetBinContent( bin ) );
     }
     
-    //Make a gaussian fit and apply it to our histogram quietly and using our range
-    hRMS->Fit("f","qR");
-    
-    if( debug ){
-        TCanvas c( "RMS" , "RMS", 200, 10, 1000, 600);
-        c.cd();
-        hRMS->Draw();
-        f->Draw("same");
-        c.Draw();
-        c.Print( "RMS.pdf" );
-    }
+    //Set the fit range narrower for the RPD than the ZDC. RPD data is actually smoother
+    //Set all fit parameters with random numbers before fitting.
+    m_isRPD ? f->SetRange(-15,15) : f->SetRange(-50,50);
+    f->SetParameters( gRandom->Uniform(0,1000) , gRandom->Uniform(-300,300), gRandom->Uniform(0,100));    
+    hUsed->Fit("f","qR");
     
     //Return parameter 2. "gaus" is [0]*exp(-0.5*((x-[1])/[2])**2)
     //And reset the histogram
-    hRMS->Reset();
     return f->GetParameter(2);
     
 }
@@ -406,7 +411,6 @@ void WFAnalysis::LowPassFilter( Channel* ch, TH1D* hIn ){
  *  Uses a TF1 with the DRS4 response to convert from the recorded value in mV
  *  to the actual value of the waveform in mV and reconstructs the signal in PWF_histo.
  *
- *  A new method needs to be used. This slows processing by > 90%
  */
 void WFAnalysis::DRS4Cal( Channel* ch ){
     
