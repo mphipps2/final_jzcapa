@@ -16,6 +16,8 @@
 #include "TVirtualPad.h"
 #include "TMarker.h"
 
+#include "Containers.h"
+
 
 #include <iostream>
 #include <vector>
@@ -33,6 +35,7 @@ class Visualizer {
 
     /** @brief Sets the label to be printed on each plot **/
     void SetTestBeamLabel(std::string _year, std::string _beam) { year = _year; beam = _beam; }
+    void SetTestBeamLabel( int runNo, Alignment* alignment );
 
     /** @brief allow the user to define the extension of the plots once they're printed. ".pdf" by default */
     void SetPlotExtension( std::string _extension ) { m_extension = _extension; }

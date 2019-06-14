@@ -19,6 +19,7 @@
 #include <iostream>
 
 #include "Visualizer.h"
+#include "Containers.h"
 
 /** @brief Visualizer Constructor for Visualizer.
  */
@@ -149,7 +150,7 @@ void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad, double _lin
 
    //scale h2 to the pad coordinates
    //float rightmax = 1.1*h2->GetMaximum();
-   float rightmax = 1.1*27500;
+   float rightmax = 1.1*2500;
    float scale = gPad->GetUymax()/rightmax;
    h2->SetLineColor( kRed );
    h2->Scale( scale );
@@ -291,6 +292,20 @@ void Visualizer::ScatterPlot( std::vector< double > _vx, std::vector< double > _
     
     TGraph g(TVx, TVy);
     g.DrawClone("ap"); 
+}
+
+
+
+/** 
+ * @brief Sets plot labels based on run number and alignment data
+ *
+ */
+void Visualizer::SetTestBeamLabel( int runNo, Alignment* alignment ){
+    if(runNo <= 405) year = "2018";
+    if(alignment->magnet_On && alignment->target_In) beam = "Fragments - Magnet On";
+    if(!alignment->magnet_On && alignment->target_In) beam = "Fragments - Magnet Off";
+    if(!alignment->magnet_On && alignment->target_In && alignment->lead_In) beam = "Fragments - Magnet Off - Pb absorber";
+    if(!alignment->magnet_On && !alignment->target_In && !alignment->lead_In) beam = "Pb ions, 150 GeV/A";
 }
 
 
