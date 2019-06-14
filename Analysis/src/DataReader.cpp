@@ -399,7 +399,7 @@ void DataReader::UpdateConsole( Long_t _updateRate){
     
         std::cout << "\r" << std::left <<  Form("Processed %5d events, ", m_event);
         std::cout << Form( "%5.1f ev/s, ", rate);
-        std::cout << Form( "CPU use/time: %3d%%/%6.1f(s), ", (int)cpuInfo.fTotal, (double)procInfo.fCpuSys + procInfo.fCpuUser);
+        std::cout << Form( "CPU use/time: %3d%%/%6.1fs, ", (int)cpuInfo.fTotal, (double)procInfo.fCpuSys + procInfo.fCpuUser);
         std::cout << Form( "RAM:%4.1f/%4.1fGB, ", (double)memInfo.fMemUsed/1024, (double)memInfo.fMemTotal/1024);
         std::cout << Form( "RAM used by process: %ldMB   ", (procInfo.fMemResident + procInfo.fMemVirtual)/1024 );
         std::cout << std::flush;
