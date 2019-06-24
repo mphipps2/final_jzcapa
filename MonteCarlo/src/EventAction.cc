@@ -70,6 +70,64 @@ void EventAction::EndOfEventAction(const G4Event* evt)
   G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
   QuartzHitsCollection* HC = 0;
   G4int nCollections =  HCE->GetNumberOfCollections();
+  
+  
+ //////////// NEED TO KNOW ORDER OF DETECTORS TO ASSIGN CORRECT HITCOLLECTION ////////////
+	std::string detector[3];
+	__attribute__((unused)) int ZDC1=-1; 
+	__attribute__((unused)) int ZDC2=-1;
+	__attribute__((unused)) int RPD=-1;
+	
+	bool bzdc1flag=false;
+	bool bzdc2flag=false;
+	bool brpdflag=false;
+	
+	
+    TEnv* config = fRunAction->GetSharedData()->GetConfig();
+	int runNum = config->GetValue( "RunNumber", -1);
+	fRunAction->GetSharedData()->LoadAlignmentFile(runNum);
+	
+	Alignment	*align_run 	= fRunAction->GetSharedData()->GetAlignment();
+
+	detector[0]=align_run->upstream_Det;
+	detector[1]=align_run->mid_Det;
+	detector[2]=align_run->downstream_Det;
+
+	for(int i=0; i<3; i++){
+		if(detector[i]=="ZDC1") {
+			bzdc1flag=true;}
+		if(detector[i]=="ZDC2") {
+			bzdc2flag=true;}
+		if(detector[i]=="RPD") {
+			brpdflag=true;}
+	}
+
+	if(bzdc1flag){
+		ZDC1=0;
+	}
+	if(bzdc2flag){
+		if(bzdc1flag){
+		ZDC2=1;
+		}
+		else{
+		ZDC2=0;
+		}
+	}
+	if(brpdflag){
+		if(bzdc1flag && bzdc2flag){
+		RPD=2;
+		}
+		else if(bzdc1flag && !bzdc2flag){
+		RPD=1;
+		}
+		else if(!bzdc1flag && bzdc2flag){
+		RPD=1;
+		}
+		else RPD=0;	
+	}
+	
+  /////////////////////////////////////////////////////////////////////////
+  
   int totalPhotons = 0;
   int IDholder = 0;
   if(HCE) {
@@ -96,21 +154,10 @@ void EventAction::EndOfEventAction(const G4Event* evt)
         G4double      velocity   = (*HC)[i]->getVelocity();
         G4double      beta   = (*HC)[i]->getBeta();
       
-		
-        
-	
-
         //Add energy from every step in scoring volume as well as every particle
 	if (trackID != prevTrackId || radiatorNo != prevRadiatorNo || eDep != 0) {
-
-	  /*
-	    G4cout << "PASSED  CUT!!!!!!!!!!!!!!  trackID: " << trackID
-	    << "  mod: " << modNb << "  rad: " << radiatorNo
-	    << "  energy deposit: " << G4BestUnit(eDep,"Energy")
-	    << "  position: " << G4BestUnit(position,"Length") << G4endl;
-	  */
-	  
-	  if(IDholder==2){ //2 corresponds to the RPD hitsCollID
+		
+	  if(IDholder==RPD){ //corresponds to the RPD hitsCollID
 	  fRunAction->SetRadNo_rpd(radiatorNo);
 	  fRunAction->SetRodNo_rpd(rodNo);
 	  fRunAction->SetNCherenkovs_rpd(nCherenkovs);
@@ -125,7 +172,7 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	  fRunAction->SetCharge_rpd(charge);
 	  fRunAction->SetVelocity_rpd(velocity);
 	  fRunAction->SetBeta_rpd(beta);}
-	  else if(IDholder==3){ //3 corresponds to the Fiber hitsCollID
+	  else if(IDholder==RPD+1 && RPD!=-1){ //RPD+1 corresponds to the Fiber hitsCollID
 	  fRunAction->SetRadNo_fiber(radiatorNo);
 	  fRunAction->SetRodNo_fiber(rodNo);
 	  fRunAction->SetNCherenkovs_fiber(nCherenkovs);
@@ -140,8 +187,8 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	  fRunAction->SetCharge_fiber(charge);
 	  fRunAction->SetVelocity_fiber(velocity);
 	  fRunAction->SetBeta_fiber(beta);}
-	  else{
-	  totalPhotons += nCherenkovs; //not being used currently
+	  else if(IDholder==ZDC1 || IDholder==ZDC2 ){//ZDC hitsCollID
+	  totalPhotons += nCherenkovs; 
 	  fRunAction->SetRadNo(radiatorNo);
 	  fRunAction->SetRodNo(rodNo);
 	  fRunAction->SetNCherenkovs(nCherenkovs);
@@ -162,16 +209,13 @@ void EventAction::EndOfEventAction(const G4Event* evt)
       }
       hitsCollID++;
     }
-    
-	
+
 	fRunAction->GetSharedData()->GetRPDTree()->Fill();
 	
 	fRunAction->GetSharedData()->GetZDCTree()->Fill();
 	
 	fRunAction->GetSharedData()->GetFiberTree()->Fill();
-	
-	
-	
+
   }
 
   fRunAction->ClearVectors();

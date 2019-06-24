@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <root>
-	 <Alignment> <!--TEST ALIGNMENT USED TO MANUALLY SET PARAMETERS RUN347 DOES NOT ACTUALLY EXIST!!!-->
+	 <Alignment> <!--TEST ALIGNMENT USED TO MANUALLY SET PARAMETERS RUN347 DOES NOT ACTUALLY EXIST!!! use "none" in place of detector to turn it off-->
         <run>347</run>
         <x_table>-2257</x_table>
         <y_table>501</y_table>
         <upstream_Det>ZDC1</upstream_Det>
         <mid_Det>RPD</mid_Det>
-        <downstream_Det>ZDC2</downstream_Det>
+        <downstream_Det>none</downstream_Det>
         <magnet_On>false</magnet_On>
         <target_In>false</target_In> 
-        <lead_In>false</lead_In>
+        <lead_In>true</lead_In>
     </Alignment>
     <!-- Scan 1 -->
     <Alignment>

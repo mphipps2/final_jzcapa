@@ -147,6 +147,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 	if(ZDC_SETUP == 1){
 	
 	//table(-2250,500) -> rpd/beam(0,0)	where 100=0.1cm in table coordinates
+	//-320mm is offset to get from zdc mid to active area mid
 	tableX_shift = (-2257.0 - (align_run->x_table)  )/100*mm ;
 	tableY_shift = (501.0   - (align_run->y_table)  )/100*mm ;
 		
@@ -171,7 +172,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 	if( std::strcmp(forcedet.c_str(), "YES") == 0){
 			 
 			std::cout << "******************************************" 
-			<< std::endl << "PLACING DETECTORS MANUALLY" << std::endl 
+			<< std::endl << "        PLACING DETECTORS MANUALLY" << std::endl 
 			<< "******************************************" << std::endl;
 			
 		rpdX	= ( config->GetValue("RPDx", 0) )*mm;
@@ -184,7 +185,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 		zdc2Y 	= ( config->GetValue("ZDC2y", 0) )*mm;
 	}
 	 
-	//-320mm is offset to get from zdc mid to active area mid
+	
 	zdc1Pos = G4ThreeVector( zdc1X, zdc1Y, zdc1Z); 
 	zdc2Pos = G4ThreeVector( zdc2X, zdc2Y, zdc2Z);
 	rpdPos 	= G4ThreeVector( rpdX , rpdY , rpdZ );
@@ -206,8 +207,10 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 		}
 	}
 	
-	// Assign lead block position in mm
-	leadblockZ = ( zdc1Z- 250)*mm; //approximate position
+	// Assign lead block position in mm, place approx 1 ft in front of ZDC1
+	// half ZDC Z width = 90mm
+	// 1ft ~ 300mm
+	leadblockZ = ( zdc1Z - 90 - 300)*mm; 
 	
 	
 	targ_in =  	align_run->target_In;
@@ -423,9 +426,9 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
   
   if(ZDC_SETUP==1){
 
-	  std::cout << "(" << zdc1Pos.getX() << ", " << zdc1Pos.getY() << ", " << zdc1Pos.getZ() << ")" << std::endl;
-	  std::cout << "(" << zdc2Pos.getX() << ", " << zdc2Pos.getY() << ", " << zdc2Pos.getZ() << ")" << std::endl;
-	  std::cout << "(" << rpdPos.getX()  << ", " << rpdPos.getY()  << ", " << rpdPos.getZ()  << ")" << std::endl;
+	  std::cout << "ZDC1 center = " << "(" << zdc1Pos.getX() << ", " << zdc1Pos.getY() << ", " << zdc1Pos.getZ() << ")" << std::endl;
+	  std::cout << "ZDC2 center = " << "(" << zdc2Pos.getX() << ", " << zdc2Pos.getY() << ", " << zdc2Pos.getZ() << ")" << std::endl;
+	  std::cout << "ZDC1 center = " << "(" << rpdPos.getX()  << ", " << rpdPos.getY()  << ", " << rpdPos.getZ()  << ")" << std::endl;
 	  
 	  ModTypeZDC *mod1 = new ModTypeZDC(0,zdc1Pos,m_logicWorld,m_sd); 
 	  ModTypeZDC *mod2 = new ModTypeZDC(1,zdc2Pos,m_logicWorld,m_sd); 
@@ -477,7 +480,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 		
    }
 	if( lead_in ){  
-		G4Box* leadBlock = new G4Box("LeadBlock",10*cm, 10*cm, 20*cm);
+		G4Box* leadBlock = new G4Box("LeadBlock",(0.5*worldSizeX)*mm, (0.5*150)*mm, 10*cm);
     
 		logic_leadBlock
 		= new G4LogicalVolume(leadBlock,
@@ -485,7 +488,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
                           "LeadBlock");
     
 		new G4PVPlacement(0,
-                      G4ThreeVector(0.0, 0.0, (leadblockZ-worldZoffset)*mm),
+                      G4ThreeVector(0.0, 0.0, (leadblockZ)*mm),
                       logic_leadBlock,
                       "LeadBlock1",
                       m_logicWorld,

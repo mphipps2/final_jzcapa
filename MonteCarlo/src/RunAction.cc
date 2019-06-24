@@ -41,6 +41,8 @@
 #include "G4HCtable.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4Version.hh"
+#include "g4root.hh"
+
 
 #if G4VERSION_NUMBER > 999
     #include "G4AccumulableManager.hh"
@@ -54,6 +56,21 @@ RunAction::RunAction(SharedData *sd)
 : G4UserRunAction()
 {
     fSharedData = sd;
+	
+	/*
+	if(NeutDeath){//NEUTRON DEATH TRACKING 
+	auto analysisManager = G4AnalysisManager::Instance();
+ 
+    analysisManager->SetNtupleMerging(true);
+    
+	// Creating ntuple
+	//
+    analysisManager->CreateNtuple("NeutronDeath", "EventNum and Z position");
+    analysisManager->CreateNtupleDColumn("Zpos");
+    analysisManager->CreateNtupleDColumn("EventNum");
+	analysisManager->FinishNtuple();
+	}
+	*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -65,16 +82,56 @@ RunAction::~RunAction()
 
 void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 { 
-  // inform the runManager to save random number seed
+  
+  /* 
+  if(NeutDeath){//NEUTRON DEATH TRACKING 
+  // Get analysis manager
+  auto analysisManager = G4AnalysisManager::Instance();
+
+  // Open an output file
+  //
+  G4String fileName = "NeutronDeath";
+  analysisManager->OpenFile(fileName);
+  }
+  */
+  
+	std::string detector[3];
+	
+	bool bzdc1flag=false;
+	bool bzdc2flag=false;
+	bool brpdflag=false;
+	
+	
+    TEnv* config = fSharedData->GetConfig();
+	int runNum = config->GetValue( "RunNumber", -1);
+	fSharedData->LoadAlignmentFile(runNum);
+	
+	Alignment	*align_run 	= fSharedData->GetAlignment();
+
+	detector[0]=align_run->upstream_Det;
+	detector[1]=align_run->mid_Det;
+	detector[2]=align_run->downstream_Det;
+
+	for(int i=0; i<3; i++){
+		if(detector[i]=="ZDC1") {
+			bzdc1flag=true;}
+		if(detector[i]=="ZDC2") {
+			bzdc2flag=true;}
+		if(detector[i]=="RPD") {
+			brpdflag=true;}
+	}
+
+  
   
   long seeds[2];
   long systime = time(NULL);
   seeds[0] = (long) systime;
   seeds[1] = (long) (systime*G4UniformRand());
   G4Random::setTheSeeds(seeds); 
+
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
-  //G4int nbEventInRun = run->GetNumberOfEventToBeProcessed();
 	
+if(bzdc1flag || bzdc2flag){
   fSharedData->AddOutputToZDCTree("ID",&fTrackID_v);
   fSharedData->AddOutputToZDCTree("ModNb",&fModNb_v);
   fSharedData->AddOutputToZDCTree("RadNb",&fRadNb_v);
@@ -93,7 +150,8 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
   fSharedData->AddOutputToZDCTree("Velocity",&fVelocity_v);
   fSharedData->AddOutputToZDCTree("NCherenkovs",&fNCherenkovs_v);
   fSharedData->AddOutputToZDCTree("Beta",&fBeta_v);
-  
+	}
+if(brpdflag){
   fSharedData->AddOutputToRPDTree("ID",&fTrackID_v2);
   fSharedData->AddOutputToRPDTree("ModNb",&fModNb_v2);
   fSharedData->AddOutputToRPDTree("RadNb",&fRadNb_v2);
@@ -131,6 +189,7 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
   fSharedData->AddOutputToFiberTree("Velocity",&fVelocity_v3);
   fSharedData->AddOutputToFiberTree("NCherenkovs",&fNCherenkovs_v3);
   fSharedData->AddOutputToFiberTree("Beta",&fBeta_v3);
+}
   
   // reset parameters to their initial values
 #if G4VERSION_NUMBER > 999
@@ -146,8 +205,16 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 
 void RunAction::EndOfRunAction(const G4Run* run)
 {
-  G4int nofEvents = run->GetNumberOfEvent();
-  if (nofEvents == 0) return;
+	/*
+	if(NeutDeath){//NEUTRON DEATH TRACKING
+	auto analysisManager = G4AnalysisManager::Instance();
+	analysisManager->Write();
+	analysisManager->CloseFile();
+	}
+	*/
+	
+	G4int nofEvents = run->GetNumberOfEvent();
+	if (nofEvents == 0) return;
 
   // Merge parameters 
 #if G4VERSION_NUMBER > 999

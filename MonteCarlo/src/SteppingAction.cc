@@ -34,6 +34,7 @@
 #include "G4Step.hh"
 #include "G4Event.hh"
 #include "G4RunManager.hh"
+#include "g4root.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -45,12 +46,33 @@ SteppingAction::SteppingAction(EventAction* eventAction)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 SteppingAction::~SteppingAction()
-{}
+{delete G4AnalysisManager::Instance();}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* step  )
+void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* theStep  )
 {
+	/*
+	if(NeutDeath){//NEUTRON DEATH TRACKING 
+	G4Track* theTrack = theStep->GetTrack();
+
+	if(theTrack->GetParentID()==0 && theStep->IsLastStepInVolume()){
+		
+		G4int eID = 0;
+		const G4Event* evt = G4RunManager::GetRunManager()->GetCurrentEvent();
+		if(evt) eID = evt->GetEventID();
+		//G4cout 	<< "***************** track position =  " << theTrack->GetPosition().getZ()  << G4endl 
+		//		<< "***************** eventid		 =  " << eID << G4endl;
+		
+		auto analysisManager = G4AnalysisManager::Instance();
+		
+		analysisManager->FillNtupleDColumn(0, theTrack->GetPosition().getZ());
+		analysisManager->FillNtupleDColumn(1, eID);
+		analysisManager->AddNtupleRow(); 
+		
+		}
+	}
+	*/
 	
 }
 

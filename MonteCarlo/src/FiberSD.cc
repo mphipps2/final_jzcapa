@@ -117,12 +117,10 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     //radNum = totalRodNum / modNStripsPerGap;
     //rodNum = totalRodNum % modNStripsPerGap;
 	
-	
-	 
-	
+
 	rodNum = totalRodNum;
 	
-	radNum = (std::stoi (radNum_s)*100)+rodNum;
+	radNum = (std::stoi (radNum_s)*100)+rodNum; 
 	
 	/*
 	G4cout << G4endl << "TrackID: " << aStep->GetTrack()->GetTrackID() << G4endl;

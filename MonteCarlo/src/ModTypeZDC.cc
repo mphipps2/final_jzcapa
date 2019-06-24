@@ -140,9 +140,6 @@ void ModTypeZDC::DefineMaterials()
   G4double ephoton         [NUMENTRIES] = {2.00*eV,4.80*eV};
 
   G4double rindexCore[NUMENTRIES] = {1.46,1.46};
-  //  G4double absorptionCore[NUMENTRIES] = {46*m,46*m};
-  //  G4double rindexCladding[NUMENTRIES] = {1.46,1.46};
-  //  G4double absorptionCladding[NUMENTRIES] = {46*m,46*m};  
 
   //Fill in the Marterial properties table for each material.
   //Guide for undestanding Optical processes at http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/ForApplicationDeveloper/html/ch05s02.html#sect.PhysProc.Photo

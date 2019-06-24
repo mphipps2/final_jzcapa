@@ -73,10 +73,10 @@ SharedData :: ~SharedData()
 
 void SharedData :: Initialize()
 {
-  m_fout         	= new TFile( m_outputFileName.c_str(), "RECREATE" );
-  m_treeZDC         = new TTree( "ZDCtree"                  , "ZDCtree"     );
-  m_treeRPD         = new TTree( "RPDtree"                  , "RPDtree"     );
-  m_treeFiber        = new TTree( "Fibertree"                  , "Fibertree"     );
+		m_fout         	= new TFile( m_outputFileName.c_str(), "RECREATE" );
+		m_treeZDC         = new TTree( "ZDCtree" , "ZDCtree");
+		m_treeRPD         = new TTree( "RPDtree"  , "RPDtree");
+		m_treeFiber        = new TTree( "Fibertree" , "Fibertree");
   
   m_config       = new TEnv ();
   int success;
@@ -206,7 +206,9 @@ void SharedData::LoadConfigurationFile( int m_runNumber, std::string _inFile  ){
  * @param _inFile
  */
 void SharedData::LoadAlignmentFile( int m_runNumber, std::string _inFile ){
-
+	
+	bool debug = false;
+	
     m_XMLparser = new XMLSettingsReader();
 
     if (!m_XMLparser->parseFile(_inFile)) {
@@ -219,15 +221,18 @@ void SharedData::LoadAlignmentFile( int m_runNumber, std::string _inFile ){
 
     m_alignment = new Alignment();
 
+	if(debug){
     std::cout << "Loading .xml Alignment File..." << std::endl;
     std::cout << "Found " << m_XMLparser->getBaseNodeCount("Alignment") << " alignment entries " << std::endl;
     std::cout << "Retrieving the information for run " << m_runNumber << std::endl;
+	}
 
     int run;
     for ( int i = 0; i < m_XMLparser->getBaseNodeCount("Alignment"); i++) {
         m_XMLparser->getChildValue("Alignment",i,"run",run);
         if(run != m_runNumber) continue;
-        std::cout << "Found Run Entry in Alignment file for run " << m_runNumber << std::endl;
+       if(debug){
+	   std::cout << "Found Run Entry in Alignment file for run " << m_runNumber << std::endl;}
         m_XMLparser->getChildValue("Alignment",i,"x_table",m_alignment->x_table);
         m_XMLparser->getChildValue("Alignment",i,"y_table",m_alignment->y_table);
         m_XMLparser->getChildValue("Alignment",i,"upstream_Det",m_alignment->upstream_Det);

@@ -2,7 +2,7 @@
 # 
 # To be run preferably in batch, without graphics:
 # 
-#
+# 31 TeV Pb ion
 
 # Initialize kernel
 /run/initialize
@@ -10,13 +10,13 @@
 
 /control/verbose 2
 /run/verbose 2
-/tracking/verbose 0
+/tracking/verbose 1
 /run/particle/verbose 1
 
 
 #/gps/particle ion
-#/gps/ion 82 208 0 0.0
-#/gps/energy 31.2 TeV
+/gps/ion 82 208 0 0.0
+/gps/energy 31.2 TeV
 
 # using alphas is useful if you would like to visualize the tracks (Pb ions require much more computing time)
 #/gps/particle ion
@@ -24,12 +24,12 @@
 #/gps/energy 600 GeV
 
 #/gps/particle proton
-/gps/particle neutron
+#/gps/particle neutron
 
 # the beam energy is in gaussian profile
-/gps/ene/type Gauss
-/gps/ene/mono 150 GeV
-/gps/ene/sigma 1 MeV
+#/gps/ene/type Gauss
+#/gps/ene/mono 150 GeV
+#/gps/ene/sigma 1 MeV
 
 
 # General particle source  
@@ -46,13 +46,13 @@
 /gps/pos/rot2 0 1 0
 #
 #
-# the beam is travelling along the z-axis with any angular 
-#dispersion (angular despersion set to 0.057)
+# the beam is travelling along the z-axis 
 /gps/ang/rot1 0 1 0
 /gps/ang/rot2 1 0 0 
 /gps/ang/type beam1d 
-/gps/ang/sigma_r 0.057 deg 
-# 1.0milliradians   0.057 deg 
+# the beam angular dispersion 
+/gps/ang/sigma_r 0.00 deg 
+# 1.0milliradians  = 0.057 deg 
 #
 
 #if using these commands in interactive mode to visualize, use this to allow more events to be displayed (do not use in batch mode)
@@ -61,6 +61,6 @@
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 100
+/run/beamOn 2
 ##############################################################
 ##############################################################

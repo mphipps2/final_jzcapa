@@ -117,17 +117,13 @@ void ModTypeRPD::DefineMaterials()
   G4double ephoton         [NUMENTRIES] = {2.00*eV,4.80*eV};
 
   G4double rindexCore[NUMENTRIES] = {1.46,1.46};
-  //  G4double absorptionCore[NUMENTRIES] = {46*m,46*m};
-  //  G4double rindexCladding[NUMENTRIES] = {1.46,1.46};
-  //  G4double absorptionCladding[NUMENTRIES] = {46*m,46*m};  
-
+ 
   //Fill in the Marterial properties table for each material.
   //Guide for undestanding Optical processes at http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/ForApplicationDeveloper/html/ch05s02.html#sect.PhysProc.Photo
   // Only needed if direct Cherenkov production turned on
   G4MaterialPropertiesTable *quartzMPT = new G4MaterialPropertiesTable();
   if (m_simCherenkov) {
     quartzMPT->AddProperty("RINDEX",ephoton,rindexCore,NUMENTRIES);
-    //  quartzMPT->AddProperty("ABSLENGTH",ephoton,absorptionQuartz,NUMENTRIES);
     m_matQuartz->SetMaterialPropertiesTable(quartzMPT);
   }
 }
@@ -183,7 +179,7 @@ void ModTypeRPD::ConstructDetector()
 		
 		m_fiber[k] 		= new G4Tubs( name, 
 							0.0*mm, 
-							1.5/2*mm, 
+							0.5*mm, //1mm diameter
 							fiberHeightY[k]*mm/2.0 , 
 							0.0*deg, 
 							360.0*deg);
@@ -195,8 +191,6 @@ void ModTypeRPD::ConstructDetector()
 							name);
 		m_fiberLogical[k]->SetVisAttributes( G4Colour::Green() );				
 	}
-	
-	
 	
 	
   for(int j=0;j<4;j++) {  
@@ -233,6 +227,7 @@ void ModTypeRPD::ConstructDetector()
 							
 							cn_fiber++;
 							
+				/*
 				std::cout << cn_fiber-1 
 				<< " height = "
 				<< fiberHeightY[k]
@@ -252,34 +247,29 @@ void ModTypeRPD::ConstructDetector()
 				<< k
 				<< ")" 
 				<< std::endl;	
+				*/
 							
 		}
 
-							
-      std::cout  << std:: endl << "Sx = " 
+		/*					
+      std::cout  << std:: endl << "tilex = " 
 				<<  RPD_startX - (i*( tileX+(2*halfX_gap) ) )  
-				<< ", Sy = " 
+				<< ", tiley = " 
 				<<  RPD_startY - (j*( tileY+(2*halfY_gap) ) ) 
-				<< ", Sz = " 
+				<< ", tilez = " 
 				<< RPD_centerZ 
 				<< ", ("
 				<< i 
 				<< "," 
 				<< j 
 				<< ")" 
-				<< std::endl << std::endl;	
+				<< std::endl << std::endl;
+			*/				
       ++cn;
     }
   }
 		
 	
-	
-	
-  
-
-
-
-		
   //----------------------------------------------     
   // Define Surface/Border Properties
   //----------------------------------------------  
@@ -303,7 +293,7 @@ void ModTypeRPD::ConstructDetector()
   m_tileLogical->SetSensitiveDetector( aRpdSD );
 
    char fiberSDname[256];
-  sprintf( fiberSDname, "Fiber_SD%d", m_modNum+2);
+  sprintf( fiberSDname, "Fiber_SD%d", m_modNum+1);
   
   
   FiberSD* aFiberSD = new FiberSD( fiberSDname, m_sd, m_modNum+3 );
@@ -313,14 +303,7 @@ void ModTypeRPD::ConstructDetector()
 		m_fiberLogical[k]->SetSensitiveDetector( aFiberSD );
   }
   
-  
 
-  
-  
-  
-  
-  
-  
   /*
   if (m_simCherenkov) {
     //Note one SD object for each module
@@ -333,5 +316,7 @@ void ModTypeRPD::ConstructDetector()
   }
   */
   std::cout << "ModTypeRPD construction finished: SD name " << quartzSDname << std::endl;
+  
+  std::cout << "Fiber      construction finished: SD name " << fiberSDname << std::endl;
 
 }

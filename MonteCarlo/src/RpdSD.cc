@@ -76,7 +76,6 @@ void RpdSD::Initialize(G4HCofThisEvent* HCE){
 
   std::string name = collectionName[0];					    
   
-  //  static G4int HCID = -1;
   
   if(HCID<0)
     { HCID = G4SDManager::GetSDMpointer()->GetCollectionID( name );}
