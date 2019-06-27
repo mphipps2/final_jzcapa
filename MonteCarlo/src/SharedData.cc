@@ -74,9 +74,9 @@ SharedData :: ~SharedData()
 void SharedData :: Initialize()
 {
 		m_fout         	= new TFile( m_outputFileName.c_str(), "RECREATE" );
-		m_treeZDC         = new TTree( "ZDCtree" , "ZDCtree");
-		m_treeRPD         = new TTree( "RPDtree"  , "RPDtree");
-		m_treeFiber        = new TTree( "Fibertree" , "Fibertree");
+		m_treeZDC       = new TTree( "ZDCtree" , "ZDCtree");
+		m_treeRPD       = new TTree( "RPDtree"  , "RPDtree");
+		m_treeFiber     = new TTree( "Fibertree" , "Fibertree");
   
   m_config       = new TEnv ();
   int success;
@@ -142,6 +142,8 @@ void SharedData :: Finalize()
   m_treeZDC->Write();
   m_treeRPD->Write();
   m_treeFiber->Write();
+  
+  
   for( auto& h : m_v_hists ) { h->Write(); }
   
   m_fout->Close();

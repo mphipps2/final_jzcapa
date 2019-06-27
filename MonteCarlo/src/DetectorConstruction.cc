@@ -177,12 +177,15 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 			
 		rpdX	= ( config->GetValue("RPDx", 0) )*mm;
 		rpdY 	= ( config->GetValue("RPDy", 0) )*mm;
+		rpdZ 	= ( config->GetValue("RPDz", 0) )*mm;
 		 
 		zdc1X 	= ( config->GetValue("ZDC1x", 0) )*mm;
-		zdc2X 	= ( config->GetValue("ZDC2x", 0) )*mm;
-		
 		zdc1Y 	= ( config->GetValue("ZDC1y", 0) )*mm;
+		zdc1Z 	= ( config->GetValue("ZDC1z", 0) )*mm;
+		
+		zdc2X 	= ( config->GetValue("ZDC2x", 0) )*mm;
 		zdc2Y 	= ( config->GetValue("ZDC2y", 0) )*mm;
+		zdc2Z 	= ( config->GetValue("ZDC2z", 0) )*mm;
 	}
 	 
 	
@@ -426,17 +429,21 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
   
   if(ZDC_SETUP==1){
 
-	  std::cout << "ZDC1 center = " << "(" << zdc1Pos.getX() << ", " << zdc1Pos.getY() << ", " << zdc1Pos.getZ() << ")" << std::endl;
-	  std::cout << "ZDC2 center = " << "(" << zdc2Pos.getX() << ", " << zdc2Pos.getY() << ", " << zdc2Pos.getZ() << ")" << std::endl;
-	  std::cout << "ZDC1 center = " << "(" << rpdPos.getX()  << ", " << rpdPos.getY()  << ", " << rpdPos.getZ()  << ")" << std::endl;
+	  
 	  
 	  ModTypeZDC *mod1 = new ModTypeZDC(0,zdc1Pos,m_logicWorld,m_sd); 
 	  ModTypeZDC *mod2 = new ModTypeZDC(1,zdc2Pos,m_logicWorld,m_sd); 
 	  ModTypeRPD *mod3 = new ModTypeRPD(0,rpdPos, m_logicWorld,m_sd); 
 	  
-	 if(ZDC1) mod1->Construct();
-	 if(ZDC2) mod2->Construct();
-	 if(RPD)  mod3->Construct();
+	 if(ZDC1){ mod1->Construct();
+		  std::cout << "ZDC1 center = " << "(" << zdc1Pos.getX() << ", " << zdc1Pos.getY() << ", " << zdc1Pos.getZ() << ")" << std::endl;
+	 }
+	 if(ZDC2){ mod2->Construct();
+	 	  std::cout << "ZDC2 center = " << "(" << zdc2Pos.getX() << ", " << zdc2Pos.getY() << ", " << zdc2Pos.getZ() << ")" << std::endl;
+	 }
+	 if(RPD){  mod3->Construct();
+	 	  std::cout << "RPD center = " << "(" << rpdPos.getX()  << ", " << rpdPos.getY()  << ", " << rpdPos.getZ()  << ")" << std::endl;
+	 }
 		
 	  
 		// Setup magnetic field

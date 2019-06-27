@@ -251,7 +251,7 @@ void ModTypeRPD::ConstructDetector()
 							
 		}
 
-		/*					
+							
       std::cout  << std:: endl << "tilex = " 
 				<<  RPD_startX - (i*( tileX+(2*halfX_gap) ) )  
 				<< ", tiley = " 
@@ -264,7 +264,7 @@ void ModTypeRPD::ConstructDetector()
 				<< j 
 				<< ")" 
 				<< std::endl << std::endl;
-			*/				
+							
       ++cn;
     }
   }

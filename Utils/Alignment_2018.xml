@@ -6,7 +6,7 @@
         <y_table>501</y_table>
         <upstream_Det>ZDC1</upstream_Det>
         <mid_Det>RPD</mid_Det>
-        <downstream_Det>none</downstream_Det>
+        <downstream_Det>ZDC2</downstream_Det>
         <magnet_On>false</magnet_On>
         <target_In>false</target_In> 
         <lead_In>true</lead_In>
