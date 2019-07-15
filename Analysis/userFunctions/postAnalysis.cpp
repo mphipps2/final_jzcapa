@@ -122,6 +122,6 @@ void SetupVisualizer( int runNo, string outputPath ){
 
   //Set plot labels and output location in the visualizer
   viz->SetTestBeamLabel( runNo, r->GetAlignment() );
-  viz->SetOutputDirectory( Path );
+  viz->SetOutputDirectory( outputPath );
 
 }
