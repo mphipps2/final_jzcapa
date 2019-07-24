@@ -56,21 +56,6 @@ RunAction::RunAction(SharedData *sd)
 : G4UserRunAction()
 {
     fSharedData = sd;
-	
-	/*
-	if(NeutDeath){//NEUTRON DEATH TRACKING 
-	auto analysisManager = G4AnalysisManager::Instance();
- 
-    analysisManager->SetNtupleMerging(true);
-    
-	// Creating ntuple
-	//
-    analysisManager->CreateNtuple("NeutronDeath", "EventNum and Z position");
-    analysisManager->CreateNtupleDColumn("Zpos");
-    analysisManager->CreateNtupleDColumn("EventNum");
-	analysisManager->FinishNtuple();
-	}
-	*/
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -81,31 +66,18 @@ RunAction::~RunAction()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
-{ 
-  
-  /* 
-  if(NeutDeath){//NEUTRON DEATH TRACKING 
-  // Get analysis manager
-  auto analysisManager = G4AnalysisManager::Instance();
-
-  // Open an output file
-  //
-  G4String fileName = "NeutronDeath";
-  analysisManager->OpenFile(fileName);
-  }
-  */
-  
+{
 	std::string detector[3];
-	
+
 	bool bzdc1flag=false;
 	bool bzdc2flag=false;
 	bool brpdflag=false;
-	
-	
+
+
     TEnv* config = fSharedData->GetConfig();
 	int runNum = config->GetValue( "RunNumber", -1);
 	fSharedData->LoadAlignmentFile(runNum);
-	
+
 	Alignment	*align_run 	= fSharedData->GetAlignment();
 
 	detector[0]=align_run->upstream_Det;
@@ -121,16 +93,16 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 			brpdflag=true;}
 	}
 
-  
-  
+
+
   long seeds[2];
   long systime = time(NULL);
   seeds[0] = (long) systime;
   seeds[1] = (long) (systime*G4UniformRand());
-  G4Random::setTheSeeds(seeds); 
+  G4Random::setTheSeeds(seeds);
 
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
-	
+
 if(bzdc1flag || bzdc2flag){
   fSharedData->AddOutputToZDCTree("ID",&fTrackID_v);
   fSharedData->AddOutputToZDCTree("ModNb",&fModNb_v);
@@ -170,7 +142,7 @@ if(brpdflag){
   fSharedData->AddOutputToRPDTree("Velocity",&fVelocity_v2);
   fSharedData->AddOutputToRPDTree("NCherenkovs",&fNCherenkovs_v2);
   fSharedData->AddOutputToRPDTree("Beta",&fBeta_v2);
-  
+
   fSharedData->AddOutputToFiberTree("ID",&fTrackID_v3);
   fSharedData->AddOutputToFiberTree("ModNb",&fModNb_v3);
   fSharedData->AddOutputToFiberTree("RadNb",&fRadNb_v3);
@@ -190,14 +162,14 @@ if(brpdflag){
   fSharedData->AddOutputToFiberTree("NCherenkovs",&fNCherenkovs_v3);
   fSharedData->AddOutputToFiberTree("Beta",&fBeta_v3);
 }
-  
+
   // reset parameters to their initial values
 #if G4VERSION_NUMBER > 999
     G4AccumulableManager* parameterManager = G4AccumulableManager::Instance();
 #else
     G4ParameterManager* parameterManager = G4ParameterManager::Instance();
 #endif
-  parameterManager->Reset();   
+  parameterManager->Reset();
 
 }
 
@@ -205,18 +177,11 @@ if(brpdflag){
 
 void RunAction::EndOfRunAction(const G4Run* run)
 {
-	/*
-	if(NeutDeath){//NEUTRON DEATH TRACKING
-	auto analysisManager = G4AnalysisManager::Instance();
-	analysisManager->Write();
-	analysisManager->CloseFile();
-	}
-	*/
-	
+
 	G4int nofEvents = run->GetNumberOfEvent();
 	if (nofEvents == 0) return;
 
-  // Merge parameters 
+  // Merge parameters
 #if G4VERSION_NUMBER > 999
     G4AccumulableManager* parameterManager = G4AccumulableManager::Instance();
 #else
@@ -227,4 +192,3 @@ void RunAction::EndOfRunAction(const G4Run* run)
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-

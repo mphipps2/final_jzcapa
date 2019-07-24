@@ -1,7 +1,7 @@
 # Macro file for JZCaPA beam test 2018
-# 
+#
 # To be run preferably in batch, without graphics:
-# 
+#
 # 150 GeV NEUTRON
 
 # Initialize kernel
@@ -32,7 +32,7 @@
 /gps/ene/sigma 1 MeV
 
 
-# General particle source  
+# General particle source
 /gps/pos/type Beam
 /gps/pos/shape Circle
 /gps/pos/centre 0. 0. -15999. mm
@@ -46,21 +46,21 @@
 /gps/pos/rot2 0 1 0
 #
 #
-# the beam is travelling along the z-axis 
+# the beam is travelling along the z-axis
 /gps/ang/rot1 0 1 0
-/gps/ang/rot2 1 0 0 
-/gps/ang/type beam1d 
-# the beam angular dispersion 
-/gps/ang/sigma_r 0.00 deg 
-# 1.0milliradians  = 0.057 deg 
+/gps/ang/rot2 1 0 0
+/gps/ang/type beam1d
+# the beam angular dispersion
+/gps/ang/sigma_r 0.00 deg
+# 1.0milliradians  = 0.057 deg
 #
 
 #if using these commands in interactive mode to visualize, use this to allow more events to be displayed (do not use in batch mode)
-#/vis/ogl/set/displayListLimit 1000000
+/vis/ogl/set/displayListLimit 1000000000
 
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 10
+/run/beamOn 1
 ##############################################################
 ##############################################################

@@ -1,7 +1,7 @@
 /** @file SharedData.h
  *  @brief Function prototypes for SharedData.
  *
- *  This contains the prototypes and members 
+ *  This contains the prototypes and members
  *  for SharedData.
  *
  *  @author Yakov Kulinich
@@ -24,7 +24,7 @@
 class Survey {
 
  public :
-  
+
 	/** Type of detector - ZDC or RPD **/
     std::string detector;
     /** x_pos for this survey */
@@ -39,7 +39,7 @@ class Survey {
     double cos_y;
 	/** cos_z for this survey */
     double cos_z;
-	
+
 };
 
 class Alignment {
@@ -67,7 +67,7 @@ class Alignment {
 
 
 class SharedData{
-  
+
 public:
   SharedData();
   SharedData( const std::string&, const std::string& );
@@ -77,38 +77,38 @@ public:
   SharedData            ( const SharedData& ) = delete ;
   SharedData& operator= ( const SharedData& ) = delete ;
 
-  // Only want MyRunManager to access these 
+  // Only want MyRunManager to access these
 
   void   Initialize();
   void   EndOfEvent();
-  void   Finalize(); 
-   
-  template<class T> 
+  void   Finalize();
+
+  template<class T>
   void   AddOutputToZDCTree    ( const std::string&, T*);
-  template<class T> 
+  template<class T>
   void   AddOutputToRPDTree    ( const std::string&, T*);
-  template<class T> 
+  template<class T>
   void   AddOutputToFiberTree    ( const std::string&, T*);
-  
+
   void   AddOutputHistogram ( TH1* );
-   
+
   TEnv*  GetConfig        () { return m_config; }
 
   bool   DoPrint          ();
   inline TTree* GetZDCTree          () {return m_treeZDC;}
   inline TTree* GetRPDTree          () {return m_treeRPD;}
   inline TTree* GetFiberTree          () {return m_treeFiber;}
-  
+
   inline int GetEventNo       () {return m_eventCounter;}
-  
+
   Survey* GetSurvey(std::string name);
   Alignment* GetAlignment();
-  
+
   void LoadConfigurationFile(int runNum, std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/Survey_2018.xml"));
   void LoadAlignmentFile(int runNum, std::string _inFile = std::getenv("JZCaPA") + std::string("/Utils/Alignment_2018.xml"));
-   
-   
-   
+
+
+
 private:
   TEnv*   m_config;
   TFile*  m_fout;
@@ -116,13 +116,14 @@ private:
   TTree*  m_treeRPD;
   TTree*  m_treeFiber;
   
+
   std::vector< TH1* > m_v_hists;
-  
+
   int     m_eventCounter;
 
   std::string  m_outputFileName;
   std::string  m_configFileName;
-  
+
    //XML parser
   XMLSettingsReader *m_XMLparser;
 
@@ -131,7 +132,7 @@ private:
   //Survey information for the given run
 	Survey* m_survey;
 	std::vector < Survey* > surveyEntries;
-	
+
 };
 
 /** @brief Function to add an object to the tree

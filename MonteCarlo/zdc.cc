@@ -25,8 +25,8 @@
 //
 // $Id: example.cc 86065 2014-11-07 08:51:15Z gcosmo $
 //
-/// \file example.cc
-/// \brief Main program of the  example
+///
+///
 
 #include "DetectorConstruction.hh"
 #include "ActionInitialization.hh"
@@ -67,21 +67,22 @@ int main(int argc,char** argv)
   // Choose the Random engine
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
   // Get some arguments for RunManager
-  
+
   // Aric's fix for finding config file location
   TString m_configFileName = std::getenv("JZCaPA");
   m_configFileName.Replace(m_configFileName.Length()-15,15,"/JZCaPA/MonteCarlo/config/config.cfg");
   TString cfgName = m_configFileName;
   //std::cout << "config file path = " << cfgName << std::endl;
- 
-  
+
+
   if( argc == 4 ){
     TString arg;
     arg = TString( argv[3] );
     if( arg.Contains("config") || arg.Contains("cfg") )
       cfgName = arg;
- 
+
   }
+
   std::string outputName;
   outputName = "analysis/temp.root";
   if(argc == 3) {
@@ -91,7 +92,6 @@ int main(int argc,char** argv)
       outputName = arg;
     }
   }
-
   // Create SharedData and Run Manager
   SharedData* sharedData = new SharedData( outputName, cfgName.Data() );
   sharedData->Initialize();
@@ -112,42 +112,40 @@ int main(int argc,char** argv)
   G4RunManager* runManager = new MyRunManager( sharedData );
   // Set mandatory initialization classes
   //
-  
+
   // Detector construction
   runManager->SetUserInitialization(new DetectorConstruction( sharedData ) );
-  
+
   // Physics list
   TEnv* config = sharedData->GetConfig();
   std::string physicsListName = config->GetValue("physicsList","FTFP_BERT");
-
+ std::cout << "TESTSTART" << std::endl;
   // for now passing constructors directly
   // if need to modify something (SetSomething)
   // then take it out and add via this pointer.
   //  G4VModularPhysicsList* physicsList = NULL;
   runManager->SetUserInitialization( new PhysicsList(physicsListName, sharedData));
-    
+     std::cout << "TESTEND" << std::endl;
   // User action initialization
   runManager->SetUserInitialization(new ActionInitialization(sharedData));
-  
-  // Initialize visualization
 
+  // Initialize visualization
   G4VisManager* visManager = new G4VisExecutive;
   // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
   // G4VisManager* visManager = new G4VisExecutive("Quiet");
   visManager->Initialize();
-
   // Get the pointer to the User Interface manager
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
   // Process macro or start UI session
   //
-  if ( ! ui ) { 
-  
+  if ( ! ui ) {
+
     // batch mode
     G4String command = "/control/execute ";
     G4String fileName = argv[1];
     UImanager->ApplyCommand(command+fileName);
-	
+
   }
   else {
     // interactive mode
@@ -158,12 +156,12 @@ int main(int argc,char** argv)
 
   // Job termination
   // Free the store: user actions, physics_list and detector_description are
-  // owned and deleted by the run manager, so they should not be deleted 
+  // owned and deleted by the run manager, so they should not be deleted
   // in the main() program !
   sharedData->Finalize();
-  std::cerr << "\nAbout to delete sharedData - " << sharedData << std::endl;  
+  std::cerr << "\nAbout to delete sharedData - " << sharedData << std::endl;
   // WHY THIS NOT WORKING???
-  // delete sharedData; 
+  // delete sharedData;
 
   delete visManager;
   delete runManager;
