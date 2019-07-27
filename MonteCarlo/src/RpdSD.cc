@@ -46,8 +46,8 @@
 RpdSD::RpdSD(G4String sdName, SharedData* sd, G4int modNum)
   :G4VSensitiveDetector(sdName), m_sd(sd), m_modNum(modNum) {
   collectionName.insert(sdName);
-  HCID = -1; 
-  
+  HCID = -1;
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -58,28 +58,20 @@ RpdSD::~RpdSD(){ }
 
 void RpdSD::HistInitialize(){
   std::string name = GetName();
-  /*  
-  // Add some histograms
-  h2_radNum_eDep = new TH2D( Form("h2_radNum_eDep_%s", name.c_str() ),
-				  ";rad number;eDep [keV]",
-				  14,0,14,
-				  50,0,25);
-  m_sd->AddOutputHistogram( h2_radNum_eDep );
-  */
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void RpdSD::Initialize(G4HCofThisEvent* HCE){
   rpdCollection = new RpdHitsCollection(SensitiveDetectorName,
-					      m_modNum); 
+					      m_modNum);
 
-  std::string name = collectionName[0];					    
-  
-  
+  std::string name = collectionName[0];
+
+
   if(HCID<0)
     { HCID = G4SDManager::GetSDMpointer()->GetCollectionID( name );}
-  
+
   HCE->AddHitsCollection( HCID, rpdCollection );
   G4cout << " HCID " << HCID << " name " << name << G4endl;
 }
@@ -87,14 +79,14 @@ void RpdSD::Initialize(G4HCofThisEvent* HCE){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4bool RpdSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
-	
+
 
   TEnv* config = m_sd->GetConfig();
 
   //G4int    modNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
-  
+
   G4int    modNum = 0;
-  
+
     G4int modNStripsPerGap;
 
     char variable[256];
@@ -102,28 +94,30 @@ G4bool RpdSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     m_modCoreIndexRefraction = config->GetValue( variable,1.46);
     sprintf(variable,"mod%dNStripsPerGap",6);
     modNStripsPerGap = config->GetValue(variable,16);
-    
+
 
   G4double eDep   = aStep->GetTotalEnergyDeposit();
-  
+
   G4int    totalRodNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
  // G4cout << "totalRodNum = " << totalRodNum << G4endl;
   G4int    radNum;
   G4int    rodNum;
-  
- 
+
+
     radNum = totalRodNum / modNStripsPerGap;
 	//G4cout << "radNum = " << radNum << G4endl;
     rodNum = totalRodNum % modNStripsPerGap;
 	//G4cout << "rodNum = " << rodNum << G4endl;
-  
+
   G4double energy = aStep->GetPreStepPoint()->GetTotalEnergy();
   G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentum();
   G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
   G4double charge = aStep->GetPreStepPoint()->GetCharge();
-  
 
-  int capturedPhotons = CalculateCherenkovs(aStep, modNum);
+  int capturedPhotons = 0;
+
+  if (config->GetValue("OPTICAL_ON",false) == 0){
+  capturedPhotons = CalculateCherenkovs(aStep, modNum);}
 
   RpdHit* newHit = new RpdHit();
 
@@ -131,7 +125,7 @@ G4bool RpdSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   newHit->setTrackID       (aStep->GetTrack()->GetTrackID() );
   newHit->setModNb         (modNum );
   newHit->setRadNb         (radNum );
-  newHit->setRodNb         (rodNum );  
+  newHit->setRodNb         (rodNum );
   newHit->setEdep          (eDep );
   newHit->setPos           (aStep->GetPostStepPoint()->GetPosition() );
   newHit->setParticle      (particle);
@@ -146,51 +140,51 @@ G4bool RpdSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int RpdSD::CalculateCherenkovs(G4Step* aStep,__attribute__((unused)) int modNum) {
- 
-	
+
+
   const G4DynamicParticle* aParticle = aStep->GetTrack()->GetDynamicParticle();
   const G4double           charge    = aParticle->GetDefinition()->GetPDGCharge();
   //  LogStream<<MSG::INFO<<"ZDC stripCharge "<< charge << endreq;
 
-  
+
   if (charge==0) { return false; }
 
   const G4StepPoint*       pPreStepPoint  = aStep->GetPreStepPoint();
   const G4StepPoint*       pPostStepPoint = aStep->GetPostStepPoint();
   const G4double           beta           = (pPreStepPoint ->GetBeta() + pPostStepPoint->GetBeta())/2.;
- 
+
   if (beta==0) { return false; }
 
-  TEnv* config = m_sd->GetConfig();  
-  
+  TEnv* config = m_sd->GetConfig();
+
   G4double minWavelength     = config->GetValue("cherenkovMinWavelength",250) * CLHEP::nanometer ;
   G4double maxWavelength     = config->GetValue("cherenkovMaxWavelength",600) * CLHEP::nanometer ;
   G4double inverseWLDiff     = (1./minWavelength) - (1./maxWavelength);
 
 
   const float step_length(aStep->GetStepLength());
-  
+
   G4double MeanNumberOfPhotons = 2*TMath::Pi()*(1./137.)*step_length*inverseWLDiff*(charge)*(charge)*(1.0 - 1.0/(beta*m_modCoreIndexRefraction*beta*m_modCoreIndexRefraction));
- 
+
   if (MeanNumberOfPhotons <= 0.0) { return false; }
   //  std::cout << " n photons " << MeanNumberOfPhotons << std::endl;
 
 
   const G4int NumPhotons = (G4int)G4Poisson(MeanNumberOfPhotons);
 
-  if (NumPhotons <= 0) { return false; }  
+  if (NumPhotons <= 0) { return false; }
 
     const G4ThreeVector pos = pPreStepPoint->GetPosition();
   //  float yPos              = pos.y();
   const G4ThreeVector p0  = aStep->GetDeltaPosition().unit();
 
   const float BetaInverse = 1./beta;
- 
+
   float coreIndexRefraction;
   float claddingIndexRefraction;
   std::string modCladding;
   bool cladding;
-  
+
     char name[256];
     sprintf(name,"mod%dCoreIndexRefraction",6);
     coreIndexRefraction = config->GetValue(name,1.46) ;
@@ -199,8 +193,8 @@ int RpdSD::CalculateCherenkovs(G4Step* aStep,__attribute__((unused)) int modNum)
     sprintf(name,"mod%dCladding",6);
     modCladding = config->GetValue(name,"true") ;
     cladding = modCladding == "true" ? true : false;
-    if (!cladding) claddingIndexRefraction = 1.; 
-  
+    if (!cladding) claddingIndexRefraction = 1.;
+
 
   float criticalAngle = asin(claddingIndexRefraction/coreIndexRefraction);
   //  std::cout << " mod " << modNum  <<" core n " << coreIndexRefraction <<  " cladding n " << claddingIndexRefraction << " critical angle " << criticalAngle << std::endl;
@@ -214,7 +208,7 @@ int RpdSD::CalculateCherenkovs(G4Step* aStep,__attribute__((unused)) int modNum)
     // sample an energy for Photon
     rand = G4UniformRand();
     // sampledEnergy = Pmin + rand * dp;
-    
+
     cosTheta  = BetaInverse / coreIndexRefraction;
     sin2Theta = (1.0 - cosTheta)*(1.0 + cosTheta);
 
@@ -242,7 +236,7 @@ int RpdSD::CalculateCherenkovs(G4Step* aStep,__attribute__((unused)) int modNum)
     else {
       const float Theta = M_PI/2.0-atan(PT/PY);
       if (Theta < criticalAngle) Transmission = 0;
-      else Transmission=1.0;       
+      else Transmission=1.0;
     }
     if (Transmission == 1.0) ++photonCount;
   }
@@ -259,7 +253,7 @@ void RpdSD::EndOfEvent(G4HCofThisEvent*)
   /*
   if(verboseLevel>0) {
       std::cout << " if verbose loop" << std::endl;
-      std::cout << "\n-------->Hits Collection: in this event they are " << NbHits 
+      std::cout << "\n-------->Hits Collection: in this event they are " << NbHits
 		<< " hits in the calorimeter cells: " << std::endl;
       for (G4int i=0;i<NbHits;i++) {
 	if (i %100 == 0) std::cout << " i " << i << std::endl;
@@ -271,4 +265,3 @@ void RpdSD::EndOfEvent(G4HCofThisEvent*)
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-

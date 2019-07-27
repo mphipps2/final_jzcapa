@@ -43,8 +43,8 @@ EventAction::EventAction(RunAction* runAction)
   fRunAction(runAction)
 {
   hitsCollID = -1;
-  
-} 
+
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -70,23 +70,23 @@ void EventAction::EndOfEventAction(const G4Event* evt)
   G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
   QuartzHitsCollection* HC = 0;
   G4int nCollections =  HCE->GetNumberOfCollections();
-  
-  
+
+
  //////////// NEED TO KNOW ORDER OF DETECTORS TO ASSIGN CORRECT HITCOLLECTION ////////////
 	std::string detector[3];
-	__attribute__((unused)) int ZDC1=-1; 
+	__attribute__((unused)) int ZDC1=-1;
 	__attribute__((unused)) int ZDC2=-1;
 	__attribute__((unused)) int RPD=-1;
-	
+
 	bool bzdc1flag=false;
 	bool bzdc2flag=false;
 	bool brpdflag=false;
-	
-	
+
+
     TEnv* config = fRunAction->GetSharedData()->GetConfig();
 	int runNum = config->GetValue( "RunNumber", -1);
 	fRunAction->GetSharedData()->LoadAlignmentFile(runNum);
-	
+
 	Alignment	*align_run 	= fRunAction->GetSharedData()->GetAlignment();
 
 	detector[0]=align_run->upstream_Det;
@@ -123,9 +123,9 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 		else if(!bzdc1flag && bzdc2flag){
 		RPD=1;
 		}
-		else RPD=0;	
+		else RPD=0;
 	}
-	
+
   /////////////////////////////////////////////////////////////////////////
   
   int totalPhotons = 0;
@@ -139,24 +139,24 @@ void EventAction::EndOfEventAction(const G4Event* evt)
       int prevRadiatorNo = 0;
       std::cout  << " hitsCollId " << hitsCollID << " nHits " << n_hit << std::endl;
       for ( int i = 0 ; i < n_hit; i++){
-     
-        G4int         radiatorNo  = (*HC)[i]->getRadNb();
-		G4int         rodNo  = (*HC)[i]->getRodNb();
-        G4double      eDep =  (*HC)[i]->getEdep();
-        G4int         modNb =  (*HC)[i]->getModNb();
-        G4int         trackID =  (*HC)[i]->getTrackID();
-        G4ThreeVector position = (*HC)[i]->getPos();
-        G4ThreeVector momentum = (*HC)[i]->getMomentum();
-        G4double      energy   = (*HC)[i]->getEnergy();
-        G4int         pid      = (*HC)[i]->getParticle()->GetPDGEncoding();
-		G4int         nCherenkovs = (*HC)[i]->getNCherenkovs();
-        G4double      charge   = (*HC)[i]->getCharge();
-        G4double      velocity   = (*HC)[i]->getVelocity();
-        G4double      beta   = (*HC)[i]->getBeta();
-      
+
+        G4int         radiatorNo    = (*HC)[i]->getRadNb();
+		    G4int         rodNo         = (*HC)[i]->getRodNb();
+        G4double      eDep          = (*HC)[i]->getEdep();
+        G4int         modNb         = (*HC)[i]->getModNb();
+        G4int         trackID       = (*HC)[i]->getTrackID();
+        G4ThreeVector position      = (*HC)[i]->getPos();
+        G4ThreeVector momentum      = (*HC)[i]->getMomentum();
+        G4double      energy        = (*HC)[i]->getEnergy();
+        G4int         pid           = (*HC)[i]->getParticle()->GetPDGEncoding();
+		    G4int         nCherenkovs   = (*HC)[i]->getNCherenkovs();
+        G4double      charge        = (*HC)[i]->getCharge();
+        G4double      velocity      = (*HC)[i]->getVelocity();
+        G4double      beta          = (*HC)[i]->getBeta();
+
         //Add energy from every step in scoring volume as well as every particle
 	if (trackID != prevTrackId || radiatorNo != prevRadiatorNo || eDep != 0) {
-		
+
 	  if(IDholder==RPD){ //corresponds to the RPD hitsCollID
 	  fRunAction->SetRadNo_rpd(radiatorNo);
 	  fRunAction->SetRodNo_rpd(rodNo);
@@ -164,7 +164,7 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	  fRunAction->SetEdep_rpd(eDep);
 	  fRunAction->SetModNb_rpd(modNb);
 	  fRunAction->SetTrackID_rpd(trackID);
-	  fRunAction->SetPosition_rpd(position);	 
+	  fRunAction->SetPosition_rpd(position);
 	  fRunAction->SetMomentum_rpd(momentum);
 	  fRunAction->SetEnergy_rpd(energy);
 	  fRunAction->SetPid_rpd(pid);
@@ -179,7 +179,7 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	  fRunAction->SetEdep_fiber(eDep);
 	  fRunAction->SetModNb_fiber(modNb);
 	  fRunAction->SetTrackID_fiber(trackID);
-	  fRunAction->SetPosition_fiber(position);	 
+	  fRunAction->SetPosition_fiber(position);
 	  fRunAction->SetMomentum_fiber(momentum);
 	  fRunAction->SetEnergy_fiber(energy);
 	  fRunAction->SetPid_fiber(pid);
@@ -188,14 +188,14 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	  fRunAction->SetVelocity_fiber(velocity);
 	  fRunAction->SetBeta_fiber(beta);}
 	  else if(IDholder==ZDC1 || IDholder==ZDC2 ){//ZDC hitsCollID
-	  totalPhotons += nCherenkovs; 
+	  totalPhotons += nCherenkovs;
 	  fRunAction->SetRadNo(radiatorNo);
 	  fRunAction->SetRodNo(rodNo);
 	  fRunAction->SetNCherenkovs(nCherenkovs);
 	  fRunAction->SetEdep(eDep);
 	  fRunAction->SetModNb(modNb);
 	  fRunAction->SetTrackID(trackID);
-	  fRunAction->SetPosition(position);	 
+	  fRunAction->SetPosition(position);
 	  fRunAction->SetMomentum(momentum);
 	  fRunAction->SetEnergy(energy);
 	  fRunAction->SetPid(pid);
@@ -211,9 +211,9 @@ void EventAction::EndOfEventAction(const G4Event* evt)
     }
 
 	fRunAction->GetSharedData()->GetRPDTree()->Fill();
-	
+
 	fRunAction->GetSharedData()->GetZDCTree()->Fill();
-	
+
 	fRunAction->GetSharedData()->GetFiberTree()->Fill();
 
   }

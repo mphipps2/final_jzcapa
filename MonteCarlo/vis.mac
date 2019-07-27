@@ -1,10 +1,10 @@
-# Macro file for the visualization setting in the initialization phase 
+# Macro file for the visualization setting in the initialization phase
 # of the B1 example when running in interactive mode
 #
 
 # Use these open statements to open selected visualization
 #
-# Use this open statement to create an OpenGL view -- default I usually use: 
+# Use this open statement to create an OpenGL view -- default I usually use:
 /vis/open OGL 600x600-0+0
 #
 # Use this open statement to create an OpenInventor view:
@@ -38,13 +38,13 @@
 /vis/viewer/set/lightsVector -1 0 0
 #
 # Specify style (surface, wireframe, auxiliary edges,...)
-/vis/viewer/set/style wireframe
+/vis/viewer/set/style surface
 /vis/viewer/set/auxiliaryEdge true
 /vis/viewer/set/lineSegmentsPerCircle 100
 
 #/vis/viewer/set/style surface
-#/vis/viewer/addCutawayPlane 0 0 0 m 1 0 0	
-#/vis/viewer/addCutawayPlane 0 0 0 m 0 1 0	
+#/vis/viewer/addCutawayPlane 0 0 0 m 1 0 0
+#/vis/viewer/addCutawayPlane 0 0 0 m 0 1 0
 #
 # Draw smooth trajectories at end of event, showing trajectory points
 # as markers 2 pixels wide:
@@ -55,21 +55,21 @@
 # (if too many tracks cause core dump => /tracking/storeTrajectory 0)
 #
 # Draw hits at end of event:
-#/vis/scene/add/hits
+/vis/scene/add/hits
 #
 
-/vis/filtering/trajectories/create/chargeFilter
-/vis/filtering/trajectories/chargeFilter-0/add 1
-/vis/filtering/trajectories/chargeFilter-0/invert true
+#/vis/filtering/trajectories/create/chargeFilter
+#/vis/filtering/trajectories/chargeFilter-0/add 1
+#/vis/filtering/trajectories/chargeFilter-0/invert true
 
 # To draw only gammas:
 /vis/filtering/trajectories/create/particleFilter
 /vis/filtering/trajectories/particleFilter-0/add opticalphoton
-/vis/filtering/trajectories/particleFilter-0/add e-
-/vis/filtering/trajectories/particleFilter-0/add e+
-/vis/filtering/trajectories/particleFilter-0/add proton
-/vis/filtering/trajectories/particleFilter-0/add alpha
-/vis/filtering/trajectories/particleFilter-0/add GenericIon
+#/vis/filtering/trajectories/particleFilter-0/add e-
+#/vis/filtering/trajectories/particleFilter-0/add e+
+#/vis/filtering/trajectories/particleFilter-0/add proton
+#/vis/filtering/trajectories/particleFilter-0/add alpha
+#/vis/filtering/trajectories/particleFilter-0/add GenericIon
 #/vis/filtering/trajectories/particleFilter-0/add gamma
 
 #
@@ -126,9 +126,11 @@
 #
 #
 # To get nice view
-/vis/geometry/set/visibility World 0 true
+/vis/geometry/set/visibility World 0 false
 /vis/viewer/set/hiddenMarker true
-#/vis/viewer/set/viewpointThetaPhi 180 180
+
+#/vis/viewer/set/viewpointThetaPhi 90 180
+#/vis/viewer/set/viewpointThetaPhi 90 90
 /vis/viewer/set/viewpointThetaPhi 45 45
 /vis/viewer/zoom 2
 #
@@ -138,4 +140,3 @@
 #
 # For file-based drivers, use this to create an empty detector view:
 #/vis/viewer/flush
-

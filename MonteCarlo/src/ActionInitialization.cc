@@ -61,11 +61,11 @@ void ActionInitialization::Build() const
 
   RunAction* runAction = new RunAction(fSharedData);
   SetUserAction(runAction);
-  
+
   EventAction* eventAction = new EventAction(runAction);
   SetUserAction(eventAction);
-  
-  SetUserAction(new SteppingAction(eventAction));
-}  
+
+  SetUserAction(new SteppingAction(eventAction,fSharedData));
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

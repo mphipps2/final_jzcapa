@@ -82,14 +82,14 @@
 DetectorConstruction::DetectorConstruction()
   : G4VUserDetectorConstruction(), m_sd(NULL),
     m_solidWorld(NULL), m_logicWorld(NULL), m_physWorld(NULL)
-{}
+{materials = Materials::getInstance();}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::DetectorConstruction( SharedData* sd )
-  : G4VUserDetectorConstruction(), m_sd( sd ), 
+  : G4VUserDetectorConstruction(), m_sd( sd ),
     m_solidWorld(NULL), m_logicWorld(NULL), m_physWorld(NULL)
-{}
+{materials = Materials::getInstance();}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -124,80 +124,80 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 	TEnv* config = m_sd->GetConfig();
 	int ZDC_SETUP = config->GetValue("ZDC_SETUP", 0);
 	int runNum = config->GetValue( "RunNumber", -1);
-	
+
 	m_sd->LoadConfigurationFile(runNum);
 	m_sd->LoadAlignmentFile(runNum);
 
 	// Create variables to be used in beamtest 2018 simulation
-	
+
 	G4ThreeVector zdc1Pos,zdc2Pos, rpdPos;
-	bool 		mag_on = false, targ_in = false, lead_in = false, 
+	bool 		mag_on = false, targ_in = false, lead_in = false,
 				ZDC1 = false, ZDC2 = false, RPD = false;
 	G4double 	mag_zOffset=0, density=0, fractionmass=0, leadblockZ=0, worldZoffset=16000*mm,
 				zdc1X=0,zdc1Y=0,zdc1Z=0,zdc2X=0,zdc2Y=0,zdc2Z=0,rpdX=0,rpdY=0,rpdZ=0,
 				tableX_shift=0, tableY_shift=0;
 	std::string detector[3];
-	G4int   	ncomponents;  
-	Survey		*srvy_zdc1 = m_sd->GetSurvey("ZDC1"), 
-				*srvy_zdc2 = m_sd->GetSurvey("ZDC2"), 
+	G4int   	ncomponents;
+	Survey		*srvy_zdc1 = m_sd->GetSurvey("ZDC1"),
+				*srvy_zdc2 = m_sd->GetSurvey("ZDC2"),
 				*srvy_rpd = m_sd->GetSurvey("RPD");;
 	Alignment	*align_run 	= m_sd->GetAlignment();
 
 	//################################ SURVEY/ALIGNMENT_SETUP
 	if(ZDC_SETUP == 1){
-	
+
 	//table(-2250,500) -> rpd/beam(0,0)	where 100=0.1cm in table coordinates
 	//-320mm is offset to get from zdc mid to active area mid
 	tableX_shift = (-2257.0 - (align_run->x_table)  )/100*mm ;
 	tableY_shift = (501.0   - (align_run->y_table)  )/100*mm ;
-		
-	rpdX  = (srvy_rpd ->x_pos)   *1000.0			 					*mm;	
+
+	rpdX  = (srvy_rpd ->x_pos)   *1000.0			 					*mm;
 	zdc1X = (( (srvy_zdc1->x_pos)*1000.0 ) - rpdX + tableX_shift    )	*mm;
 	zdc2X = (( (srvy_zdc2->x_pos)*1000.0 ) - rpdX + tableX_shift	)	*mm;
 	rpdX  =  tableX_shift;
-		
-	rpdY  = (srvy_rpd ->y_pos)   *1000.0								*mm;	
+
+	rpdY  = (srvy_rpd ->y_pos)   *1000.0								*mm;
 	zdc1Y = (( (srvy_zdc1->y_pos)*1000.0 ) - 320 - rpdY + tableY_shift)	*mm;
 	zdc2Y = (( (srvy_zdc2->y_pos)*1000.0 ) - 320 - rpdY + tableY_shift)	*mm;
 	rpdY  =  tableY_shift;
-	
+
 	rpdZ  = (( (srvy_rpd ->z_pos)*1000.0 ) -(worldZoffset) )*mm;
 	zdc1Z = (( (srvy_zdc1->z_pos)*1000.0 ) -(worldZoffset) )*mm;
 	zdc2Z = (( (srvy_zdc2->z_pos)*1000.0 ) -(worldZoffset) )*mm;
-	
-	 
+
+
 	std::string forcedet = config->GetValue("ForceDetectorPosition", "NO");
-	
-	
+
+
 	if( std::strcmp(forcedet.c_str(), "YES") == 0){
-			 
-			std::cout << "******************************************" 
-			<< std::endl << "        PLACING DETECTORS MANUALLY" << std::endl 
+
+			std::cout << "******************************************"
+			<< std::endl << "        PLACING DETECTORS MANUALLY" << std::endl
 			<< "******************************************" << std::endl;
-			
+
 		rpdX	= ( config->GetValue("RPDx", 0) )*mm;
 		rpdY 	= ( config->GetValue("RPDy", 0) )*mm;
 		rpdZ 	= ( config->GetValue("RPDz", 0) )*mm;
-		 
+
 		zdc1X 	= ( config->GetValue("ZDC1x", 0) )*mm;
 		zdc1Y 	= ( config->GetValue("ZDC1y", 0) )*mm;
 		zdc1Z 	= ( config->GetValue("ZDC1z", 0) )*mm;
-		
+
 		zdc2X 	= ( config->GetValue("ZDC2x", 0) )*mm;
 		zdc2Y 	= ( config->GetValue("ZDC2y", 0) )*mm;
 		zdc2Z 	= ( config->GetValue("ZDC2z", 0) )*mm;
 	}
-	 
-	
-	zdc1Pos = G4ThreeVector( zdc1X, zdc1Y, zdc1Z); 
+
+
+	zdc1Pos = G4ThreeVector( zdc1X, zdc1Y, zdc1Z);
 	zdc2Pos = G4ThreeVector( zdc2X, zdc2Y, zdc2Z);
 	rpdPos 	= G4ThreeVector( rpdX , rpdY , rpdZ );
-  
-	
+
+
 	detector[0]=align_run->upstream_Det;
 	detector[1]=align_run->mid_Det;
 	detector[2]=align_run->downstream_Det;
-	
+
 	for(int i=0; i<3; i++){
 		if(detector[i]=="ZDC1") {
 			ZDC1 = true;
@@ -209,40 +209,40 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 			RPD = true;
 		}
 	}
-	
+
 	// Assign lead block position in mm, place approx 1 ft in front of ZDC1
 	// half ZDC Z width = 90mm
 	// 1ft ~ 300mm
-	leadblockZ = ( zdc1Z - 90 - 300)*mm; 
-	
-	
+	leadblockZ = ( zdc1Z - 90 - 300)*mm;
+
+
 	targ_in =  	align_run->target_In;
 	mag_on 	= 	align_run->magnet_On;
 	lead_in = 	align_run->lead_In;
 	}
 	//################################ SURVEY/ALIGNMENT_END
-	
-	
+
+
   G4NistManager* nist = G4NistManager::Instance();
-		
+
 		G4Element* Pb = nist->FindOrBuildElement(82);
 		G4Material* Lead = new G4Material("Lead", density= 11.35*g/cm3, ncomponents=1);
-		Lead->AddElement(Pb, fractionmass=1.0);  
-	
+		Lead->AddElement(Pb, fractionmass=1.0);
+
   // Get nist material manager
   // G4NistManager* nist = G4NistManager::Instance();
 
-  //----------------------------------------------     
+  //----------------------------------------------
   // Set Some Values
   //----------------------------------------------
   G4double modSizeX[5]; G4double modSizeY[5]; G4double modSizeZ[5]; G4double modCasingThickness[5]; G4double modWidth[5]; G4String modAbsorberMat[5]; G4double modAbsorberThickness[5]; G4double modAbsorberHeight[5]; G4double modAbsorberWidth[5]; G4double modCoreDiameter[5]; G4double modCladdingThickness[5]; G4int modNRadiators[5]; G4int modNAbsorbers[5]; G4int modType[5]; bool cladding[5]; G4double modRadiatorGapLength[5]; G4double stripPitch[5]; G4int modNStripsPerGap[5];
-  
+
   G4int    nModules            = config->GetValue( "nModules",2);
   modType[0]            = config->GetValue( "mod1Type",5);
   modType[1]            = config->GetValue( "mod2Type",5);
   modType[2]            = config->GetValue( "mod3Type",3);
   modType[3]            = config->GetValue( "mod4Type",3);
-  modType[4]            = config->GetValue( "mod5Type",3);    
+  modType[4]            = config->GetValue( "mod5Type",3);
   //  std::cout << " nMods " << nModules << " modtype1 " << modType[0] << " mod2 " << modType[1] << " mod3 " << modType[2] << " mod4 " << modType[3] << std::endl;
   // Calculate modSizeX, Y and Z for each mod. Mod size includes casings
   // In custom case, this is calculated by adding constituent lengths
@@ -284,7 +284,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
       modSizeX[i] = modWidth[i] + 2*modCasingThickness[i];
       modSizeY[i] = 2*modCasingThickness[i]+modAbsorberHeight[i];
       modSizeZ[i] = 2*modCasingThickness[i]+modNRadiators[i]*modRadiatorGapLength[i] + modNAbsorbers[i]*modAbsorberThickness[i];
-      
+
     }
 	if(ZDC_SETUP==1){
 		if (modType[i] == 5) {
@@ -323,7 +323,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 		modSizeX[i] = modWidth[i] + 2*modCasingThickness[i];
 		modSizeY[i] = 2*modCasingThickness[i]+modAbsorberHeight[i];
 		modSizeZ[i] = 2*modCasingThickness[i]+modNRadiators[i]*modRadiatorGapLength[i] + modNAbsorbers[i]*modAbsorberThickness[i];
-      
+
 		}
 	}
     else {
@@ -333,15 +333,15 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
     }
   }
 
-  
+
   // Option to switch on/off checking of volumes overlaps
   //
   bool checkOverlaps = false;
-  
-  //----------------------------------------------     
+
+  //----------------------------------------------
   // World
   //----------------------------------------------
-  G4double maxModSizeX = 0; 
+  G4double maxModSizeX = 0;
   G4double maxModSizeY = 0;
   G4double totalModSizeZ = 0;
   for (int i = 0; i < nModules; ++i) {
@@ -354,35 +354,43 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
   G4double worldSizeX       = 1.1 * maxModSizeX * mm;    	// mm //1.1
   G4double worldSizeY       = 1.1 * maxModSizeY * mm;    	// mm //1.1
   G4double worldSizeZ       = 1.2 * totalModSizeZ * mm; 	//was 1.2
-  
-   
+
+
    if(ZDC_SETUP==1){
 		worldSizeZ= 32000*mm;
-		//worldZoffset=(worldSizeZ/2)*mm;
-		//320mm is offset to get from zdc mid to active area mid
 		if( std::abs(zdc1X) < std::abs(zdc2X) ) worldSizeX = 1.1 * 2 * ( std::abs(zdc2X)+ maxModSizeX/2 ) * mm;
 		else  															worldSizeX = 1.1 * 2 * ( std::abs(zdc1X) + maxModSizeX/2 ) * mm;
-		if( std::abs(zdc1Y) < std::abs(zdc2Y) ) worldSizeY = 1.1 * 2 * ( std::abs(zdc2Y) + maxModSizeY/2  ) * mm; 
+		if( std::abs(zdc1Y) < std::abs(zdc2Y) ) worldSizeY = 1.1 * 2 * ( std::abs(zdc2Y) + maxModSizeY/2  ) * mm;
 		else  															worldSizeY = 1.1 * 2 * ( std::abs(zdc1Y)+ maxModSizeY/2  ) * mm;
+        if(!ZDC1 && !ZDC2) {
+          worldSizeX = 1.1 * 2 * ( std::abs(rpdX)+ maxModSizeX/2 ) * mm;
+          worldSizeY = 1.1 * 2 * ( std::abs(rpdY) + maxModSizeY/2  ) * mm;
+        }
    }
 
   G4Material* g4Air = nist->FindOrBuildMaterial("G4_AIR");
-  
+
+  //Air
+  if (config->GetValue("OPTICAL_ON",false) == 1){
+  materials->UseOpticalMaterials(true); //set this an an option later ARIC!
+  materials->DefineOpticalProperties();
+  g4Air = materials->Air;}
+
   printf( "Building world with x %5.1f y %5.1f z %5.1f\n",
 	  worldSizeX, worldSizeY, worldSizeZ );
-  
-  m_solidWorld =    
+
+  m_solidWorld =
     new G4Box("World",              //its name
 	      0.5*worldSizeX,       //its size
 	      0.5*worldSizeY,
-	      0.5*worldSizeZ );   
-  
-  m_logicWorld =                         
+	      0.5*worldSizeZ );
+
+  m_logicWorld =
     new G4LogicalVolume(m_solidWorld,     //its solid
                         g4Air,            //its material
                         "World");         //its name
-                                   
-  m_physWorld = 
+
+  m_physWorld =
     new G4PVPlacement(0,                  //no rotation
                       G4ThreeVector(),    //at (0,0,0)
                       m_logicWorld,       //its logical volume
@@ -391,19 +399,19 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
                       false,              //no boolean operation
                       0,                  //copy number
                       checkOverlaps);     //overlaps checking
-  
-  
-  G4VisAttributes* boxVisAtt_world= new G4VisAttributes(G4Colour(0.5,0.5,0.5)); 
+
+
+  G4VisAttributes* boxVisAtt_world= new G4VisAttributes(G4Colour(0.5,0.5,0.5));
 
 		m_logicWorld ->SetVisAttributes(boxVisAtt_world);
-  //----------------------------------------------     
+  //----------------------------------------------
   // Build ZDC Setup
   //----------------------------------------------
     // air spacing between modules
   G4double dZ = 10 * mm;
 
   G4double zCoord = (totalModSizeZ / 2) + ((dZ*(nModules-1))/2) - modSizeZ[0]/2;
-  //  std::cout << " zCoord " << zCoord << " dZ " << dZ << std::endl;  
+  //  std::cout << " zCoord " << zCoord << " dZ " << dZ << std::endl;
   for(int i=0; i < nModules; ++i) {
     G4ThreeVector globalPos = G4ThreeVector(0, 0, zCoord ); // 1 cm b/w modules
     if (modType[i] == 1) {
@@ -425,16 +433,16 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
     if (i != nModules - 1) zCoord -= ( modSizeZ[i]/2 + modSizeZ[i+1]/2 + dZ );
     //    std::cout << " z coord " << zCoord << " incremented by " << modSizeZ[i]/2 + modSizeZ[i+1]/2 + dZ  << std::endl;
   }
-  
-  
+
+
   if(ZDC_SETUP==1){
 
-	  
-	  
-	  ModTypeZDC *mod1 = new ModTypeZDC(0,zdc1Pos,m_logicWorld,m_sd); 
-	  ModTypeZDC *mod2 = new ModTypeZDC(1,zdc2Pos,m_logicWorld,m_sd); 
-	  ModTypeRPD *mod3 = new ModTypeRPD(0,rpdPos, m_logicWorld,m_sd); 
-	  
+
+
+	  ModTypeZDC *mod1 = new ModTypeZDC(0,zdc1Pos,m_logicWorld,m_sd);
+	  ModTypeZDC *mod2 = new ModTypeZDC(1,zdc2Pos,m_logicWorld,m_sd);
+	  ModTypeRPD *mod3 = new ModTypeRPD(0,rpdPos, m_logicWorld,m_sd);
+
 	 if(ZDC1){ mod1->Construct();
 		  std::cout << "ZDC1 center = " << "(" << zdc1Pos.getX() << ", " << zdc1Pos.getY() << ", " << zdc1Pos.getZ() << ")" << std::endl;
 	 }
@@ -444,19 +452,19 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 	 if(RPD){  mod3->Construct();
 	 	  std::cout << "RPD center = " << "(" << rpdPos.getX()  << ", " << rpdPos.getY()  << ", " << rpdPos.getZ()  << ")" << std::endl;
 	 }
-		
-	  
+
+
 		// Setup magnetic field
 	if( mag_on )
     {
 		mag_zOffset=-9.55*m;
-		//Field grid in A9.TABLE. File must be accessible from run directory. 
+		//Field grid in A9.TABLE. File must be accessible from run directory.
 		G4MagneticField* PurgMagField= new PurgMagTabulatedField3D((std::getenv("JZCaPA") + std::string("/Utils/PurgMag3D.TABLE")).c_str(), mag_zOffset+(worldZoffset/1000.0));
 		fField.Put(PurgMagField);
-      
+
 		//This is thread-local
 		G4FieldManager* pFieldMgr = G4TransportationManager::GetTransportationManager()->GetFieldManager();
-           
+
 		//G4cout<< "DeltaStep "<<pFieldMgr->GetDeltaOneStep()/mm <<"mm" <<endl;
 		//G4ChordFinder *pChordFinder = new G4ChordFinder(PurgMagField);
 
@@ -466,12 +474,12 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 		// Setup lead target
    if( targ_in ){
 		G4Box* leadTarget = new G4Box("Target",5*cm, 5*cm, 1.3*cm);
-    
+
 		logic_leadTarget
 		= new G4LogicalVolume(leadTarget,
                           Lead,
                           "LeadTarget");
-    
+
 		new G4PVPlacement(0,
                       G4ThreeVector(0.0, 0.0, (2600-worldZoffset)*mm),
                       logic_leadTarget,
@@ -484,16 +492,16 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 		// Visualization attributes
 		G4VisAttributes* boxVisAtt_lead= new G4VisAttributes(G4Colour(1.0,0.0,1.0)); //magenta
 		logic_leadTarget ->SetVisAttributes(boxVisAtt_lead);
-		
+
    }
-	if( lead_in ){  
+	if( lead_in ){
 		G4Box* leadBlock = new G4Box("LeadBlock",(0.5*worldSizeX)*mm, (0.5*150)*mm, 10*cm);
-    
+
 		logic_leadBlock
 		= new G4LogicalVolume(leadBlock,
                           Lead,
                           "LeadBlock");
-    
+
 		new G4PVPlacement(0,
                       G4ThreeVector(0.0, 0.0, (leadblockZ)*mm),
                       logic_leadBlock,
@@ -508,8 +516,8 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 		logic_leadBlock ->SetVisAttributes(boxVisAtt_leadblk);
 		cout << "Placed Lead Block at Z = " << leadblockZ*mm << "mm" <<  std::endl;
 	}
-	  
+
   }//END_ZDC_SETUP
-  
+
   return m_physWorld;
 }

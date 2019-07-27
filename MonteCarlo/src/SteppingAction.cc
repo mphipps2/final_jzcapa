@@ -35,13 +35,19 @@
 #include "G4Event.hh"
 #include "G4RunManager.hh"
 #include "g4root.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleTypes.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-SteppingAction::SteppingAction(EventAction* eventAction)
+SteppingAction::SteppingAction(EventAction* eventAction, SharedData* _sd)
 : G4UserSteppingAction(),
-  fEventAction(eventAction)
-{}
+  fEventAction(eventAction){
+  m_sd = _sd;
+
+  m_sd->AddOutputToRPDTree("LastStepInVolume", &lastStep);
+
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -52,29 +58,22 @@ SteppingAction::~SteppingAction()
 
 void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* theStep  )
 {
-	/*
-	if(NeutDeath){//NEUTRON DEATH TRACKING 
 	G4Track* theTrack = theStep->GetTrack();
 
 	if(theTrack->GetParentID()==0 && theStep->IsLastStepInVolume()){
-		
-		G4int eID = 0;
-		const G4Event* evt = G4RunManager::GetRunManager()->GetCurrentEvent();
-		if(evt) eID = evt->GetEventID();
-		//G4cout 	<< "***************** track position =  " << theTrack->GetPosition().getZ()  << G4endl 
-		//		<< "***************** eventid		 =  " << eID << G4endl;
-		
-		auto analysisManager = G4AnalysisManager::Instance();
-		
-		analysisManager->FillNtupleDColumn(0, theTrack->GetPosition().getZ());
-		analysisManager->FillNtupleDColumn(1, eID);
-		analysisManager->AddNtupleRow(); 
-		
+		lastStep = theTrack->GetPosition().getZ();
 		}
-	}
-	*/
-	
+
+  G4StepPoint* thePostPoint = theStep->GetPostStepPoint();
+  G4StepPoint* thePrePoint = theStep->GetPreStepPoint();
+  G4VPhysicalVolume* thePostPV = thePostPoint->GetPhysicalVolume();
+  G4VPhysicalVolume* thePrePV = thePrePoint->GetPhysicalVolume();
+  G4ParticleDefinition* particleType = theTrack->GetDefinition();
+  if(particleType==G4OpticalPhoton::OpticalPhotonDefinition() && thePostPV != NULL){
+      if( ( strncmp("ph",thePrePV->GetName().c_str(), 2) == 0) ){
+          //std::cout << theTrack->GetParticleDefinition()->GetParticleName() << std::endl;
+          theTrack->SetTrackStatus(fStopAndKill);
+      }
+  }
 }
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-

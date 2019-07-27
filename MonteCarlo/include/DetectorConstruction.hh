@@ -42,6 +42,7 @@
 #include "G4Cache.hh"
 #include "G4MagneticField.hh"
 #include <vector>
+#include "Materials.hh"
 
 class G4Box;
 class G4Para;
@@ -62,16 +63,17 @@ public:
   DetectorConstruction();
   DetectorConstruction( SharedData* );
   virtual ~DetectorConstruction();
-  
+
   virtual G4VPhysicalVolume* Construct();
 
   virtual void               DefineBorderProperties();
 
   virtual G4VPhysicalVolume* ConstructDetector();
- 
+
 protected:
   SharedData*        m_sd;
-  
+  Materials*          materials;
+
 protected:
   G4Box*               m_solidWorld;
   G4LogicalVolume*     m_logicWorld;
@@ -81,10 +83,9 @@ protected:
 
 private:
 	G4Cache<G4MagneticField*> fField;  //pointer to the thread-local fields
-  
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
-
