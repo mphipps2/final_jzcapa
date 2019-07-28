@@ -46,8 +46,8 @@
 QuartzSD::QuartzSD(G4String sdName, SharedData* sd, G4int modNum)
   :G4VSensitiveDetector(sdName), m_sd(sd), m_modNum(modNum) {
   collectionName.insert(sdName);
-  HCID = -1; 
-  
+  HCID = -1;
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -58,29 +58,21 @@ QuartzSD::~QuartzSD(){ }
 
 void QuartzSD::HistInitialize(){
   std::string name = GetName();
-  /*  
-  // Add some histograms
-  h2_radNum_eDep = new TH2D( Form("h2_radNum_eDep_%s", name.c_str() ),
-				  ";rad number;eDep [keV]",
-				  14,0,14,
-				  50,0,25);
-  m_sd->AddOutputHistogram( h2_radNum_eDep );
-  */
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void QuartzSD::Initialize(G4HCofThisEvent* HCE){
   quartzCollection = new QuartzHitsCollection(SensitiveDetectorName,
-					      m_modNum); 
+					      m_modNum);
 
-  std::string name = collectionName[0];					    
-  
+  std::string name = collectionName[0];
+
   //  static G4int HCID = -1;
-  
+
   if(HCID<0)
     { HCID = G4SDManager::GetSDMpointer()->GetCollectionID( name );}
-  
+
   HCE->AddHitsCollection( HCID, quartzCollection );
   std::cout << " HCID " << HCID << " name " << name << std::endl;
 }
@@ -88,7 +80,6 @@ void QuartzSD::Initialize(G4HCofThisEvent* HCE){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4bool QuartzSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
-	
 
   TEnv* config = m_sd->GetConfig();
 
@@ -99,14 +90,14 @@ G4bool QuartzSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   sprintf(modName,"mod%dType",modNum+1);
   G4int    nModules            = config->GetValue( "nModules",4);
   G4int modType[5]; G4int modNStripsPerGap[5];
-  //G4int modNRadiators[5]; 
+  //G4int modNRadiators[5];
   //  G4double coreDiameter[5]; G4double claddingThickness[5]; G4double modCladdingIndexRefraction[5];
 
   modType[0]            = config->GetValue( "modType1",5);
   modType[1]            = config->GetValue( "modType2",5);
   modType[2]            = config->GetValue( "modType3",3);
   modType[3]            = config->GetValue( "modType4",3);
-  modType[4]            = config->GetValue( "modType5",3);      
+  modType[4]            = config->GetValue( "modType5",3);
   for (int i = 0; i < nModules; ++i) {
     char variable[256];
     sprintf(variable,"mod%dCoreIndexRefraction",i+1);
@@ -116,11 +107,11 @@ G4bool QuartzSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     //    sprintf(variable,"mod%dNRadiators",i+1);
     //modNRadiators[i] = config->GetValue(variable,12);
     //    sprintf(variable,"mod%dCladdingIndexRefraction",i+1);
-    //    modCladdingIndexRefraction[i] = config->GetValue( variable,1.43);    
+    //    modCladdingIndexRefraction[i] = config->GetValue( variable,1.43);
   }
 
   G4double eDep   = aStep->GetTotalEnergyDeposit();
-  
+
   G4int    totalRodNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
   G4int    radNum;
   G4int    rodNum;
@@ -132,13 +123,11 @@ G4bool QuartzSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     radNum = totalRodNum / modNStripsPerGap[modNum];
     rodNum = totalRodNum % modNStripsPerGap[modNum];
   }
-  
+
   G4double energy = aStep->GetPreStepPoint()->GetTotalEnergy();
   G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentum();
   G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
   G4double charge = aStep->GetPreStepPoint()->GetCharge();
-  
-  //  h2_radNum_eDep->Fill( radNum, eDep );
 
   int capturedPhotons = CalculateCherenkovs(aStep,modNum);
 
@@ -148,7 +137,7 @@ G4bool QuartzSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   newHit->setTrackID       (aStep->GetTrack()->GetTrackID() );
   newHit->setModNb         (modNum );
   newHit->setRadNb         (radNum );
-  newHit->setRodNb         (rodNum );  
+  newHit->setRodNb         (rodNum );
   newHit->setEdep          (eDep );
   newHit->setPos           (aStep->GetPostStepPoint()->GetPosition() );
   newHit->setParticle      (particle);
@@ -163,39 +152,37 @@ G4bool QuartzSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int QuartzSD::CalculateCherenkovs(G4Step* aStep,int modNum) {
- 
-	
+
+
   const G4DynamicParticle* aParticle = aStep->GetTrack()->GetDynamicParticle();
   const G4double           charge    = aParticle->GetDefinition()->GetPDGCharge();
-  //  LogStream<<MSG::INFO<<"ZDC stripCharge "<< charge << endreq;
 
-  
   if (charge==0) { return false; }
 
   const G4StepPoint*       pPreStepPoint  = aStep->GetPreStepPoint();
   const G4StepPoint*       pPostStepPoint = aStep->GetPostStepPoint();
   const G4double           beta           = (pPreStepPoint ->GetBeta() + pPostStepPoint->GetBeta())/2.;
- 
+
   if (beta==0) { return false; }
 
-  TEnv* config = m_sd->GetConfig();  
-  
+  TEnv* config = m_sd->GetConfig();
+
   G4double minWavelength     = config->GetValue("cherenkovMinWavelength",250) * CLHEP::nanometer ;
   G4double maxWavelength     = config->GetValue("cherenkovMaxWavelength",600) * CLHEP::nanometer ;
   G4double inverseWLDiff     = (1./minWavelength) - (1./maxWavelength);
 
 
   const float step_length(aStep->GetStepLength());
-  
+
   G4double MeanNumberOfPhotons = 2*TMath::Pi()*(1./137.)*step_length*inverseWLDiff*(charge)*(charge)*(1.0 - 1.0/(beta*m_modCoreIndexRefraction[modNum]*beta*m_modCoreIndexRefraction[modNum]));
- 
+
   if (MeanNumberOfPhotons <= 0.0) { return false; }
   //  std::cout << " n photons " << MeanNumberOfPhotons << std::endl;
 
 
   const G4int NumPhotons = (G4int)G4Poisson(MeanNumberOfPhotons);
 
-  if (NumPhotons <= 0) { return false; }  
+  if (NumPhotons <= 0) { return false; }
 
     const G4ThreeVector pos = pPreStepPoint->GetPosition();
   //  float yPos              = pos.y();
@@ -222,7 +209,7 @@ int QuartzSD::CalculateCherenkovs(G4Step* aStep,int modNum) {
     sprintf(name,"mod%dCladding",modNum+1);
     modCladding = config->GetValue(name,"true") ;
     cladding = modCladding == "true" ? true : false;
-    if (!cladding) claddingIndexRefraction = 1.; 
+    if (!cladding) claddingIndexRefraction = 1.;
   }
 
   float criticalAngle = asin(claddingIndexRefraction/coreIndexRefraction);
@@ -237,7 +224,7 @@ int QuartzSD::CalculateCherenkovs(G4Step* aStep,int modNum) {
     // sample an energy for Photon
     rand = G4UniformRand();
     // sampledEnergy = Pmin + rand * dp;
-    
+
     cosTheta  = BetaInverse / coreIndexRefraction;
     sin2Theta = (1.0 - cosTheta)*(1.0 + cosTheta);
 
@@ -265,7 +252,7 @@ int QuartzSD::CalculateCherenkovs(G4Step* aStep,int modNum) {
     else {
       const float Theta = M_PI/2.0-atan(PT/PY);
       if (Theta < criticalAngle) Transmission = 0;
-      else Transmission=1.0;       
+      else Transmission=1.0;
     }
     if (Transmission == 1.0) ++photonCount;
   }
@@ -282,7 +269,7 @@ void QuartzSD::EndOfEvent(G4HCofThisEvent*)
   /*
   if(verboseLevel>0) {
       std::cout << " if verbose loop" << std::endl;
-      std::cout << "\n-------->Hits Collection: in this event they are " << NbHits 
+      std::cout << "\n-------->Hits Collection: in this event they are " << NbHits
 		<< " hits in the calorimeter cells: " << std::endl;
       for (G4int i=0;i<NbHits;i++) {
 	if (i %100 == 0) std::cout << " i " << i << std::endl;
@@ -294,4 +281,3 @@ void QuartzSD::EndOfEvent(G4HCofThisEvent*)
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-

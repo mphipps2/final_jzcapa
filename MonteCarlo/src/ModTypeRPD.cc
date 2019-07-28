@@ -791,16 +791,19 @@ if(test_tile){
 
 
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //PAN FLUTE RPD
 if(pan_flute){
 
 float foil_spacing = 1;
 int m_PFrpd_cnt=0;
 int m_PFfoil_cnt=0;
-float divider_thickness = 0.1;
+float PFfoil_thickness = 0.1;
 float rod_diam = tileX/4.0;
-float readout_Y = 2;
-
+float readout_Y = 0.5;
+float pan_flute_start = RPD_centerX + 7.5*rod_diam + 7.5*foil_spacing;
 
 for(int k=0;k<4;k++) {
 	fiberHeightY[k]=((k+1)*tileY)+(k*2*halfY_gap) + readout_Y;
@@ -815,8 +818,8 @@ for(int k=0;k<4;k++) {
 	//cylindrical foil dividers
   sprintf(name,"m_PFrpd_%d", k);
 	m_test_foil[k] 		= new G4Tubs( name,
-						(rod_diam/2.0 + divider_thickness/2)*mm,
-						(rod_diam/2.0 + divider_thickness)*mm,
+						(rod_diam/2.0 + PFfoil_thickness/2)*mm,
+						(rod_diam/2.0 + PFfoil_thickness)*mm,
 						fiberHeightY[k]*mm/2.0 ,
 						0.0*deg,
 						360.0*deg);
@@ -837,7 +840,10 @@ for(int k=0;k<4;k++) {
 					m_PFrpdLogical[m_PFrpd_cnt] 	= new G4LogicalVolume(m_PFrpd[(k+i)%4]
 										,m_matQuartz,
 										name);
-					m_PFrpdLogical[m_PFrpd_cnt]->SetVisAttributes( G4Colour(0.0,1.0,0.0,0.6) );
+										if(k==0) m_PFrpdLogical[m_PFrpd_cnt]->SetVisAttributes( G4Colour::Cyan() 	 );
+					else 			if(k==1) m_PFrpdLogical[m_PFrpd_cnt]->SetVisAttributes( G4Colour::Red() );
+					else 			if(k==2) m_PFrpdLogical[m_PFrpd_cnt]->SetVisAttributes( G4Colour::Green() );
+					else 			if(k==3) m_PFrpdLogical[m_PFrpd_cnt]->SetVisAttributes( G4Colour::Magenta() );
 
 					m_PFrpdLogical[m_PFrpd_cnt]->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
 
@@ -853,12 +859,12 @@ for(int k=0;k<4;k++) {
 					m_PFdetecLogical[m_PFrpd_cnt] 	= new G4LogicalVolume(m_PFdetec
 										,m_matQuartz,
 										name);
-					m_PFdetecLogical[m_PFrpd_cnt]->SetVisAttributes(  G4Colour(0.0,0.0,0.8,0.5) );//G4Colour(1.0,0.0,0.0,0.3)
+					m_PFdetecLogical[m_PFrpd_cnt]->SetVisAttributes(   G4VisAttributes::Invisible);//G4Colour(1.0,0.0,0.0,0.3)
 
 			sprintf(name,"m_PFrpd_pyhs_%d_%d_%d",j,i,k);
 					m_PFrpdPhysical[m_PFrpd_cnt]		  = new G4PVPlacement(
 								stripRotation,
-								G4ThreeVector( ( RPD_startX + (tileX/2) - (rod_diam/2.0) - (m_PFfoil_cnt*( rod_diam + foil_spacing ) ) )  *mm ,
+								G4ThreeVector( ( pan_flute_start - (m_PFfoil_cnt*( rod_diam + foil_spacing ) ) )  *mm ,
 												 			( RPD_startY + tileY/2 - (fiberHeightY[(k+i)%4]/2) - readout_Y/2   )	 *mm ,
 												 			(tileZcenter[0]-k*( rod_diam + foil_spacing)) *mm),
 								m_PFrpdLogical[m_PFrpd_cnt],
@@ -871,7 +877,7 @@ for(int k=0;k<4;k++) {
 			sprintf(name,"m_PFfoil_pyhs_%d_%d_%d",j,i,k);
 					m_test_foilPhysical[m_PFrpd_cnt]		  = new G4PVPlacement(
 								stripRotation,
-								G4ThreeVector( ( RPD_startX + (tileX/2) - (rod_diam/2.0) - (m_PFfoil_cnt*( rod_diam + foil_spacing ) ) )  *mm ,
+								G4ThreeVector( ( pan_flute_start - (m_PFfoil_cnt*( rod_diam + foil_spacing ) ) )  *mm ,
 												 			( RPD_startY + tileY/2 - (fiberHeightY[(k+i)%4]/2) - readout_Y/2   )	 *mm ,
 												 			(tileZcenter[0]-k*( rod_diam + foil_spacing)) *mm),
 								m_test_foilLogical[m_PFrpd_cnt],
