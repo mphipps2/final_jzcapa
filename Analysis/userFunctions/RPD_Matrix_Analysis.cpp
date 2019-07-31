@@ -10,6 +10,8 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <regex>
+
 
 #include <TH1.h>
 #include <TH2.h>
@@ -26,12 +28,15 @@
 #include <TPaveStats.h>
 #include <TPad.h>
 #include <TGraph.h>
+#include <TLegend.h>
 #include <TGraphErrors.h>
 
 using namespace std;
 
 int choice;
 vector < vector < TH1* > > H1;
+vector < vector < TGraphErrors* > > G1; //Outer: Tile number //Inner:
+vector < vector < string > > N1; //Outer: Tile number //Inner:
 string filename;
 string fold_dir;
 string beam;
@@ -101,10 +106,11 @@ void EditFitandPrint(TH1* h1){
 
 }
 
-void ProduceDependecyHistograms(vector < vector < TH1* > > vH1, double *x_val, int nLines){
+void ProduceDependecyHistograms(vector < vector < TH1* > > vH1, double *_x_val, int nLines){
 
     for(int i = 0; i < vH1.at(0).size(); i++){
         double y_val[nLines];
+        double x_val[nLines];
         double ey_val[nLines];
         double ex_val[nLines];
 
@@ -113,6 +119,24 @@ void ProduceDependecyHistograms(vector < vector < TH1* > > vH1, double *x_val, i
             ey_val[j] = vH1.at(j).at(i)->GetRMS();
             ex_val[j] = 0;
         }//End of Outer Loop
+
+        int tile_giving;
+        int tile_receiving;
+        string hname = vH1.at(0).at(i)->GetName();
+        sscanf( hname.c_str(), "%*[^_]_%d_%d", &tile_giving, &tile_receiving );
+        //sanity check
+        //cout << "a_" << tile_giving << "_" << tile_receiving << endl;
+        ostringstream tg, tr;
+        tg << tile_giving;
+        tr << tile_receiving;
+        hname = "a_{" + tg.str() + "," + tr.str() + "}";
+        N1.at(tile_receiving-1).push_back(hname);
+
+        double xOff = 0;
+        if(N1.at(tile_receiving-1).size() > 1) xOff = (N1.at(tile_receiving-1).size()-1)*(_x_val[nLines-1]-_x_val[0])/100;
+        for(int k = 0; k < nLines; k++){
+           x_val[k] = _x_val[k]+xOff;
+        }
 
         TGraphErrors* gr = new TGraphErrors(nLines, x_val, y_val, ex_val, ey_val );
         TCanvas* cxx = new TCanvas();
@@ -124,6 +148,8 @@ void ProduceDependecyHistograms(vector < vector < TH1* > > vH1, double *x_val, i
         gr->GetYaxis()->SetTitle(("<"+ (string)vH1.at(0).at(i)->GetTitle()+ "> #pm #sigma_{" + (string)vH1.at(0).at(i)->GetTitle() + "}").c_str());
         gr->Draw("AP");
         gr->GetYaxis()->SetRangeUser(0,1.5);
+        G1.at(tile_receiving-1).push_back(gr);
+
         TLatex* lx = new TLatex();
         lx->SetTextFont( 62 );
         lx->SetTextSize( 0.048 );
@@ -136,6 +162,41 @@ void ProduceDependecyHistograms(vector < vector < TH1* > > vH1, double *x_val, i
         cxx->Print((var_name + "/" + vH1.at(0).at(i)->GetName() + ".pdf").c_str());
 
     }//End of Inner Loop
+}
+
+void ProduceOverlayPlots(){
+    TCanvas* cg = new TCanvas();
+     gStyle->SetPalette(kRainBow);
+    for(int i = 0; i < G1.size(); i++){
+        cg->cd();
+        TLegend* leg1 = new TLegend(0.16,0.86,0.5,0.99);
+        leg1->SetNColumns(2);
+        leg1->SetTextSize(0.045);
+        leg1->SetTextFont(42);
+        gPad->SetTopMargin(0.15);
+        G1.at(i).at(0)->GetYaxis()->SetTitle("<a_{i,j}> #pm #sigma_{a_{i,j}}");
+        for(int j = 0; j < G1.at(i).size(); j++){
+                if( j == 0 ) G1.at(i).at(j)->Draw("PA PMC");
+                else G1.at(i).at(j)->Draw("P PMC");
+                leg1->AddEntry(G1.at(i).at(j),N1.at(i).at(j).c_str(),"p");
+        }
+        ostringstream tile;
+        tile << i+1;
+        TLatex* lx = new TLatex();
+        lx->SetTextFont( 62 );
+        lx->SetTextSize( 0.048 );
+        lx->DrawLatexNDC(0.55,0.95,"RPD - 2018 configuration");
+        lx->SetTextFont( 42 );
+        lx->SetTextSize( 0.038 );
+        lx->DrawLatexNDC(0.55,0.91,("Tile " + tile.str() + ": cross talking (input)").c_str());
+        lx->SetTextFont( 52 );
+        lx->DrawLatexNDC(0.55,0.87,"Ongoing Monte Carlo Analysis");
+        leg1->SetBorderSize(1);
+        leg1->Draw();
+        cg->Print((var_name + "/same_tile/" + tile.str() + ".pdf" ).c_str());
+        cg->Clear();
+    }
+
 }
 
 int main(int argc, char *argv[]){
@@ -225,19 +286,30 @@ int main(int argc, char *argv[]){
     gSystem->Exec(("rm -r " + var_name).c_str());
     cout << "Creating folder " << var_name << endl;
     gSystem->Exec(("mkdir " + var_name).c_str());
+    gSystem->Exec(("mkdir " + var_name + "/same_tile").c_str());
 
     for(int i = 0; i < analysis_files.size(); i++)    H1.push_back(LoadHistogramsFromFile(analysis_files.at(i)));
 
     cout << "Vector of histograms size: " << H1.size() << endl;
-
-    //Sanity check : all the vectors should have the same # of histograms
-    for(int i = 1; i < H1.size(); i++) if(H1.at(i).size() != H1.at(i-1).size()){
-        cout << "FATAL! DIFFERENT NUMBER OF COEFF PLOTS IN DIFFERENT FILES" << endl;
-        return 0;
+    //Creating vectors of histograms for each tile
+    for(int i = 0; i < 16; i++)
+    {
+        vector < TGraphErrors* > GE;
+        vector < string > name_string;
+        G1.push_back(GE);
+        N1.push_back(name_string);
     }
 
     ProduceDependecyHistograms(H1,x_val,nLines);
 
+    for(int i = 0; i < G1.size(); i++)
+    {
+        cout << "Tile " << i << " has " << G1.at(i).size() << " coefficient(s) " <<  endl;
+        for(int j = 0; j < N1.at(i).size(); j++) { cout << N1.at(i).at(j) << " ::: "; }
+        cout << " " << endl;
+    }
+
+    ProduceOverlayPlots();
   }
   return 0;
 }
