@@ -83,8 +83,11 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	bool brpdflag=false;
 
 
-    TEnv* config = fRunAction->GetSharedData()->GetConfig();
+  TEnv* config = fRunAction->GetSharedData()->GetConfig();
 	int runNum = config->GetValue( "RunNumber", -1);
+  bool OPTICAL = config->GetValue("OPTICAL_ON", false);
+  bool CLUSTER = config->GetValue("CLUSTER_ON", false);
+
 	fRunAction->GetSharedData()->LoadAlignmentFile(runNum);
 
 	Alignment	*align_run 	= fRunAction->GetSharedData()->GetAlignment();
@@ -127,8 +130,11 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	}
 
   /////////////////////////////////////////////////////////////////////////
-  
+
   int totalPhotons = 0;
+  std::vector<int> Gap_Cherenk;
+  Gap_Cherenk.resize(24,0);
+
   int IDholder = 0;
   if(HCE) {
     while (hitsCollID < nCollections) {
@@ -158,21 +164,26 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	if (trackID != prevTrackId || radiatorNo != prevRadiatorNo || eDep != 0) {
 
 	  if(IDholder==RPD){ //corresponds to the RPD hitsCollID
-	  fRunAction->SetRadNo_rpd(radiatorNo);
-	  fRunAction->SetRodNo_rpd(rodNo);
-	  fRunAction->SetNCherenkovs_rpd(nCherenkovs);
-	  fRunAction->SetEdep_rpd(eDep);
-	  fRunAction->SetModNb_rpd(modNb);
-	  fRunAction->SetTrackID_rpd(trackID);
-	  fRunAction->SetPosition_rpd(position);
-	  fRunAction->SetMomentum_rpd(momentum);
-	  fRunAction->SetEnergy_rpd(energy);
-	  fRunAction->SetPid_rpd(pid);
-	  fRunAction->SetEventNo_rpd(fEventNo);
-	  fRunAction->SetCharge_rpd(charge);
-	  fRunAction->SetVelocity_rpd(velocity);
-	  fRunAction->SetBeta_rpd(beta);}
-	  else if(IDholder==RPD+1 && RPD!=-1){ //RPD+1 corresponds to the Fiber hitsCollID
+        if(!CLUSTER){
+      fRunAction->SetRadNo_rpd(radiatorNo);
+  	  fRunAction->SetRodNo_rpd(rodNo);
+  	  fRunAction->SetNCherenkovs_rpd(nCherenkovs);
+  	  fRunAction->SetEdep_rpd(eDep);
+  	  fRunAction->SetModNb_rpd(modNb);
+  	  fRunAction->SetTrackID_rpd(trackID);
+  	  fRunAction->SetPosition_rpd(position);
+  	  fRunAction->SetMomentum_rpd(momentum);
+  	  fRunAction->SetEnergy_rpd(energy);
+  	  fRunAction->SetPid_rpd(pid);
+  	  fRunAction->SetEventNo_rpd(fEventNo);
+  	  fRunAction->SetCharge_rpd(charge);
+  	  fRunAction->SetVelocity_rpd(velocity);
+  	  fRunAction->SetBeta_rpd(beta);}
+        else{
+  	  fRunAction->SetRodNo_rpd(rodNo);
+  	  fRunAction->SetPosition_rpd(position);}
+    }
+	  else if(IDholder==RPD+1 && RPD!=-1 && !OPTICAL && !CLUSTER){ //RPD+1 corresponds to the Fiber hitsCollID
 	  fRunAction->SetRadNo_fiber(radiatorNo);
 	  fRunAction->SetRodNo_fiber(rodNo);
 	  fRunAction->SetNCherenkovs_fiber(nCherenkovs);
@@ -186,31 +197,43 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 	  fRunAction->SetEventNo_fiber(fEventNo);
 	  fRunAction->SetCharge_fiber(charge);
 	  fRunAction->SetVelocity_fiber(velocity);
-	  fRunAction->SetBeta_fiber(beta);}
+	  fRunAction->SetBeta_fiber(beta);  }
 	  else if(IDholder==ZDC1 || IDholder==ZDC2 ){//ZDC hitsCollID
-	  totalPhotons += nCherenkovs;
-	  fRunAction->SetRadNo(radiatorNo);
-	  fRunAction->SetRodNo(rodNo);
-	  fRunAction->SetNCherenkovs(nCherenkovs);
-	  fRunAction->SetEdep(eDep);
-	  fRunAction->SetModNb(modNb);
-	  fRunAction->SetTrackID(trackID);
-	  fRunAction->SetPosition(position);
-	  fRunAction->SetMomentum(momentum);
-	  fRunAction->SetEnergy(energy);
-	  fRunAction->SetPid(pid);
-	  fRunAction->SetEventNo(fEventNo);
-	  fRunAction->SetCharge(charge);
-	  fRunAction->SetVelocity(velocity);
-	  fRunAction->SetBeta(beta);}
-	}
+        if(!CLUSTER){
+      totalPhotons += nCherenkovs;
+  	  fRunAction->SetRadNo(radiatorNo);
+  	  fRunAction->SetRodNo(rodNo);
+  	  fRunAction->SetNCherenkovs(nCherenkovs);
+  	  fRunAction->SetEdep(eDep);
+  	  fRunAction->SetModNb(modNb);
+  	  fRunAction->SetTrackID(trackID);
+  	  fRunAction->SetPosition(position);
+  	  fRunAction->SetMomentum(momentum);
+  	  fRunAction->SetEnergy(energy);
+  	  fRunAction->SetPid(pid);
+  	  fRunAction->SetEventNo(fEventNo);
+  	  fRunAction->SetCharge(charge);
+  	  fRunAction->SetVelocity(velocity);
+  	  fRunAction->SetBeta(beta);}
+        else{
+          //std::cout << "radiatorNo = " << radiatorNo << ", modNb = " << modNb << ", radiatorNo+(modNb*12) = " << radiatorNo+(modNb*12) << std::endl;
+          Gap_Cherenk.at(radiatorNo+(modNb*12)) += nCherenkovs;}
+      }
+}
 	prevTrackId = trackID;
 	prevRadiatorNo = radiatorNo;
       }
       hitsCollID++;
-    }
+    }//end of hit loop
 
-	fRunAction->GetSharedData()->GetRPDTree()->Fill();
+
+
+if((bzdc1flag || bzdc2flag) && CLUSTER) {
+  fRunAction->SetGapCherenkovs(Gap_Cherenk);
+  Gap_Cherenk.clear();
+}
+
+  fRunAction->GetSharedData()->GetRPDTree()->Fill();
 
 	fRunAction->GetSharedData()->GetZDCTree()->Fill();
 

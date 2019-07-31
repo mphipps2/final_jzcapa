@@ -73,10 +73,13 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 	bool bzdc2flag=false;
 	bool brpdflag=false;
 
+  TEnv* config = fSharedData->GetConfig();
 
-    TEnv* config = fSharedData->GetConfig();
 	int runNum = config->GetValue( "RunNumber", -1);
 	fSharedData->LoadAlignmentFile(runNum);
+
+  bool OPTICAL = config->GetValue("OPTICAL_ON", false);
+  bool CLUSTER = config->GetValue("CLUSTER_ON", false);
 
 	Alignment	*align_run 	= fSharedData->GetAlignment();
 
@@ -93,8 +96,6 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 			brpdflag=true;}
 	}
 
-
-
   long seeds[2];
   long systime = time(NULL);
   seeds[0] = (long) systime;
@@ -104,6 +105,7 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
 
 if(bzdc1flag || bzdc2flag){
+    if(!CLUSTER){
   fSharedData->AddOutputToZDCTree("ID",&fTrackID_v);
   fSharedData->AddOutputToZDCTree("ModNb",&fModNb_v);
   fSharedData->AddOutputToZDCTree("RadNb",&fRadNb_v);
@@ -122,8 +124,13 @@ if(bzdc1flag || bzdc2flag){
   fSharedData->AddOutputToZDCTree("Velocity",&fVelocity_v);
   fSharedData->AddOutputToZDCTree("NCherenkovs",&fNCherenkovs_v);
   fSharedData->AddOutputToZDCTree("Beta",&fBeta_v);
-	}
+  }
+   else{
+   fSharedData->AddOutputToZDCTree("Cherenkov_Gap_Total",&fGap_Cherenk_v);
+   }
+}
 if(brpdflag){
+    if(!CLUSTER){
   fSharedData->AddOutputToRPDTree("ID",&fTrackID_v2);
   fSharedData->AddOutputToRPDTree("ModNb",&fModNb_v2);
   fSharedData->AddOutputToRPDTree("RadNb",&fRadNb_v2);
@@ -142,7 +149,14 @@ if(brpdflag){
   fSharedData->AddOutputToRPDTree("Velocity",&fVelocity_v2);
   fSharedData->AddOutputToRPDTree("NCherenkovs",&fNCherenkovs_v2);
   fSharedData->AddOutputToRPDTree("Beta",&fBeta_v2);
-
+  }
+    else{
+  fSharedData->AddOutputToRPDTree("RodNb",&fRodNb_v2);
+  fSharedData->AddOutputToRPDTree("X",&fX_v2);
+  fSharedData->AddOutputToRPDTree("Y",&fY_v2);
+  fSharedData->AddOutputToRPDTree("Z",&fZ_v2);
+  }
+    if(!OPTICAL && !CLUSTER){
   fSharedData->AddOutputToFiberTree("ID",&fTrackID_v3);
   fSharedData->AddOutputToFiberTree("ModNb",&fModNb_v3);
   fSharedData->AddOutputToFiberTree("RadNb",&fRadNb_v3);
@@ -161,6 +175,7 @@ if(brpdflag){
   fSharedData->AddOutputToFiberTree("Velocity",&fVelocity_v3);
   fSharedData->AddOutputToFiberTree("NCherenkovs",&fNCherenkovs_v3);
   fSharedData->AddOutputToFiberTree("Beta",&fBeta_v3);
+  }
 }
 
   // reset parameters to their initial values
