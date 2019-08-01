@@ -36,3 +36,21 @@ TARGET_LINK_LIBRARIES(postAnalysis ${ROOT_LIBRARIES})
 TARGET_LINK_LIBRARIES(postAnalysis ${XERCESC_LIBRARY})
 
 install(TARGETS postAnalysis RUNTIME DESTINATION bin)
+
+add_executable(postAnalysisZDC ${DEPENDENCIES} userFunctions/postAnalysisZDC.cpp)
+TARGET_LINK_LIBRARIES(postAnalysisZDC ${ROOT_LIBRARIES})
+TARGET_LINK_LIBRARIES(postAnalysisZDC ${XERCESC_LIBRARY})
+
+install(TARGETS postAnalysisZDC RUNTIME DESTINATION bin)
+
+add_executable(postAnalysisRPD ${DEPENDENCIES} userFunctions/postAnalysisRPD.cpp)
+TARGET_LINK_LIBRARIES(postAnalysisRPD ${ROOT_LIBRARIES})
+TARGET_LINK_LIBRARIES(postAnalysisRPD ${XERCESC_LIBRARY})
+
+install(TARGETS postAnalysisRPD RUNTIME DESTINATION bin)
+
+add_executable(RPD_Matrix_Analysis ${DEPENDENCIES} userFunctions/RPD_Matrix_Analysis.cpp)
+TARGET_LINK_LIBRARIES(RPD_Matrix_Analysis ${ROOT_LIBRARIES})
+TARGET_LINK_LIBRARIES(RPD_Matrix_Analysis ${XERCESC_LIBRARY})
+
+install(TARGETS RPD_Matrix_Analysis RUNTIME DESTINATION bin)
