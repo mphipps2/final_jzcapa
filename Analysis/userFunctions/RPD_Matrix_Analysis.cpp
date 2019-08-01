@@ -43,7 +43,7 @@ string beam;
 TH1D* hsom;
 string var_name, var_title;
 int marker_col;
-
+bool enable_gaus_fit(false);
 
 vector < TH1* >  LoadHistogramsFromFile(string _filename){
 
@@ -115,9 +115,24 @@ void ProduceDependecyHistograms(vector < vector < TH1* > > vH1, double *_x_val, 
         double ex_val[nLines];
 
         for(int j = 0; j < vH1.size(); j++){
-            y_val[j] = vH1.at(j).at(i)->GetMean();
-            ey_val[j] = vH1.at(j).at(i)->GetRMS();
-            ex_val[j] = 0;
+            if(!enable_gaus_fit)
+            {
+                y_val[j] = vH1.at(j).at(i)->GetMean();
+                ey_val[j] = vH1.at(j).at(i)->GetRMS();
+                ex_val[j] = 0;
+            }
+            else if(enable_gaus_fit && vH1.at(j).at(i)->GetMean() != 0){
+                vH1.at(j).at(i)->Fit("gaus");
+                TF1 *myfunc = vH1.at(j).at(i)->GetFunction("gaus");
+                y_val[j] = myfunc->GetParameter(1);
+                ey_val[j] = myfunc->GetParameter(2);
+                ex_val[j] = 0;
+            }
+            else if(enable_gaus_fit && vH1.at(j).at(i)->GetMean() == 0){
+                y_val[j] = 0;
+                ey_val[j] = 0;
+                ex_val[j] = 0;
+            }
         }//End of Outer Loop
 
         int tile_giving;
@@ -130,10 +145,10 @@ void ProduceDependecyHistograms(vector < vector < TH1* > > vH1, double *_x_val, 
         tg << tile_giving;
         tr << tile_receiving;
         hname = "a_{" + tg.str() + "," + tr.str() + "}";
-        N1.at(tile_receiving-1).push_back(hname);
+        if(y_val[0] != 0 || y_val[1] != 0 || y_val[2] != 0) N1.at(tile_receiving-1).push_back(hname);
 
         double xOff = 0;
-        if(N1.at(tile_receiving-1).size() > 1) xOff = (N1.at(tile_receiving-1).size()-1)*(_x_val[nLines-1]-_x_val[0])/100;
+        if(N1.at(tile_receiving-1).size() > 1) xOff = (N1.at(tile_receiving-1).size()-1)*(_x_val[nLines-1]-_x_val[0])/130;
         for(int k = 0; k < nLines; k++){
            x_val[k] = _x_val[k]+xOff;
         }
@@ -147,8 +162,8 @@ void ProduceDependecyHistograms(vector < vector < TH1* > > vH1, double *_x_val, 
         gr->GetXaxis()->SetTitle(var_title.c_str());
         gr->GetYaxis()->SetTitle(("<"+ (string)vH1.at(0).at(i)->GetTitle()+ "> #pm #sigma_{" + (string)vH1.at(0).at(i)->GetTitle() + "}").c_str());
         gr->Draw("AP");
-        gr->GetYaxis()->SetRangeUser(0,1.5);
-        G1.at(tile_receiving-1).push_back(gr);
+        gr->GetYaxis()->SetRangeUser(0,1.6);
+        if(y_val[0] != 0 || y_val[1] != 0 || y_val[2] != 0) G1.at(tile_receiving-1).push_back(gr);
 
         TLatex* lx = new TLatex();
         lx->SetTextFont( 62 );
@@ -299,9 +314,8 @@ int main(int argc, char *argv[]){
         G1.push_back(GE);
         N1.push_back(name_string);
     }
-
+    cout << "Here we go " << endl;
     ProduceDependecyHistograms(H1,x_val,nLines);
-
     for(int i = 0; i < G1.size(); i++)
     {
         cout << "Tile " << i << " has " << G1.at(i).size() << " coefficient(s) " <<  endl;
