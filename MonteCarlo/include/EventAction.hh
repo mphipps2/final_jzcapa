@@ -59,10 +59,9 @@ class EventAction : public G4UserEventAction
   // TH1D* h_radNum_nParticles;
     int hitsCollID;
     int fEventNo;
+    G4double gunPosX,gunPosY,gunPosZ;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
-
-    

@@ -35,6 +35,7 @@
 #include "G4Event.hh"
 #include "G4RunManager.hh"
 #include "SharedData.hh"
+#include "G4PrimaryVertex.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -43,6 +44,9 @@ EventAction::EventAction(RunAction* runAction)
   fRunAction(runAction)
 {
   hitsCollID = -1;
+  fRunAction->GetSharedData()->AddOutputToRPDTree("gunPosX",&gunPosX);
+  fRunAction->GetSharedData()->AddOutputToRPDTree("gunPosY",&gunPosY);
+  fRunAction->GetSharedData()->AddOutputToRPDTree("gunPosZ",&gunPosZ);
 
 }
 
@@ -65,6 +69,10 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 
 void EventAction::EndOfEventAction(const G4Event* evt)
 {
+  G4PrimaryVertex* pVert = evt->GetPrimaryVertex();
+  gunPosX = pVert->GetX0();
+  gunPosY = pVert->GetY0();
+  gunPosZ = pVert->GetZ0();
 
   G4cout << ">>> Event " << evt->GetEventID() << G4endl;
   G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
