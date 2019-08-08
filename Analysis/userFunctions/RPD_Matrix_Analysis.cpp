@@ -230,7 +230,8 @@ int main(int argc, char *argv[]){
 
   cout << "You selected " << choice  << endl;
 
-  Visualizer* v1 = new Visualizer("ATLAS", true);
+  //Visualizer* v1 = new Visualizer("ATLAS", true);
+  Visualizer* v1 = new Visualizer("ATLAS");
 
   if( choice == 1 ){
       if(filename.substr(filename.find(".")+1,filename.length()) != "root"){
