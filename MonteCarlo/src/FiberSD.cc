@@ -142,7 +142,9 @@ if (config->GetValue("OPTICAL_ON",false) == 1){
   newHit->setMomentum      (momentum);
   newHit->setNCherenkovs   (capturedPhotons);
   //  if (capturedPhotons != 0 ) std::cout << " capturedPhotons " << capturedPhotons << std::endl;
-  fiberCollection->insert (newHit );
+
+
+  if( particle->GetPDGEncoding() == 0 ) fiberCollection->insert (newHit ); // only want to record photons
 
 
   return true;
