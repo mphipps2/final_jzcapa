@@ -75,7 +75,7 @@ ModTypeZDC::ModTypeZDC(const int cn,const G4ThreeVector& pos,
 
 ModTypeZDC::ModTypeZDC()
   : m_modNum( 0 ), m_pos(G4ThreeVector()), m_logicMother(NULL),
-    m_sd(NULL), 
+    m_sd(NULL),
     m_matQuartz(0), m_matAbsorber(0)
 {}
 
@@ -103,7 +103,7 @@ void ModTypeZDC::DefineMaterials()
   // Get nist material manager
   G4NistManager* nist = G4NistManager::Instance();
 
-  //----------------------------------------------     
+  //----------------------------------------------
   // Define Materials
   //----------------------------------------------
   m_matQuartz    = nist->FindOrBuildMaterial("G4_SILICON_DIOXIDE");
@@ -111,14 +111,16 @@ void ModTypeZDC::DefineMaterials()
   // Define materials not in NIST
   G4double fractionMass;
   G4int ncomponents;
-  
+
   G4Element*  O   = new G4Element ("O"  ,"O"  ,  8.0 ,  16.0*g/mole);
   //  G4Element*  Si  = new G4Element ("Si" ,"Si" , 14.0 ,  28.085*g/mole);
   G4Element*  W   = new G4Element ("W"  ,"W"  , 74.0 ,  183.84*g/mole);
   G4Element*  Fe  = new G4Element ("Fe" ,"Fe" , 26.0 ,  55.845 *g/mole);
   G4Element*  C   = new G4Element ("C"  ,"C"  ,  6.0 ,  12.0107*g/mole);
   G4Element*  Ni  = new G4Element ("Ni" ,"Ni" , 28.0 ,  58.6934*g/mole);
-  
+	G4Element*  N  = new G4Element ("N" ,"N" , 14.0 ,  28.014*g/mole);
+
+
   // Absorber composition:  savannah.cern.ch/task/download.php?file_id=22925
   m_matAbsorber = new G4Material("Tungsten",18.155*g/cm3,ncomponents=3);
   m_matAbsorber->AddElement(W,  fractionMass=0.948);
@@ -130,13 +132,13 @@ void ModTypeZDC::DefineMaterials()
   m_matHousing->AddElement(C   , fractionMass=0.02);
 
   m_matAir = new G4Material("Air",1.290*mg/cm3,ncomponents=2);
-  m_matAir->AddElement(Ni, fractionMass=.70);
+  m_matAir->AddElement(N, fractionMass=.70);
   m_matAir->AddElement(O, fractionMass=.30);
-  //----------------------------------------------     
+  //----------------------------------------------
   // Define Material Properties
   //----------------------------------------------
   const G4int NUMENTRIES = 2;
-  
+
   G4double ephoton         [NUMENTRIES] = {2.00*eV,4.80*eV};
 
   G4double rindexCore[NUMENTRIES] = {1.46,1.46};
@@ -159,8 +161,8 @@ void ModTypeZDC :: DefineBorderProperties(){
   G4double ephoton[NUMENTRIES] = {2.00*eV,4.80*eV};
   // Get Config
   //  TEnv* config = m_sd->GetConfig();
-  
-  //----------------------------------------------     
+
+  //----------------------------------------------
   // Housing Skin
   //----------------------------------------------
   G4double housingReflectivity      [NUMENTRIES] = {0.4, 0.4};
@@ -177,8 +179,8 @@ void ModTypeZDC :: DefineBorderProperties(){
   }
 
   new G4LogicalSkinSurface("housingSkinSurface", m_SteelLogical, housingOS );
- 
-  //----------------------------------------------     
+
+  //----------------------------------------------
   // Absorber Skin
   //----------------------------------------------
   G4double absorberReflectivity      [NUMENTRIES] = {0.0, 0.0};
@@ -189,7 +191,7 @@ void ModTypeZDC :: DefineBorderProperties(){
   if (m_simCherenkov) {
     absorberMPT->AddProperty("REFLECTIVITY", ephoton, absorberReflectivity, NUMENTRIES);
     absorberOS->SetMaterialPropertiesTable( absorberMPT );
-  }      
+  }
 
   new G4LogicalSkinSurface("absorberSkinSurface", m_WLogical, absorberOS );
 
@@ -202,22 +204,22 @@ void ModTypeZDC::ConstructDetector()
   // Get Config
   TEnv* config = m_sd->GetConfig();
 
-  //----------------------------------------------     
+  //----------------------------------------------
   // Set Some Values
-  //----------------------------------------------  
+  //----------------------------------------------
   float modCasingThickness[5]; float modAbsorberThickness[5]; float modAbsorberHeight[5]; float modAbsorberWidth[5]; G4String modAbsorberMat[5]; float modRadiatorGapLength[5]; float modCoreDiameter[5];  float modCladdingThickness[5]; int modNRadiators[5]; int modNAbsorbers[5];  bool cladding[5];  int modType[5]; int modNStripsPerGap[5];
 
   int nModules = config->GetValue("nModules",2);
     // Option to switch on/off checking of volumes overlaps
   bool checkOverlaps = config->GetValue("checkOverlaps",false);
-  
+
   for (int i = 0; i < nModules; ++i) {
     char variable[256];
     sprintf(variable,"mod%dType",i+1);
-    modType[i] = config->GetValue(variable,5);    
+    modType[i] = config->GetValue(variable,5);
     if (modType[i] == 5){
       std::string modCladding;
-      
+
       sprintf(variable,"mod%dCasingThickness",5);
       modCasingThickness[i] = config->GetValue(variable,7.94);
       sprintf(variable,"mod%dAbsorberThickness",5);
@@ -227,7 +229,7 @@ void ModTypeZDC::ConstructDetector()
       sprintf(variable,"mod%dAbsorberWidth",5);
       modAbsorberWidth[i] = config->GetValue(variable,100.);
       sprintf(variable,"mod%dAbsorberMat",5);
-      modAbsorberMat[i] = config->GetValue(variable,"W");      
+      modAbsorberMat[i] = config->GetValue(variable,"W");
       sprintf(variable,"mod%dRadiatorGapLength",5);
       modRadiatorGapLength[i] = config->GetValue(variable,2.);
       sprintf(variable,"mod%dCoreDiameter",5);
@@ -240,17 +242,17 @@ void ModTypeZDC::ConstructDetector()
       modCladding = config->GetValue(variable,"true");
       std::transform(modCladding.begin(), modCladding.end(), modCladding.begin(), ::tolower);
       cladding[i] = modCladding == "true" ? true : false;
-      if (!cladding[i]) modCladdingThickness[i] = 0.; 
+      if (!cladding[i]) modCladdingThickness[i] = 0.;
       sprintf(variable,"mod%dNRadiators",i+1);
       modNRadiators[i] = config->GetValue(variable,12);
       modNAbsorbers[i] = modNRadiators[i] - 1;
-      if (modNRadiators[i] == 0) modNAbsorbers[i] = 1; // the case where you are defining a solid absorber block with no active channels      
+      if (modNRadiators[i] == 0) modNAbsorbers[i] = 1; // the case where you are defining a solid absorber block with no active channels
     }
   }
 
   // geometric constants
   float zPitch;
-  float xStartStrip; // middle of left most strip -- note this strip doesn't actually exist since the sets on the edge have 5 strips instead of 6  
+  float xStartStrip; // middle of left most strip -- note this strip doesn't actually exist since the sets on the edge have 5 strips instead of 6
   float stripPitch; // distance between center of each rod ie) the diameter of one strip
   float zStartW; // position where first tungsten plate gets placed
   float zStartRad; // position where first radiator gap gets placed
@@ -271,60 +273,60 @@ void ModTypeZDC::ConstructDetector()
   float boxWidthX = modWidthX + modCasingThickness[m_modNum]*2;
   float boxHeightY = modHeightY + modCasingThickness[m_modNum]*2;
 
-  //----------------------------------------------     
+  //----------------------------------------------
   // Housing
   //----------------------------------------------
-  
+
   m_SteelBox         =  new G4Box("SteelCasing", boxWidthX*mm/2.0 ,boxHeightY*mm/2.0  , boxLengthZ*mm/2.0);
-  m_ModuleBox        =  new G4Box("ModuleCasing", modWidthX*mm/2.0 ,modHeightY*mm/2.0  , modLengthZ*mm/2.0);  
+  m_ModuleBox        =  new G4Box("ModuleCasing", modWidthX*mm/2.0 ,modHeightY*mm/2.0  , modLengthZ*mm/2.0);
   m_SteelLogical        = new G4LogicalVolume(m_SteelBox           ,m_matHousing, "Steel_Logical");
-  m_ModuleLogical       = new G4LogicalVolume(m_ModuleBox          ,m_matAir, "Module_Logical");  
+  m_ModuleLogical       = new G4LogicalVolume(m_ModuleBox          ,m_matAir, "Module_Logical");
 
   char name[256];
-  int cn = m_modNum;    
+  int cn = m_modNum;
   sprintf(name,"Steel_Box_Physical_i %d", cn);
   G4RotationMatrix* nullRotation = new G4RotationMatrix();
   G4ThreeVector  pos;
-  pos = G4ThreeVector(0,0,0);  
+  pos = G4ThreeVector(0,0,0);
   m_SteelBoxPhysical = new G4PVPlacement(nullRotation,m_pos,m_SteelLogical,name,m_logicMother,false,cn,checkOverlaps);
 
   sprintf(name,"Module_Physical_i %d", cn);
-  m_ModulePhysical = new G4PVPlacement(nullRotation,pos,m_ModuleLogical,name,m_SteelLogical,false,cn,checkOverlaps);	        
-  
+  m_ModulePhysical = new G4PVPlacement(nullRotation,pos,m_ModuleLogical,name,m_SteelLogical,false,cn,checkOverlaps);
+
   G4VisAttributes* moduleColor = new G4VisAttributes( G4Colour::Gray() );
   m_ModuleLogical->SetVisAttributes( moduleColor );
 
 
-  //----------------------------------------------     
+  //----------------------------------------------
   // Quartz
   //----------------------------------------------
 
-  m_StripTube 		= new G4Tubs( "Strip_Tube", 
-							0.0*mm, 
-							(modCoreDiameter[m_modNum]/2.0-0.005)*mm, 
-							modHeightY*mm/2.0 , 
-							0.0*deg, 
+  m_StripTube 		= new G4Tubs( "Strip_Tube",
+							0.0*mm,
+							(modCoreDiameter[m_modNum]/2.0-0.005)*mm,
+							modHeightY*mm/2.0 ,
+							0.0*deg,
 							360.0*deg);
-  m_StripLogical 	= new G4LogicalVolume(m_StripTube          
-							,m_matQuartz, 
+  m_StripLogical 	= new G4LogicalVolume(m_StripTube
+							,m_matQuartz,
 							"Strip_Logical");
-  
+
   if (cladding[m_modNum]) {
-	  
+
     m_CladdingTube  = new G4Tubs( "Cladding_Tube",
 							modCoreDiameter[m_modNum]/2.0*mm - (0.005)*mm,
-							(modCoreDiameter[m_modNum]/2.0*mm-0.0005*mm+modCladdingThickness[m_modNum])*mm, modHeightY*mm/2.0, 0.0*deg, 
+							(modCoreDiameter[m_modNum]/2.0*mm-0.0005*mm+modCladdingThickness[m_modNum])*mm, modHeightY*mm/2.0, 0.0*deg,
 							360.0*deg);
     m_CladdingLogical = new G4LogicalVolume(m_CladdingTube, m_matQuartz, "Cladding_Logical");
   }
 
   G4VisAttributes* quartzColor  = new G4VisAttributes( G4Colour::Cyan() );
-  quartzColor->SetForceSolid(true);  
+  quartzColor->SetForceSolid(true);
   m_StripLogical->SetVisAttributes( quartzColor );
-  if (cladding[m_modNum]) m_CladdingLogical->SetVisAttributes( quartzColor );  
+  if (cladding[m_modNum]) m_CladdingLogical->SetVisAttributes( quartzColor );
 
 
-  //----------------------------------------------     
+  //----------------------------------------------
   // Plates
   //----------------------------------------------
 
@@ -334,11 +336,11 @@ void ModTypeZDC::ConstructDetector()
   G4VisAttributes* airColor  = new G4VisAttributes( G4Colour::White() );
    airColor->SetForceSolid(true);
   m_ModuleLogical->SetVisAttributes( airColor );
-  
+
   G4VisAttributes* absorberColor = new G4VisAttributes( G4Colour::Red() );
    absorberColor->SetForceSolid(true);
   m_WLogical->SetVisAttributes( absorberColor );
-  
+
   int modOffset = 100000; //  just a convention to organize copy numbers for different modules
 
   // Quartz strip dimensions: radiator gap, group, strip
@@ -346,9 +348,9 @@ void ModTypeZDC::ConstructDetector()
   G4RotationMatrix* stripRotation = new G4RotationMatrix();
   stripRotation->rotateX(90.*deg);
   cn = 0;
-  for(int K=0;K<modNRadiators[m_modNum];K++) {  
-    for(int M=0;M<modNStripsPerGap[m_modNum];M++) {      
-      
+  for(int K=0;K<modNRadiators[m_modNum];K++) {
+    for(int M=0;M<modNStripsPerGap[m_modNum];M++) {
+
 	  sprintf(name,"Strip_a %d", cn);
       m_StripPhysical[K][M] = new G4PVPlacement(
 									stripRotation,
@@ -358,9 +360,9 @@ void ModTypeZDC::ConstructDetector()
 									m_ModuleLogical,
 									false,
 									cn,
-									checkOverlaps);     
+									checkOverlaps);
       if (cladding[m_modNum]) {
-	
+
 	sprintf(name,"Cladding_a %d", cn);
 	m_CladdingPhysical[K][M] = new G4PVPlacement(
 									stripRotation,
@@ -374,21 +376,21 @@ void ModTypeZDC::ConstructDetector()
       ++cn;
     }
   }
-  cn = 0;    
+  cn = 0;
   //  W plates (non pixel modules): Physical plates that span length of each absorber gap
-  for(int K=0;K<modNAbsorbers[m_modNum];K++) {    // 11 layers of plates	
+  for(int K=0;K<modNAbsorbers[m_modNum];K++) {    // 11 layers of plates
     char volName[256];
     sprintf(volName,"W_i %d",K + m_modNum*modOffset);
     m_WPhysical[K] = new G4PVPlacement(nullRotation,G4ThreeVector(0,0,zStartW*mm+K*zPitch*mm),m_WLogical,name,m_ModuleLogical,false,cn,checkOverlaps);
     ++cn;
   }
-  
-  //----------------------------------------------     
+
+  //----------------------------------------------
   // Define Surface/Border Properties
-  //----------------------------------------------  
+  //----------------------------------------------
   DefineBorderProperties();
 
-  //----------------------------------------------     
+  //----------------------------------------------
   // SD and Scoring Volumes
   //----------------------------------------------
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
@@ -400,8 +402,8 @@ void ModTypeZDC::ConstructDetector()
   aQuartzSD->HistInitialize();
   SDman->AddNewDetector( aQuartzSD );
   m_StripLogical->SetSensitiveDetector( aQuartzSD );
-  
-  
+
+
 
   /*
   if (m_simCherenkov) {
@@ -411,7 +413,7 @@ void ModTypeZDC::ConstructDetector()
     CherenkovSD* aCherenkovSD = new CherenkovSD( CherenkovSDname, m_sd, m_modNum);
     aCherenkovSD->HistInitialize();
     SDman->AddNewDetector( aCherenkovSD );
-    //    m_AirScoringLogical->SetSensitiveDetector( aCherenkovSD );    
+    //    m_AirScoringLogical->SetSensitiveDetector( aCherenkovSD );
   }
   */
   std::cout << "ModTypeZDC construction finished: SD name " << quartzSDname << std::endl;

@@ -148,8 +148,8 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 
 	//table(-2250,500) -> rpd/beam(0,0)	where 100=0.1cm in table coordinates
 	//-320mm is offset to get from zdc mid to active area mid
-	tableX_shift = (-2257.0 - (align_run->x_table)  )/100*mm ;
-	tableY_shift = (501.0   - (align_run->y_table)  )/100*mm ;
+	tableX_shift = (-2250.0 - (align_run->x_table)  )/100*mm ;//2257 more accurate
+	tableY_shift = (500.0   - (align_run->y_table)  )/100*mm ;//501  more accurate
 
 	rpdX  = (srvy_rpd ->x_pos)   *1000.0			 					*mm;
 	zdc1X = (( (srvy_zdc1->x_pos)*1000.0 ) - rpdX + tableX_shift    )	*mm;
