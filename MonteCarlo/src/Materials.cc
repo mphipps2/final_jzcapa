@@ -68,7 +68,7 @@ void Materials::DefineOpticalProperties(void){
   G4double quartz_RIND[nEntriesWLS], quartz_ABSL[nEntriesWLS],quartz_RFLT[nEntriesWLS],quartz_EFIC[nEntriesWLS], PhotonEnergy[nEntriesWLS];
      for(int i = 0; i < nEntriesWLS; i++){
          PhotonEnergy[i] = 2.00*eV + i*0.03*eV;
-         quartz_RIND[i] =tile_RI; //Refractive Index - constants
+         quartz_RIND[i] = tile_RI; //Refractive Index - constants
          quartz_ABSL[i] = 300.00*cm + i*20*cm; //Attenuation length
          quartz_RFLT[i] = 0.5;
          quartz_EFIC[i] = 0.5;
@@ -86,18 +86,18 @@ void Materials::DefineOpticalProperties(void){
 
 
    //Aluminium optical properties
-   G4double AllPhotonEnergies[nEntriesWLS] = {2.00*eV, 2.04*eV, 2.07*eV, 2.11*eV, 2.15*eV, 2.18*eV, 2.22*eV, 2.26*eV, 2.29*eV,
+   G4double AllPhotonEnergies[50] = {2.00*eV, 2.04*eV, 2.07*eV, 2.11*eV, 2.15*eV, 2.18*eV, 2.22*eV, 2.26*eV, 2.29*eV,
                                               2.33*eV, 2.37*eV, 2.40*eV, 2.44*eV, 2.48*eV, 2.51*eV, 2.55*eV, 2.59*eV, 2.62*eV,
                                               2.66*eV, 2.70*eV, 2.74*eV, 2.77*eV, 2.81*eV, 2.85*eV, 2.88*eV, 2.92*eV, 2.96*eV,
                                               2.99*eV, 3.03*eV, 3.07*eV, 3.10*eV, 3.14*eV, 3.18*eV, 3.21*eV, 3.25*eV, 3.29*eV,
                                               3.32*eV, 3.36*eV, 3.40*eV, 3.43*eV, 3.47*eV, 5.0*eV,  25.0*eV,100.0*eV, 1000.00*eV,
                                               10000.0*eV, 25000.0*eV, 50000.0*eV, 250000.*eV, 1000000.*eV};
-   G4double Al_refl[nEntriesWLS] = {0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89,
+   G4double Al_refl[50] = {0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89,
                                     0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89,
                                     0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89,
                                     0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89, 0.89,
                                     0.89, 0.89, 0.89, 0.89, 0.79, 0.69, 0.49, 0.29, 0.19, 0.09};	//"Hard cut"
-   G4double Al_ABSL[nEntriesWLS] = {0.01*mm, 0.01*mm, 0.01*mm,0.01*mm, 0.01*mm, 0.01*mm,0.01*mm, 0.01*mm, 0.01*mm,0.01*mm,
+   G4double Al_ABSL[50] = {0.01*mm, 0.01*mm, 0.01*mm,0.01*mm, 0.01*mm, 0.01*mm,0.01*mm, 0.01*mm, 0.01*mm,0.01*mm,
                               0.01*mm, 0.01*mm, 0.01*mm,0.01*mm, 0.01*mm, 0.01*mm,0.01*mm, 0.01*mm, 0.01*mm,0.01*mm,
                               0.01*mm, 0.01*mm, 0.01*mm,0.01*mm, 0.01*mm, 0.01*mm,0.01*mm, 0.01*mm, 0.01*mm,0.01*mm,
                               0.01*mm, 0.01*mm, 0.01*mm,0.01*mm, 0.01*mm, 0.01*mm,0.01*mm, 0.01*mm, 0.01*mm,0.01*mm,
@@ -133,12 +133,12 @@ void Materials::DefineOpticalProperties(void){
    //PMMA optical properties
    G4double RefractiveIndexWLSfiber[nEntriesWLS];
    for (int i = 0; i < nEntriesWLS; i++) RefractiveIndexWLSfiber[i] = core_RI;
-   G4double AbsWLSfiber[nEntriesWLS] = { 5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,
+   G4double AbsWLSfiber[50] = { 5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,
                                          5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,
                                          5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,1.10*m,
                                          1.10*m,1.10*m,1.10*m,1.10*m,1.10*m,1.10*m, 1.*mm, 1.*mm, 1.*mm, 1.*mm,
                                          1.*mm, 1.*mm, 1.*mm, 1.*mm, 1.*mm, 1.*mm, 1.*mm, 1.*mm, 1.*mm, 1.*mm};
-   G4double EmissionWLSfiber[nEntriesWLS] = {0.05, 0.10, 0.30, 0.50, 0.75, 1.00, 1.50, 1.85, 2.30, 2.75,
+   G4double EmissionWLSfiber[50] = {0.05, 0.10, 0.30, 0.50, 0.75, 1.00, 1.50, 1.85, 2.30, 2.75,
                                              3.25, 3.80, 4.50, 5.20, 6.00, 7.00, 8.50, 9.50, 11.1, 12.4,
                                              12.9, 13.0, 12.8, 12.3, 11.1, 11.0, 12.0, 11.0, 17.0, 16.9,
                                              15.0, 9.00, 2.50, 1.00, 0.05, 0.00, 0.00, 0.00, 0.00, 0.00,
