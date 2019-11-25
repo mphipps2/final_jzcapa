@@ -119,13 +119,11 @@ int main(int argc,char** argv)
   // Physics list
   TEnv* config = sharedData->GetConfig();
   std::string physicsListName = config->GetValue("physicsList","FTFP_BERT");
- std::cout << "TESTSTART" << std::endl;
   // for now passing constructors directly
   // if need to modify something (SetSomething)
   // then take it out and add via this pointer.
   //  G4VModularPhysicsList* physicsList = NULL;
   runManager->SetUserInitialization( new PhysicsList(physicsListName, sharedData));
-     std::cout << "TESTEND" << std::endl;
   // User action initialization
   runManager->SetUserInitialization(new ActionInitialization(sharedData));
 

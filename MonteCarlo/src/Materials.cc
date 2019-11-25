@@ -160,13 +160,6 @@ void Materials::DefineOpticalProperties(void){
    MPT_Array.back()->AddProperty("ABSLENGTH",PhotonEnergy,AbsClad,nEntriesWLS);
    Grease->SetMaterialPropertiesTable(MPT_Array.back());
 
-
-
-
-
-
-
-
    // set the optical boundary properties
 
   AlSurface = new G4OpticalSurface("AlSurface",unified, polished, dielectric_metal, 1);
@@ -200,7 +193,6 @@ void Materials::DefineOpticalProperties(void){
    photonDetSurfaceProperty->AddProperty("EFFICIENCY",p_mppc,effi_mppc,nbins);
 
    photonDetSurface->SetMaterialPropertiesTable(photonDetSurfaceProperty);
-
 
 
 }

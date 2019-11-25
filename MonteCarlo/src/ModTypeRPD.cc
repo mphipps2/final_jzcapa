@@ -609,19 +609,19 @@ for(int k=0;k<2;k++) {
 							cn_fiber++;
 		}
 
-
-      std::cout  << std:: endl << "tilex = "
-				<<  RPD_startX - (i*( tileX+(2*halfX_gap) ) )
-				<< ", tiley = "
-				<<  RPD_startY - (j*( tileY+(2*halfY_gap) ) )
-				<< ", tilez = "
-				<< tileZcenter[j]
-				<< ", ("
-				<< i
-				<< ","
-				<< j
-				<< ")"
-				<< std::endl << std::endl;
+			// 
+      // std::cout  << std:: endl << "tilex = "
+			// 	<<  RPD_startX - (i*( tileX+(2*halfX_gap) ) )
+			// 	<< ", tiley = "
+			// 	<<  RPD_startY - (j*( tileY+(2*halfY_gap) ) )
+			// 	<< ", tilez = "
+			// 	<< tileZcenter[j]
+			// 	<< ", ("
+			// 	<< i
+			// 	<< ","
+			// 	<< j
+			// 	<< ")"
+			// 	<< std::endl << std::endl;
 
 
       cn++;
