@@ -122,7 +122,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 {
 	// Get Config
 	TEnv* config = m_sd->GetConfig();
-	int ZDC_SETUP = config->GetValue("ZDC_SETUP", 0);
+	int TESTBEAM_SETUP = config->GetValue("TESTBEAM_SETUP", 0);
 	int runNum = config->GetValue( "RunNumber", -1);
 
 	m_sd->LoadConfigurationFile(runNum);
@@ -144,7 +144,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 	Alignment	*align_run 	= m_sd->GetAlignment();
 
 	//################################ SURVEY/ALIGNMENT_SETUP
-	if(ZDC_SETUP == 1){
+	if(TESTBEAM_SETUP == 1){
 
 	//table(-2250,500) -> rpd/beam(0,0)	where 100=0.1cm in table coordinates
 	//-320mm is offset to get from zdc mid to active area mid
@@ -286,7 +286,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
       modSizeZ[i] = 2*modCasingThickness[i]+modNRadiators[i]*modRadiatorGapLength[i] + modNAbsorbers[i]*modAbsorberThickness[i];
 
     }
-	if(ZDC_SETUP==1){
+	if(TESTBEAM_SETUP==1){
 		if (modType[i] == 5) {
 		char variable[256];
 		std::string modCladding;
@@ -356,7 +356,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
   G4double worldSizeZ       = 1.2 * totalModSizeZ * mm; 	//was 1.2
 
 
-   if(ZDC_SETUP==1){
+   if(TESTBEAM_SETUP==1){
 		worldSizeZ= 32000*mm;
 		if( std::abs(zdc1X) < std::abs(zdc2X) ) worldSizeX = 1.1 * 2 * ( std::abs(zdc2X)+ maxModSizeX/2 ) * mm;
 		else  															worldSizeX = 1.1 * 2 * ( std::abs(zdc1X) + maxModSizeX/2 ) * mm;
@@ -435,7 +435,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
   }
 
 
-  if(ZDC_SETUP==1){
+  if(TESTBEAM_SETUP==1){
 
 
 
@@ -517,7 +517,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 		cout << "Placed Lead Block at Z = " << leadblockZ*mm << "mm" <<  std::endl;
 	}
 
-  }//END_ZDC_SETUP
+  }//END_TESTBEAM_SETUP
 
   return m_physWorld;
 }
