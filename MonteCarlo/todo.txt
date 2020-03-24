@@ -1,0 +1,63 @@
+todo
+
+
+MAIN
+-Enable multithreading. Special considerations must be taken when storing std::vector
+  in root files.
+  Ref: https://indico.cern.ch/event/217511/contributions/444924/attachments/349283/486922/root_in_geant4.pdf
+-Make args with flags
+-Add geometry.mac with DetectorMessenger commands
+
+CONSTRUCTION
+-Make DetectorMessenger that talks to DetectorConstruction, ModTypeRPD and ModTypeZDC
+-Set sim cherenkov option in physics list. (maybe set it in detector construction)
+-Replace rpd construction with pan flute
+-Give zdc construction materials only from Materials class
+-Make zdc with vectors instead of fixed length arrays
+
+SENSITIVEDETECTORS
+-Single SD that has a flag depending on use?
+  Could be better than having an optical flag passed around
+
+STEPPINGACTION
+-Fill last step in volume properly
+
+OUTPUT
+-Add analysis class
+-Add gun position to branch in event action
+-Figure out how to separate detector hit collections in event action properly
+-Change output vector storage form run action to event action
+-Make a cluster flag to reduce branches (reducedTree)
+
+PHYSICS
+-Clean up commented out lines
+
+
+
+*** By Priority ***
+/// Necessary
+-Add analysis class
+-Single SD that has a flag depending on use?
+  Could be better than having an optical flag passed around
+-Figure out how to separate detector hit collections in event action properly
+  Make sd names a  formatted string based on detector
+-Change output vector storage form run action to event action
+-Make DetectorMessenger that talks to;
+  DetectorConstruction, ModTypeRPD and ModTypeZDC, PhysicsList, RunAction
+-Add geometry.mac with DetectorMessenger commands
+-Set sim cherenkov option in physics list. (maybe set it in detector construction)
+-Make a cluster flag to reduce branches (reducedTree)
+
+// Completeness
+-Replace rpd construction with pan flute
+-Give zdc construction materials only from Materials class
+-Make zdc with vectors instead of fixed length arrays
+-Fill last step in volume properly
+-Add gun position to branch in event action
+
+// Quality of life
+-Clean up commented out lines
+-Make args with flags
+-Enable multithreading. Special considerations must be taken when storing std::vector
+  in root files.
+  Ref: https://indico.cern.ch/event/217511/contributions/444924/attachments/349283/486922/root_in_geant4.pdf
