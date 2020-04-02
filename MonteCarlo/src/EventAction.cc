@@ -28,13 +28,11 @@
 #include "G4UnitsTable.hh"
 #include "EventAction.hh"
 #include "RunAction.hh"
-#include "CherenkovHit.hh"
 #include "QuartzHit.hh"
 #include "G4SDManager.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4Event.hh"
 #include "G4RunManager.hh"
-#include "SharedData.hh"
 #include "G4PrimaryVertex.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -44,10 +42,6 @@ EventAction::EventAction(RunAction* runAction)
   fRunAction(runAction)
 {
   hitsCollID = -1;
-  fRunAction->GetSharedData()->AddOutputToRPDTree("gunPosX",&gunPosX);
-  fRunAction->GetSharedData()->AddOutputToRPDTree("gunPosY",&gunPosY);
-  fRunAction->GetSharedData()->AddOutputToRPDTree("gunPosZ",&gunPosZ);
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

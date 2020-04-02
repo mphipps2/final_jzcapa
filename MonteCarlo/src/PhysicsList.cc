@@ -1,9 +1,8 @@
 #include "PhysicsList.hh"
 
-PhysicsList::PhysicsList(G4String _physicsList, SharedData* _sharedData)
+PhysicsList::PhysicsList(G4String _physicsList)
 {
 
-  sharedData = _sharedData;
   Hadronic_PL = _physicsList;
 
   decay = NULL;
@@ -87,8 +86,9 @@ void PhysicsList::ConstructProcess(void)
   for (unsigned int i = 0; i < hadronPhysics.size(); i++)
       hadronPhysics[i]->ConstructProcess();
 
-TEnv* config = sharedData->GetConfig();
-if (config->GetValue("OPTICAL_ON",false) == 1){
+
+// make a bool for optical option
+if (1){
   constructOptical();
   std::cout << "Optical Physics Turned ON" << std::endl;
 }

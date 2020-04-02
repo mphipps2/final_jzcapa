@@ -40,10 +40,9 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-SteppingAction::SteppingAction(EventAction* eventAction, SharedData* _sd)
+SteppingAction::SteppingAction(EventAction* eventAction)
 : G4UserSteppingAction(),
   fEventAction(eventAction){
-  m_sd = _sd;
 
   m_sd->AddOutputToRPDTree("LastStepInVolume", &lastStep);
 

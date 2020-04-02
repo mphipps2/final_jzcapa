@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// 
+//
 //
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -32,14 +32,7 @@
 #define FiberSD_h 1
 
 #include "G4VSensitiveDetector.hh"
-#include "RpdHit.hh"
-#include "FiberHit.hh"
 
-#include "TH1D.h"
-#include "TH2D.h"
-#include "TH3D.h"
-
-class SharedData;
 class G4Step;
 class G4HCofThisEvent;
 
@@ -48,26 +41,23 @@ class G4HCofThisEvent;
 class FiberSD : public G4VSensitiveDetector
 {
 public:
-  FiberSD(G4String, SharedData*, G4int);
+  FiberSD(G4String, G4int);
   ~FiberSD();
 
   void HistInitialize();
- 
+
   void Initialize(G4HCofThisEvent*);
   int CalculateCherenkovs(G4Step*,int);
   G4bool ProcessHits(G4Step*, G4TouchableHistory*);
   void EndOfEvent(G4HCofThisEvent*);
 
 private:
-  SharedData* m_sd;
   int HCID;
-  G4double m_modCoreIndexRefraction;  
+  G4double m_modCoreIndexRefraction;
   FiberHitsCollection* fiberCollection;
   G4int m_modNum;
-  TH2D* h2_rodNum_eDep;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
-

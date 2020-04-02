@@ -33,7 +33,6 @@
 
 #include "G4UserSteppingAction.hh"
 #include "globals.hh"
-#include "SharedData.hh"
 
 class EventAction;
 
@@ -43,7 +42,7 @@ class EventAction;
 class SteppingAction : public G4UserSteppingAction
 {
   public:
-    SteppingAction(EventAction* eventAction, SharedData* _sd);
+    SteppingAction(EventAction* eventAction);
     virtual ~SteppingAction();
 
     // method from the base class
@@ -52,8 +51,6 @@ class SteppingAction : public G4UserSteppingAction
   private:
     EventAction*  fEventAction;
     G4double lastStep;
-    //std::vector<G4ThreeVector> vertex_pos;
-    SharedData* m_sd;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

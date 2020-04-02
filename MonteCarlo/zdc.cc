@@ -30,7 +30,6 @@
 
 #include "DetectorConstruction.hh"
 #include "ActionInitialization.hh"
-#include "SharedData.hh"
 
 #include "PhysicsList.hh"
 /*
@@ -92,9 +91,6 @@ int main(int argc,char** argv)
       outputName = arg;
     }
   }
-  // Create SharedData and Run Manager
-  SharedData* sharedData = new SharedData( outputName, cfgName.Data() );
-  sharedData->Initialize();
 
   // Construct the default run manager
   //
@@ -109,12 +105,12 @@ int main(int argc,char** argv)
   G4RunManager* runManager = new MyRunManager( sharedData );
 #endif
   */
-  G4RunManager* runManager = new MyRunManager( sharedData );
+  G4RunManager* runManager = new MyRunManager( );
   // Set mandatory initialization classes
   //
 
   // Detector construction
-  runManager->SetUserInitialization(new DetectorConstruction( sharedData ) );
+  runManager->SetUserInitialization( new DetectorConstruction() );
 
   // Physics list
   TEnv* config = sharedData->GetConfig();
@@ -123,9 +119,9 @@ int main(int argc,char** argv)
   // if need to modify something (SetSomething)
   // then take it out and add via this pointer.
   //  G4VModularPhysicsList* physicsList = NULL;
-  runManager->SetUserInitialization( new PhysicsList(physicsListName, sharedData));
+  runManager->SetUserInitialization( new PhysicsList(physicsListName) );
   // User action initialization
-  runManager->SetUserInitialization(new ActionInitialization(sharedData));
+  runManager->SetUserInitialization( new ActionInitialization() );
 
   // Initialize visualization
   G4VisManager* visManager = new G4VisExecutive;
@@ -152,14 +148,6 @@ int main(int argc,char** argv)
     delete ui;
   }
 
-  // Job termination
-  // Free the store: user actions, physics_list and detector_description are
-  // owned and deleted by the run manager, so they should not be deleted
-  // in the main() program !
-  sharedData->Finalize();
-  std::cerr << "\nAbout to delete sharedData - " << sharedData << std::endl;
-  // WHY THIS NOT WORKING???
-  // delete sharedData;
 
   delete visManager;
   delete runManager;

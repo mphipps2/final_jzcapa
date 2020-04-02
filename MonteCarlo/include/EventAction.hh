@@ -33,7 +33,6 @@
 
 #include "G4UserEventAction.hh"
 #include "globals.hh"
-#include "SharedData.hh"
 #include "TH2D.h"
 #include "TMath.h"
 #include <string>
@@ -54,9 +53,6 @@ class EventAction : public G4UserEventAction
 
   private:
     RunAction* fRunAction;
-    SharedData* fSharedData;
-  //    TH2D* h_radNum_eDep;
-  // TH1D* h_radNum_nParticles;
     int hitsCollID;
     int fEventNo;
     G4double gunPosX,gunPosY,gunPosZ;

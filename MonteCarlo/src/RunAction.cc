@@ -31,7 +31,6 @@
 #include "RunAction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "DetectorConstruction.hh"
-// #include "Run.hh"
 
 #include "G4RunManager.hh"
 #include "G4Run.hh"
@@ -52,11 +51,9 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-RunAction::RunAction(SharedData *sd)
+RunAction::RunAction()
 : G4UserRunAction()
-{
-    fSharedData = sd;
-}
+{}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -73,7 +70,6 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 	bool bzdc2flag=false;
 	bool brpdflag=false;
 
-  TEnv* config = fSharedData->GetConfig();
 
 	int runNum = config->GetValue( "RunNumber", -1);
 	fSharedData->LoadAlignmentFile(runNum);

@@ -34,15 +34,10 @@
 
 #include <vector>
 
-//class G4Box;
-//class G4Para;
-//class G4Tubs;
 class G4VPhysicalVolume;
 class G4LogicalVolume;
 class G4VSolid;
 class G4Material;
-
-class SharedData;
 
 /// Detector construction class to define materials and geometry.
 
@@ -51,29 +46,28 @@ class ModTypeZDC
 public:
   ModTypeZDC(const int,
 	 const G4ThreeVector&,
-	 G4LogicalVolume*, SharedData*);
+	 G4LogicalVolume*);
   ModTypeZDC();
   ~ModTypeZDC();
-  
+
   virtual void  Construct();
-  
-  virtual void  DefineMaterials();  
+
+  virtual void  DefineMaterials();
   virtual void  DefineBorderProperties();
 
   virtual void  ConstructDetector();
-  
+
 protected:
-  const int            m_modNum;  
+  const int            m_modNum;
   const G4ThreeVector  m_pos;
   G4LogicalVolume*     m_logicMother;
-  SharedData*          m_sd;
 
 protected:
   G4Material*        m_matHousing;
   G4Material*        m_matQuartz;
   G4Material*        m_matAbsorber;
   G4Material*        m_matAir;
-  
+
   G4VSolid*          m_ModuleBox;
   G4LogicalVolume*   m_ModuleLogical;
   G4VPhysicalVolume* m_ModulePhysical;
@@ -81,7 +75,7 @@ protected:
   G4VSolid*          m_AirScoringBox;
   G4LogicalVolume*   m_AirScoringLogical;
   G4VPhysicalVolume* m_AirScoringPhysical;
-  
+
   G4VSolid*          m_SteelBox;
   G4LogicalVolume*   m_SteelLogical;
   G4VPhysicalVolume* m_SteelBoxPhysical;
@@ -97,7 +91,7 @@ protected:
 
   G4VSolid*          m_CladdingTube;
   G4LogicalVolume*   m_CladdingLogical;
-  G4VPhysicalVolume* m_CladdingPhysical[12][100];  
+  G4VPhysicalVolume* m_CladdingPhysical[12][100];
 
   bool               m_simCherenkov;
 };
@@ -105,4 +99,3 @@ protected:
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
-

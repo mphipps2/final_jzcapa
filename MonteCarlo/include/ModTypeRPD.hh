@@ -42,8 +42,6 @@ class G4LogicalVolume;
 class G4VSolid;
 class G4Material;
 
-class SharedData;
-
 /// Detector construction class to define materials and geometry.
 
 class ModTypeRPD
@@ -51,7 +49,7 @@ class ModTypeRPD
 public:
   ModTypeRPD(const int,
 	 const G4ThreeVector&,
-	 G4LogicalVolume*, SharedData*);
+	 G4LogicalVolume*);
   ModTypeRPD();
   ~ModTypeRPD();
 
@@ -68,7 +66,6 @@ protected:
   const int            m_modNum;
   const G4ThreeVector  m_pos;
   G4LogicalVolume*     m_logicMother;
-  SharedData*          m_sd;
 
   Materials*          materials;
 protected:
@@ -84,17 +81,6 @@ protected:
   G4Material*           m_PMMA;
 
   G4Material*           m_Grease;
-
-  // G4LogicalBorderSurface* quartz_grease_LBS[64];
-  // G4LogicalBorderSurface* quartz_grease_LBS[64];
-  // G4LogicalBorderSurface* grease_clad_LBS[64];
-  // G4LogicalBorderSurface* clad_core_LBS[64];
-  // G4LogicalSkinSurface* greaseLSS[4];
-  // G4LogicalSkinSurface* pmmaLSS[4];
-  // G4LogicalSkinSurface* polyLSS[4];
-  // G4LogicalSkinSurface* alum1LSS;
-  // G4LogicalSkinSurface* alum2LSS;
-  // G4LogicalSkinSurface* quartzLSS;
 
   G4OpticalSurface* m_photonDetSurface;
 

@@ -33,14 +33,11 @@
 
 #include "G4VUserDetectorConstruction.hh"
 #include "globals.hh"
-#include "ModType1.hh"
-#include "ModType2.hh"
-#include "ModType3.hh"
-#include "ModTypeCustom.hh"
 #include "ModTypeZDC.hh"
 #include "ModTypeRPD.hh"
 #include "G4Cache.hh"
 #include "G4MagneticField.hh"
+#include "XMLSettingsReader.hh"
 #include <vector>
 #include "Materials.hh"
 
@@ -49,11 +46,54 @@ class G4Para;
 class G4VPhysicalVolume;
 class G4LogicalVolume;
 class G4Material;
-class SharedData;
 
 class G4UniformMagField;
 class PurgMagTabulatedField3D;
 
+
+class Survey {
+
+ public :
+
+	/** Type of detector - ZDC or RPD **/
+    std::string detector;
+    /** x_pos for this survey */
+    double x_pos;
+	/** y_pos for this survey */
+    double y_pos;
+	/** z_pos for this survey */
+    double z_pos;
+	/** cos_x for this survey */
+    double cos_x;
+	/** cos_y for this survey */
+    double cos_y;
+	/** cos_z for this survey */
+    double cos_z;
+
+};
+
+class Alignment {
+
+ public:
+
+    /** X position of the Desy Table **/
+    double x_table;
+    /** Y position of the Desy Table **/
+    double y_table;
+    /** First detector met by the beam **/
+    std::string upstream_Det;
+    /** Second detector met by the beam **/
+    std::string mid_Det;
+    /** Third detector met by the beam **/
+    std::string downstream_Det;
+    /** GOLIATH magnet status **/
+    bool magnet_On;
+    /** Target in **/
+    bool target_In;
+    /** Lead absorber in **/
+    bool lead_In;
+
+};
 
 /// Detector construction class to define materials and geometry.
 
@@ -61,7 +101,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
   DetectorConstruction();
-  DetectorConstruction( SharedData* );
   virtual ~DetectorConstruction();
 
   virtual G4VPhysicalVolume* Construct();
@@ -69,17 +108,29 @@ public:
   virtual void               DefineBorderProperties();
 
   virtual G4VPhysicalVolume* ConstructDetector();
+  virtual G4VPhysicalVolume* ConstructTestBeam();
+  virtual G4VPhysicalVolume* LoadConfigurationFile();
+  virtual Survey*            GetSurvey();
+  virtual Alignment*         LoadAlignmentFile();
 
 protected:
-  SharedData*        m_sd;
-  Materials*          materials;
+  Materials*              materials;
 
 protected:
-  G4Box*               m_solidWorld;
-  G4LogicalVolume*     m_logicWorld;
-  G4VPhysicalVolume*   m_physWorld;
-  G4LogicalVolume*     logic_leadTarget;
-  G4LogicalVolume*     logic_leadBlock;
+  /* World objects */
+  G4Box*                  m_solidWorld;
+  G4LogicalVolume*        m_logicWorld;
+  G4VPhysicalVolume*      m_physWorld;
+
+  /* Lead target objects */
+  G4LogicalVolume*        logic_leadTarget;
+  G4LogicalVolume*        logic_leadBlock;
+
+  /* Configuration parser objects and storage */
+  XMLSettingsReader*      m_XMLparser;
+  Alignment* 	            m_alignment;
+  Survey*                 m_survey;
+  std::vector < Survey* > surveyEntries;
 
 private:
 	G4Cache<G4MagneticField*> fField;  //pointer to the thread-local fields

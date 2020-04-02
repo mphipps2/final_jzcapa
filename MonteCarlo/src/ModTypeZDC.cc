@@ -27,9 +27,6 @@
 // For an explanation of the hierarchy scheme see: https://twiki.cern.ch/twiki/bin/view/Atlas/ZdcSimulation#Geometry_Implementation_Develope
 
 #include "ModTypeZDC.hh"
-#include "QuartzSD.hh"
-#include "CherenkovSD.hh"
-#include "SharedData.hh"
 
 #include "G4GeometryManager.hh"
 #include "G4SolidStore.hh"
@@ -64,7 +61,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ModTypeZDC::ModTypeZDC(const int cn,const G4ThreeVector& pos,
-	      G4LogicalVolume* mother, SharedData* sd)
+	      G4LogicalVolume* mother)
   : m_modNum( cn ),  m_pos( pos ), m_logicMother( mother ),
     m_sd( sd ),
     m_matQuartz(0),

@@ -32,10 +32,7 @@
 #define RunAction_h 1
 
 #include "G4UserRunAction.hh"
-//#include "G4Parameter.hh"
 #include "globals.hh"
-#include "SharedData.hh"
-#include "TH2D.h"
 #include "G4ThreeVector.hh"
 #include <vector>
 
@@ -51,7 +48,7 @@ class G4Run;
 class RunAction : public G4UserRunAction
 {
   public:
-    RunAction(SharedData *sd);
+    RunAction( );
     virtual ~RunAction();
 
     // virtual G4Run* GenerateRun();
@@ -118,8 +115,6 @@ class RunAction : public G4UserRunAction
         fBeta_v3.clear();
 		}
 
-  inline SharedData* GetSharedData() {return fSharedData;}
-
   inline  void SetRadNo(G4int rNo) {fRadNb_v.push_back(rNo);}
   inline  void SetRodNo(G4int rNo) {fRodNb_v.push_back(rNo);}
   inline  void SetEdep(G4double edep) {fEdep_v.push_back(edep);}
@@ -169,7 +164,6 @@ class RunAction : public G4UserRunAction
   inline  void SetBeta_fiber(G4double beta) {fBeta_v3.push_back(beta);}
 
   private:
-    SharedData *fSharedData;
   std::vector<int>         fTrackID_v;
   std::vector<int>         fModNb_v;
   std::vector<int>         fRadNb_v;

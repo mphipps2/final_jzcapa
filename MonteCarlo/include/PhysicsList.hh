@@ -60,8 +60,6 @@
 
 #include <assert.h>
 
-#include "SharedData.hh"
-//#include <config.hh>
 
 // This macro will be missing in Geant4.10.3 (for multi-threaded mode, which is not used in TGEANT), so we define it here
 #define theParticleIterator ((this->subInstanceManager.offset[this->g4vuplInstanceID])._theParticleIterator)
@@ -70,7 +68,7 @@
 class PhysicsList : public G4VUserPhysicsList
 {
   public:
-    PhysicsList(G4String, SharedData*);
+    PhysicsList(G4String);
     ~PhysicsList(void);
     void ConstructParticle(void);
     void ConstructProcess(void);
@@ -80,7 +78,6 @@ class PhysicsList : public G4VUserPhysicsList
     G4ParticleDefinition* getParticleByID(G4int id);
 
   private:
-    SharedData* sharedData;
     G4String Hadronic_PL;
     int verboseLevel;
 
