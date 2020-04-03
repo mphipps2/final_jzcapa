@@ -22,21 +22,19 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file DetectorMessenger.hh
-/// \brief Definition of the DetectorMessenger class
+/// \file PhysicsMessenger.hh
+/// \brief Definition of the PhysicsMessenger class
 //
 //
 //
 
-#ifndef DetectorMessenger_h
-#define DetectorMessenger_h 1
+#ifndef PhysicsMessenger_h
+#define PhysicsMessenger_h 1
 
 #include "globals.hh"
 #include "G4UImessenger.hh"
 
-class DetectorConstruction;
-class ModTypeRPD;
-class ModTypeZDC;
+class PhysicsList;
 class G4UIdirectory;
 class G4UIcommand;
 class G4UIcmdWithAString;
@@ -48,42 +46,22 @@ class G4UIcmdWithoutParameter;
 class G4UIcmdWith3VectorAndUnit;
 
 
-class DetectorMessenger: public G4UImessenger{
+class PhysicsMessenger: public G4UImessenger{
   public:
 
-    DetectorMessenger(DetectorConstruction* );
-   ~DetectorMessenger();
+    PhysicsMessenger(DetectorConstruction* );
+   ~PhysicsMessenger();
 
     virtual void SetNewValue(G4UIcommand*, G4String);
 
   private:
 
-    DetectorConstruction*      fDetector;
+    PhysicsList*               fPhysicsList;
 
-    G4UIdirectory*             fRPDDir;
-    G4UIdirectory*             fZDCDir;
+    G4UIdirectory*             fPhysicsDir;
 
     //ZDC Commands
-    G4UIcmdWithoutParameter*   fZDCAddCmd;
-    G4UIcmdWithAnInteger*      fZDCSetCurrentCmd;
-    G4UIcmdWithABool*          fZDCForcePositionCmd;
-    G4UIcmdWith3VectorAndUnit* fZDCPositionCmd;
-    G4UIcmdWithADouble*        fZDCHousingThicknessCmd;
-    G4UIcmdWithAnInteger*      fZDCnAbsorbersCmd;
-    G4UIcmdWith3VectorAndUnit* fZDCAbsorberDimensionsCmd;
-    G4UIcmdWithADouble*        fZDCFiberCoreDiameterCmd;
-    G4UIcmdWithABool*          fZDCUseOpticalMaterialsCmd;
-
-
-    //RPD commands
-    G4UIcmdWithoutParameter*   fRPDAddCmd;
-    G4UIcmdWithAnInteger*      fRPDSetCurrentCmd;
-    G4UIcmdWith3VectorAndUnit* fRPDPositionCmd;
-    G4UIcmdWithADouble*        fRPDSetFiberPitchCmd;
-    G4UIcmdWithADouble*        fRPDSetTileSizeCmd;
-    G4UIcmdWith3VectorAndUnit* fRPDHousingThicknessCmd;
-    G4UIcmdWith3VectorAndUnit* fRPDFiberDimensionsCmd; //Core, Cladding, Buffer
-    G4UIcmdWithABool*          fRPDUseOpticalMaterialsCmd;
+    G4UIcmdWithABool*          fSimCherenkovsCmd;
 
 
 };

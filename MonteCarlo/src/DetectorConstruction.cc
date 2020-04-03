@@ -79,7 +79,7 @@
 
 DetectorConstruction::DetectorConstruction()
   : G4VUserDetectorConstruction(),
-    m_solidWorld(NULL), m_logicWorld(NULL), m_physWorld(NULL)
+    m_solidWorld(NULL), m_logicWorld(NULL), m_physWorld(NULL),CLUSTER(false)
 {materials = Materials::getInstance();}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

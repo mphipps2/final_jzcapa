@@ -23,15 +23,12 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file optical/OpNovice2/src/DetectorMessenger.cc
-/// \brief Implementation of the DetectorMessenger class
+/// \file src/PhysicsMessenger.cc
+/// \brief Implementation of the PhysicsMessenger class
 //
 //
 
-#include "DetectorMessenger.hh"
-
-#include <sstream>
-#include <iostream>
+#include "PhysicsMessenger.hh"
 
 #include "G4OpticalSurface.hh"
 
@@ -47,25 +44,31 @@
 #include "G4UIcmdWith3VectorAndUnit.hh"
 
 
-DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
-:G4UImessenger(),fDetector(Det)
+PhysicsMessenger::PhysicsMessenger(PhysicsList * pList)
+:G4UImessenger(),fPhysicsList(pList)
 {
 
+  fPhysicsDir = new G4UIdirectory("/Physics/");
+  fPhysicsDir->SetGuidance("PhysicsList options");
+
+  fSimCherenkovsCmd = new G4UIcmdWithABool("/Physics/Cherenkovs", this);
+  fSimCherenkovsCmd->SetGuidance("Propogate Cherenkov photons");
+  fSimCherenkovsCmd->SetParameterName("flag",false);
+  fSimCherenkovsCmd->SetDefaultValue(false);
 }
 
 /*
  *
  */
-DetectorMessenger::~DetectorMessenger(){
-
-  //Remember to delete all commands
-
+PhysicsMessenger::~PhysicsMessenger(){
+  delete fSimCherenkovsCmd;
 }
 
 /*
  *
  */
-void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
-{
-
+void PhysicsMessenger::SetNewValue(G4UIcommand* command,G4String newValue){
+  if (command == fSimCherenkovsCmd) {
+    fPhysicsList->SimCherenkovs( fSimCherenkovsCmd->GetNewBoolValue(newValue) );
+  }
 }

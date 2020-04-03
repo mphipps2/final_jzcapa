@@ -63,6 +63,8 @@ class DetectorMessenger: public G4UImessenger{
     G4UIdirectory*             fRPDDir;
     G4UIdirectory*             fZDCDir;
 
+    G4UIcmdWithABool*          fClusterCmd;
+
     //ZDC Commands
     G4UIcmdWithoutParameter*   fZDCAddCmd;
     G4UIcmdWithAnInteger*      fZDCSetCurrentCmd;

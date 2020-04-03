@@ -29,6 +29,7 @@
 /// \brief Implementation of the RunAction class
 
 #include "RunAction.hh"
+#include "EventAction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "DetectorConstruction.hh"
 
@@ -40,20 +41,120 @@
 #include "G4HCtable.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4Version.hh"
-#include "g4root.hh"
-
-
-#if G4VERSION_NUMBER > 999
-    #include "G4AccumulableManager.hh"
-#else
-    #include "G4ParameterManager.hh"
-#endif
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::RunAction()
 : G4UserRunAction()
-{}
+{
+  // Get number of ZDCs and RPDs from DetectorConstruction
+  const DetectorConstruction* constDetectorConstruction
+    = static_cast<const DetectorConstruction*>(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
+  DetectorConstruction* detectorConstruction
+    = const_cast<DetectorConstruction*>(constDetectorConstruction);
+
+  int    nZDCs   = detectorConstruction->GetnZDCs();
+  int    nRPDs   = detectorConstruction->GetnRPDs();
+  G4bool CLUSTER = detectorConstruction->GetClusterFlag();
+
+  // Get event action
+  const EventAction* constEventAction
+    = static_cast<const EventAction*>(G4RunManager::GetRunManager()->GetUserEventAction());
+  EventAction* eventAction
+    = const_cast<EventAction*>(constEventAction);
+
+  eventAction->SetClusterFlag(CLUSTER);
+  eventAction->SetnZDCs(nZDCs);
+  eventAction->SetnRPDs(nRPDs);
+
+  // The sizes of these vectors will tell us how many of each detector we have
+  // and what branches we want on the trees. We also need the addresses so we can
+  // write the contents to the trees.
+  std::vector< std::vector< std::vector<double>* > >*  RPDdblVec
+    = eventAction->GetRPDdoubleVectors( );
+  std::vector< std::vector< std::vector< int  >* > >*  RPDintVec
+    = eventAction->GetRPDintVectors( );
+  std::vector< std::vector< std::vector<double>* > >*  ZDCdblVec
+    = eventAction->GetZDCdoubleVectors( );
+  std::vector< std::vector< std::vector< int  >* > >*  ZDCintVec
+    = eventAction->GetZDCintVectors( );
+
+
+  //Create the analysis manager
+  auto analysisManager = G4AnalysisManager::Instance();
+  G4cout << "Using " << analysisManager->GetType() << G4endl;
+
+  //Create ZDC trees and branches
+  for(int zdcNo = 0; zdcNo < nZDCs->size(); zdcNo++){
+    analysisManager->CreateNtuple( Form("ZDC%dtree",zdcNo), "ZDC data");
+    if(!CLUSTER){
+      //Make double branches
+      analysisManager->CreateNtupleDColumn( zdcNo, "x",           *ZDCdblVec->at(zdcNo).at(0) );
+      analysisManager->CreateNtupleDColumn( zdcNo, "y",           *ZDCdblVec->at(zdcNo).at(1) );
+      analysisManager->CreateNtupleDColumn( zdcNo, "z",           *ZDCdblVec->at(zdcNo).at(2) );
+      analysisManager->CreateNtupleDColumn( zdcNo, "Px",          *ZDCdblVec->at(zdcNo).at(3) );
+      analysisManager->CreateNtupleDColumn( zdcNo, "Py",          *ZDCdblVec->at(zdcNo).at(4) );
+      analysisManager->CreateNtupleDColumn( zdcNo, "Pz",          *ZDCdblVec->at(zdcNo).at(5) );
+      analysisManager->CreateNtupleDColumn( zdcNo, "energy",      *ZDCdblVec->at(zdcNo).at(6) );
+      analysisManager->CreateNtupleDColumn( zdcNo, "velocity",    *ZDCdblVec->at(zdcNo).at(7) );
+      analysisManager->CreateNtupleDColumn( zdcNo, "beta",        *ZDCdblVec->at(zdcNo).at(8) );
+      analysisManager->CreateNtupleDColumn( zdcNo, "eDep",        *ZDCdblVec->at(zdcNo).at(9) );
+
+      //Make int branches
+      analysisManager->CreateNtupleIColumn( zdcNo, "EventNo",     *ZDCintVec->at(zdcNo).at(0) );
+      analysisManager->CreateNtupleIColumn( zdcNo, "modNo",       *ZDCintVec->at(zdcNo).at(1) );
+      analysisManager->CreateNtupleIColumn( zdcNo, "radNo",       *ZDCintVec->at(zdcNo).at(2) );
+      analysisManager->CreateNtupleIColumn( zdcNo, "rodNo",       *ZDCintVec->at(zdcNo).at(3) );
+      analysisManager->CreateNtupleIColumn( zdcNo, "nCherenkovs", *ZDCintVec->at(zdcNo).at(4) );
+      analysisManager->CreateNtupleIColumn( zdcNo, "trackID",     *ZDCintVec->at(zdcNo).at(5) );
+      analysisManager->CreateNtupleIColumn( zdcNo, "pid",         *ZDCintVec->at(zdcNo).at(6) );
+      analysisManager->CreateNtupleIColumn( zdcNo, "charge",      *ZDCintVec->at(zdcNo).at(7) );
+
+    } else { // There's only two branches to save space on cluster jobs
+      analysisManager->CreateNtupleIColumn( zdcNo, "radNo",       *ZDCintVec->at(zdcNo).at(0) );
+      analysisManager->CreateNtupleIColumn( zdcNo, "nCherenkovs", *ZDCintVec->at(zdcNo).at(1)   );
+    }//end if !CLUSTER
+  }//end ZDC loop
+
+  //Create RPD trees and branches
+  for(int rpdNo = 0; rpdNo < nRPDs; rpdNo++){
+    analysisManager->CreateNtuple( Form("RPD%dtree",rpdNo), "RPD data");
+    int nTuple = nZDCs + rpdNo;
+    if(!CLUSTER){
+      //Make double branches
+      analysisManager->CreateNtupleDColumn( nTuple, "x",           *RPDdblVec->at(rpdNo).at(0) );
+      analysisManager->CreateNtupleDColumn( nTuple, "y",           *RPDdblVec->at(rpdNo).at(1) );
+      analysisManager->CreateNtupleDColumn( nTuple, "z",           *RPDdblVec->at(rpdNo).at(2) );
+      analysisManager->CreateNtupleDColumn( nTuple, "Px",          *RPDdblVec->at(rpdNo).at(3) );
+      analysisManager->CreateNtupleDColumn( nTuple, "Py",          *RPDdblVec->at(rpdNo).at(4) );
+      analysisManager->CreateNtupleDColumn( nTuple, "Pz",          *RPDdblVec->at(rpdNo).at(5) );
+      analysisManager->CreateNtupleDColumn( nTuple, "energy",      *RPDdblVec->at(rpdNo).at(6) );
+      analysisManager->CreateNtupleDColumn( nTuple, "velocity",    *RPDdblVec->at(rpdNo).at(7) );
+      analysisManager->CreateNtupleDColumn( nTuple, "beta",        *RPDdblVec->at(rpdNo).at(8) );
+      analysisManager->CreateNtupleDColumn( nTuple, "eDep",        *RPDdblVec->at(rpdNo).at(9) );
+
+      //Make int branches
+      analysisManager->CreateNtupleIColumn( nTuple, "EventNo",     *RPDintVec->at(rpdNo).at(0) );
+      analysisManager->CreateNtupleIColumn( nTuple, "modNo",       *RPDintVec->at(rpdNo).at(1) );
+      analysisManager->CreateNtupleIColumn( nTuple, "radNo",       *RPDintVec->at(rpdNo).at(2) );
+      analysisManager->CreateNtupleIColumn( nTuple, "rodNo",       *RPDintVec->at(rpdNo).at(3) );
+      analysisManager->CreateNtupleIColumn( nTuple, "nCherenkovs", *RPDintVec->at(rpdNo).at(4) );
+      analysisManager->CreateNtupleIColumn( nTuple, "trackID",     *RPDintVec->at(rpdNo).at(5) );
+      analysisManager->CreateNtupleIColumn( nTuple, "pid",         *RPDintVec->at(rpdNo).at(6) );
+      analysisManager->CreateNtupleIColumn( nTuple, "charge",      *RPDintVec->at(rpdNo).at(7) );
+
+    } else { // There's only two branches to save space on cluster jobs
+      //Make double branches
+      analysisManager->CreateNtupleDColumn( nTuple, "x",           *RPDdblVec->at(rpdNo).at(0) );
+      analysisManager->CreateNtupleDColumn( nTuple, "y",           *RPDdblVec->at(rpdNo).at(1) );
+      analysisManager->CreateNtupleDColumn( nTuple, "z",           *RPDdblVec->at(rpdNo).at(2) );
+
+      //Make int branches
+      analysisManager->CreateNtupleIColumn( nTuple, "rodNo",       *RPDintVec->at(rpdNo).at(0) );
+      analysisManager->CreateNtupleIColumn( nTuple, "nCherenkovs", *RPDintVec->at(rpdNo).at(1) );
+    }//end if !CLUSTER
+  }//end RPD loop
+}//end constructor
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -64,33 +165,6 @@ RunAction::~RunAction()
 
 void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 {
-	std::string detector[3];
-
-	bool bzdc1flag=false;
-	bool bzdc2flag=false;
-	bool brpdflag=false;
-
-
-	int runNum = config->GetValue( "RunNumber", -1);
-	fSharedData->LoadAlignmentFile(runNum);
-
-  bool OPTICAL = config->GetValue("OPTICAL_ON", false);
-  bool CLUSTER = config->GetValue("CLUSTER_ON", false);
-
-	Alignment	*align_run 	= fSharedData->GetAlignment();
-
-	detector[0]=align_run->upstream_Det;
-	detector[1]=align_run->mid_Det;
-	detector[2]=align_run->downstream_Det;
-
-	for(int i=0; i<3; i++){
-		if(detector[i]=="ZDC1") {
-			bzdc1flag=true;}
-		if(detector[i]=="ZDC2") {
-			bzdc2flag=true;}
-		if(detector[i]=="RPD") {
-			brpdflag=true;}
-	}
 
   long seeds[2];
   long systime = time(NULL);
@@ -100,87 +174,13 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
 
-if(bzdc1flag || bzdc2flag){
-    if(!CLUSTER){
-  fSharedData->AddOutputToZDCTree("ID",&fTrackID_v);
-  fSharedData->AddOutputToZDCTree("ModNb",&fModNb_v);
-  fSharedData->AddOutputToZDCTree("RadNb",&fRadNb_v);
-  fSharedData->AddOutputToZDCTree("RodNb",&fRodNb_v);
-  fSharedData->AddOutputToZDCTree("EDep",&fEdep_v);
-  fSharedData->AddOutputToZDCTree("Pid",&fPid_v);
-  fSharedData->AddOutputToZDCTree("X",&fX_v);
-  fSharedData->AddOutputToZDCTree("Y",&fY_v);
-  fSharedData->AddOutputToZDCTree("Z",&fZ_v);
-  fSharedData->AddOutputToZDCTree("Px",&fPx_v);
-  fSharedData->AddOutputToZDCTree("Py",&fPy_v);
-  fSharedData->AddOutputToZDCTree("Pz",&fPz_v);
-  fSharedData->AddOutputToZDCTree("EventNo",&fEventNo_v);
-  fSharedData->AddOutputToZDCTree("Energy",&fEnergy_v);
-  fSharedData->AddOutputToZDCTree("Charge",&fCharge_v);
-  fSharedData->AddOutputToZDCTree("Velocity",&fVelocity_v);
-  fSharedData->AddOutputToZDCTree("NCherenkovs",&fNCherenkovs_v);
-  fSharedData->AddOutputToZDCTree("Beta",&fBeta_v);
-  }
-   else{
-   fSharedData->AddOutputToZDCTree("Cherenkov_Gap_Total",&fGap_Cherenk_v);
-   }
-}
-if(brpdflag){
-    if(!CLUSTER){
-  fSharedData->AddOutputToRPDTree("ID",&fTrackID_v2);
-  fSharedData->AddOutputToRPDTree("ModNb",&fModNb_v2);
-  fSharedData->AddOutputToRPDTree("RadNb",&fRadNb_v2);
-  fSharedData->AddOutputToRPDTree("RodNb",&fRodNb_v2);
-  fSharedData->AddOutputToRPDTree("EDep",&fEdep_v2);
-  fSharedData->AddOutputToRPDTree("Pid",&fPid_v2);
-  fSharedData->AddOutputToRPDTree("X",&fX_v2);
-  fSharedData->AddOutputToRPDTree("Y",&fY_v2);
-  fSharedData->AddOutputToRPDTree("Z",&fZ_v2);
-  fSharedData->AddOutputToRPDTree("Px",&fPx_v2);
-  fSharedData->AddOutputToRPDTree("Py",&fPy_v2);
-  fSharedData->AddOutputToRPDTree("Pz",&fPz_v2);
-  fSharedData->AddOutputToRPDTree("EventNo",&fEventNo_v2);
-  fSharedData->AddOutputToRPDTree("Energy",&fEnergy_v2);
-  fSharedData->AddOutputToRPDTree("Charge",&fCharge_v2);
-  fSharedData->AddOutputToRPDTree("Velocity",&fVelocity_v2);
-  fSharedData->AddOutputToRPDTree("NCherenkovs",&fNCherenkovs_v2);
-  fSharedData->AddOutputToRPDTree("Beta",&fBeta_v2);
-  }
-    else{
-  fSharedData->AddOutputToRPDTree("RodNb",&fRodNb_v2);
-  fSharedData->AddOutputToRPDTree("X",&fX_v2);
-  fSharedData->AddOutputToRPDTree("Y",&fY_v2);
-  fSharedData->AddOutputToRPDTree("Z",&fZ_v2);
-  }
-    if(!OPTICAL && !CLUSTER){
-  fSharedData->AddOutputToFiberTree("ID",&fTrackID_v3);
-  fSharedData->AddOutputToFiberTree("ModNb",&fModNb_v3);
-  fSharedData->AddOutputToFiberTree("RadNb",&fRadNb_v3);
-  fSharedData->AddOutputToFiberTree("RodNb",&fRodNb_v3);
-  fSharedData->AddOutputToFiberTree("EDep",&fEdep_v3);
-  fSharedData->AddOutputToFiberTree("Pid",&fPid_v3);
-  fSharedData->AddOutputToFiberTree("X",&fX_v3);
-  fSharedData->AddOutputToFiberTree("Y",&fY_v3);
-  fSharedData->AddOutputToFiberTree("Z",&fZ_v3);
-  fSharedData->AddOutputToFiberTree("Px",&fPx_v3);
-  fSharedData->AddOutputToFiberTree("Py",&fPy_v3);
-  fSharedData->AddOutputToFiberTree("Pz",&fPz_v3);
-  fSharedData->AddOutputToFiberTree("EventNo",&fEventNo_v3);
-  fSharedData->AddOutputToFiberTree("Energy",&fEnergy_v3);
-  fSharedData->AddOutputToFiberTree("Charge",&fCharge_v3);
-  fSharedData->AddOutputToFiberTree("Velocity",&fVelocity_v3);
-  fSharedData->AddOutputToFiberTree("NCherenkovs",&fNCherenkovs_v3);
-  fSharedData->AddOutputToFiberTree("Beta",&fBeta_v3);
-  }
-}
 
-  // reset parameters to their initial values
-#if G4VERSION_NUMBER > 999
-    G4AccumulableManager* parameterManager = G4AccumulableManager::Instance();
-#else
-    G4ParameterManager* parameterManager = G4ParameterManager::Instance();
-#endif
-  parameterManager->Reset();
+  // Get analysis manager
+  auto analysisManager = G4AnalysisManager::Instance();
+
+  // Open an output file
+  if(m_fileName == "") m_fileName = "output";
+  analysisManager->OpenFile(m_fileName);
 
 }
 
@@ -192,13 +192,11 @@ void RunAction::EndOfRunAction(const G4Run* run)
 	G4int nofEvents = run->GetNumberOfEvent();
 	if (nofEvents == 0) return;
 
-  // Merge parameters
-#if G4VERSION_NUMBER > 999
-    G4AccumulableManager* parameterManager = G4AccumulableManager::Instance();
-#else
-    G4ParameterManager* parameterManager = G4ParameterManager::Instance();
-#endif
-    parameterManager->Merge();
+  // Get analysis manager
+  auto analysisManager = G4AnalysisManager::Instance();
+  // save histograms & ntuple
+  analysisManager->Write();
+  analysisManager->CloseFile();
 
 }
 

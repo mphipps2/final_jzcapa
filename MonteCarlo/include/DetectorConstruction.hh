@@ -113,6 +113,12 @@ public:
   virtual Survey*            GetSurvey();
   virtual Alignment*         LoadAlignmentFile();
 
+  inline  G4int              GetnZDCs(){return ZDCvec.size();}
+  inline  G4int              GetnRPDs(){return RPDvec.size();}
+  inline  G4bool             SetClusterFlag(G4bool arg){CLUSTER = arg;}
+  inline  G4bool             GetClusterFlag(){return CLUSTER;}
+
+
 protected:
   Materials*              materials;
 
@@ -131,6 +137,15 @@ protected:
   Alignment* 	            m_alignment;
   Survey*                 m_survey;
   std::vector < Survey* > surveyEntries;
+
+  /* Number of each detector */
+  std::vector< ModTypeZDC* > ZDCvec;
+  std::vector< ModTypeRPD* > RPDvec;
+
+  /* Cluster Flag for forwarding to RunAction */
+  G4bool CLUSTER;
+
+
 
 private:
 	G4Cache<G4MagneticField*> fField;  //pointer to the thread-local fields

@@ -30,9 +30,6 @@
 
 #include "DetectorMessenger.hh"
 
-#include <sstream>
-#include <iostream>
-
 #include "G4OpticalSurface.hh"
 
 #include "DetectorConstruction.hh"

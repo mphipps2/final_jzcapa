@@ -33,11 +33,6 @@
 
 #include "G4UserEventAction.hh"
 #include "globals.hh"
-#include "TH2D.h"
-#include "TMath.h"
-#include <string>
-
-class RunAction;
 
 /// Event action class
 ///
@@ -48,14 +43,27 @@ class EventAction : public G4UserEventAction
     EventAction(RunAction* runAction);
     virtual ~EventAction();
 
-    virtual void BeginOfEventAction(const G4Event* event);
-    virtual void EndOfEventAction(const G4Event* event);
+    virtual void BeginOfEventAction (const G4Event* event);
+    virtual void EndOfEventAction   (const G4Event* event);
+    virtual void SetnZDCs           (G4int nZDCs);
+    virtual void SetnRPDs           (G4int nRPDs);
+    inline  void SetClusterFlag     (G4bool arg){CLUSTER = arg;}
+
+
+    inline  std::vector< std::vector< std::vector<double>* > >*  GetRPDdoubleVectors( ){return fRPDdblVec;}
+    inline  std::vector< std::vector< std::vector< int  >* > >*  GetRPDintVectors   ( ){return fRPDintVec;}
+    inline  std::vector< std::vector< std::vector<double>* > >*  GetZDCdoubleVectors( ){return fZDCdblVec;}
+    inline  std::vector< std::vector< std::vector< int  >* > >*  GetZDCintVectors   ( ){return fZDCintVec;}
 
   private:
-    RunAction* fRunAction;
-    int hitsCollID;
-    int fEventNo;
-    G4double gunPosX,gunPosY,gunPosZ;
+    // Indecies are [mod#][dataSet][dataValue]
+    // data set order will need to be coordinated betweeen here and Run Action
+    std::vector< std::vector< std::vector<double>* > >* fRPDdblVec, fZDCdblVec;
+    std::vector< std::vector< std::vector< int  >* > >* fRPDintVec, fZDCintVec;
+
+    G4int    hitsCollID, fEventNo, fnZDCs, fnRPDs;
+    G4double gunPosX, gunPosY, gunPosZ;
+    G4bool   CLUSTER;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -36,20 +36,21 @@ PHYSICS
 
 *** By Priority ***
 /// Necessary
--Add analysis class
+-Pass output file name to run action
+-Make SD names a formatted string based on detector
 -Single SD that has a flag depending on use?
   Could be better than having an optical flag passed around
--Figure out how to separate detector hit collections in event action properly
-  Make sd names a  formatted string based on detector
 -Change output vector storage form run action to event action
 -Make DetectorMessenger that talks to;
   DetectorConstruction, ModTypeRPD and ModTypeZDC, PhysicsList, RunAction
 -Add geometry.mac with DetectorMessenger commands
 -Set sim cherenkov option in physics list. (maybe set it in detector construction)
 -Make a cluster flag to reduce branches (reducedTree)
+-Change LastStepInVolume to nTupleManager
 
 // Completeness
 -Replace rpd construction with pan flute
+-Try making vectors in EventAction not contain pointers
 -Give zdc construction materials only from Materials class
 -Make zdc with vectors instead of fixed length arrays
 -Fill last step in volume properly

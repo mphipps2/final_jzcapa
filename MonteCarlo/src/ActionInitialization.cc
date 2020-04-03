@@ -47,23 +47,20 @@ ActionInitialization::~ActionInitialization()
 
 void ActionInitialization::BuildForMaster() const
 {
-  RunAction* runAction = new RunAction();
-  SetUserAction(runAction);
+  SetUserAction( new RunAction() );
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void ActionInitialization::Build() const
 {
-  SetUserAction(new PrimaryGeneratorAction);
+  SetUserAction( new PrimaryGeneratorAction() );
 
-  RunAction* runAction = new RunAction();
-  SetUserAction(runAction);
+  SetUserAction( new EventAction()            );
 
-  EventAction* eventAction = new EventAction(runAction);
-  SetUserAction(eventAction);
+  SetUserAction( new RunAction()              );
 
-  SetUserAction(new SteppingAction(eventAction));
+  SetUserAction( new SteppingAction()         );
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
