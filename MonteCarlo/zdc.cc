@@ -30,16 +30,13 @@
 
 #include "DetectorConstruction.hh"
 #include "ActionInitialization.hh"
-
 #include "PhysicsList.hh"
-/*
+
 #ifdef G4MULTITHREADED
-#include "MyMTRunManager.hh"
+#include "G4MTRunManager.hh"
 #else
-#include "MyRunManager.hh"
+#include "G4RunManager.hh"
 #endif
-*/
-#include "MyRunManager.hh"
 
 #include "G4UImanager.hh"
 
@@ -48,81 +45,81 @@
 
 #include "Randomize.hh"
 
-#include <TString.h>
-#include <TEnv.h>
-#include <iostream>
+
+
+/*
+*/
+namespace {
+  void PrintUsage() {
+    G4cerr << " Usage: " << G4endl;
+    G4cerr << " lightGuide [-m macro ] [-u UIsession] [-t nThreads] [-r seed] [-o outputFileName]"
+           << G4endl;
+    G4cerr << "   note: -t option is available only for multi-threaded mode."
+           << G4endl;
+  }
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 int main(int argc,char** argv)
 {
-  // Detect interactive mode (if no arguments) and define UI session
+  // Evaluate arguments
   //
-  G4UIExecutive* ui = 0;
-  if ( argc == 1 ) {
+  if ( argc > 9 ) {
+    PrintUsage();
+    return 1;
+  }
+
+  G4String macro;
+  G4String output = "";
+  G4long   myseed = 345354;
+#ifdef G4MULTITHREADED
+  G4int nThreads = 0;
+#endif
+
+  for ( G4int i=1; i<argc; i=i+2 ) {
+    if      ( G4String(argv[i]) == "-m"  ) macro      = argv[i+1];
+    else if ( G4String(argv[i]) == "-o"  ) output     = argv[i+1];
+    else if ( G4String(argv[i]) == "-r"  ) myseed     = atoi(argv[i+1]);
+#ifdef G4MULTITHREADED
+    else if ( G4String(argv[i]) == "-t" ) {
+       nThreads = G4UIcommand::ConvertToInt(argv[i+1]);
+    }
+#endif
+    else {
+      PrintUsage();
+      return 1;
+    }
+  }
+
+  // Instantiate G4UIExecutive if interactive mode
+  G4UIExecutive* ui = nullptr;
+  if ( macro.size() == 0 ) {
     ui = new G4UIExecutive(argc, argv);
   }
 
   // Choose the Random engine
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
-  // Get some arguments for RunManager
-
-  // Aric's fix for finding config file location
-  TString m_configFileName = std::getenv("JZCaPA");
-  m_configFileName.Replace(m_configFileName.Length()-15,15,"/JZCaPA/MonteCarlo/config/config.cfg");
-  TString cfgName = m_configFileName;
-  //std::cout << "config file path = " << cfgName << std::endl;
-
-
-  if( argc == 4 ){
-    TString arg;
-    arg = TString( argv[3] );
-    if( arg.Contains("config") || arg.Contains("cfg") )
-      cfgName = arg;
-
-  }
-
-  std::string outputName;
-  outputName = "analysis/temp.root";
-  if(argc == 3) {
-    TString arg;
-    arg = TString( argv[2]);
-    if( arg.Contains(".root")  ) {
-      outputName = arg;
-    }
-  }
 
   // Construct the default run manager
   //
-  /*
-    Does not work for now. Need to create multiple root files
-    for various nodes. Otherwise there is a crash.
-    (At least I think that is the reason)
 #ifdef G4MULTITHREADED
-  G4MTRunManager* runManager = new MyMTRunManager( sharedData );
-  runManager->SetNumberOfThreads(7);
+  G4MTRunManager * runManager = new G4MTRunManager;
+  if ( nThreads > 0 ) runManager->SetNumberOfThreads(nThreads);
+  G4cout << "Using G4MULTITHREADED" << G4endl;
 #else
-  G4RunManager* runManager = new MyRunManager( sharedData );
+  G4RunManager * runManager = new G4RunManager;
 #endif
-  */
-  G4RunManager* runManager = new MyRunManager( );
+
+
   // Set mandatory initialization classes
   //
-
   // Detector construction
   runManager->SetUserInitialization( new DetectorConstruction() );
-
   // Physics list
-  TEnv* config = sharedData->GetConfig();
-  std::string physicsListName = config->GetValue("physicsList","FTFP_BERT");
-  // for now passing constructors directly
-  // if need to modify something (SetSomething)
-  // then take it out and add via this pointer.
-  //  G4VModularPhysicsList* physicsList = NULL;
-  runManager->SetUserInitialization( new PhysicsList(physicsListName) );
+  runManager->SetUserInitialization( new PhysicsList( ) );
   // User action initialization
   runManager->SetUserInitialization( new ActionInitialization() );
-
   // Initialize visualization
   G4VisManager* visManager = new G4VisExecutive;
   // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
@@ -133,11 +130,10 @@ int main(int argc,char** argv)
 
   // Process macro or start UI session
   //
-  if ( ! ui ) {
-
+  if ( macro.size() ) {
     // batch mode
     G4String command = "/control/execute ";
-    G4String fileName = argv[1];
+    G4String fileName = macro;
     UImanager->ApplyCommand(command+fileName);
 
   }
@@ -152,6 +148,7 @@ int main(int argc,char** argv)
   delete visManager;
   delete runManager;
 
+  return 0;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
