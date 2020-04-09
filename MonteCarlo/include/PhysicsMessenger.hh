@@ -58,10 +58,12 @@ class PhysicsMessenger: public G4UImessenger{
 
     PhysicsList*               fPhysicsList;
 
+    //Directories
     G4UIdirectory*             fPhysicsDir;
 
-    //ZDC Commands
+    //Commands
     G4UIcmdWithABool*          fSimCherenkovsCmd;
+    G4UIcmdWithAString*        fSelectListCmd;
 
 
 };

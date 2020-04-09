@@ -1,9 +1,10 @@
 #include "PhysicsList.hh"
 
-PhysicsList::PhysicsList(G4String _physicsList)
+PhysicsList::PhysicsList( )
 {
 
-  Hadronic_PL = _physicsList;
+  //Set Physics list via messenger
+  //Hadronic_PL = _physicsList;
 
   decay = NULL;
   stepLimiter = NULL;

@@ -68,7 +68,7 @@
 class PhysicsList : public G4VUserPhysicsList
 {
   public:
-    PhysicsList(G4String);
+    PhysicsList();
     ~PhysicsList(void);
     void ConstructParticle(void);
     void ConstructProcess(void);
