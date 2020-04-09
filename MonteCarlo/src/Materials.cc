@@ -16,6 +16,7 @@ Materials::Materials(void){
 
   H  = new G4Element("Hydrogen", "H", 1., 1.01 * g/mole);
   N  = new G4Element("Nitrogen", "N", 7., 14.01 * g/mole);
+  Ni = new G4Element("Ni" ,"Ni" , 28.0 ,  58.6934*g/mole);
   O  = new G4Element("Oxygen"  , "O", 8., 16.00 * g/mole);
   Si = new G4Element("Silicon" , "Si", 14., 28.08 * g/mole);
   C  = new G4Element("Carbon" , "C", 6., 12.00 * g/mole);
@@ -23,6 +24,17 @@ Materials::Materials(void){
   //Materials definition
   Xenon = new G4Material("XenonGas", 54., 131.29 * g/mole, 5.458 * mg/cm3,
                                      kStateGas, 93.15 * kelvin, 1 * atmosphere);
+
+
+  // Absorber composition:  savannah.cern.ch/task/download.php?file_id=22925
+  NiW = new G4Material("Tungsten/Nickel Composite",18.155*g/cm3,ncomponents=3);
+  NiW->AddElement(W,  fractionMass=0.948);
+  NiW->AddElement(Ni, fractionMass=0.037);
+  NiW->AddElement(Fe, fractionMass=0.015);
+
+  Steel = new G4Material("Steel", 7.9*gram/cm3,ncomponents=2);
+  Steel->AddElement(Fe  , fractionMass=0.98);
+  Steel->AddElement(C   , fractionMass=0.02);
 
   pQuartz = new G4Material("Quartz", 2.200 * g/cm3, 2);
   pQuartz->AddElement(Si,1);

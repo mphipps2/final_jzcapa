@@ -34,6 +34,10 @@ class Materials
             G4Element* O;
             /*  \brief Silicon */
             G4Element* Si;
+            /*  \brief Nickel */
+            G4Element* Ni;
+            /*  \brief Iron */
+            G4Element* Fe;
             /*  \brief Carbon */
             G4Element* C;
 
@@ -54,6 +58,10 @@ class Materials
             G4Material* Pb;
             /* \brief Tungsten */
             G4Material* W;
+            /* \brief Tungsten Nickel composite */
+            G4Material* NiW;
+            /* \brief Tungsten Nickel composite */
+            G4Material* Steel;
             /* \brief Polyethilene */
             G4Material* Polyethylene;
             /* \brief Polymethylmethacrylate */
