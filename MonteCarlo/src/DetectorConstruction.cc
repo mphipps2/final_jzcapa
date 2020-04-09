@@ -30,20 +30,10 @@
 #include "G4SolidStore.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4PhysicalVolumeStore.hh"
-#include "G4LogicalBorderSurface.hh"
-#include "G4LogicalSkinSurface.hh"
-#include "G4OpticalSurface.hh"
-#include "G4MaterialTable.hh"
 
 #include "G4RunManager.hh"
-#include "G4NistManager.hh"
-#include "G4CSGSolid.hh"
+#include "G4UImanager.hh"
 #include "G4Box.hh"
-#include "G4Para.hh"
-#include "G4Cons.hh"
-#include "G4Orb.hh"
-#include "G4Sphere.hh"
-#include "G4Trd.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4SystemOfUnits.hh"
@@ -57,7 +47,6 @@
 #include "G4ChordFinder.hh"
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4PVParameterised.hh"
-#include "G4ThreeVector.hh"
 #include "G4PVReplica.hh"
 #include "G4UniformMagField.hh"
 #include "G4ExplicitEuler.hh"
@@ -78,9 +67,14 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::DetectorConstruction()
-  : G4VUserDetectorConstruction(),
-    m_solidWorld(NULL), m_logicWorld(NULL), m_physWorld(NULL),CLUSTER(false)
-{materials = Materials::getInstance();}
+  : G4VUserDetectorConstruction(), m_solidWorld(NULL), m_logicWorld(NULL),
+  m_physWorld(NULL)
+{
+  CLUSTER = false;
+  currentRPD = -1;
+  currentZDC = -1;
+  m_materials = Materials::getInstance();
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -104,130 +98,64 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void DetectorConstruction :: DefineBorderProperties()
-{}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
 {
-  ConstructTestBeam()
+  G4UImanager* UImanager = G4UImanager::GetUIpointer();
+  UImanager->ApplyCommand("/control/execute geometry.mac");
+
+  if( ForceDetectorPosition ){
+    ManualConstruction();
+  }else{
+    ConstructSPSTestBeam();
+  }
+  return m_physWorld;
 }
+
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VPhysicalVolume* DetectorConstruction::ConstructTestBeam()
-{
+G4VPhysicalVolume* DetectorConstruction::ManualConstruction(){
 
-// Create variables to be used in beamtest 2018 simulation
+  std::cout << "******************************************" << std::endl
+            << "        PLACING DETECTORS MANUALLY        " << std::endl
+            << "******************************************" << std::endl;
 
-  G4ThreeVector zdc1Pos,zdc2Pos, rpdPos;
-  bool mag_on = targ_in = lead_in = ZDC1 = ZDC2 = RPD = false;
-  G4double mag_zOffset=0, density=0, fractionmass=0, leadblockZ=0,
-           zdc1X=0, zdc1Y=0, zdc1Z=0, zdc2X=0, zdc2Y=0, zdc2Z=0, rpdX=0,
-           rpdY=0, rpdZ=0, tableX_shift=0, tableY_shift=0;
-  G4double worldZoffset=16000*mm;
-  std::string detector[3];
-  G4int  ncomponents;
-  LoadConfigurationFile(runNum);
-  LoadAlignmentFile(runNum);
-  Survey *srvy_zdc1 = GetSurvey("ZDC1"),
-         *srvy_zdc2 = GetSurvey("ZDC2"),
-         *srvy_rpd  = GetSurvey("RPD");;
-  Alignment *m_alignment = GetAlignment();
+            /*
 
-//################################ SURVEY/ALIGNMENT_SETUP
+            Make this do the thing using DetectorMessenger Commands
+            and member vectors
 
-  if( ForceDetectorPosition ) == 0){
+            */
 
-    std::cout << "******************************************" << std::endl
-              << "        PLACING DETECTORS MANUALLY        " << std::endl
-              << "******************************************" << std::endl;
+  return m_physWorld;
 
-    rpdX = srvy_rpd->x_pos*mm;
-    rpdY = srvy_rpd->y_pos*mm;
-    rpdZ = srvy_rpd->z_pos*mm;
-
-    zdc1X = srvy_zdc1->x_pos*mm;
-    zdc1Y = srvy_zdc1->y_pos*mm;
-    zdc1Z = srvy_zdc1->z_pos*mm;
-
-    zdc2X = srvy_zdc2->x_pos*mm;
-    zdc2Y = srvy_zdc2->y_pos*mm;
-    zdc2Z = srvy_zdc2->z_pos*mm;
-  } else{
-    //table(-2250,500) -> rpd/beam(0,0)	where 100=0.1cm in table coordinates
-    //-320mm is offset to get from zdc mid to active area mid
-    tableX_shift = (-2250.0 - (m_alignment->x_table)  )/100*mm ;//2257 more accurate
-    tableY_shift = (500.0   - (m_alignment->y_table)  )/100*mm ;//501  more accurate
-
-    rpdX  = (srvy_rpd ->x_pos)   *1000.0*mm;
-    zdc1X = (( (srvy_zdc1->x_pos)*1000.0 ) - rpdX + tableX_shift )*mm;
-    zdc2X = (( (srvy_zdc2->x_pos)*1000.0 ) - rpdX + tableX_shift )*mm;
-    rpdX  =  tableX_shift;
-
-    rpdY  = (srvy_rpd ->y_pos)   *1000.0*mm;
-    zdc1Y = (( (srvy_zdc1->y_pos)*1000.0 ) - 320 - rpdY + tableY_shift )*mm;
-    zdc2Y = (( (srvy_zdc2->y_pos)*1000.0 ) - 320 - rpdY + tableY_shift )*mm;
-    rpdY  =  tableY_shift;
-
-    rpdZ  = (( (srvy_rpd ->z_pos)*1000.0 ) -(worldZoffset) )*mm;
-    zdc1Z = (( (srvy_zdc1->z_pos)*1000.0 ) -(worldZoffset) )*mm;
-    zdc2Z = (( (srvy_zdc2->z_pos)*1000.0 ) -(worldZoffset) )*mm;
-  }
+}
 
 
-  zdc1Pos = G4ThreeVector( zdc1X, zdc1Y, zdc1Z);
-  zdc2Pos = G4ThreeVector( zdc2X, zdc2Y, zdc2Z);
-  rpdPos  = G4ThreeVector( rpdX , rpdY , rpdZ );
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-
-  detector[0]=m_alignment->upstream_Det;
-  detector[1]=m_alignment->mid_Det;
-  detector[2]=m_alignment->downstream_Det;
-
-  for(int i=0; i<3; i++){
-    if(detector[i]=="ZDC1") {ZDC1 = true;}
-    if(detector[i]=="ZDC2") {ZDC2 = true;}
-    if(detector[i]=="RPD" ) {RPD  = true;}
-  }
-
-  // Assign lead block position in mm, place approx 1 ft in front of ZDC1
-  // half ZDC Z width = 90mm
-  // 1ft ~ 300mm
-  leadblockZ = ( zdc1Z - 90 - 300)*mm;
-
-
-  targ_in = m_alignment->target_In;
-  mag_on  = m_alignment->magnet_On;
-  lead_in = m_alignment->lead_In;
-  }
-  //################################ SURVEY/ALIGNMENT_END
-
+G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
 
   // Option to switch on/off checking of volumes overlaps
   //
   bool checkOverlaps = false;
 
-   if(TESTBEAM_SETUP==1){
-     worldSizeZ= 32000*mm;
-     if( std::abs(zdc1X) < std::abs(zdc2X) ) worldSizeX = 1.1 * 2 * ( std::abs(zdc2X) + maxModSizeX/2 )*mm;
-     else                                    worldSizeX = 1.1 * 2 * ( std::abs(zdc1X) + maxModSizeX/2 )*mm;
-     if( std::abs(zdc1Y) < std::abs(zdc2Y) ) worldSizeY = 1.1 * 2 * ( std::abs(zdc2Y) + maxModSizeY/2 )*mm;
-     else                                    worldSizeY = 1.1 * 2 * ( std::abs(zdc1Y) + maxModSizeY/2 )*mm;
-        if(!ZDC1 && !ZDC2) {
-          worldSizeX = 1.1 * 2 * ( std::abs(rpdX)+ maxModSizeX/2 ) * mm;
-          worldSizeY = 1.1 * 2 * ( std::abs(rpdY) + maxModSizeY/2  ) * mm;
-        }
-   }
+  // Create variables to be used in beamtest 2018 simulation
+  G4ThreeVector zdc1Pos,zdc2Pos, rpdPos;
+  bool ZDC1 = false, ZDC2 = false, RPD = false;
+  G4double mag_zOffset=0, firstDetZ, detX, detY, detZ,
+           tableX_shift=0, tableY_shift=0;
+  G4Material* Lead = m_materials->Pb;
+  G4double worldSizeX = 180*mm;
+  G4double worldSizeY = 1200*mm;
+  G4double worldSizeZ = 32000*mm;
+  G4double worldZoffset= worldSizeZ/2.0;
+  std::string detector[3];
 
-  G4Material* g4Air = nist->FindOrBuildMaterial("G4_AIR");
-
-  //Air
-  if (config->GetValue("OPTICAL_ON",false) == 1){
-    materials->UseOpticalMaterials(true); //set this an an option later ARIC!
-    materials->DefineOpticalProperties();
-    g4Air = materials->Air;
-  }
+  //################################ World volume construction
+  m_materials->UseOpticalMaterials(OPTICAL); //set this an an option later ARIC!
+  m_materials->DefineOpticalProperties();
+  G4Material* g4Air = m_materials->Air;
 
   printf( "Building world with x %5.1f y %5.1f z %5.1f\n",
           worldSizeX, worldSizeY, worldSizeZ );
@@ -258,23 +186,82 @@ G4VPhysicalVolume* DetectorConstruction::ConstructTestBeam()
 
   m_logicWorld ->SetVisAttributes(boxVisAtt_world);
 
-  ModTypeZDC *mod1 = new ModTypeZDC(0,zdc1Pos,m_logicWorld,m_sd);
-  ModTypeZDC *mod2 = new ModTypeZDC(1,zdc2Pos,m_logicWorld,m_sd);
-  ModTypeRPD *mod3 = new ModTypeRPD(0,rpdPos, m_logicWorld,m_sd);
 
-  if(ZDC1){ mod1->Construct();
-    std::cout << "ZDC1 center = " << "(" << zdc1Pos.getX() << ", " << zdc1Pos.getY() << ", " << zdc1Pos.getZ() << ")" << std::endl;
+  //################################ SURVEY/ALIGNMENT_SETUP
+
+  LoadConfigurationFile();
+  LoadAlignmentFile();
+
+  //table(-2250,500) -> rpd/beam(0,0)	where 100=0.1cm in table coordinates
+  //-320mm is offset to get from zdc mid to active area mid
+  tableX_shift = (-2250.0 - (m_alignment->x_table)  )/100*mm ;//2257 more accurate
+  tableY_shift = (500.0   - (m_alignment->y_table)  )/100*mm ;//501  more accurate
+  Survey *srvy_rpd = GetSurvey("RPD");
+
+  detector[0]=m_alignment->upstream_Det;
+  detector[1]=m_alignment->mid_Det;
+  detector[2]=m_alignment->downstream_Det;
+
+  for(int i=0; i<3; i++){
+    if(detector[i]=="ZDC1") {ZDC1 = true;}
+    if(detector[i]=="ZDC2") {ZDC2 = true;}
+    if(detector[i]=="RPD" ) {RPD  = true;}
   }
-  if(ZDC2){ mod2->Construct();
-    std::cout << "ZDC2 center = " << "(" << zdc2Pos.getX() << ", " << zdc2Pos.getY() << ", " << zdc2Pos.getZ() << ")" << std::endl;
+
+  firstDetZ = worldSizeZ;
+  for(Survey* survey : m_surveyEntries){
+    detX = (survey->x_pos*1000.0)*mm;
+    detY = (survey->y_pos*1000.0)*mm;
+    detZ = (survey->z_pos*1000.0 - worldZoffset )*mm;
+
+    if(detZ < firstDetZ) firstDetZ = detZ;
+
+    if( survey->detector == "ZDC1" && ZDC1 ){
+      AddZDC( new G4ThreeVector( detX + (      - srvy_rpd->x_pos + tableX_shift)*mm,
+                                 detY + (- 230 - srvy_rpd->y_pos + tableY_shift)*mm,
+                                 detZ ) );
+    } else if( survey->detector == "ZDC2" && ZDC2 ){
+      AddZDC( new G4ThreeVector( detX + (      - srvy_rpd->x_pos + tableX_shift)*mm,
+                                 detY + (- 230 - srvy_rpd->y_pos + tableY_shift)*mm,
+                                 detZ ) );
+    }else if( survey->detector == "RPD" && RPD ){
+      AddRPD( new G4ThreeVector( detX, detY, detZ) );
+    }
   }
-  if(RPD){  mod3->Construct();
-    std::cout << "RPD center = " << "(" << rpdPos.getX()  << ", " << rpdPos.getY()  << ", " << rpdPos.getZ()  << ")" << std::endl;
+
+  G4ThreeVector* pos;
+  G4int modNum;
+  for(ModTypeZDC* zdc : m_ZDCvec){
+    zdc->SetFiberDiameters    ( new G4ThreeVector(1.5*mm,0.0,0.0) );
+    zdc->SetAbsorberDimensions( new G4ThreeVector(90.0*mm, 180.0*mm, 11.0*mm) );
+    zdc->SetnAbsorbers        ( 11 );
+    zdc->SetHousingThickness  ( 4.5*mm );
+    zdc->SetGapThickness      ( 2.5*mm );
+    zdc->SetHousingMaterial   ( "aluminum" );
+    zdc->SetAbsorberMaterial  ( "pure" );
+
+    pos = zdc->GetPosition();
+    modNum = zdc->GetModNum();
+    printf( "ZDC%d center = (%f,%f,%f)", modNum, pos->x(), pos->y(), pos->z() );
+    zdc->Construct();
   }
+
+  for(ModTypeRPD* rpd : m_RPDvec){
+    rpd->SetFiberDiameters   ( new G4ThreeVector(0.6*mm,0.68*mm,0.72*mm) );
+    rpd->SetHousingThickness ( 5.0*mm );
+    rpd->SetFiberPitch       ( 1.4*mm );
+    rpd->SetTileSize         ( 10.0*mm );
+
+    pos = rpd->GetPosition();
+    modNum = rpd->GetModNum();
+    printf( "RPD%d center = (%f,%f,%f)", modNum, pos->x(), pos->y(), pos->z() );
+    rpd->Construct();
+  }
+//################################ Get SURVEY/ALIGNMENT_END
 
 
   // Setup magnetic field
-  if( mag_on ){
+  if( m_alignment->magnet_On ){
     mag_zOffset=-9.55*m;
     //Field grid in A9.TABLE. File must be accessible from run directory.
     G4MagneticField* PurgMagField= new PurgMagTabulatedField3D((std::getenv("JZCaPA") + std::string("/Utils/PurgMag3D.TABLE")).c_str(), mag_zOffset+(worldZoffset/1000.0));
@@ -283,14 +270,11 @@ G4VPhysicalVolume* DetectorConstruction::ConstructTestBeam()
     //This is thread-local
     G4FieldManager* pFieldMgr = G4TransportationManager::GetTransportationManager()->GetFieldManager();
 
-    //G4cout<< "DeltaStep "<<pFieldMgr->GetDeltaOneStep()/mm <<"mm" <<endl;
-    //G4ChordFinder *pChordFinder = new G4ChordFinder(PurgMagField);
-
     pFieldMgr->SetDetectorField(fField.Get());
     pFieldMgr->CreateChordFinder(fField.Get());
   }
     // Setup lead target
-    if( targ_in ){
+    if( m_alignment->target_In ){
       G4Box* leadTarget = new G4Box("Target",5*cm, 5*cm, 1.3*cm);
 
       logic_leadTarget
@@ -312,7 +296,12 @@ G4VPhysicalVolume* DetectorConstruction::ConstructTestBeam()
     logic_leadTarget ->SetVisAttributes(boxVisAtt_lead);
 
    }
-   if( lead_in ){
+   if( m_alignment->lead_In ){
+     // Assign lead block position in mm, place approx 1 ft in front of ZDC1
+     // half ZDC Z width = 90mm
+     // 1ft ~ 300mm
+     G4double leadblockZ = ( firstDetZ - 90 - 300)*mm;
+
      G4Box* leadBlock = new G4Box("LeadBlock",(0.5*worldSizeX)*mm, (0.5*150)*mm, 10*cm);
 
      logic_leadBlock
@@ -334,9 +323,6 @@ G4VPhysicalVolume* DetectorConstruction::ConstructTestBeam()
     logic_leadBlock ->SetVisAttributes(boxVisAtt_leadblk);
     cout << "Placed Lead Block at Z = " << leadblockZ*mm << "mm" <<  std::endl;
   }
-
-  }//END_TESTBEAM_SETUP
-
   return m_physWorld;
 }
 
@@ -352,7 +338,12 @@ G4VPhysicalVolume* DetectorConstruction::ConstructTestBeam()
  * @param _inFile
  */
 
-void DetectorConstruction::LoadConfigurationFile( int m_runNumber, std::string _inFile  ){
+void DetectorConstruction::LoadConfigurationFile( G4String _inFile  ){
+
+  if(_inFile = ""){
+    _inFile = std::getenv("JZCaPA");
+    _inFile += "Utils/Survey_2018.xml";
+  }
 
     m_XMLparser = new XMLSettingsReader();
 
@@ -388,10 +379,10 @@ void DetectorConstruction::LoadConfigurationFile( int m_runNumber, std::string _
         m_XMLparser->getChildValue("Survey",i,"cos_y",m_survey->cos_y);
         m_XMLparser->getChildValue("Survey",i,"cos_z",m_survey->cos_z);
 
-        surveyEntries.push_back(m_survey);
+        m_surveyEntries.push_back(m_survey);
     }
 
-    if(surveyEntries.size() == 0) std::cout << "WARNING: SURVEY NOT FOUND!!!" << std::endl;
+    if(m_surveyEntries.size() == 0) std::cout << "WARNING: SURVEY NOT FOUND!!!" << std::endl;
 
     return;
 }
@@ -400,9 +391,13 @@ void DetectorConstruction::LoadConfigurationFile( int m_runNumber, std::string _
  * @brief Reads the .xml configuration file and load characteristics for all the channels, immediately sorted into detectors objects
  * @param _inFile
  */
-void DetectorConstruction::LoadAlignmentFile( int m_runNumber, std::string _inFile ){
-
+void DetectorConstruction::LoadAlignmentFile( G4String _inFile ){
   bool debug = false;
+
+  if( _inFile = ""){
+    _inFile = std::getenv("JZCaPA");
+    _inFile += "Utils/Alignment_2018.xml";
+  }
 
     m_XMLparser = new XMLSettingsReader();
 
@@ -443,14 +438,51 @@ void DetectorConstruction::LoadAlignmentFile( int m_runNumber, std::string _inFi
     return;
 }
 
-Survey* DetectorConstruction::GetSurvey(std::string name){
-  for(unsigned int i = 0; i < surveyEntries.size(); i++){
-    if( name == surveyEntries[i]->detector ){ return surveyEntries[i]; }
+/*
+ * Retrieve a survey based on name
+*/
+Survey* DetectorConstruction::GetSurvey(G4String name){
+  for(unsigned int i = 0; i < m_surveyEntries.size(); i++){
+    if( m_surveyEntries[i]->detector.compare( name.c_str() ) ){ return m_surveyEntries[i]; }
   }
   Survey* empty=NULL;
   return empty;
 }
 
-Alignment* DetectorConstruction::GetAlignment(){
-  return m_alignment;
+/*
+ * Add a ZDC module
+*/
+void DetectorConstruction::AddZDC(G4ThreeVector* position){
+  int newModNum = m_ZDCvec.size();
+  m_ZDCvec.push_back(new ModTypeZDC(newModNum, position, m_logicWorld));
+}
+
+/*
+ * Add an RPD module
+*/
+void DetectorConstruction::AddRPD(G4ThreeVector* position){
+  int newModNum = m_ZDCvec.size();
+  m_RPDvec.push_back(new ModTypeRPD(newModNum, position, m_logicWorld));
+}
+
+/*
+ * Duplicate a ZDC module
+*/
+void DetectorConstruction::DuplicateZDC( G4int module ){
+  if((unsigned)module <= m_ZDCvec.size() ){
+    printf("\n\n Cannot duplicate. ZDC%d does not exist \n\n",module);
+  }
+  int nextZDCindex = m_ZDCvec.size();
+  m_ZDCvec.push_back( new ModTypeZDC( nextZDCindex, m_ZDCvec.at(module) ) );
+}
+
+/*
+ * Duplicate an RPD module
+*/
+void DetectorConstruction::DuplicateRPD( G4int module ){
+  if((unsigned)module <= m_RPDvec.size() ){
+    printf("\n\n Cannot duplicate. RPD%d does not exist \n\n",module);
+  }
+  int nextRPDindex = m_RPDvec.size();
+  m_RPDvec.push_back( new ModTypeRPD( nextRPDindex, m_RPDvec.at(module) ) );
 }

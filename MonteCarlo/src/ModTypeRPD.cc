@@ -67,7 +67,6 @@
 ModTypeRPD::ModTypeRPD(const int cn,const G4ThreeVector& pos,
 	      G4LogicalVolume* mother)
   : m_modNum( cn ),  m_pos( pos ), m_logicMother( mother ),
-    m_sd( sd ),
     m_matQuartz(0)
 {
 	materials = Materials::getInstance();
@@ -75,9 +74,22 @@ ModTypeRPD::ModTypeRPD(const int cn,const G4ThreeVector& pos,
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+ModTypeRPD::ModTypeRPD(const int cn, ModTypeRPD* right)
+  : m_modNum( cn )
+{
+	m_modNum 					 = right->m_modNum;
+	m_pos 						 = new G4ThreeVector(right->m_pos);
+	m_fiberDiam 			 = new G4ThreeVector(right->m_fiberDiam);
+	m_HousingThickness = right->m_HousingThickness;
+	m_fiberPitch 			 = right->m_fiberPitch;
+	m_tileSize 				 = right->m_tileSize;
+	m_logicMother 		 = right->m_logicMother;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 ModTypeRPD::ModTypeRPD()
   : m_modNum( 0 ), m_pos(G4ThreeVector()), m_logicMother(NULL),
-    m_sd(NULL),
     m_matQuartz(0)
 {}
 
@@ -927,7 +939,7 @@ if (config->GetValue("OPTICAL_ON",false) == 0){
 }
 
    char fiberSDname[256];
-  sprintf( fiberSDname, "Fiber_SD%d", m_modNum+1);
+  sprintf( fiberSDname, "RPD%d_SD", m_modNum+1);
 
 
   FiberSD* aFiberSD = new FiberSD( fiberSDname, m_sd, m_modNum+3 );

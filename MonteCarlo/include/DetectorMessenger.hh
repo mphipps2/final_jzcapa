@@ -64,28 +64,32 @@ class DetectorMessenger: public G4UImessenger{
     G4UIdirectory*             fZDCDir;
 
     G4UIcmdWithABool*          fClusterCmd;
+    G4UIcmdWithAString*        fConfigFileCmd;
+    G4UIcmdWithABool*          fForcePositionCmd;
+    G4UIcmdWith3VectorAndUnit* fSetWorldDimensionsCmd;
+
 
     //ZDC Commands
     G4UIcmdWithoutParameter*   fZDCAddCmd;
-    G4UIcmdWithAnInteger*      fZDCSetCurrentCmd;
-    G4UIcmdWithABool*          fZDCForcePositionCmd;
     G4UIcmdWith3VectorAndUnit* fZDCPositionCmd;
-    G4UIcmdWithADouble*        fZDCHousingThicknessCmd;
-    G4UIcmdWithAnInteger*      fZDCnAbsorbersCmd;
     G4UIcmdWith3VectorAndUnit* fZDCAbsorberDimensionsCmd;
-    G4UIcmdWithADouble*        fZDCFiberCoreDiameterCmd;
-    G4UIcmdWithABool*          fZDCUseOpticalMaterialsCmd;
+    G4UIcmdWith3VectorAndUnit* fZDCFiberDiametersCmd;
+    G4UIcmdWithAnInteger*      fZDCSetCurrentCmd;
+    G4UIcmdWithAnInteger*      fZDCnAbsorbersCmd;
+    G4UIcmdWithAnInteger*      fZDCDuplicateCmd;
+    G4UIcmdWithADouble*        fZDCHousingThicknessCmd;
+    G4UIcmdWithADouble*        fZDCGapThicknessCmd;
 
 
     //RPD commands
     G4UIcmdWithoutParameter*   fRPDAddCmd;
-    G4UIcmdWithAnInteger*      fRPDSetCurrentCmd;
+    G4UIcmdWith3VectorAndUnit* fRPDFiberDiameterssCmd;
     G4UIcmdWith3VectorAndUnit* fRPDPositionCmd;
+    G4UIcmdWithADouble*        fRPDHousingThicknessCmd;
     G4UIcmdWithADouble*        fRPDSetFiberPitchCmd;
     G4UIcmdWithADouble*        fRPDSetTileSizeCmd;
-    G4UIcmdWith3VectorAndUnit* fRPDHousingThicknessCmd;
-    G4UIcmdWith3VectorAndUnit* fRPDFiberDimensionsCmd; //Core, Cladding, Buffer
-    G4UIcmdWithABool*          fRPDUseOpticalMaterialsCmd;
+    G4UIcmdWithAnInteger*      fRPDDuplicateCmd;
+    G4UIcmdWithAnInteger*      fRPDSetCurrentCmd;
 
 
 };

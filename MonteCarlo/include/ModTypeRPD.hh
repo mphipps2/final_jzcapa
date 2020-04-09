@@ -47,10 +47,9 @@ class G4Material;
 class ModTypeRPD
 {
 public:
-  ModTypeRPD(const int,
-	 const G4ThreeVector&,
-	 G4LogicalVolume*);
   ModTypeRPD();
+  ModTypeRPD(const int, ModTypeRPD*);
+  ModTypeRPD(const int, const G4ThreeVector*, G4LogicalVolume*);
   ~ModTypeRPD();
 
 
@@ -62,29 +61,36 @@ public:
 
   virtual void  ConstructDetector();
 
+  inline  void  SetPosition          ( G4ThreeVector* vec ){ m_pos              = vec; }
+  inline  void  SetFiberDiameters    ( G4ThreeVector* vec ){ m_fiberDiam        = vec; }
+  inline  void  SetHousingThickness  ( G4double       arg ){ m_HousingThickness = arg; }
+  inline  void  SetFiberPitch        ( G4double       arg ){ m_fiberPitch       = arg; }
+  inline  void  SetTileSize          ( G4double       arg ){ m_tileSize         = arg; }
+
+
+  inline  G4ThreeVector* GetPosition ( ){ return m_pos;    }
+  inline  G4int          GetModNum   ( ){ return m_modNum; }
+
 protected:
-  const int            m_modNum;
-  const G4ThreeVector  m_pos;
-  G4LogicalVolume*     m_logicMother;
+  const G4int      m_modNum;
+  G4ThreeVector*   m_pos;
+  G4ThreeVector*   m_fiberDiam;
+  G4double         m_HousingThickness;
+  G4double         m_fiberPitch;
+  G4double         m_tileSize;
+  G4LogicalVolume* m_logicMother;
 
   Materials*          materials;
 protected:
 
   G4Material*           m_matQuartz;
-
   G4Material*           m_Al;
-
   G4Material*           m_Poly;
-
   G4Material*           m_Air;
-
   G4Material*           m_PMMA;
-
   G4Material*           m_Grease;
 
-  G4OpticalSurface* m_photonDetSurface;
-
-  bool               m_simCherenkov;
+  G4OpticalSurface*   m_photonDetSurface;
 
   G4SubtractionSolid* m_tile;
 

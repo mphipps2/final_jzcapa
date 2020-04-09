@@ -31,6 +31,7 @@
 
 #include "globals.hh"
 #include "G4PVPlacement.hh"
+#include "Materials.hh"
 
 #include <vector>
 
@@ -44,10 +45,10 @@ class G4Material;
 class ModTypeZDC
 {
 public:
-  ModTypeZDC(const int,
-	 const G4ThreeVector&,
-	 G4LogicalVolume*);
   ModTypeZDC();
+  ModTypeZDC(const int, ModTypeZDC*);
+  ModTypeZDC(const int, G4LogicalVolume*);
+  ModTypeZDC(const int, const G4ThreeVector*, G4LogicalVolume*);
   ~ModTypeZDC();
 
   virtual void  Construct();
@@ -57,16 +58,30 @@ public:
 
   virtual void  ConstructDetector();
 
-protected:
-  const int            m_modNum;
-  const G4ThreeVector  m_pos;
-  G4LogicalVolume*     m_logicMother;
+
+  inline  void  SetPosition          ( G4ThreeVector* vec ){ m_pos              = vec; }
+  inline  void  SetFiberDiameters    ( G4ThreeVector* vec ){ m_fiberDiam        = vec; }
+  inline  void  SetAbsorberDimensions( G4ThreeVector* vec ){ m_absDim           = vec; }
+  inline  void  SetnAbsorbers        ( G4int          arg ){ m_nAbsorbers       = arg; }
+  inline  void  SetHousingThickness  ( G4double       arg ){ m_HousingThickness = arg; }
+  inline  void  SetGapThickness      ( G4double       arg ){ m_GapThickness     = arg; }
+  virtual void  SetHousingMaterial   ( G4String  material );
+  virtual void  SetAbsorberMaterial  ( G4String  material );
+
+  inline  G4ThreeVector* GetPosition ( ){ return m_pos;    }
+  inline  G4int          GetModNum   ( ){ return m_modNum; }
 
 protected:
-  G4Material*        m_matHousing;
-  G4Material*        m_matQuartz;
-  G4Material*        m_matAbsorber;
-  G4Material*        m_matAir;
+  const G4int      m_modNum;
+  G4int            m_nAbsorbers;
+  G4ThreeVector*   m_pos;
+  G4ThreeVector*   m_fiberDiam;
+  G4ThreeVector*   m_absDim;
+  G4double         m_HousingThickness;
+  G4double         m_GapThickness;
+  G4LogicalVolume* m_logicMother;
+
+protected:
 
   G4VSolid*          m_ModuleBox;
   G4LogicalVolume*   m_ModuleLogical;
@@ -76,24 +91,27 @@ protected:
   G4LogicalVolume*   m_AirScoringLogical;
   G4VPhysicalVolume* m_AirScoringPhysical;
 
-  G4VSolid*          m_SteelBox;
-  G4LogicalVolume*   m_SteelLogical;
-  G4VPhysicalVolume* m_SteelBoxPhysical;
+  G4VSolid*          m_HousingBox;
+  G4LogicalVolume*   m_HousingLogical;
+  G4VPhysicalVolume* m_HousingPhysical;
 
   G4VSolid*          m_W;
   G4LogicalVolume*   m_WLogical;
-  G4VPhysicalVolume* m_WPhysical[11];
+  std::vector < G4VPhysicalVolume* > m_WPhysical;
 
   // Vertical quartz strips (these strips are full -- no partial segments)
-  G4VSolid*          m_StripTube;
-  G4LogicalVolume*   m_StripLogical;
-  G4VPhysicalVolume* m_StripPhysical[12][100];
+  G4VSolid*          m_FiberCoreTube;
+  G4LogicalVolume*   m_FiberCoreLogical;
+  std::vector< std::vector < G4VPhysicalVolume* > > m_FiberCorePhysical;
 
   G4VSolid*          m_CladdingTube;
   G4LogicalVolume*   m_CladdingLogical;
-  G4VPhysicalVolume* m_CladdingPhysical[12][100];
+  std::vector< std::vector < G4VPhysicalVolume* > > m_FiberCladdingPhysical;
 
-  bool               m_simCherenkov;
+  Materials*  m_materials;
+  G4Material* m_matAbsorber;
+  G4Material* m_matHousing;
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

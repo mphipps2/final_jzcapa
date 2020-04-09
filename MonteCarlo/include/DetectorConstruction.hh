@@ -31,15 +31,19 @@
 #ifndef DetectorConstruction_h
 #define DetectorConstruction_h 1
 
-#include "G4VUserDetectorConstruction.hh"
-#include "globals.hh"
 #include "ModTypeZDC.hh"
 #include "ModTypeRPD.hh"
+#include "XMLSettingsReader.hh"
+#include "Materials.hh"
+
+#include "G4VUserDetectorConstruction.hh"
+#include "G4ThreeVector.hh"
+#include "globals.hh"
 #include "G4Cache.hh"
 #include "G4MagneticField.hh"
-#include "XMLSettingsReader.hh"
+
 #include <vector>
-#include "Materials.hh"
+
 
 class G4Box;
 class G4Para;
@@ -56,7 +60,7 @@ class Survey {
  public :
 
 	/** Type of detector - ZDC or RPD **/
-    std::string detector;
+    G4String detector;
     /** x_pos for this survey */
     double x_pos;
 	/** y_pos for this survey */
@@ -104,25 +108,47 @@ public:
   virtual ~DetectorConstruction();
 
   virtual G4VPhysicalVolume* Construct();
-
-  virtual void               DefineBorderProperties();
-
   virtual G4VPhysicalVolume* ConstructDetector();
-  virtual G4VPhysicalVolume* ConstructTestBeam();
-  virtual G4VPhysicalVolume* LoadConfigurationFile();
-  virtual Survey*            GetSurvey();
-  virtual Alignment*         LoadAlignmentFile();
+  virtual G4VPhysicalVolume* ConstructSPSTestBeam();
+  virtual G4VPhysicalVolume* ManualConstruction();
 
-  inline  G4int              GetnZDCs(){return ZDCvec.size();}
-  inline  G4int              GetnRPDs(){return RPDvec.size();}
-  inline  G4bool             SetClusterFlag(G4bool arg){CLUSTER = arg;}
+  virtual void               LoadConfigurationFile( G4String _inFile = "" );
+  virtual void               LoadAlignmentFile( G4String _inFile = "" );
+  virtual Survey*            GetSurvey( G4String name );
+  virtual void               AddZDC( G4ThreeVector* position = NULL );
+  virtual void               AddRPD( G4ThreeVector* position = NULL );
+  virtual void               DuplicateZDC(G4int module);
+  virtual void               DuplicateRPD(G4int module);
+  inline  G4int              GetnZDCs(){return m_ZDCvec.size();}
+  inline  G4int              GetnRPDs(){return m_RPDvec.size();}
   inline  G4bool             GetClusterFlag(){return CLUSTER;}
+  inline  void               SetClusterFlag( G4bool arg ){CLUSTER = arg;}
+  inline  G4bool             GetOpticalFlag(){return OPTICAL;}
+  inline  void               SetOpticalFlag( G4bool arg ){OPTICAL = arg;}
+  inline  void               ForcePosition ( G4bool arg ){ForceDetectorPosition = arg;}
+  inline  void               SetCurrentZDC ( G4int  arg ){currentZDC = arg;}
+  inline  void               SetCurrentRPD ( G4int  arg ){currentZDC = arg;}
 
+
+  //For manual positioning ZDCs
+  inline  void SetZDCPosition          ( G4ThreeVector* vec ){ m_ZDCvec.at(currentZDC)->SetPosition(vec);          }
+  inline  void SetZDCFiberDimensions   ( G4ThreeVector* vec ){ m_ZDCvec.at(currentZDC)->SetFiberDiameters(vec);    }
+  inline  void SetZDCAbsorberDimensions( G4ThreeVector* vec ){ m_ZDCvec.at(currentZDC)->SetAbsorberDimensions(vec);}
+  inline  void SetZDCnAbsorbers        ( G4int          arg ){ m_ZDCvec.at(currentZDC)->SetnAbsorbers(arg);        }
+  inline  void SetZDCHousingThickness  ( G4double       arg ){ m_ZDCvec.at(currentZDC)->SetHousingThickness(arg);  }
+  inline  void SetZDCGapThickness      ( G4double       arg ){ m_ZDCvec.at(currentZDC)->SetGapThickness(arg);      }
+
+
+  //For manual positioning RPDs
+  inline  void SetRPDPosition          ( G4ThreeVector* vec ){ m_RPDvec.at(currentRPD)->SetPosition(vec);        }
+  inline  void SetRPDFiberDimensions   ( G4ThreeVector* vec ){ m_RPDvec.at(currentRPD)->SetFiberDiameters(vec);  }
+  inline  void SetRPDHousingThickness  ( G4double       arg ){ m_RPDvec.at(currentRPD)->SetHousingThickness(arg);}
+  inline  void SetRPDFiberPitch        ( G4double       arg ){ m_RPDvec.at(currentRPD)->SetFiberPitch(arg);      }
+  inline  void SetRPDTileSize          ( G4double       arg ){ m_RPDvec.at(currentRPD)->SetTileSize(arg);        }
 
 protected:
-  Materials*              materials;
+  Materials*              m_materials;
 
-protected:
   /* World objects */
   G4Box*                  m_solidWorld;
   G4LogicalVolume*        m_logicWorld;
@@ -136,19 +162,23 @@ protected:
   XMLSettingsReader*      m_XMLparser;
   Alignment* 	            m_alignment;
   Survey*                 m_survey;
-  std::vector < Survey* > surveyEntries;
+  G4int                   m_runNumber;
+  std::vector < Survey* > m_surveyEntries;
 
   /* Number of each detector */
-  std::vector< ModTypeZDC* > ZDCvec;
-  std::vector< ModTypeRPD* > RPDvec;
-
-  /* Cluster Flag for forwarding to RunAction */
-  G4bool CLUSTER;
-
+  std::vector< ModTypeZDC* > m_ZDCvec;
+  std::vector< ModTypeRPD* > m_RPDvec;
+  G4int currentZDC;
+  G4int currentRPD;
 
 
 private:
 	G4Cache<G4MagneticField*> fField;  //pointer to the thread-local fields
+
+  /* Run condition flags */
+  G4bool CLUSTER;
+  G4bool OPTICAL;
+  G4bool ForceDetectorPosition;
 
 };
 
