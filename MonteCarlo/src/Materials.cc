@@ -14,12 +14,14 @@ Materials* Materials::getInstance(void)
 /* Function that constructs all the materials - to be then retrieved via pointer */
 Materials::Materials(void){
 
-  H  = new G4Element("Hydrogen", "H", 1., 1.01 * g/mole);
-  N  = new G4Element("Nitrogen", "N", 7., 14.01 * g/mole);
-  Ni = new G4Element("Ni" ,"Ni" , 28.0 ,  58.6934*g/mole);
-  O  = new G4Element("Oxygen"  , "O", 8., 16.00 * g/mole);
-  Si = new G4Element("Silicon" , "Si", 14., 28.08 * g/mole);
-  C  = new G4Element("Carbon" , "C", 6., 12.00 * g/mole);
+  H  = new G4Element("Hydrogen", "H",  1.,   1.01   *g/mole);
+  N  = new G4Element("Nitrogen", "N",  7.,   14.01  *g/mole);
+  Ni = new G4Element("Ni",       "Ni", 28.0, 58.6934*g/mole);
+  W  = new G4Element("W",        "W",  74.0, 183.84 *g/mole);
+  Fe = new G4Element("Fe",       "Fe", 26.0, 55.845 *g/mole);
+  O  = new G4Element("Oxygen",   "O",  8.,   16.00  *g/mole);
+  Si = new G4Element("Silicon",  "Si", 14.,  28.08  *g/mole);
+  C  = new G4Element("Carbon",   "C",  6.,   12.00  *g/mole);
 
   //Materials definition
   Xenon = new G4Material("XenonGas", 54., 131.29 * g/mole, 5.458 * mg/cm3,
@@ -27,31 +29,31 @@ Materials::Materials(void){
 
 
   // Absorber composition:  savannah.cern.ch/task/download.php?file_id=22925
-  NiW = new G4Material("Tungsten/Nickel Composite",18.155*g/cm3,ncomponents=3);
-  NiW->AddElement(W,  fractionMass=0.948);
-  NiW->AddElement(Ni, fractionMass=0.037);
-  NiW->AddElement(Fe, fractionMass=0.015);
+  NiW = new G4Material("Tungsten/Nickel Composite",18.155*g/cm3,3);
+  NiW->AddElement(W,  0.948);
+  NiW->AddElement(Ni, 0.037);
+  NiW->AddElement(Fe, 0.015);
 
-  Steel = new G4Material("Steel", 7.9*gram/cm3,ncomponents=2);
-  Steel->AddElement(Fe  , fractionMass=0.98);
-  Steel->AddElement(C   , fractionMass=0.02);
+  Steel = new G4Material("Steel", 7.9*gram/cm3,2);
+  Steel->AddElement(Fe, 0.98);
+  Steel->AddElement(C,  0.02);
 
   pQuartz = new G4Material("Quartz", 2.200 * g/cm3, 2);
   pQuartz->AddElement(Si,1);
-  pQuartz->AddElement(O,2);
+  pQuartz->AddElement(O, 2);
 
   EM_Quartz = new G4Material("EMQuartz", 2.200 * g/cm3, 2);
   EM_Quartz->AddElement(Si,1);
-  EM_Quartz->AddElement(O,2);
+  EM_Quartz->AddElement(O, 2);
 
   nist_manager = G4NistManager::Instance();
   nist_manager->SetVerbose(1);
 
-  Air = nist_manager->FindOrBuildMaterial("G4_AIR");
-  Al  = nist_manager->FindOrBuildMaterial("G4_Al");   	//G4_Al
-  Cu  = nist_manager->FindOrBuildMaterial("G4_Cu");
-  Pb  = nist_manager->FindOrBuildMaterial("G4_Pb");
-  W   = nist_manager->FindOrBuildMaterial("G4_W");
+  Air   = nist_manager->FindOrBuildMaterial("G4_AIR");
+  Al    = nist_manager->FindOrBuildMaterial("G4_Al");   	//G4_Al
+  Cu    = nist_manager->FindOrBuildMaterial("G4_Cu");
+  Pb    = nist_manager->FindOrBuildMaterial("G4_Pb");
+  pureW = nist_manager->FindOrBuildMaterial("G4_W");
 
   Polyethylene = new G4Material("Polyethylene", 1200 * kg/m3, 2);
   Polyethylene->AddElement(H,2);
@@ -224,7 +226,9 @@ Materials::~Materials(void)
   delete Al;
   delete Cu;
   delete Pb;
-  delete W;
+  delete pureW;
+  delete NiW;
+  delete Steel;
   delete Polyethylene;
   delete PMMA;
   delete Grease;

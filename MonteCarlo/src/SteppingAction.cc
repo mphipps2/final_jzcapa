@@ -68,5 +68,9 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
     }
 	}
 
+	if(theTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() && !OPTICAL){
+		theTrack->SetTrackStatus( fStopAndKill );
+	}
+
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

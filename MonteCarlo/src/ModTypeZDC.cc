@@ -297,7 +297,7 @@ void ModTypeZDC::SetHousingMaterial(G4String material)
 void ModTypeZDC::SetAbsorberMaterial(G4String material)
 {
 	material.toLower();
-			 if( material == "pure") 		 ) m_matHousing = m_materials->W;
+			 if( material == "pure") 		 ) m_matHousing = m_materials->pureW;
 	else if( material == "composite" ) m_matHousing = m_materials->NiW;
 	else G4cout << "Invalid absorber material selection, defaulting to composite" << G4endl;
 }

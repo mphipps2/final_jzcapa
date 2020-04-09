@@ -100,36 +100,33 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
   //Get the number of Cherenkov photons created in this step
   //If optical is off, stop that track
-  int capturedPhotons =0;
-  const std::vector< const G4Track* >* secVec = aStep->GetSecondaryInCurrentStep();
-  const G4Track* track;
-  //for(const G4Track* track : *secVec){
+  int capturedPhotons = 0;
+  const std::vector<const G4Track*>* secVec = aStep->GetSecondaryInCurrentStep();
   for(uint i = 0; i < secVec->size(); i++){
-    track = secVec->at(i);
-    if( track->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
+    if( secVec->at(i)->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
       capturedPhotons++;
-      if(!OPTICAL){
-        track->SetTrackStatus( fStopAndKill );
-      }//end if optical
     }//end if pid==0
   }//end secondary track loop
 
   FiberHit* newHit = new FiberHit();
 
-  newHit->setCharge        (charge );
-  newHit->setTrackID       (aStep->GetTrack()->GetTrackID() );
-  newHit->setModNb         (m_modNum );
-  newHit->setRadNb         (radNum );
-  newHit->setRodNb         (rodNum );
-  newHit->setEdep          (eDep );
-  newHit->setPos           (aStep->GetTrack()->GetVertexPosition() );
-  newHit->setParticle      (particle);
-  newHit->setEnergy        (energy);
-  newHit->setMomentum      (momentum);
-  newHit->setNCherenkovs   (capturedPhotons);
+  newHit->setCharge      ( charge );
+  newHit->setTrackID     ( aStep->GetTrack()->GetTrackID() );
+  newHit->setModNb       ( m_modNum );
+  newHit->setRadNb       ( radNum );
+  newHit->setRodNb       ( rodNum );
+  newHit->setEdep        ( eDep );
+  newHit->setPos         ( aStep->GetTrack()->GetVertexPosition() );
+  newHit->setParticle    ( particle );
+  newHit->setEnergy      ( energy );
+  newHit->setMomentum    ( momentum );
+  newHit->setNCherenkovs ( capturedPhotons );
+
+  fiberCollection->insert ( newHit );
 
   // only want to record photons if optical flag is on
-  if( OPTICAL && particle->GetPDGEncoding() == 0 ) fiberCollection->insert (newHit );
+  //if( OPTICAL && particle->GetPDGEncoding() == 0 ) fiberCollection->insert (newHit );
+
   return true;
 }
 
