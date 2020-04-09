@@ -8,27 +8,22 @@ MAIN
 -Add geometry.mac with DetectorMessenger commands
 
 CONSTRUCTION
--Remake ModTypeZDC with parameters set by DetectorMessenger and materials from Materials.hh
--Make DetectorMessenger that talks to DetectorConstruction, ModTypeRPD and ModTypeZDC
--Set sim cherenkov option in physics list. (maybe set it in detector construction)
+-Implement the ManualConstruction method
+-Implement DetectorMessenger commands
 -Create an environment flag. i.e. ATLAS, SPS TestBeam, FNAL TestBeam
--Replace rpd construction with pan flute
--Give zdc construction materials only from Materials class
--Make zdc with vectors instead of fixed length arrays
+-Add cladding and buffer to RPD::ConstructPrototypeDetector
+-Make RPD volume vectors instead of fixed length arrays
 
 SENSITIVEDETECTORS
 -Make fiber SD detect only photons at the top of the volume if OPTICAL is true
   -Probably separate this into two function
--Figure out how to kill Cherenkov photons from the SD
 -Determine if rodNum/radNum are necessary
 
 STEPPINGACTION
--Fill last step in volume properly
--Remove stepping action if lastStep works in EventAction
+-Remove lastStep if it works in EventAction
 
 OUTPUT
 -Pass output file name to run action
--Add gun position to branch in event action
 -Check to see if LastStepInVolume works in EventAction
 
 
@@ -39,20 +34,24 @@ PHYSICS
 
 *** By Priority ***
 /// Necessary
--Pass output file name to run action
--Finish DetectorMessenger
+-Implement DetectorMessenger commands
+-Implement the ManualConstruction method
 -Add geometry.mac with DetectorMessenger commands
+-Make fiber SD detect only photons at the top of the volume if OPTICAL is true
+  -Probably separate this into two function
+-Pass output file name to run action
 
 // Completeness
--Replace rpd construction with pan flute
+-Remove lastStep if it works in EventAction
+-Determine if rodNum/radNum are necessary
 -Try making vectors in EventAction not contain pointers
--Give zdc construction materials only from Materials class
--Make zdc with vectors instead of fixed length arrays
--Fill last step in volume properly
--Add gun position to branch in event action
+-Create an environment flag. i.e. ATLAS, SPS TestBeam, FNAL TestBeam
+-Make RPD volume vectors instead of fixed length arrays
+-Add cladding and buffer to RPD::ConstructPrototypeDetector
 
 // Quality of life
 -Clean up commented out lines
+-Make RPD volume vectors instead of fixed length arrays
 -Enable multithreading. Special considerations must be taken when storing std::vector
   in root files.
   Ref: https://indico.cern.ch/event/217511/contributions/444924/attachments/349283/486922/root_in_geant4.pdf

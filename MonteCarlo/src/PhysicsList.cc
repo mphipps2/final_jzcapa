@@ -1,7 +1,10 @@
 #include "PhysicsList.hh"
+#include "PhysicsMessenger.hh"
 
 PhysicsList::PhysicsList( )
 {
+
+  m_messenger = new PhysicsMessenger( this );
 
   //Set Physics list via messenger
   //Hadronic_PL = _physicsList;

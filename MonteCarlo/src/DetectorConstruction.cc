@@ -25,6 +25,7 @@
 // Author: Michael Phipps
 
 #include "DetectorConstruction.hh"
+#include "DetectorMessenger.hh"
 
 #include "G4GeometryManager.hh"
 #include "G4SolidStore.hh"
@@ -68,9 +69,9 @@
 
 DetectorConstruction::DetectorConstruction()
   : G4VUserDetectorConstruction(), m_solidWorld(NULL), m_logicWorld(NULL),
-  m_physWorld(NULL)
+  m_physWorld(NULL),CLUSTER(false),OPTICAL(false)
 {
-  CLUSTER = false;
+  new DetectorMessenger(this);
   currentRPD = -1;
   currentZDC = -1;
   m_materials = Materials::getInstance();
@@ -454,7 +455,7 @@ Survey* DetectorConstruction::GetSurvey(G4String name){
 */
 void DetectorConstruction::AddZDC(G4ThreeVector* position){
   int newModNum = m_ZDCvec.size();
-  m_ZDCvec.push_back(new ModTypeZDC(newModNum, position, m_logicWorld));
+  m_ZDCvec.push_back(new ModTypeZDC(newModNum, m_logicWorld, position ));
 }
 
 /*
@@ -462,7 +463,7 @@ void DetectorConstruction::AddZDC(G4ThreeVector* position){
 */
 void DetectorConstruction::AddRPD(G4ThreeVector* position){
   int newModNum = m_ZDCvec.size();
-  m_RPDvec.push_back(new ModTypeRPD(newModNum, position, m_logicWorld));
+  m_RPDvec.push_back(new ModTypeRPD(newModNum, m_logicWorld, position ));
 }
 
 /*

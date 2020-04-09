@@ -32,6 +32,7 @@
 #include "EventAction.hh"
 #include "PrimaryGeneratorAction.hh"
 #include "DetectorConstruction.hh"
+#include "Analysis.hh"
 
 #include "G4RunManager.hh"
 #include "G4Run.hh"
@@ -83,14 +84,18 @@ RunAction::RunAction()
   //Create the analysis manager
   auto analysisManager = G4AnalysisManager::Instance();
   G4cout << "Using " << analysisManager->GetType() << G4endl;
-
+  char name[20];
   //Create ZDC trees and branches
-  for(int zdcNo = 0; zdcNo < nZDCs->size(); zdcNo++){
-    analysisManager->CreateNtuple( Form("ZDC%dtree",zdcNo), "ZDC data");
+  for(int zdcNo = 0; zdcNo < nZDCs; zdcNo++){
+    sprintf(name,"ZDC%dtree",zdcNo);
+    analysisManager->CreateNtuple( name, "ZDC data");
     if(!CLUSTER){
       //Make double branches
       analysisManager->CreateNtupleDColumn( zdcNo, "lastStep"                                 );
       analysisManager->CreateNtupleDColumn( zdcNo, "lastSteptest"                             );
+      analysisManager->CreateNtupleDColumn( zdcNo, "gunPosX"                                  );
+      analysisManager->CreateNtupleDColumn( zdcNo, "gunPosY"                                  );
+      analysisManager->CreateNtupleDColumn( zdcNo, "gunPosZ"                                  );
       analysisManager->CreateNtupleDColumn( zdcNo, "x",           *ZDCdblVec->at(zdcNo).at(0) );
       analysisManager->CreateNtupleDColumn( zdcNo, "y",           *ZDCdblVec->at(zdcNo).at(1) );
       analysisManager->CreateNtupleDColumn( zdcNo, "z",           *ZDCdblVec->at(zdcNo).at(2) );
@@ -114,6 +119,9 @@ RunAction::RunAction()
 
     } else { // There's only two branches to save space on cluster jobs
       analysisManager->CreateNtupleDColumn( zdcNo, "lastStep"                                 );
+      analysisManager->CreateNtupleDColumn( zdcNo, "gunPosX"                                  );
+      analysisManager->CreateNtupleDColumn( zdcNo, "gunPosY"                                  );
+      analysisManager->CreateNtupleDColumn( zdcNo, "gunPosZ"                                  );
       analysisManager->CreateNtupleIColumn( zdcNo, "radNo",       *ZDCintVec->at(zdcNo).at(0) );
       analysisManager->CreateNtupleIColumn( zdcNo, "nCherenkovs", *ZDCintVec->at(zdcNo).at(1) );
     }//end if !CLUSTER
@@ -121,12 +129,16 @@ RunAction::RunAction()
 
   //Create RPD trees and branches
   for(int rpdNo = 0; rpdNo < nRPDs; rpdNo++){
-    analysisManager->CreateNtuple( Form("RPD%dtree",rpdNo), "RPD data");
+    sprintf(name,"RPD%dtree",rpdNo);
+    analysisManager->CreateNtuple( name, "RPD data");
     int nTuple = nZDCs + rpdNo;
     if(!CLUSTER){
       //Make double branches
       analysisManager->CreateNtupleDColumn( nTuple, "lastStep"                                 );
       analysisManager->CreateNtupleDColumn( nTuple, "lastSteptest"                             );
+      analysisManager->CreateNtupleDColumn( nTuple, "gunPosX"                                  );
+      analysisManager->CreateNtupleDColumn( nTuple, "gunPosY"                                  );
+      analysisManager->CreateNtupleDColumn( nTuple, "gunPosZ"                                  );
       analysisManager->CreateNtupleDColumn( nTuple, "x",           *RPDdblVec->at(rpdNo).at(0) );
       analysisManager->CreateNtupleDColumn( nTuple, "y",           *RPDdblVec->at(rpdNo).at(1) );
       analysisManager->CreateNtupleDColumn( nTuple, "z",           *RPDdblVec->at(rpdNo).at(2) );
@@ -151,6 +163,9 @@ RunAction::RunAction()
     } else { // There's only two branches to save space on cluster jobs
       //Make double branches
       analysisManager->CreateNtupleDColumn( nTuple, "lastStep"                                 );
+      analysisManager->CreateNtupleDColumn( nTuple, "gunPosX"                                  );
+      analysisManager->CreateNtupleDColumn( nTuple, "gunPosY"                                  );
+      analysisManager->CreateNtupleDColumn( nTuple, "gunPosZ"                                  );
       analysisManager->CreateNtupleDColumn( nTuple, "x",           *RPDdblVec->at(rpdNo).at(0) );
       analysisManager->CreateNtupleDColumn( nTuple, "y",           *RPDdblVec->at(rpdNo).at(1) );
       analysisManager->CreateNtupleDColumn( nTuple, "z",           *RPDdblVec->at(rpdNo).at(2) );
@@ -171,23 +186,12 @@ RunAction::~RunAction()
 
 void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 {
-
-  long seeds[2];
-  long systime = time(NULL);
-  seeds[0] = (long) systime;
-  seeds[1] = (long) (systime*G4UniformRand());
-  G4Random::setTheSeeds(seeds);
-
-  G4RunManager::GetRunManager()->SetRandomNumberStore(false);
-
-
   // Get analysis manager
   auto analysisManager = G4AnalysisManager::Instance();
 
   // Open an output file
   if(m_fileName == "") m_fileName = "output";
   analysisManager->OpenFile(m_fileName);
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

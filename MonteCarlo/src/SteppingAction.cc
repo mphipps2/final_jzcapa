@@ -31,10 +31,13 @@
 #include "SteppingAction.hh"
 #include "EventAction.hh"
 #include "Analysis.hh"
+#include "DetectorConstruction.hh"
 
 #include "G4Step.hh"
 #include "G4Event.hh"
 #include "G4RunManager.hh"
+#include "G4ParticleTypes.hh"
+#include "G4ParticleDefinition.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -63,7 +66,7 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
 	if(theTrack->GetParentID()==0 && theStep->IsLastStepInVolume()){
 		lastStep = theTrack->GetPosition().getZ();
     auto analysisManager = G4AnalysisManager::Instance();
-    for(int i = 0; i < analysisManager->GetNofNtuples(); i++{
+    for(int i = 0; i < analysisManager->GetNofNtuples(); i++){
       analysisManager->FillNtupleDColumn(i,0,lastStep);
     }
 	}

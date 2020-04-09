@@ -49,7 +49,7 @@ class G4UIcmdWith3VectorAndUnit;
 class PhysicsMessenger: public G4UImessenger{
   public:
 
-    PhysicsMessenger(DetectorConstruction* );
+    PhysicsMessenger(PhysicsList* );
    ~PhysicsMessenger();
 
     virtual void SetNewValue(G4UIcommand*, G4String);
@@ -62,7 +62,6 @@ class PhysicsMessenger: public G4UImessenger{
     G4UIdirectory*             fPhysicsDir;
 
     //Commands
-    G4UIcmdWithABool*          fSimCherenkovsCmd;
     G4UIcmdWithAString*        fSelectListCmd;
 
 

@@ -29,6 +29,7 @@
 //
 
 #include "PhysicsMessenger.hh"
+#include "PhysicsList.hh"
 
 #include "G4OpticalSurface.hh"
 
@@ -51,24 +52,24 @@ PhysicsMessenger::PhysicsMessenger(PhysicsList * pList)
   fPhysicsDir = new G4UIdirectory("/Physics/");
   fPhysicsDir->SetGuidance("PhysicsList options");
 
-  fSimCherenkovsCmd = new G4UIcmdWithABool("/Physics/Cherenkovs", this);
-  fSimCherenkovsCmd->SetGuidance("Propogate Cherenkov photons");
-  fSimCherenkovsCmd->SetParameterName("flag",false);
-  fSimCherenkovsCmd->SetDefaultValue(false);
+  fSelectListCmd = new G4UIcmdWithAString("/Physics/SelectList", this);
+  fSelectListCmd->SetGuidance("Choose a physics list to use");
+  fSelectListCmd->SetParameterName("List Name",false);
+  fSelectListCmd->SetDefaultValue("FTFP_BERT");
 }
 
 /*
  *
  */
 PhysicsMessenger::~PhysicsMessenger(){
-  delete fSimCherenkovsCmd;
+  delete fSelectListCmd;
 }
 
 /*
  *
  */
 void PhysicsMessenger::SetNewValue(G4UIcommand* command,G4String newValue){
-  if (command == fSimCherenkovsCmd) {
-    fPhysicsList->SimCherenkovs( fSimCherenkovsCmd->GetNewBoolValue(newValue) );
+  if (command == fSelectListCmd) {
+    fPhysicsList->SetList(newValue);
   }
 }

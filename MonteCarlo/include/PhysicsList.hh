@@ -1,6 +1,8 @@
 #ifndef PhysicsList_HH_
 #define PhysicsList_HH_
 
+#include "PhysicsMessenger.hh"
+
 #include "G4VUserPhysicsList.hh"
 #include "G4VProcess.hh"
 #include "G4ProcessManager.hh"
@@ -75,9 +77,12 @@ class PhysicsList : public G4VUserPhysicsList
 
     void SetCuts(void);
 
+    void SetList( G4String arg ){ Hadronic_PL = arg; }
+
     G4ParticleDefinition* getParticleByID(G4int id);
 
   private:
+    PhysicsMessenger *m_messenger;
     G4String Hadronic_PL;
     int verboseLevel;
 

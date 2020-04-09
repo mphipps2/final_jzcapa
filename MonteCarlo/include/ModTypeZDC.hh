@@ -48,13 +48,10 @@ public:
   ModTypeZDC();
   ModTypeZDC(const int, ModTypeZDC*);
   ModTypeZDC(const int, G4LogicalVolume*);
-  ModTypeZDC(const int, const G4ThreeVector*, G4LogicalVolume*);
+  ModTypeZDC(const int, G4LogicalVolume*, G4ThreeVector* );
   ~ModTypeZDC();
 
   virtual void  Construct();
-
-  virtual void  DefineMaterials();
-  virtual void  DefineBorderProperties();
 
   virtual void  ConstructDetector();
 
@@ -65,8 +62,11 @@ public:
   inline  void  SetnAbsorbers        ( G4int          arg ){ m_nAbsorbers       = arg; }
   inline  void  SetHousingThickness  ( G4double       arg ){ m_HousingThickness = arg; }
   inline  void  SetGapThickness      ( G4double       arg ){ m_GapThickness     = arg; }
+  inline  void  SetOpticalFlag       ( G4bool         arg ){ OPTICAL            = arg; }
+  inline  void  SetOverlapsFlag      ( G4bool         arg ){ CHECK_OVERLAPS     = arg; }
   virtual void  SetHousingMaterial   ( G4String  material );
   virtual void  SetAbsorberMaterial  ( G4String  material );
+
 
   inline  G4ThreeVector* GetPosition ( ){ return m_pos;    }
   inline  G4int          GetModNum   ( ){ return m_modNum; }
@@ -79,6 +79,11 @@ protected:
   G4ThreeVector*   m_absDim;
   G4double         m_HousingThickness;
   G4double         m_GapThickness;
+  G4bool           OPTICAL;
+  G4bool           CHECK_OVERLAPS;
+  Materials*       m_materials;
+  G4Material*      m_matAbsorber;
+  G4Material*      m_matHousing;
   G4LogicalVolume* m_logicMother;
 
 protected:
@@ -108,9 +113,7 @@ protected:
   G4LogicalVolume*   m_CladdingLogical;
   std::vector< std::vector < G4VPhysicalVolume* > > m_FiberCladdingPhysical;
 
-  Materials*  m_materials;
-  G4Material* m_matAbsorber;
-  G4Material* m_matHousing;
+
 
 };
 

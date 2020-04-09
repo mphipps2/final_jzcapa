@@ -35,8 +35,6 @@
 #include "G4UImessenger.hh"
 
 class DetectorConstruction;
-class ModTypeRPD;
-class ModTypeZDC;
 class G4UIdirectory;
 class G4UIcommand;
 class G4UIcmdWithAString;

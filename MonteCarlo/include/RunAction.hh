@@ -58,8 +58,7 @@ class RunAction : public G4UserRunAction
 
 
   private:
-
-
+    G4String m_fileName;
 
 };
 

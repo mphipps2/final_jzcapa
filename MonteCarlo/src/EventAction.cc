@@ -116,9 +116,7 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 
 void EventAction::EndOfEventAction(const G4Event* evt){
   G4PrimaryVertex* pVert = evt->GetPrimaryVertex();
-  gunPosX = pVert->GetX0();
-  gunPosY = pVert->GetY0();
-  gunPosZ = pVert->GetZ0();
+
 
   // Last step in volume?
   G4double LastStepInVolume = pVert->GetPosition().z();
@@ -127,7 +125,6 @@ void EventAction::EndOfEventAction(const G4Event* evt){
   G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
   FiberHitsCollection* HC = 0;
   G4int nCollections =  HCE->GetNumberOfCollections();
-  int IDholder = 0;
   if(HCE) {
     while (hitsCollID < nCollections) {
       HC = (FiberHitsCollection*)(HCE->GetHC(hitsCollID));
@@ -245,6 +242,9 @@ void EventAction::EndOfEventAction(const G4Event* evt){
       G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
       for(int i = 0; i < analysisManager->GetNofNtuples(); i++){
         analysisManager->FillNtupleDColumn(i,1,LastStepInVolume);
+        analysisManager->FillNtupleDColumn(i,2, pVert->GetX0() );
+        analysisManager->FillNtupleDColumn(i,3, pVert->GetY0() );
+        analysisManager->FillNtupleDColumn(i,4, pVert->GetZ0() );
         analysisManager->AddNtupleRow(i);
       }
 

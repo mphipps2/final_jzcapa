@@ -27,6 +27,7 @@
 // For an explanation of the hierarchy scheme see: https://twiki.cern.ch/twiki/bin/view/Atlas/ZdcSimulation#Geometry_Implementation_Develope
 
 #include "ModTypeZDC.hh"
+#include "FiberSD.hh"
 
 #include "G4GeometryManager.hh"
 #include "G4SolidStore.hh"
@@ -49,9 +50,9 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ModTypeZDC::ModTypeZDC(const int cn, G4ThreeVector& pos,
-	      G4LogicalVolume* mother)
-  : m_modNum( cn ),  m_pos( pos ), m_logicMother( mother )
+ModTypeZDC::ModTypeZDC(const int cn,
+	      G4LogicalVolume* mother, G4ThreeVector* pos)
+  : m_modNum( cn ), m_pos( pos ), m_logicMother( mother )
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -60,11 +61,15 @@ ModTypeZDC::ModTypeZDC(const int cn, G4ThreeVector& pos,
 		: m_modNum( cn )
 	{
 		m_nAbsorbers 			 = right->m_nAbsorbers;
-		m_pos				 			 = new G4ThreeVector(right->m_pos);
-		m_fiberDim 	 			 = new G4ThreeVector(right->m_fiberDim);
-		m_absDim 		 			 = new G4ThreeVector(right->m_absDim);
+		m_pos				 			 = new G4ThreeVector(*right->m_pos);
+		m_fiberDiam 	 		 = new G4ThreeVector(*right->m_fiberDiam);
+		m_absDim 		 			 = new G4ThreeVector(*right->m_absDim);
 		m_HousingThickness = right->m_HousingThickness;
 		m_GapThickness 		 = right->m_GapThickness;
+		OPTICAL 					 = right->OPTICAL;
+		CHECK_OVERLAPS 		 = right->CHECK_OVERLAPS;
+		m_matAbsorber 		 = right->m_matAbsorber;
+		m_matHousing			 = right->m_matHousing;
 		m_logicMother			 = right->m_logicMother;
 	}
 
@@ -77,7 +82,7 @@ ModTypeZDC::ModTypeZDC(const int cn, G4LogicalVolume* mother)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ModTypeZDC::ModTypeZDC()
-  : m_modNum( 0 ), m_pos(G4ThreeVector()), m_logicMother(NULL),
+  : m_modNum( 0 ), m_pos(new G4ThreeVector(0.,0.,0.)), m_logicMother(NULL)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -88,7 +93,6 @@ ModTypeZDC::~ModTypeZDC()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void ModTypeZDC::Construct(){
-  DefineMaterials();
   ConstructDetector();
 }
 
@@ -107,6 +111,7 @@ void ModTypeZDC::ConstructDetector()
 	else						 fiberMaxDia = m_fiberDiam->x();
 
   // geometric constants
+	float zPitch;
   float xStartStrip; // middle of left most strip -- note this strip doesn't actually exist since the sets on the edge have 5 strips instead of 6
   float stripPitch;  // distance between center of each rod ie) the diameter of one strip
   float zStartW; 		 // position where first tungsten plate gets placed
@@ -117,8 +122,8 @@ void ModTypeZDC::ConstructDetector()
   zStartW = -1*modLengthZ/2 + m_GapThickness + m_absDim->z()/2;
   zStartRad = -1*modLengthZ/2 + m_GapThickness/2;
   stripPitch = fiberMaxDia;
-  xStartStrip = -1*(m_absDim->x()%fiberMaxDia)*stripPitch/2 + stripPitch/2;
-  float modWidthX = (m_absDim->x()%fiberMaxDia)*stripPitch;
+  xStartStrip = -1*fmod(m_absDim->x(),fiberMaxDia)*stripPitch/2 + stripPitch/2;
+  float modWidthX = fmod(m_absDim->x(),fiberMaxDia)*stripPitch;
   if (modWidthX == 0) modWidthX = m_absDim->x(); // the case where you are defining a solid absorber block with no active channels
   float modHeightY = m_absDim->y();
   float boxLengthZ = modLengthZ + m_HousingThickness*2;
@@ -133,10 +138,10 @@ void ModTypeZDC::ConstructDetector()
   // Housing
   //----------------------------------------------
 
-  m_HousingBox     = new G4Box("SteelCasing", boxWidthX*mm/2.0 ,boxHeightY*mm/2.0  , boxLengthZ*mm/2.0);
+  m_HousingBox     = new G4Box("SteelCasing",  boxWidthX*mm/2.0 ,boxHeightY*mm/2.0  , boxLengthZ*mm/2.0);
   m_ModuleBox      = new G4Box("ModuleCasing", modWidthX*mm/2.0 ,modHeightY*mm/2.0  , modLengthZ*mm/2.0);
-  m_HousingLogical = new G4LogicalVolume(m_SteelBox           ,m_matHousing, "Steel_Logical");
-  m_ModuleLogical  = new G4LogicalVolume(m_ModuleBox          ,m_materials->Air, "Module_Logical");
+  m_HousingLogical = new G4LogicalVolume(m_HousingBox           ,m_matHousing, 		 "Housing_Logical");
+  m_ModuleLogical  = new G4LogicalVolume(m_ModuleBox            ,m_materials->Air, "Module_Logical");
 
   char name[256];
   int cn = m_modNum;
@@ -144,10 +149,10 @@ void ModTypeZDC::ConstructDetector()
   G4RotationMatrix* nullRotation = new G4RotationMatrix();
   G4ThreeVector  pos;
   pos = G4ThreeVector(0,0,0);
-  m_HousingPhysical = new G4PVPlacement(nullRotation,m_pos,m_HousingLogical,name,m_logicMother,false,cn,checkOverlaps);
+  m_HousingPhysical = new G4PVPlacement(nullRotation,*m_pos,m_HousingLogical,name,m_logicMother,false,cn,CHECK_OVERLAPS);
 
   sprintf(name,"ZDC%d_Air_Physical", cn);
-  m_ModulePhysical = new G4PVPlacement(nullRotation,pos,m_ModuleLogical,name,m_HousingLogical,false,cn,checkOverlaps);
+  m_ModulePhysical = new G4PVPlacement(nullRotation,pos,m_ModuleLogical,name,m_HousingLogical,false,cn,CHECK_OVERLAPS);
 
   G4VisAttributes* moduleColor = new G4VisAttributes( G4Colour::Gray() );
   m_ModuleLogical->SetVisAttributes( moduleColor );
@@ -157,21 +162,21 @@ void ModTypeZDC::ConstructDetector()
   // Quartz
   //----------------------------------------------
 
-  m_StripTube =
+  m_FiberCoreTube =
 		new G4Tubs( "Fiber_Core_Tube",
 							  0.0*mm,
 								(m_fiberDiam->x()/2.0-0.005)*mm,
 								modHeightY*mm/2.0 ,
 								0.0*deg,
 								360.0*deg);
-  m_StripLogical =
-		new G4LogicalVolume(m_StripTube,
+  m_FiberCoreLogical =
+		new G4LogicalVolume(m_FiberCoreTube,
 												m_materials->pQuartz,
 												"FiberCore_Logical");
 
 	G4VisAttributes* quartzColor  = new G4VisAttributes( G4Colour::Cyan() );
   quartzColor->SetForceSolid(true);
-  m_StripLogical->SetVisAttributes( quartzColor );
+  m_FiberCoreLogical->SetVisAttributes( quartzColor );
 
   if ( CLADDING ) {
 
@@ -210,8 +215,6 @@ void ModTypeZDC::ConstructDetector()
   absorberColor->SetForceSolid(true);
   m_WLogical->SetVisAttributes( absorberColor );
 
-  int modOffset = 100000; //  just a convention to organize copy numbers for different modules
-
   // Quartz strip dimensions: radiator gap, group, strip
   // populate all 8 modules with quartz strips
   G4RotationMatrix* stripRotation = new G4RotationMatrix();
@@ -220,29 +223,30 @@ void ModTypeZDC::ConstructDetector()
 	m_FiberCorePhysical.resize(m_nAbsorbers + 1);
 	m_FiberCladdingPhysical.resize(m_nAbsorbers + 1);
   for(int K = 0; K < m_nAbsorbers + 1; K++ ){
-    for(int M = 0; M < (m_absDim->x()%fiberMaxDia); M++ ){
+    for(int M = 0; M < fmod(m_absDim->x(),fiberMaxDia); M++ ){
 
 	  	sprintf(name,"ZDC%d_Core%d", m_modNum, cn);
-      m_CorePhysical.push_back( new G4PVPlacement(
+      m_FiberCorePhysical.at(K).push_back( new G4PVPlacement(
 															  stripRotation,
 																G4ThreeVector((xStartStrip+(M*stripPitch))*mm,0,(zStartRad+K*zPitch)*mm),
-																m_StripLogical,
+																m_FiberCoreLogical,
 																name,
 																m_ModuleLogical,
 																false,
 																cn,
-																checkOverlaps) );
+																CHECK_OVERLAPS) );
       if ( CLADDING ) {
 
 				sprintf(name,"ZDC%d_Cladding%d", m_modNum, cn);
-				m_FiberCladdingPhysical.push_back(new G4PVPlacement(
+				m_FiberCladdingPhysical.at(K).push_back(new G4PVPlacement(
 																					stripRotation,
-																					G4ThreeVector((xStartStrip+(M*stripPitch))*mm,0,(zStartRad+K*zPitch)*mm),m_CladdingLogical,
+																					G4ThreeVector((xStartStrip+(M*stripPitch))*mm,0,(zStartRad+K*zPitch)*mm),
+																					m_CladdingLogical,
 																					name,
 																					m_ModuleLogical,
 																					false,
 																					cn,
-																					checkOverlaps) );
+																					CHECK_OVERLAPS) );
       }
       ++cn;
     }
@@ -258,14 +262,10 @@ void ModTypeZDC::ConstructDetector()
 													 m_ModuleLogical,
 													 false,
 													 cn,
-													 checkOverlaps) );
+													 CHECK_OVERLAPS) );
     ++cn;
   }
 
-  //----------------------------------------------
-  // Define Surface/Border Properties
-  //----------------------------------------------
-  DefineBorderProperties();
 
   //----------------------------------------------
   // SD and Scoring Volumes
@@ -275,10 +275,10 @@ void ModTypeZDC::ConstructDetector()
   //Note one SD object for each module
   char fiberSDname[256];
   sprintf( fiberSDname, "ZDC%d_SD", m_modNum+1);
-  FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum );
+  FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
   aFiberSD->HistInitialize();
   SDman->AddNewDetector( aFiberSD );
-  m_StripLogical->SetSensitiveDetector( aFiberSD );
+  m_FiberCoreLogical->SetSensitiveDetector( aFiberSD );
 
 
   std::cout << "ModTypeZDC construction finished: SD name " << fiberSDname << std::endl;
@@ -288,16 +288,15 @@ void ModTypeZDC::ConstructDetector()
 void ModTypeZDC::SetHousingMaterial(G4String material)
 {
 	material.toLower();
-			 if( material == "steel")  ) m_matHousing = m_materials->Steel;
+			 if( material == "steel"   ) m_matHousing = m_materials->Steel;
 	else if( material == "aluminum") m_matHousing = m_materials->Al;
 	else G4cout << "Invalid housing material selection, defaulting to steel" << G4endl;
-	}
 }
 
 void ModTypeZDC::SetAbsorberMaterial(G4String material)
 {
 	material.toLower();
-			 if( material == "pure") 		 ) m_matHousing = m_materials->pureW;
+			 if( material == "pure"  		 ) m_matHousing = m_materials->pureW;
 	else if( material == "composite" ) m_matHousing = m_materials->NiW;
 	else G4cout << "Invalid absorber material selection, defaulting to composite" << G4endl;
 }

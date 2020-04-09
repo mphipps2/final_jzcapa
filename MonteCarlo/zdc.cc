@@ -72,7 +72,7 @@ int main(int argc,char** argv)
 
   G4String macro;
   G4String output = "";
-  G4long   myseed = 345354;
+  G4long   myseed = -1;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif
@@ -111,6 +111,17 @@ int main(int argc,char** argv)
   G4RunManager * runManager = new G4RunManager;
 #endif
 
+  //Set the seed
+  if(myseed == -1){
+    long seeds[2];
+    long systime = time(NULL);
+    seeds[0] = (long) systime;
+    seeds[1] = (long) (systime*G4UniformRand());
+    G4Random::setTheSeeds(seeds);
+    runManager->SetRandomNumberStore(false);
+  }else {
+    G4Random::setTheSeed(myseed);
+  }
 
   // Set mandatory initialization classes
   //

@@ -49,23 +49,27 @@ class ModTypeRPD
 public:
   ModTypeRPD();
   ModTypeRPD(const int, ModTypeRPD*);
-  ModTypeRPD(const int, const G4ThreeVector*, G4LogicalVolume*);
+  ModTypeRPD(const int, G4LogicalVolume*, G4ThreeVector*);
   ~ModTypeRPD();
 
 
 
   virtual void  Construct();
+  virtual void  ConstructCMSDetector();
+  virtual void  ConstructPrototypeDetector();
 
   virtual void  DefineMaterials();
-//  virtual void  DefineBorderProperties();
 
-  virtual void  ConstructDetector();
 
   inline  void  SetPosition          ( G4ThreeVector* vec ){ m_pos              = vec; }
   inline  void  SetFiberDiameters    ( G4ThreeVector* vec ){ m_fiberDiam        = vec; }
   inline  void  SetHousingThickness  ( G4double       arg ){ m_HousingThickness = arg; }
   inline  void  SetFiberPitch        ( G4double       arg ){ m_fiberPitch       = arg; }
   inline  void  SetTileSize          ( G4double       arg ){ m_tileSize         = arg; }
+  inline  void  SetMinWallThickness  ( G4double       arg ){ m_minWallThickness = arg; }
+  inline  void  SetDetectorType      ( G4String       arg ){ m_detType          = arg; }
+  inline  void  SetOpticalFlag       ( G4bool         arg ){ OPTICAL            = arg; }
+  inline  void  SetOverlapsFlag      ( G4bool         arg ){ CHECK_OVERLAPS     = arg; }
 
 
   inline  G4ThreeVector* GetPosition ( ){ return m_pos;    }
@@ -78,9 +82,14 @@ protected:
   G4double         m_HousingThickness;
   G4double         m_fiberPitch;
   G4double         m_tileSize;
+  G4double         m_minWallThickness;
+  G4String         m_detType;
+  G4bool           OPTICAL;
+  G4bool           CHECK_OVERLAPS;
+  Materials*       materials;
   G4LogicalVolume* m_logicMother;
 
-  Materials*          materials;
+
 protected:
 
   G4Material*           m_matQuartz;
@@ -172,17 +181,19 @@ protected:
   G4VPhysicalVolume*  m_test_blockPhysical[2];
 
   //pan flute rpd
-  G4VSolid*          m_PFrpd[4];
-  G4LogicalVolume*   m_PFrpdLogical[64];
-  G4VPhysicalVolume* m_PFrpdPhysical[64];
+  G4VSolid*           m_PFrpd[4];
+  G4LogicalVolume*    m_PFrpdLogical[512];
+  G4VPhysicalVolume*  m_PFrpdPhysical[512];
 
-  G4VSolid*           m_test_foil[4];
-  G4LogicalVolume*    m_test_foilLogical[64];
-  G4VPhysicalVolume*  m_test_foilPhysical[64];
+  G4VSolid*           m_PFrpd_foil[4];
+  G4LogicalVolume*    m_PFrpd_foilLogical[512];
+  G4VPhysicalVolume*  m_PFrpd_foilPhysical[512];
 
   G4VSolid*           m_PFdetec;
-  G4LogicalVolume*    m_PFdetecLogical[64];
-  G4VPhysicalVolume*  m_PFdetecPhysical[64];
+  G4LogicalVolume*    m_PFdetecLogical[512];
+  G4VPhysicalVolume*  m_PFdetecPhysical[512];
+
+  G4int               m_PFrpd_cnt;
 
   //rpd booleans
   bool rpd_comp[8];
