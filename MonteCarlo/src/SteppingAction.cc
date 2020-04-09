@@ -30,21 +30,23 @@
 
 #include "SteppingAction.hh"
 #include "EventAction.hh"
+#include "Analysis.hh"
 
 #include "G4Step.hh"
 #include "G4Event.hh"
 #include "G4RunManager.hh"
-#include "g4root.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleTypes.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-SteppingAction::SteppingAction(EventAction* eventAction)
+SteppingAction::SteppingAction( )
 : G4UserSteppingAction(){
+	// Get number of OPTICAL flag from DetectorConstruction
+	const DetectorConstruction* constDetectorConstruction
+		= static_cast<const DetectorConstruction*>(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
+	DetectorConstruction* detectorConstruction
+		= const_cast<DetectorConstruction*>(constDetectorConstruction);
 
-  m_sd->AddOutputToRPDTree("LastStepInVolume", &lastStep);
-
+	OPTICAL = detectorConstruction->GetOpticalFlag();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -60,18 +62,11 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
 
 	if(theTrack->GetParentID()==0 && theStep->IsLastStepInVolume()){
 		lastStep = theTrack->GetPosition().getZ();
-		}
+    auto analysisManager = G4AnalysisManager::Instance();
+    for(int i = 0; i < analysisManager->GetNofNtuples(); i++{
+      analysisManager->FillNtupleDColumn(i,0,lastStep);
+    }
+	}
 
-  G4StepPoint* thePostPoint = theStep->GetPostStepPoint();
-  G4StepPoint* thePrePoint = theStep->GetPreStepPoint();
-  G4VPhysicalVolume* thePostPV = thePostPoint->GetPhysicalVolume();
-  G4VPhysicalVolume* thePrePV = thePrePoint->GetPhysicalVolume();
-  G4ParticleDefinition* particleType = theTrack->GetDefinition();
-  if(particleType==G4OpticalPhoton::OpticalPhotonDefinition() && thePostPV != NULL){
-      if( ( strncmp("ph",thePrePV->GetName().c_str(), 2) == 0) ){
-          //std::cout << theTrack->GetParticleDefinition()->GetParticleName() << std::endl;
-          theTrack->SetTrackStatus(fStopAndKill);
-      }
-  }
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

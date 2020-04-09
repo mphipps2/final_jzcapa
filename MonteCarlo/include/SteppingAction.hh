@@ -48,6 +48,7 @@ class SteppingAction : public G4UserSteppingAction
 
   private:
     G4double lastStep;
+    G4bool   OPTICAL;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -58,45 +58,49 @@ public:
   void Print();
 
 public:
-  void setTrackID    (G4int track)        { trackID = track; }
-  void setModNb      (G4int mod)          { modNb = mod; }  
-  void setRadNb      (G4int rad)          { radNb = rad; }
-  void setRodNb      (G4int rod)          { rodNb = rod; }  
-  void setEdep       (G4double de)        { edep = de; }
-  void setPos        (G4ThreeVector xyz)  { pos = xyz; }
-  void setMomentum   (G4ThreeVector mom)  { momentum = mom;}
-  void setParticle   (G4ParticleDefinition *part) {particle = part;}
-  void setEnergy     (G4double e)         {energy = e;}
-  void setCharge     (G4double c)         {charge = c;}
-  void setNCherenkovs (G4int n)           {nCherenkovs = n;}  
-  G4int         getTrackID()    { return trackID; }
-  G4int         getModNb()      { return modNb; }
-  G4int         getRadNb()      { return radNb; }
-  G4int         getRodNb()      { return rodNb; }  
-  G4int         getNCherenkovs()  { return nCherenkovs; }
-  G4double      getEdep()       { return edep; }      
-  G4ThreeVector getPos()        { return pos; }
-  G4ParticleDefinition*  getParticle()      { return particle; }
-  G4double      getEnergy()       { return energy; }      
-  G4ThreeVector getMomentum()        { return momentum; }
-  G4double      getCharge()     {return charge;}
-  G4double      getVelocity()   {return velocity;}
-  G4double      getBeta()   {return beta;}
-  
+  void setParticle    (G4ParticleDefinition *part) { particle = part;  }
+  void setPos         (G4ThreeVector xyz)          { pos      = xyz;   }
+  void setMomentum    (G4ThreeVector mom)          { momentum = mom;   }
+  void setTrackID     (G4int track)                { trackID  = track; }
+  void setModNb       (G4int mod)                  { modNb    = mod;   }
+  void setRadNb       (G4int rad)                  { radNb    = rad;   }
+  void setRodNb       (G4int rod)                  { rodNb    = rod;   }
+  void setNCherenkovs (G4int n)                    { nCherenkovs = n;  }
+  void setEdep        (G4double de)                { edep     = de;    }
+  void setEnergy      (G4double e)                 { energy   = e;     }
+  void setCharge      (G4double c)                 { charge   = c;     }
+
+
+  G4ParticleDefinition*  getParticle    (){ return particle;    }
+  G4ThreeVector          getPos         (){ return pos;         }
+  G4ThreeVector          getMomentum    (){ return momentum;    }
+  G4int                  getTrackID     (){ return trackID;     }
+  G4int                  getModNb       (){ return modNb;       }
+  G4int                  getRadNb       (){ return radNb;       }
+  G4int                  getRodNb       (){ return rodNb;       }
+  G4int                  getNCherenkovs (){ return nCherenkovs; }
+  G4double               getEdep        (){ return edep;        }
+  G4double               getEnergy      (){ return energy;      }
+  G4double               getCharge      (){ return charge;      }
+  G4double               getVelocity    (){ return velocity;    }
+  G4double               getBeta        (){ return beta;        }
+
 private:
-  G4int         trackID;
-  G4int         modNb;
-  G4int         radNb;
-  G4int         rodNb;
-  G4double      velocity;
-  G4double      beta;  
-  G4int         nCherenkovs;
-  G4double      edep;
-  G4ThreeVector pos;
-  G4ParticleDefinition *particle;
-  G4ThreeVector momentum;
-  G4double      energy;
-  G4double      charge;
+  G4ParticleDefinition* particle;
+  G4ThreeVector         pos;
+  G4ThreeVector         momentum;
+  G4int                 trackID;
+  G4int                 modNb;
+  G4int                 radNb;
+  G4int                 rodNb;
+  G4int                 nCherenkovs;
+  G4double              velocity;
+  G4double              beta;
+  G4double              energy;
+  G4double              charge;
+  G4double              edep;
+
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

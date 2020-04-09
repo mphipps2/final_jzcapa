@@ -34,13 +34,15 @@
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 
+#include <vector>
+
 /// Event action class
 ///
 
 class EventAction : public G4UserEventAction
 {
   public:
-    EventAction(RunAction* runAction);
+    EventAction( );
     virtual ~EventAction();
 
     virtual void BeginOfEventAction (const G4Event* event);
@@ -55,11 +57,12 @@ class EventAction : public G4UserEventAction
     inline  std::vector< std::vector< std::vector<double>* > >*  GetZDCdoubleVectors( ){return fZDCdblVec;}
     inline  std::vector< std::vector< std::vector< int  >* > >*  GetZDCintVectors   ( ){return fZDCintVec;}
 
+
   private:
     // Indecies are [mod#][dataSet][dataValue]
     // data set order will need to be coordinated betweeen here and Run Action
-    std::vector< std::vector< std::vector<double>* > >* fRPDdblVec, fZDCdblVec;
-    std::vector< std::vector< std::vector< int  >* > >* fRPDintVec, fZDCintVec;
+    std::vector< std::vector< std::vector<double>* > > *fRPDdblVec, *fZDCdblVec;
+    std::vector< std::vector< std::vector< int  >* > > *fRPDintVec, *fZDCintVec;
 
     G4int    hitsCollID, fEventNo, fnZDCs, fnRPDs;
     G4double gunPosX, gunPosY, gunPosZ;

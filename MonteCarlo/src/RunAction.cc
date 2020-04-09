@@ -89,6 +89,8 @@ RunAction::RunAction()
     analysisManager->CreateNtuple( Form("ZDC%dtree",zdcNo), "ZDC data");
     if(!CLUSTER){
       //Make double branches
+      analysisManager->CreateNtupleDColumn( zdcNo, "lastStep"                                 );
+      analysisManager->CreateNtupleDColumn( zdcNo, "lastSteptest"                             );
       analysisManager->CreateNtupleDColumn( zdcNo, "x",           *ZDCdblVec->at(zdcNo).at(0) );
       analysisManager->CreateNtupleDColumn( zdcNo, "y",           *ZDCdblVec->at(zdcNo).at(1) );
       analysisManager->CreateNtupleDColumn( zdcNo, "z",           *ZDCdblVec->at(zdcNo).at(2) );
@@ -111,8 +113,9 @@ RunAction::RunAction()
       analysisManager->CreateNtupleIColumn( zdcNo, "charge",      *ZDCintVec->at(zdcNo).at(7) );
 
     } else { // There's only two branches to save space on cluster jobs
+      analysisManager->CreateNtupleDColumn( zdcNo, "lastStep"                                 );
       analysisManager->CreateNtupleIColumn( zdcNo, "radNo",       *ZDCintVec->at(zdcNo).at(0) );
-      analysisManager->CreateNtupleIColumn( zdcNo, "nCherenkovs", *ZDCintVec->at(zdcNo).at(1)   );
+      analysisManager->CreateNtupleIColumn( zdcNo, "nCherenkovs", *ZDCintVec->at(zdcNo).at(1) );
     }//end if !CLUSTER
   }//end ZDC loop
 
@@ -122,6 +125,8 @@ RunAction::RunAction()
     int nTuple = nZDCs + rpdNo;
     if(!CLUSTER){
       //Make double branches
+      analysisManager->CreateNtupleDColumn( nTuple, "lastStep"                                 );
+      analysisManager->CreateNtupleDColumn( nTuple, "lastSteptest"                             );
       analysisManager->CreateNtupleDColumn( nTuple, "x",           *RPDdblVec->at(rpdNo).at(0) );
       analysisManager->CreateNtupleDColumn( nTuple, "y",           *RPDdblVec->at(rpdNo).at(1) );
       analysisManager->CreateNtupleDColumn( nTuple, "z",           *RPDdblVec->at(rpdNo).at(2) );
@@ -145,6 +150,7 @@ RunAction::RunAction()
 
     } else { // There's only two branches to save space on cluster jobs
       //Make double branches
+      analysisManager->CreateNtupleDColumn( nTuple, "lastStep"                                 );
       analysisManager->CreateNtupleDColumn( nTuple, "x",           *RPDdblVec->at(rpdNo).at(0) );
       analysisManager->CreateNtupleDColumn( nTuple, "y",           *RPDdblVec->at(rpdNo).at(1) );
       analysisManager->CreateNtupleDColumn( nTuple, "z",           *RPDdblVec->at(rpdNo).at(2) );

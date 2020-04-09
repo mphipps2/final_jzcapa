@@ -30,6 +30,7 @@
 
 #include "EventAction.hh"
 #include "FiberHit.hh"
+#include "Analysis.hh"
 
 #include "G4UnitsTable.hh"
 
@@ -41,10 +42,8 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-EventAction::EventAction(RunAction* runAction)
-: G4UserEventAction(),
-  fRunAction(runAction)
-{
+EventAction::EventAction( )
+: G4UserEventAction(){
   hitsCollID = -1;
 }
 
@@ -62,8 +61,8 @@ void EventAction::SetnZDCs(G4int nZDCs){
   fZDCintVec = new std::vector< std::vector< std::vector< int  >* > >(nZDCs);
 
   //If cluster flag is false, we have more vectors to store
-  G4int nDblVecs = (!CLUSTER) ? 10 : 0;
-  G4int nIntVecs = (!CLUSTER) ?  8 : 2;
+  G4int nDblVecs = (!CLUSTER) ? 11 : 0;
+  G4int nIntVecs = (!CLUSTER) ?  7 : 2;
 
   for(G4int i = 0; i < nZDCs; i++){
 
@@ -74,7 +73,7 @@ void EventAction::SetnZDCs(G4int nZDCs){
 
     fZDCintVec->at(i).resize(nIntVecs);
     for(G4int j = 0; j < nIntVecs; j++){
-      fZDCdblVec->at(i).at(j) = new std::vector< int  >;
+      fZDCintVec->at(i).at(j) = new std::vector< int  >;
     }//end int vector loop
   }//end ZDC loop
 }
@@ -88,8 +87,8 @@ void EventAction::SetnRPDs(G4int nRPDs){
   fRPDintVec = new std::vector< std::vector< std::vector< int  >* > >(nRPDs);
 
   //If cluster flag is false, we have more vectors to store
-  G4int nDblVecs = (!CLUSTER) ? 10 : 3;
-  G4int nIntVecs = (!CLUSTER) ?  8 : 2;
+  G4int nDblVecs = (!CLUSTER) ? 11 : 3;
+  G4int nIntVecs = (!CLUSTER) ?  7 : 2;
 
   for(G4int i = 0; i < nRPDs; i++){
 
@@ -100,7 +99,7 @@ void EventAction::SetnRPDs(G4int nRPDs){
 
     fRPDintVec->at(i).resize(nIntVecs);
     for(G4int j = 0; j < nIntVecs; j++){
-      fRPDdblVec->at(i).at(j) = new std::vector< int  >;
+      fRPDintVec->at(i).at(j) = new std::vector< int  >;
     }//end int vector loop
   }//end RPD loop
 }
@@ -121,39 +120,42 @@ void EventAction::EndOfEventAction(const G4Event* evt){
   gunPosY = pVert->GetY0();
   gunPosZ = pVert->GetZ0();
 
+  // Last step in volume?
+  G4double LastStepInVolume = pVert->GetPosition().z();
+
   G4cout << ">>> Event " << evt->GetEventID() << G4endl;
   G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
-  QuartzHitsCollection* HC = 0;
+  FiberHitsCollection* HC = 0;
   G4int nCollections =  HCE->GetNumberOfCollections();
   int IDholder = 0;
   if(HCE) {
     while (hitsCollID < nCollections) {
       HC = (FiberHitsCollection*)(HCE->GetHC(hitsCollID));
-      // Turn this into how we filter what we want to fill
       G4String name = HC->GetSDname();
-      int n_hit = HC->entries();
-      IDholder  = hitsCollID;
-      int prevTrackId = 0;
-      int prevRadiatorNo = 0;
-      G4int TotalnCherenkovs = 0;
-      G4double TotaleDep = 0;
-      std::cout  << Form("%s hits collection, nHits = %d" name.c_str(),n_hit) << std::endl;
-      for ( int i = 0 ; i < n_hit; i++){
 
-        G4int         radiatorNo    = (*HC)[i]->getRadNb();
-        G4int         rodNo         = (*HC)[i]->getRodNb();
-        G4double      eDep          = (*HC)[i]->getEdep();
-        G4int         modNb         = (*HC)[i]->getModNb();
-        G4int         trackID       = (*HC)[i]->getTrackID();
+      G4int prevTrackId = 0;
+      G4int prevRadiatorNo = 0;
+      G4int TotalnCherenkovs = 0;
+      G4double TotaleDep = 0.0;
+
+      int n_hit = HC->entries();
+      std::cout << printf("%s hits collection, nHits = %d", name.c_str(),n_hit) << std::endl;
+      for ( G4int i = 0 ; i < n_hit; i++){
+
         G4ThreeVector position      = (*HC)[i]->getPos();
         G4ThreeVector momentum      = (*HC)[i]->getMomentum();
         G4double      energy        = (*HC)[i]->getEnergy();
-        G4int         pid           = (*HC)[i]->getParticle()->GetPDGEncoding();
-        G4int         nCherenkovs   = (*HC)[i]->getNCherenkovs();
-        G4double      charge        = (*HC)[i]->getCharge();
         G4double      velocity      = (*HC)[i]->getVelocity();
         G4double      beta          = (*HC)[i]->getBeta();
+        G4double      eDep          = (*HC)[i]->getEdep();
+        G4double      charge        = (*HC)[i]->getCharge();
 
+        G4int         radiatorNo    = (*HC)[i]->getRadNb();
+        G4int         rodNo         = (*HC)[i]->getRodNb();
+        G4int         modNb         = (*HC)[i]->getModNb();
+        G4int         trackID       = (*HC)[i]->getTrackID();
+        G4int         pid           = (*HC)[i]->getParticle()->GetPDGEncoding();
+        G4int         nCherenkovs   = (*HC)[i]->getNCherenkovs(); // This is the number of cherenkovs in a single step within the SD
 
         //Sum energy from all steps a particle takes in a single scoring volume
         if (trackID == prevTrackId || radiatorNo == prevRadiatorNo || eDep != 0) {
@@ -165,70 +167,72 @@ void EventAction::EndOfEventAction(const G4Event* evt){
           continue;
         }// end summation
 
-        if(name.strcmp("RPD",3)){ //RPD hits
-          int rpdNo = atoi(name.c_str(),3,1);
+        if(name.compare(0,3,"RPD")){ //RPD hits
+          int rpdNo = atoi( name.substr(3,1).c_str() );
           if(!CLUSTER){
             //doubles
-            fRPDdblVec->at(rpdNo).at(0).push_back( position.x() );
-            fRPDdblVec->at(rpdNo).at(1).push_back( position.y() );
-            fRPDdblVec->at(rpdNo).at(2).push_back( position.z() );
-            fRPDdblVec->at(rpdNo).at(3).push_back( momentum.x() );
-            fRPDdblVec->at(rpdNo).at(4).push_back( momentum.y() );
-            fRPDdblVec->at(rpdNo).at(5).push_back( momentum.z() );
-            fRPDdblVec->at(rpdNo).at(6).push_back( energy       );
-            fRPDdblVec->at(rpdNo).at(7).push_back( velocity     );
-            fRPDdblVec->at(rpdNo).at(8).push_back( beta         );
-            fRPDdblVec->at(rpdNo).at(9).push_back( TotaleDep    );
+            fRPDdblVec->at(rpdNo).at(0)-> push_back( position.x() );
+            fRPDdblVec->at(rpdNo).at(1)-> push_back( position.y() );
+            fRPDdblVec->at(rpdNo).at(2)-> push_back( position.z() );
+            fRPDdblVec->at(rpdNo).at(3)-> push_back( momentum.x() );
+            fRPDdblVec->at(rpdNo).at(4)-> push_back( momentum.y() );
+            fRPDdblVec->at(rpdNo).at(5)-> push_back( momentum.z() );
+            fRPDdblVec->at(rpdNo).at(6)-> push_back( energy       );
+            fRPDdblVec->at(rpdNo).at(7)-> push_back( velocity     );
+            fRPDdblVec->at(rpdNo).at(8)-> push_back( beta         );
+            fRPDdblVec->at(rpdNo).at(9)-> push_back( TotaleDep    );
+            fRPDdblVec->at(rpdNo).at(10)->push_back( charge       );
 
             //ints
-            fRPDintVec->at(rpdNo).at(0).push_back( fEventNo     );
-            fRPDintVec->at(rpdNo).at(1).push_back( modNb        );
-            fRPDintVec->at(rpdNo).at(2).push_back( radiatorNo   );
-            fRPDintVec->at(rpdNo).at(3).push_back( rodNo        );
-            fRPDintVec->at(rpdNo).at(4).push_back( TotalnCherenkovs  );
-            fRPDintVec->at(rpdNo).at(5).push_back( trackID      );
-            fRPDintVec->at(rpdNo).at(6).push_back( pid          );
-            fRPDintVec->at(rpdNo).at(7).push_back( charge       );
+            fRPDintVec->at(rpdNo).at(0)->push_back( fEventNo     );
+            fRPDintVec->at(rpdNo).at(1)->push_back( modNb        );
+            fRPDintVec->at(rpdNo).at(2)->push_back( radiatorNo   );
+            fRPDintVec->at(rpdNo).at(3)->push_back( rodNo        );
+            fRPDintVec->at(rpdNo).at(4)->push_back( TotalnCherenkovs  );
+            fRPDintVec->at(rpdNo).at(5)->push_back( trackID      );
+            fRPDintVec->at(rpdNo).at(6)->push_back( pid          );
+
           } else{
             //doubles
-            fRPDdblVec->at(rpdNo).at(0).push_back( position.x() );
-            fRPDdblVec->at(rpdNo).at(1).push_back( position.y() );
-            fRPDdblVec->at(rpdNo).at(2).push_back( position.z() );
+            fRPDdblVec->at(rpdNo).at(0)->push_back( position.x() );
+            fRPDdblVec->at(rpdNo).at(1)->push_back( position.y() );
+            fRPDdblVec->at(rpdNo).at(2)->push_back( position.z() );
 
             //ints
-            fRPDintVec->at(rpdNo).at(0).push_back( rodNo );
-            fRPDintVec->at(rpdNo).at(1).push_back( TotalnCherenkovs );
+            fRPDintVec->at(rpdNo).at(0)->push_back( rodNo );
+            fRPDintVec->at(rpdNo).at(1)->push_back( TotalnCherenkovs );
           }// end if !CLUSTER
         // end if RPD
         } else{
-          if( name.strcmp("ZDC",3) ){//ZDC hitsCollID, check to be sure/symmetric
-            int zdcNo = atoi(name.c_str(),3,1);
+          if( name.compare(0,3,"ZDC") ){//ZDC hitsCollID, check to be sure/symmetric
+            int zdcNo = atoi( name.substr(3,1).c_str() );
             if(!CLUSTER){
               //doubles
-              fZDCdblVec->at(zdcNo).at(0).push_back( position.x() );
-              fZDCdblVec->at(zdcNo).at(1).push_back( position.y() );
-              fZDCdblVec->at(zdcNo).at(2).push_back( position.z() );
-              fZDCdblVec->at(zdcNo).at(3).push_back( momentum.x() );
-              fZDCdblVec->at(zdcNo).at(4).push_back( momentum.y() );
-              fZDCdblVec->at(zdcNo).at(5).push_back( momentum.z() );
-              fZDCdblVec->at(zdcNo).at(6).push_back( energy       );
-              fZDCdblVec->at(zdcNo).at(7).push_back( velocity     );
-              fZDCdblVec->at(zdcNo).at(8).push_back( beta         );
-              fZDCdblVec->at(zdcNo).at(9).push_back( TotaleDep    );
+              fZDCdblVec->at(zdcNo).at(0)-> push_back( position.x() );
+              fZDCdblVec->at(zdcNo).at(1)-> push_back( position.y() );
+              fZDCdblVec->at(zdcNo).at(2)-> push_back( position.z() );
+              fZDCdblVec->at(zdcNo).at(3)-> push_back( momentum.x() );
+              fZDCdblVec->at(zdcNo).at(4)-> push_back( momentum.y() );
+              fZDCdblVec->at(zdcNo).at(5)-> push_back( momentum.z() );
+              fZDCdblVec->at(zdcNo).at(6)-> push_back( energy       );
+              fZDCdblVec->at(zdcNo).at(7)-> push_back( velocity     );
+              fZDCdblVec->at(zdcNo).at(8)-> push_back( beta         );
+              fZDCdblVec->at(zdcNo).at(9)-> push_back( TotaleDep    );
+              fZDCdblVec->at(zdcNo).at(10)->push_back( charge       );
 
               //ints
-              fZDCintVec->at(zdcNo).at(0).push_back( fEventNo     );
-              fZDCintVec->at(zdcNo).at(1).push_back( modNb        );
-              fZDCintVec->at(zdcNo).at(2).push_back( radiatorNo   );
-              fZDCintVec->at(zdcNo).at(3).push_back( rodNo        );
-              fZDCintVec->at(zdcNo).at(4).push_back( TotalnCherenkovs  );
-              fZDCintVec->at(zdcNo).at(5).push_back( trackID      );
-              fZDCintVec->at(zdcNo).at(6).push_back( pid          );
-              fZDCintVec->at(zdcNo).at(7).push_back( charge       );
+              fZDCintVec->at(zdcNo).at(0)->push_back( fEventNo     );
+              fZDCintVec->at(zdcNo).at(1)->push_back( modNb        );
+              fZDCintVec->at(zdcNo).at(2)->push_back( radiatorNo   );
+              fZDCintVec->at(zdcNo).at(3)->push_back( rodNo        );
+              fZDCintVec->at(zdcNo).at(4)->push_back( TotalnCherenkovs  );
+              fZDCintVec->at(zdcNo).at(5)->push_back( trackID      );
+              fZDCintVec->at(zdcNo).at(6)->push_back( pid          );
+
             } else{
               //ints
-              fZDCintVec->at(zdcNo).at(0).push_back( radiatorNo  );
-              fZDCintVec->at(zdcNo).at(1).push_back( TotalnCherenkovs );
+              fZDCintVec->at(zdcNo).at(0)->push_back( radiatorNo  );
+              fZDCintVec->at(zdcNo).at(1)->push_back( TotalnCherenkovs );
             }// end if !CLUSTER
           }// end if ZDC
         }// end else (!RPD)
@@ -239,31 +243,32 @@ void EventAction::EndOfEventAction(const G4Event* evt){
 
       // fill ntuples  //
       G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-      for(int i = 0; i < fnZDCs + fnRPDs; i++){
+      for(int i = 0; i < analysisManager->GetNofNtuples(); i++){
+        analysisManager->FillNtupleDColumn(i,1,LastStepInVolume);
         analysisManager->AddNtupleRow(i);
       }
 
 
       // Clear RPD vectors //
-      for(int i = 0; i < fRPDdblVec->size(); i++){
+      for(uint i = 0; i < fRPDdblVec->size(); i++){
         //Clear double vectors
-        for(int j = 0; j < fRPDdblVec->at(0).size(); j++){
-          fRPDdblVec->at(i).at(j).clear();
+        for(uint j = 0; j < fRPDdblVec->at(0).size(); j++){
+          fRPDdblVec->at(i).at(j)->clear();
         }
         //Clear int vectors
-        for(int j = 0; j < fRPDintVec->at(0).size(); j++){
-          fRPDintVec->at(i).at(j).clear();
+        for(uint j = 0; j < fRPDintVec->at(0).size(); j++){
+          fRPDintVec->at(i).at(j)->clear();
         }
       }
       // Clear ZDC vectors //
-      for(int i = 0; i < fZDCdblVec->size(); i++){
+      for(uint i = 0; i < fZDCdblVec->size(); i++){
         //Clear double vectors
-        for(int j = 0; j < fZDCdblVec->at(0).size(); j++){
-          fZDCdblVec->at(i).at(j).clear();
+        for(uint j = 0; j < fZDCdblVec->at(0).size(); j++){
+          fZDCdblVec->at(i).at(j)->clear();
         }
         //Clear int vectors
-        for(int j = 0; j < fZDCintVec->at(0).size(); j++){
-          fZDCintVec->at(i).at(j).clear();
+        for(uint j = 0; j < fZDCintVec->at(0).size(); j++){
+          fZDCintVec->at(i).at(j)->clear();
         }
       }
 

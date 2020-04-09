@@ -32,6 +32,7 @@
 #define FiberSD_h 1
 
 #include "G4VSensitiveDetector.hh"
+#include "FiberHit.hh"
 
 class G4Step;
 class G4HCofThisEvent;
@@ -41,21 +42,21 @@ class G4HCofThisEvent;
 class FiberSD : public G4VSensitiveDetector
 {
 public:
-  FiberSD(G4String, G4int);
+  FiberSD(G4String, G4int,G4bool);
   ~FiberSD();
 
   void HistInitialize();
 
-  void Initialize(G4HCofThisEvent*);
-  int CalculateCherenkovs(G4Step*,int);
-  G4bool ProcessHits(G4Step*, G4TouchableHistory*);
-  void EndOfEvent(G4HCofThisEvent*);
+  void   Initialize          ( G4HCofThisEvent* );
+  G4bool ProcessHits         ( G4Step*, G4TouchableHistory* );
+  void   EndOfEvent          ( G4HCofThisEvent* );
 
 private:
   int HCID;
   G4double m_modCoreIndexRefraction;
   FiberHitsCollection* fiberCollection;
   G4int m_modNum;
+  G4bool OPTICAL;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
