@@ -5,29 +5,32 @@ MAIN
 -Enable multithreading. Special considerations must be taken when storing std::vector
   in root files.
   Ref: https://indico.cern.ch/event/217511/contributions/444924/attachments/349283/486922/root_in_geant4.pdf
--Make args with flags
 -Add geometry.mac with DetectorMessenger commands
 
 CONSTRUCTION
+-Remake ModTypeZDC with parameters set by DetectorMessenger and materials from Materials.hh
 -Make DetectorMessenger that talks to DetectorConstruction, ModTypeRPD and ModTypeZDC
 -Set sim cherenkov option in physics list. (maybe set it in detector construction)
+-Create an environment flag. i.e. ATLAS, SPS TestBeam, FNAL TestBeam
 -Replace rpd construction with pan flute
 -Give zdc construction materials only from Materials class
 -Make zdc with vectors instead of fixed length arrays
 
 SENSITIVEDETECTORS
--Single SD that has a flag depending on use?
-  Could be better than having an optical flag passed around
+-Make fiber SD detect only photons at the top of the volume if OPTICAL is true
+  -Probably separate this into two function
+-Figure out how to kill Cherenkov photons from the SD
+-Determine if rodNum/radNum are necessary
 
 STEPPINGACTION
 -Fill last step in volume properly
+-Remove stepping action if lastStep works in EventAction
 
 OUTPUT
--Add analysis class
+-Pass output file name to run action
 -Add gun position to branch in event action
--Figure out how to separate detector hit collections in event action properly
--Change output vector storage form run action to event action
--Make a cluster flag to reduce branches (reducedTree)
+-Check to see if LastStepInVolume works in EventAction
+
 
 PHYSICS
 -Clean up commented out lines
@@ -37,16 +40,8 @@ PHYSICS
 *** By Priority ***
 /// Necessary
 -Pass output file name to run action
--Make SD names a formatted string based on detector
--Single SD that has a flag depending on use?
-  Could be better than having an optical flag passed around
--Change output vector storage form run action to event action
--Make DetectorMessenger that talks to;
-  DetectorConstruction, ModTypeRPD and ModTypeZDC, PhysicsList, RunAction
+-Finish DetectorMessenger
 -Add geometry.mac with DetectorMessenger commands
--Set sim cherenkov option in physics list. (maybe set it in detector construction)
--Make a cluster flag to reduce branches (reducedTree)
--Change LastStepInVolume to nTupleManager
 
 // Completeness
 -Replace rpd construction with pan flute
@@ -58,7 +53,6 @@ PHYSICS
 
 // Quality of life
 -Clean up commented out lines
--Make args with flags
 -Enable multithreading. Special considerations must be taken when storing std::vector
   in root files.
   Ref: https://indico.cern.ch/event/217511/contributions/444924/attachments/349283/486922/root_in_geant4.pdf
