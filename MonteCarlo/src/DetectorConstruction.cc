@@ -69,7 +69,7 @@
 
 DetectorConstruction::DetectorConstruction()
   : G4VUserDetectorConstruction(), m_solidWorld(NULL), m_logicWorld(NULL),
-  m_physWorld(NULL),CLUSTER(false),OPTICAL(false)
+  m_physWorld(NULL),CLUSTER(false),OPTICAL(false), ForceDetectorPosition(false)
 {
   new DetectorMessenger(this);
   currentRPD = -1;
@@ -121,13 +121,55 @@ G4VPhysicalVolume* DetectorConstruction::ManualConstruction(){
             << "        PLACING DETECTORS MANUALLY        " << std::endl
             << "******************************************" << std::endl;
 
-            /*
+  //################################ World volume construction
+  m_materials->UseOpticalMaterials(OPTICAL); //set this an an option later ARIC!
+  m_materials->DefineOpticalProperties();
 
-            Make this do the thing using DetectorMessenger Commands
-            and member vectors
+  printf( "Building world with x %5.1f y %5.1f z %5.1f\n",
+          m_WorldDimensions->x(), m_WorldDimensions->y(), m_WorldDimensions->z() );
 
-            */
+  m_solidWorld =
+    new G4Box("World",   //its name
+        0.5*m_WorldDimensions->x(),  //its size
+        0.5*m_WorldDimensions->y(),
+        0.5*m_WorldDimensions->z() );
 
+  m_logicWorld =
+    new G4LogicalVolume(m_solidWorld,     //its solid
+                        m_materials->Air,            //its material
+                        "World");         //its name
+
+  m_physWorld =
+    new G4PVPlacement(0,                  //no rotation
+                      G4ThreeVector(),    //at (0,0,0)
+                      m_logicWorld,       //its logical volume
+                      "World",            //its name
+                      0,                  //its mother  volume
+                      false,              //no boolean operation
+                      0,                  //copy number
+                      false);             //overlaps checking
+
+
+  G4VisAttributes* boxVisAtt_world = new G4VisAttributes(G4Colour(0.5,0.5,0.5));
+
+  m_logicWorld ->SetVisAttributes(boxVisAtt_world);
+
+  G4ThreeVector* pos;
+  std::cout << "ZDC vector size = " << m_ZDCvec.size() << std::endl;
+  for(ModTypeZDC* zdc : m_ZDCvec){
+    pos = zdc->GetPosition();
+    printf( "ZDC%d center = (%f,%f,%f)\n", zdc->GetModNum(), pos->x(), pos->y(), pos->z() );
+    zdc->Construct();
+  }
+
+  std::cout << "before RPD construction" << std::endl;
+
+  for(ModTypeRPD* rpd : m_RPDvec){
+    pos = rpd->GetPosition();
+    printf( "RPD%d center = (%f,%f,%f)", rpd->GetModNum(), pos->x(), pos->y(), pos->z() );
+    rpd->Construct();
+  }
+std::cout << "after rpd construction" << std::endl;
   return m_physWorld;
 
 }
@@ -343,7 +385,7 @@ void DetectorConstruction::LoadConfigurationFile( G4String _inFile  ){
 
   if(_inFile = ""){
     _inFile = std::getenv("JZCaPA");
-    _inFile += "Utils/Survey_2018.xml";
+    _inFile += "/Utils/Survey_2018.xml";
   }
 
     m_XMLparser = new XMLSettingsReader();
@@ -397,7 +439,7 @@ void DetectorConstruction::LoadAlignmentFile( G4String _inFile ){
 
   if( _inFile = ""){
     _inFile = std::getenv("JZCaPA");
-    _inFile += "Utils/Alignment_2018.xml";
+    _inFile += "/Utils/Alignment_2018.xml";
   }
 
     m_XMLparser = new XMLSettingsReader();
@@ -454,36 +496,44 @@ Survey* DetectorConstruction::GetSurvey(G4String name){
  * Add a ZDC module
 */
 void DetectorConstruction::AddZDC(G4ThreeVector* position){
-  int newModNum = m_ZDCvec.size();
+  uint newModNum = m_ZDCvec.size()+1;
   m_ZDCvec.push_back(new ModTypeZDC(newModNum, m_logicWorld, position ));
+  currentZDC = newModNum;
+  printf("Added ZDC%d\n", newModNum);
 }
 
 /*
  * Add an RPD module
 */
 void DetectorConstruction::AddRPD(G4ThreeVector* position){
-  int newModNum = m_ZDCvec.size();
+  uint newModNum = m_RPDvec.size()+1;
   m_RPDvec.push_back(new ModTypeRPD(newModNum, m_logicWorld, position ));
+  currentRPD = newModNum;
+  printf("Added RPD%d\n", newModNum);
 }
 
 /*
  * Duplicate a ZDC module
 */
 void DetectorConstruction::DuplicateZDC( G4int module ){
-  if((unsigned)module <= m_ZDCvec.size() ){
+  uint newModNum = m_ZDCvec.size()+1;
+  if((unsigned)module >= newModNum ){
     printf("\n\n Cannot duplicate. ZDC%d does not exist \n\n",module);
   }
-  int nextZDCindex = m_ZDCvec.size();
-  m_ZDCvec.push_back( new ModTypeZDC( nextZDCindex, m_ZDCvec.at(module) ) );
+  m_ZDCvec.push_back( new ModTypeZDC( newModNum, m_ZDCvec.at(module-1) ) );
+  currentZDC = newModNum;
+  printf("Duplicate ZDC%d built from ZDC%d\n", newModNum, module);
 }
 
 /*
  * Duplicate an RPD module
 */
 void DetectorConstruction::DuplicateRPD( G4int module ){
-  if((unsigned)module <= m_RPDvec.size() ){
+  uint newModNum = m_RPDvec.size()+1;
+  if((unsigned)module >= newModNum ){
     printf("\n\n Cannot duplicate. RPD%d does not exist \n\n",module);
   }
-  int nextRPDindex = m_RPDvec.size();
-  m_RPDvec.push_back( new ModTypeRPD( nextRPDindex, m_RPDvec.at(module) ) );
+  m_RPDvec.push_back( new ModTypeRPD( newModNum, m_RPDvec.at(module-1) ) );
+  currentRPD = newModNum;
+  printf("Duplicate RPD%d built from RPD%d\n", newModNum, module);
 }

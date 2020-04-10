@@ -136,7 +136,6 @@ void EventAction::EndOfEventAction(const G4Event* evt){
       G4double TotaleDep = 0.0;
 
       int n_hit = HC->entries();
-      std::cout << printf("%s hits collection, nHits = %d", name.c_str(),n_hit) << std::endl;
       for ( G4int i = 0 ; i < n_hit; i++){
 
         G4ThreeVector position      = (*HC)[i]->getPos();

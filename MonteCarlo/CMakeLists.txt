@@ -41,10 +41,10 @@ option(ANALYSIS_HH_ "Build with ROOT" 1)
 add_definitions(-DG4UI_USE -DG4VIS_USE -DANALYSIS_HH_)
 
 
-if(useROOT)		   
+if(useROOT)
 	EXECUTE_PROCESS(COMMAND root-config --cflags OUTPUT_VARIABLE ROOT_CXX_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAGS}")
-endif(useROOT) 
+endif(useROOT)
 
 
 include_directories(${PROJECT_SOURCE_DIR}/MonteCarlo/include ${ROOT_INCLUDE_DIR})
@@ -82,6 +82,7 @@ set(EXAMPLE_SCRIPTS
   run1.mac
   run2.mac
   vis.mac
+  geometry.mac
   )
 
 foreach(_script ${EXAMPLE_SCRIPTS})
@@ -102,5 +103,3 @@ add_custom_target( DEPENDS zdc)
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 install(TARGETS zdc DESTINATION bin)
-
-

@@ -139,11 +139,15 @@ int main(int argc,char** argv)
   // Get the pointer to the User Interface manager
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
+  //Set the output file name
+  G4String command = "/Analysis/setFileName ";
+  UImanager->ApplyCommand(command+output);
+
   // Process macro or start UI session
   //
   if ( macro.size() ) {
     // batch mode
-    G4String command = "/control/execute ";
+    command = "/control/execute ";
     G4String fileName = macro;
     UImanager->ApplyCommand(command+fileName);
 

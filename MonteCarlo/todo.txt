@@ -10,9 +10,11 @@ MAIN
 CONSTRUCTION
 -Implement the ManualConstruction method
 -Implement DetectorMessenger commands
--Create an environment flag. i.e. ATLAS, SPS TestBeam, FNAL TestBeam
--Add cladding and buffer to RPD::ConstructPrototypeDetector
+-Implement an environment flag. i.e. ATLAS, SPS TestBeam, FNAL TestBeam
+-Add cladding and buffer to ZDC and RPD
 -Make RPD volume vectors instead of fixed length arrays
+-Make a method to set remaining ZDC/RPD values to default before construction
+-Make something to handle if both FiberPitch and TileSize are specified by user
 
 SENSITIVEDETECTORS
 -Make fiber SD detect only photons at the top of the volume if OPTICAL is true
@@ -34,9 +36,6 @@ PHYSICS
 
 *** By Priority ***
 /// Necessary
--Implement DetectorMessenger commands
--Implement the ManualConstruction method
--Add geometry.mac with DetectorMessenger commands
 -Make fiber SD detect only photons at the top of the volume if OPTICAL is true
   -Probably separate this into two function
 -Pass output file name to run action

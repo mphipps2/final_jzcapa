@@ -56,13 +56,13 @@ public:
 
   virtual void  Construct();
   virtual void  ConstructCMSDetector();
-  virtual void  ConstructPrototypeDetector();
+  virtual void  ConstructPanFluteDetector();
 
   virtual void  DefineMaterials();
 
 
-  inline  void  SetPosition          ( G4ThreeVector* vec ){ m_pos              = vec; }
-  inline  void  SetFiberDiameters    ( G4ThreeVector* vec ){ m_fiberDiam        = vec; }
+  inline  void  SetPosition          ( G4ThreeVector* vec ){ delete m_pos;       m_pos       = vec; }
+  inline  void  SetFiberDiameters    ( G4ThreeVector* vec ){ delete m_fiberDiam; m_fiberDiam = vec; }
   inline  void  SetHousingThickness  ( G4double       arg ){ m_HousingThickness = arg; }
   inline  void  SetFiberPitch        ( G4double       arg ){ m_fiberPitch       = arg; }
   inline  void  SetTileSize          ( G4double       arg ){ m_tileSize         = arg; }

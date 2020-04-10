@@ -113,12 +113,12 @@ public:
   virtual G4VPhysicalVolume* ManualConstruction();
 
   virtual void               LoadConfigurationFile( G4String _inFile = "" );
+  virtual void               SetConfigFileName    ( G4String _name ){ m_configFileName = _name; }
   virtual void               LoadAlignmentFile( G4String _inFile = "" );
+  virtual void               SetRunNumber( G4int _run ){ m_runNumber = _run; }
   virtual Survey*            GetSurvey( G4String name );
   virtual void               AddZDC( G4ThreeVector* position = NULL );
   virtual void               AddRPD( G4ThreeVector* position = NULL );
-  virtual void               DuplicateZDC(G4int module);
-  virtual void               DuplicateRPD(G4int module);
   inline  G4int              GetnZDCs(){return m_ZDCvec.size();}
   inline  G4int              GetnRPDs(){return m_RPDvec.size();}
   inline  G4bool             GetClusterFlag(){return CLUSTER;}
@@ -126,27 +126,43 @@ public:
   inline  G4bool             GetOpticalFlag(){return OPTICAL;}
   inline  void               SetOpticalFlag( G4bool arg ){OPTICAL = arg;}
   inline  void               ForcePosition ( G4bool arg ){ForceDetectorPosition = arg;}
-  inline  void               SetCurrentZDC ( G4int  arg ){currentZDC = arg;}
-  inline  void               SetCurrentRPD ( G4int  arg ){currentZDC = arg;}
 
 
-  //For manual positioning ZDCs
-  inline  void SetZDCPosition          ( G4ThreeVector* vec ){ m_ZDCvec.at(currentZDC)->SetPosition(vec);          }
-  inline  void SetZDCFiberDimensions   ( G4ThreeVector* vec ){ m_ZDCvec.at(currentZDC)->SetFiberDiameters(vec);    }
-  inline  void SetZDCAbsorberDimensions( G4ThreeVector* vec ){ m_ZDCvec.at(currentZDC)->SetAbsorberDimensions(vec);}
-  inline  void SetZDCnAbsorbers        ( G4int          arg ){ m_ZDCvec.at(currentZDC)->SetnAbsorbers(arg);        }
-  inline  void SetZDCHousingThickness  ( G4double       arg ){ m_ZDCvec.at(currentZDC)->SetHousingThickness(arg);  }
-  inline  void SetZDCGapThickness      ( G4double       arg ){ m_ZDCvec.at(currentZDC)->SetGapThickness(arg);      }
+  //Manual World Volume
+  inline  void SetWorldDimensions      ( G4ThreeVector* vec ){ m_WorldDimensions = vec; }
+
+  //For manual ZDCs
+  inline  void SetZDCPosition          ( G4ThreeVector* vec ){ m_ZDCvec.at(currentZDC-1)->SetPosition(vec);           }
+  inline  void SetZDCFiberDiameters    ( G4ThreeVector* vec ){ m_ZDCvec.at(currentZDC-1)->SetFiberDiameters(vec);     }
+  inline  void SetZDCAbsorberDimensions( G4ThreeVector* vec ){ m_ZDCvec.at(currentZDC-1)->SetAbsorberDimensions(vec); }
+  inline  void SetZDCnAbsorbers        ( G4int          arg ){ m_ZDCvec.at(currentZDC-1)->SetnAbsorbers(arg);         }
+  inline  void SetZDCHousingThickness  ( G4double       arg ){ m_ZDCvec.at(currentZDC-1)->SetHousingThickness(arg);   }
+  inline  void SetZDCGapThickness      ( G4double       arg ){ m_ZDCvec.at(currentZDC-1)->SetGapThickness(arg);       }
+  inline  void SetZDCOpticalFlag       ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetOpticalFlag(arg);        }
+  inline  void SetZDCOverlapsFlag      ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetOverlapsFlag(arg);    }
+  inline  void SetZDCHousingMaterial   ( G4String       arg ){ m_ZDCvec.at(currentZDC-1)->SetHousingMaterial(arg); }
+  inline  void SetZDCAbsorberMaterial  ( G4String       arg ){ m_ZDCvec.at(currentZDC-1)->SetAbsorberMaterial(arg);}
+  inline  void SetCurrentZDC           ( G4int          arg ){ currentZDC = arg; }
+  virtual void DuplicateZDC            ( G4int       module );
 
 
-  //For manual positioning RPDs
-  inline  void SetRPDPosition          ( G4ThreeVector* vec ){ m_RPDvec.at(currentRPD)->SetPosition(vec);        }
-  inline  void SetRPDFiberDimensions   ( G4ThreeVector* vec ){ m_RPDvec.at(currentRPD)->SetFiberDiameters(vec);  }
-  inline  void SetRPDHousingThickness  ( G4double       arg ){ m_RPDvec.at(currentRPD)->SetHousingThickness(arg);}
-  inline  void SetRPDFiberPitch        ( G4double       arg ){ m_RPDvec.at(currentRPD)->SetFiberPitch(arg);      }
-  inline  void SetRPDTileSize          ( G4double       arg ){ m_RPDvec.at(currentRPD)->SetTileSize(arg);        }
+  //For manual RPDs
+  inline  void SetRPDPosition          ( G4ThreeVector* vec ){ m_RPDvec.at(currentRPD-1)->SetPosition(vec);        }
+  inline  void SetRPDFiberDimensions   ( G4ThreeVector* vec ){ m_RPDvec.at(currentRPD-1)->SetFiberDiameters(vec);  }
+  inline  void SetRPDHousingThickness  ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetHousingThickness(arg);}
+  inline  void SetRPDFiberPitch        ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetFiberPitch(arg);      }
+  inline  void SetRPDTileSize          ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetTileSize(arg);        }
+  inline  void SetRPDMinWallThickness  ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetMinWallThickness(arg);}
+  inline  void SetRPDDetectorType      ( G4String       arg ){ m_RPDvec.at(currentRPD-1)->SetDetectorType(arg);    }
+  inline  void SetRPDOpticalFlag       ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOpticalFlag(arg);     }
+  inline  void SetRPDOverlapsFlag      ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOverlapsFlag(arg); }
+  inline  void SetCurrentRPD           ( G4int          arg ){ currentRPD = arg; }
+  virtual void DuplicateRPD            ( G4int       module );
+
 
 protected:
+  G4ThreeVector*          m_WorldDimensions;
+  G4String                m_configFileName;
   Materials*              m_materials;
 
   /* World objects */

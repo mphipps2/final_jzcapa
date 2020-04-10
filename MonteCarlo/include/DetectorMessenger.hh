@@ -58,36 +58,49 @@ class DetectorMessenger: public G4UImessenger{
 
     DetectorConstruction*      fDetector;
 
+    G4UIdirectory*             fDetDir;
     G4UIdirectory*             fRPDDir;
     G4UIdirectory*             fZDCDir;
 
     G4UIcmdWithABool*          fClusterCmd;
-    G4UIcmdWithAString*        fConfigFileCmd;
+    G4UIcmdWithABool*          fOpticalCmd;
+    G4UIcmdWithABool*          fOverlapsCmd;
     G4UIcmdWithABool*          fForcePositionCmd;
+    G4UIcmdWithAnInteger*      fSetRunNumberCmd;
+    G4UIcmdWithAString*        fConfigFileCmd;
+    G4UIcmdWithAString*        fPrintDebugCmd;
     G4UIcmdWith3VectorAndUnit* fSetWorldDimensionsCmd;
 
 
     //ZDC Commands
     G4UIcmdWithoutParameter*   fZDCAddCmd;
     G4UIcmdWith3VectorAndUnit* fZDCPositionCmd;
-    G4UIcmdWith3VectorAndUnit* fZDCAbsorberDimensionsCmd;
     G4UIcmdWith3VectorAndUnit* fZDCFiberDiametersCmd;
-    G4UIcmdWithAnInteger*      fZDCSetCurrentCmd;
+    G4UIcmdWith3VectorAndUnit* fZDCAbsorberDimensionsCmd;
     G4UIcmdWithAnInteger*      fZDCnAbsorbersCmd;
+    G4UIcmdWithADoubleAndUnit* fZDCHousingThicknessCmd;
+    G4UIcmdWithADoubleAndUnit* fZDCGapThicknessCmd;
+    G4UIcmdWithABool*          fZDCOpticalFlagCmd;
+    G4UIcmdWithABool*          fZDCOverlapsFlagCmd;
+    G4UIcmdWithAString*        fZDCHousingMaterialCmd;
+    G4UIcmdWithAString*        fZDCAbsorberMaterialCmd;
+    G4UIcmdWithAnInteger*      fZDCSetCurrentCmd;
     G4UIcmdWithAnInteger*      fZDCDuplicateCmd;
-    G4UIcmdWithADouble*        fZDCHousingThicknessCmd;
-    G4UIcmdWithADouble*        fZDCGapThicknessCmd;
 
 
     //RPD commands
     G4UIcmdWithoutParameter*   fRPDAddCmd;
-    G4UIcmdWith3VectorAndUnit* fRPDFiberDiameterssCmd;
     G4UIcmdWith3VectorAndUnit* fRPDPositionCmd;
-    G4UIcmdWithADouble*        fRPDHousingThicknessCmd;
-    G4UIcmdWithADouble*        fRPDSetFiberPitchCmd;
-    G4UIcmdWithADouble*        fRPDSetTileSizeCmd;
-    G4UIcmdWithAnInteger*      fRPDDuplicateCmd;
+    G4UIcmdWith3VectorAndUnit* fRPDFiberDiametersCmd;
+    G4UIcmdWithADoubleAndUnit* fRPDHousingThicknessCmd;
+    G4UIcmdWithADoubleAndUnit* fRPDSetFiberPitchCmd;
+    G4UIcmdWithADoubleAndUnit* fRPDSetTileSizeCmd;
+    G4UIcmdWithADoubleAndUnit* fRPDMinWallThicknessCmd;
+    G4UIcmdWithAString*        fRPDTypeCmd;
+    G4UIcmdWithABool*          fRPDOpticalFlagCmd;
+    G4UIcmdWithABool*          fRPDOverlapsFlagCmd;
     G4UIcmdWithAnInteger*      fRPDSetCurrentCmd;
+    G4UIcmdWithAnInteger*      fRPDDuplicateCmd;
 
 
 };

@@ -65,7 +65,8 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ModTypeRPD::ModTypeRPD(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos )
-  : m_modNum( cn ),  m_pos( pos ), m_logicMother( mother )
+  : m_modNum( cn ),  m_pos( pos ), m_fiberDiam(new G4ThreeVector(.6,.68,.73)),
+  m_logicMother( mother )
 {
 	materials = Materials::getInstance();
 }
@@ -91,8 +92,11 @@ ModTypeRPD::ModTypeRPD(const int cn, ModTypeRPD* right)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ModTypeRPD::ModTypeRPD()
-  : m_modNum( 0 ), m_pos(new G4ThreeVector(0.,0.,0.)), m_logicMother(NULL)
-{}
+  : m_modNum( 0 ), m_pos(new G4ThreeVector(0.,0.,0.)), m_fiberDiam(new G4ThreeVector(.6,.68,.73)),
+   m_logicMother(NULL)
+{
+  materials = Materials::getInstance();
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -107,7 +111,7 @@ void ModTypeRPD::Construct(){
 	if(m_detType == "cms"){
 		ConstructCMSDetector();
 	}else {
-		ConstructPrototypeDetector();
+		ConstructPanFluteDetector();
 	}
 }
 
@@ -145,7 +149,7 @@ void ModTypeRPD::DefineMaterials()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void ModTypeRPD::ConstructPrototypeDetector()
+void ModTypeRPD::ConstructPanFluteDetector()
 {
 	//retrieve RPD parameters
 	float fiber_diam 	= m_fiberDiam->x(); // Just core for now
@@ -394,14 +398,14 @@ void ModTypeRPD::ConstructPrototypeDetector()
 
 	//Note one SD object for each module
 	char fiberSDname[256];
-	sprintf( fiberSDname, "RPD%d_SD", m_modNum+1);
+	sprintf( fiberSDname, "RPD%d_SD", m_modNum);
 
 	FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
 	aFiberSD->HistInitialize();
 	SDman->AddNewDetector( aFiberSD );
-	m_tileLogical->SetSensitiveDetector( aFiberSD );
-
-
+  for(int i = 0; i < m_PFrpd_cnt; i++){
+	   m_PFrpdLogical[i]->SetSensitiveDetector( aFiberSD );
+   }
 
 	std::cout << "Prototype RPD construction finished: SD name " << fiberSDname << std::endl;
 
@@ -1072,7 +1076,7 @@ if(test_tile){
 
   //Note one SD object for each module
   char fiberSDname[256];
-  sprintf( fiberSDname, "RPD%d_SD", m_modNum+1);
+  sprintf( fiberSDname, "RPD%d_SD", m_modNum);
 
   FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum+1, OPTICAL );
   aFiberSD->HistInitialize();

@@ -52,8 +52,11 @@
 
 ModTypeZDC::ModTypeZDC(const int cn,
 	      G4LogicalVolume* mother, G4ThreeVector* pos)
-  : m_modNum( cn ), m_pos( pos ), m_logicMother( mother )
-{}
+  : m_modNum( cn ), m_pos( pos ), m_fiberDiam (new G4ThreeVector(1.5,0.,0.)),
+	m_absDim (new G4ThreeVector(90.,180.,11.)), m_logicMother( mother )
+{
+	m_materials = Materials::getInstance();
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -71,19 +74,26 @@ ModTypeZDC::ModTypeZDC(const int cn,
 		m_matAbsorber 		 = right->m_matAbsorber;
 		m_matHousing			 = right->m_matHousing;
 		m_logicMother			 = right->m_logicMother;
+		m_materials				 = right->m_materials;
 	}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ModTypeZDC::ModTypeZDC(const int cn, G4LogicalVolume* mother)
-  : m_modNum( cn ), m_logicMother( mother )
-{}
+  : m_modNum( cn ), m_pos(new G4ThreeVector(0.,0.,0.)), m_fiberDiam (new G4ThreeVector(1.5,0.,0.)),
+	m_absDim (new G4ThreeVector(90.,180.,11.)), m_logicMother( mother )
+{
+	m_materials = Materials::getInstance();
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ModTypeZDC::ModTypeZDC()
-  : m_modNum( 0 ), m_pos(new G4ThreeVector(0.,0.,0.)), m_logicMother(NULL)
-{}
+  : m_modNum( 0 ), m_pos(new G4ThreeVector(0.,0.,0.)), m_fiberDiam (new G4ThreeVector(1.5,0.,0.)),
+	m_absDim (new G4ThreeVector(90.,180.,11.)), m_logicMother(NULL)
+{
+	m_materials = Materials::getInstance();
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -126,12 +136,9 @@ void ModTypeZDC::ConstructDetector()
   float modWidthX = fmod(m_absDim->x(),fiberMaxDia)*stripPitch;
   if (modWidthX == 0) modWidthX = m_absDim->x(); // the case where you are defining a solid absorber block with no active channels
   float modHeightY = m_absDim->y();
+	float boxWidthX  = modWidthX  + m_HousingThickness*2;
+	float boxHeightY = modHeightY + m_HousingThickness*2;
   float boxLengthZ = modLengthZ + m_HousingThickness*2;
-
-  //  std::cout << " modcustom boxLengthZ " << boxLengthZ << std::endl;
-  float boxWidthX = modWidthX + m_HousingThickness*2;
-  float boxHeightY = modHeightY + m_HousingThickness*2;
-
 
 
   //----------------------------------------------
@@ -192,11 +199,9 @@ void ModTypeZDC::ConstructDetector()
 		m_CladdingLogical->SetVisAttributes( quartzColor );
   }
 
-
   //----------------------------------------------
   // Plates
   //----------------------------------------------
-
 
   m_W = new G4Box("W",
 									modWidthX*mm/2.0 ,
@@ -266,7 +271,6 @@ void ModTypeZDC::ConstructDetector()
     ++cn;
   }
 
-
   //----------------------------------------------
   // SD and Scoring Volumes
   //----------------------------------------------
@@ -274,7 +278,7 @@ void ModTypeZDC::ConstructDetector()
 
   //Note one SD object for each module
   char fiberSDname[256];
-  sprintf( fiberSDname, "ZDC%d_SD", m_modNum+1);
+  sprintf( fiberSDname, "ZDC%d_SD", m_modNum);
   FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
   aFiberSD->HistInitialize();
   SDman->AddNewDetector( aFiberSD );

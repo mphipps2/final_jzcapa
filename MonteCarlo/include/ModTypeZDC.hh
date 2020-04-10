@@ -56,14 +56,14 @@ public:
   virtual void  ConstructDetector();
 
 
-  inline  void  SetPosition          ( G4ThreeVector* vec ){ m_pos              = vec; }
-  inline  void  SetFiberDiameters    ( G4ThreeVector* vec ){ m_fiberDiam        = vec; }
-  inline  void  SetAbsorberDimensions( G4ThreeVector* vec ){ m_absDim           = vec; }
-  inline  void  SetnAbsorbers        ( G4int          arg ){ m_nAbsorbers       = arg; }
-  inline  void  SetHousingThickness  ( G4double       arg ){ m_HousingThickness = arg; }
-  inline  void  SetGapThickness      ( G4double       arg ){ m_GapThickness     = arg; }
-  inline  void  SetOpticalFlag       ( G4bool         arg ){ OPTICAL            = arg; }
-  inline  void  SetOverlapsFlag      ( G4bool         arg ){ CHECK_OVERLAPS     = arg; }
+  inline  void  SetPosition          ( G4ThreeVector* vec ){ delete m_pos;       m_pos       = vec; }
+  inline  void  SetFiberDiameters    ( G4ThreeVector* vec ){ delete m_fiberDiam; m_fiberDiam = vec; }
+  inline  void  SetAbsorberDimensions( G4ThreeVector* vec ){ delete m_absDim;    m_absDim    = vec; }
+  inline  void  SetnAbsorbers        ( G4int          arg ){ m_nAbsorbers        = arg; }
+  inline  void  SetHousingThickness  ( G4double       arg ){ m_HousingThickness  = arg; }
+  inline  void  SetGapThickness      ( G4double       arg ){ m_GapThickness      = arg; }
+  inline  void  SetOpticalFlag       ( G4bool         arg ){ OPTICAL             = arg; }
+  inline  void  SetOverlapsFlag      ( G4bool         arg ){ CHECK_OVERLAPS      = arg; }
   virtual void  SetHousingMaterial   ( G4String  material );
   virtual void  SetAbsorberMaterial  ( G4String  material );
 

@@ -190,8 +190,8 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
   auto analysisManager = G4AnalysisManager::Instance();
 
   // Open an output file
-  if(m_fileName == "") m_fileName = "output";
-  analysisManager->OpenFile(m_fileName);
+  //if(analysisManager->GetFileName() == "") 
+  analysisManager->OpenFile();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

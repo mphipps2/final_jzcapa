@@ -1,0 +1,22 @@
+
+/Detector/Cluster false
+/Detector/Optical true
+
+/Detector/ForcePosition true
+#/Detector/ConfigFile Alignment_2018.xml
+/Detector/SetWorldDimensions 2. 2. 4. m
+
+/Detector/ZDC/Add
+/Detector/ZDC/Position 0. 0. 0. mm
+/Detector/ZDC/FiberDiameters 1.5 0. 0. mm
+/Detector/ZDC/AbsorberDimensions 90. 180. 11. mm
+/Detector/ZDC/nAbsorbers 11
+/Detector/ZDC/HousingThickness 5. mm
+/Detector/ZDC/GapThickness 2. mm
+/Detector/ZDC/Optical true
+/Detector/ZDC/CheckOverlaps false
+/Detector/ZDC/HousingMaterial aluminum
+/Detector/ZDC/AbsorberMaterial pure
+
+/Detector/ZDC/Duplicate 0
+/Detector/ZDC/Position 0. 0. 153/2. mm
