@@ -1,6 +1,9 @@
 
 /Detector/Cluster false
 /Detector/Optical true
+/Detector/Overlaps false
+/Detector/RunNumber 347
+/Detector/PrintDebugStatement TEST LINE
 
 /Detector/ForcePosition true
 #/Detector/ConfigFile Alignment_2018.xml
@@ -18,5 +21,23 @@
 /Detector/ZDC/HousingMaterial aluminum
 /Detector/ZDC/AbsorberMaterial pure
 
-/Detector/ZDC/Duplicate 0
+/Detector/ZDC/SetCurrent 1
+
+/Detector/ZDC/Duplicate 1
 /Detector/ZDC/Position 0. 0. 153/2. mm
+
+/Detector/RPD/Add
+/Detector/RPD/Position 0. 0. 250. mm
+/Detector/RPD/FiberDiameters .6 .68 .73 mm
+/Detector/RPD/HousingThickness 5. mm
+/Detector/RPD/FiberPitch .9 mm
+/Detector/RPD/TileSize 10. mm
+/Detector/RPD/MinWallThickness 0. mm
+/Detector/RPD/RPDtype panflute
+/Detector/RPD/Optical true
+/Detector/RPD/CheckOverlaps false
+
+/Detector/RPD/SetCurrent 1
+
+/Detector/RPD/Duplicate 1
+/Detector/RPD/position 280
