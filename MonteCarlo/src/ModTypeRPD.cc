@@ -256,11 +256,6 @@ void ModTypeRPD::ConstructPanFluteDetector()
 					//Start at RPDY center + distance to bottom of top tile + half the fiber height
 					posy = RPD_centerY + ((n_rows/2 - 1) - row)*m_tileSize + fiber_height/2;
 
-
-						std::cout << "Rod# = " << m_PFrpd_cnt << ", posx1 = " << posx1 << ", posy = " << posy  << "fheight = " << fiber_height << std::endl;
-						std::cout << "Rod# = " << m_PFrpd_cnt + 1 << ", posx2 = " << posx2 << ", posy = " << posy  << std::endl;
-
-
 					//----------------------- Place the rods -----------------------//
 
 					sprintf(name,"m_PFrpd_log_%d_%d_%d_%d_0",row,col,cycle,fiber);
@@ -376,13 +371,9 @@ void ModTypeRPD::ConstructPanFluteDetector()
 					m_PFrpd_cnt++;
 					m_PFrpd_cnt++;
 
-					//std::cout << "FIBER END" << std::endl;
 				}//end fiber
-				//std::cout << "CYCLE END" << std::endl;
 			}//end cycle
-			//std::cout << "COL END" << std::endl;
 		}//end column
-		//std::cout << "ROW END" << std::endl;
 	}//end row
 
 

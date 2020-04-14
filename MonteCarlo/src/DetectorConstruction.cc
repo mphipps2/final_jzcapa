@@ -159,7 +159,7 @@ G4VPhysicalVolume* DetectorConstruction::ManualConstruction(){
 
   for(ModTypeRPD* rpd : m_RPDvec){
     pos = rpd->GetPosition();
-    printf( "RPD%d center = (%f,%f,%f)", rpd->GetModNum(), pos->x(), pos->y(), pos->z() );
+    printf( "RPD%d center = (%f,%f,%f)\n", rpd->GetModNum(), pos->x(), pos->y(), pos->z() );
     rpd->Construct();
   }
 
