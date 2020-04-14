@@ -94,50 +94,34 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
     G4LogicalBorderSurface::CleanSurfaceTable();
   }
 
-  return ConstructDetector();
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-G4VPhysicalVolume* DetectorConstruction::ConstructDetector()
-{
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
   UImanager->ApplyCommand("/control/execute geometry.mac");
+
+  m_materials->UseOpticalMaterials(OPTICAL);
+  m_materials->DefineOpticalProperties();
 
   if( ForceDetectorPosition ){
     ManualConstruction();
   }else{
     ConstructSPSTestBeam();
+    std::cout << "built test beam" << std::endl;
   }
   return m_physWorld;
 }
 
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VPhysicalVolume* DetectorConstruction::ManualConstruction(){
-
-  std::cout << "******************************************" << std::endl
-            << "        PLACING DETECTORS MANUALLY        " << std::endl
-            << "******************************************" << std::endl;
-
-  //################################ World volume construction
-  m_materials->UseOpticalMaterials(OPTICAL); //set this an an option later ARIC!
-  m_materials->DefineOpticalProperties();
-
-  printf( "Building world with x %5.1f y %5.1f z %5.1f\n",
-          m_WorldDimensions->x(), m_WorldDimensions->y(), m_WorldDimensions->z() );
+G4VPhysicalVolume* DetectorConstruction::ConstructWorldVolume(G4double x, G4double y, G4double z){
+  printf( "Building world with x %5.1f y %5.1f z %5.1f\n", x, y, z );
 
   m_solidWorld =
-    new G4Box("World",   //its name
-        0.5*m_WorldDimensions->x(),  //its size
-        0.5*m_WorldDimensions->y(),
-        0.5*m_WorldDimensions->z() );
+    new G4Box("World", 0.5*x, 0.5*y, 0.5*z );
 
   m_logicWorld =
     new G4LogicalVolume(m_solidWorld,     //its solid
-                        m_materials->Air,            //its material
+                        m_materials->Air, //its material
                         "World");         //its name
+  std::cout << "The world's name is " << m_logicWorld->GetName() <<  std::endl;
 
   m_physWorld =
     new G4PVPlacement(0,                  //no rotation
@@ -154,35 +138,38 @@ G4VPhysicalVolume* DetectorConstruction::ManualConstruction(){
 
   m_logicWorld ->SetVisAttributes(boxVisAtt_world);
 
+  return m_physWorld;
+
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4VPhysicalVolume* DetectorConstruction::ManualConstruction(){
+
+  std::cout << "******************************************" << std::endl
+            << "        PLACING DETECTORS MANUALLY        " << std::endl
+            << "******************************************" << std::endl;
+
   G4ThreeVector* pos;
-  std::cout << "ZDC vector size = " << m_ZDCvec.size() << std::endl;
   for(ModTypeZDC* zdc : m_ZDCvec){
     pos = zdc->GetPosition();
     printf( "ZDC%d center = (%f,%f,%f)\n", zdc->GetModNum(), pos->x(), pos->y(), pos->z() );
     zdc->Construct();
   }
 
-  std::cout << "before RPD construction" << std::endl;
-
   for(ModTypeRPD* rpd : m_RPDvec){
     pos = rpd->GetPosition();
     printf( "RPD%d center = (%f,%f,%f)", rpd->GetModNum(), pos->x(), pos->y(), pos->z() );
     rpd->Construct();
   }
-std::cout << "after rpd construction" << std::endl;
-  return m_physWorld;
 
+  return m_physWorld;
 }
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
-
-  // Option to switch on/off checking of volumes overlaps
-  //
-  bool checkOverlaps = false;
-
   // Create variables to be used in beamtest 2018 simulation
   G4ThreeVector zdc1Pos,zdc2Pos, rpdPos;
   bool ZDC1 = false, ZDC2 = false, RPD = false;
@@ -196,39 +183,8 @@ G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
   std::string detector[3];
 
   //################################ World volume construction
-  m_materials->UseOpticalMaterials(OPTICAL); //set this an an option later ARIC!
-  m_materials->DefineOpticalProperties();
-  G4Material* g4Air = m_materials->Air;
 
-  printf( "Building world with x %5.1f y %5.1f z %5.1f\n",
-          worldSizeX, worldSizeY, worldSizeZ );
-
-  m_solidWorld =
-    new G4Box("World",   //its name
-        0.5*worldSizeX,  //its size
-        0.5*worldSizeY,
-        0.5*worldSizeZ );
-
-  m_logicWorld =
-    new G4LogicalVolume(m_solidWorld,     //its solid
-                        g4Air,            //its material
-                        "World");         //its name
-
-  m_physWorld =
-    new G4PVPlacement(0,                  //no rotation
-                      G4ThreeVector(),    //at (0,0,0)
-                      m_logicWorld,       //its logical volume
-                      "World",            //its name
-                      0,                  //its mother  volume
-                      false,              //no boolean operation
-                      0,                  //copy number
-                      checkOverlaps);     //overlaps checking
-
-
-  G4VisAttributes* boxVisAtt_world= new G4VisAttributes(G4Colour(0.5,0.5,0.5));
-
-  m_logicWorld ->SetVisAttributes(boxVisAtt_world);
-
+  ConstructWorldVolume( worldSizeX, worldSizeY, worldSizeZ );
 
   //################################ SURVEY/ALIGNMENT_SETUP
 
@@ -290,10 +246,8 @@ G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
   }
 
   for(ModTypeRPD* rpd : m_RPDvec){
-    rpd->SetFiberDiameters   ( new G4ThreeVector(0.6*mm,0.68*mm,0.72*mm) );
-    rpd->SetHousingThickness ( 5.0*mm );
-    rpd->SetFiberPitch       ( 1.4*mm );
-    rpd->SetTileSize         ( 10.0*mm );
+    rpd->SetFiberDiameters( new G4ThreeVector(0.6*mm,0.68*mm,0.72*mm) );
+    rpd->SetDetectorType  ( "cms" );
 
     pos = rpd->GetPosition();
     modNum = rpd->GetModNum();

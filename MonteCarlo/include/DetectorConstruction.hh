@@ -108,7 +108,7 @@ public:
   virtual ~DetectorConstruction();
 
   virtual G4VPhysicalVolume* Construct();
-  virtual G4VPhysicalVolume* ConstructDetector();
+  virtual G4VPhysicalVolume* ConstructWorldVolume(G4double x, G4double y, G4double z);
   virtual G4VPhysicalVolume* ConstructSPSTestBeam();
   virtual G4VPhysicalVolume* ManualConstruction();
 
@@ -129,7 +129,7 @@ public:
 
 
   //Manual World Volume
-  inline  void SetWorldDimensions      ( G4ThreeVector* vec ){ m_WorldDimensions = vec; }
+  inline  void SetWorldDimensions      ( G4ThreeVector* vec ){ ConstructWorldVolume( vec->x(), vec->y(), vec->z() ); }
 
   //For manual ZDCs
   inline  void SetZDCPosition          ( G4ThreeVector* vec ){ m_ZDCvec.at(currentZDC-1)->SetPosition(vec);           }
