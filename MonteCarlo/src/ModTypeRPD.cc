@@ -119,9 +119,6 @@ void ModTypeRPD::Construct(){
 
 void ModTypeRPD::DefineMaterials()
 {
-	materials->UseOpticalMaterials(true);
-	materials->DefineOpticalProperties();
-
   //----------------------------------------------
   // Define Materials
   //----------------------------------------------
