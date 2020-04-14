@@ -50,19 +50,20 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ModTypeZDC::ModTypeZDC(const int cn,
-	      G4LogicalVolume* mother, G4ThreeVector* pos)
+ModTypeZDC::ModTypeZDC(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos)
   : m_modNum( cn ), m_pos( pos ), m_fiberDiam (new G4ThreeVector(1.5,0.,0.)),
-	m_absDim (new G4ThreeVector(90.,180.,11.)), m_logicMother( mother )
+	  m_absDim(new G4ThreeVector(90.,180.,11.)), m_logicMother( mother )
 {
 	m_materials = Materials::getInstance();
+	m_matAbsorber = m_materials->NiW;
+	m_matHousing  = m_materials->Steel;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-	ModTypeZDC::ModTypeZDC(const int cn, ModTypeZDC* right)
-		: m_modNum( cn )
-	{
+ModTypeZDC::ModTypeZDC(const int cn, ModTypeZDC* right)
+	: m_modNum( cn )
+{
 		m_nAbsorbers 			 = right->m_nAbsorbers;
 		m_pos				 			 = new G4ThreeVector(*right->m_pos);
 		m_fiberDiam 	 		 = new G4ThreeVector(*right->m_fiberDiam);
@@ -75,15 +76,6 @@ ModTypeZDC::ModTypeZDC(const int cn,
 		m_matHousing			 = right->m_matHousing;
 		m_logicMother			 = right->m_logicMother;
 		m_materials				 = right->m_materials;
-	}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-ModTypeZDC::ModTypeZDC(const int cn, G4LogicalVolume* mother)
-  : m_modNum( cn ), m_pos(new G4ThreeVector(0.,0.,0.)), m_fiberDiam (new G4ThreeVector(1.5,0.,0.)),
-	m_absDim (new G4ThreeVector(90.,180.,11.)), m_logicMother( mother )
-{
-	m_materials = Materials::getInstance();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -163,7 +155,13 @@ void ModTypeZDC::ConstructDetector()
   sprintf(name,"ZDC%d_Air_Physical", cn);
   m_ModulePhysical = new G4PVPlacement(nullRotation,pos,m_ModuleLogical,name,m_HousingLogical,false,cn,CHECK_OVERLAPS);
 
-  G4VisAttributes* moduleColor = new G4VisAttributes( G4Colour::Gray() );
+  G4VisAttributes* housingColor = new G4VisAttributes( );
+	housingColor->SetColor(1.,1.,1.,.4);
+  m_HousingLogical->SetVisAttributes( housingColor );
+
+
+  G4VisAttributes* moduleColor = new G4VisAttributes( );
+	moduleColor->SetColor(0.,0.,1.,.2);
   m_ModuleLogical->SetVisAttributes( moduleColor );
 
 
@@ -208,15 +206,11 @@ void ModTypeZDC::ConstructDetector()
   m_W = new G4Box("W",
 									modWidthX*mm/2.0 ,
 									m_absDim->y()/2.0,
-									m_absDim->y()/2.0);
+									m_absDim->z()/2.0);
   m_WLogical =
 		new G4LogicalVolume(m_W,
 												m_matAbsorber,
 												"W_Logical");
-
-  G4VisAttributes* airColor = new G4VisAttributes( G4Colour::White() );
-  airColor->SetForceSolid(true);
-  m_ModuleLogical->SetVisAttributes( airColor );
 
   G4VisAttributes* absorberColor = new G4VisAttributes( G4Colour::Red() );
   absorberColor->SetForceSolid(true);
@@ -265,7 +259,8 @@ void ModTypeZDC::ConstructDetector()
     sprintf(volName,"ZDC%d_Absorber%d",m_modNum, K);
     m_WPhysical.push_back( new G4PVPlacement(nullRotation,
 													 G4ThreeVector(0,0,zStartW*mm+K*zPitch*mm),
-													 m_WLogical,name,
+													 m_WLogical,
+													 volName,
 													 m_ModuleLogical,
 													 false,
 													 cn,
@@ -302,7 +297,7 @@ void ModTypeZDC::SetHousingMaterial(G4String material)
 void ModTypeZDC::SetAbsorberMaterial(G4String material)
 {
 	material.toLower();
-			 if( material == "pure"  		 ) m_matHousing = m_materials->pureW;
-	else if( material == "composite" ) m_matHousing = m_materials->NiW;
+			 if( material == "pure"  		 ) m_matAbsorber = m_materials->pureW;
+	else if( material == "composite" ) m_matAbsorber = m_materials->NiW;
 	else G4cout << "Invalid absorber material selection, defaulting to composite" << G4endl;
 }
