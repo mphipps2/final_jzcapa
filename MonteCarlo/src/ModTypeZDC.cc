@@ -120,6 +120,8 @@ void ModTypeZDC::ConstructDetector()
 	else if(CLADDING)fiberMaxDia = m_fiberDiam->y();
 	else						 fiberMaxDia = m_fiberDiam->x();
 
+	std::cout << "the world's name is " << m_logicMother->GetName() << std::endl;
+
   // geometric constants
 	float zPitch;
   float xStartStrip; // middle of left most strip -- note this strip doesn't actually exist since the sets on the edge have 5 strips instead of 6
@@ -132,8 +134,8 @@ void ModTypeZDC::ConstructDetector()
   zStartW = -1*modLengthZ/2 + m_GapThickness + m_absDim->z()/2;
   zStartRad = -1*modLengthZ/2 + m_GapThickness/2;
   stripPitch = fiberMaxDia;
-  xStartStrip = -1*fmod(m_absDim->x(),fiberMaxDia)*stripPitch/2 + stripPitch/2;
-  float modWidthX = fmod(m_absDim->x(),fiberMaxDia)*stripPitch;
+  xStartStrip = -1*floor(m_absDim->x()/fiberMaxDia)*stripPitch/2 + stripPitch/2;
+  float modWidthX = floor(m_absDim->x()/fiberMaxDia)*stripPitch;
   if (modWidthX == 0) modWidthX = m_absDim->x(); // the case where you are defining a solid absorber block with no active channels
   float modHeightY = m_absDim->y();
 	float boxWidthX  = modWidthX  + m_HousingThickness*2;
@@ -228,7 +230,7 @@ void ModTypeZDC::ConstructDetector()
 	m_FiberCorePhysical.resize(m_nAbsorbers + 1);
 	m_FiberCladdingPhysical.resize(m_nAbsorbers + 1);
   for(int K = 0; K < m_nAbsorbers + 1; K++ ){
-    for(int M = 0; M < fmod(m_absDim->x(),fiberMaxDia); M++ ){
+    for(int M = 0; M < (int)floor(m_absDim->x()/fiberMaxDia); M++ ){
 
 	  	sprintf(name,"ZDC%d_Core%d", m_modNum, cn);
       m_FiberCorePhysical.at(K).push_back( new G4PVPlacement(
@@ -252,13 +254,13 @@ void ModTypeZDC::ConstructDetector()
 																					false,
 																					cn,
 																					CHECK_OVERLAPS) );
-      }
+      }// end if CLADDING
       ++cn;
-    }
-  }
+    }// end M < nFibersPerGap
+  }// end K < nAbsorbers
   cn = 0;
   //  W plates (non pixel modules): Physical plates that span length of each absorber gap
-  for(int K=0;K<m_nAbsorbers;K++) {    // 11 layers of plates
+  for(int K = 0; K < m_nAbsorbers; K++) {    // 11 layers of plates
     char volName[256];
     sprintf(volName,"ZDC%d_Absorber%d",m_modNum, K);
     m_WPhysical.push_back( new G4PVPlacement(nullRotation,
