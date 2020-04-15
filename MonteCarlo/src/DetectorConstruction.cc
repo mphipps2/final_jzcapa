@@ -121,8 +121,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructWorldVolume(G4double x, G4doub
     new G4LogicalVolume(m_solidWorld,     //its solid
                         m_materials->Air, //its material
                         "World");         //its name
-  std::cout << "The world's name is " << m_logicWorld->GetName() <<  std::endl;
-
+  
   m_physWorld =
     new G4PVPlacement(0,                  //no rotation
                       G4ThreeVector(),    //at (0,0,0)
