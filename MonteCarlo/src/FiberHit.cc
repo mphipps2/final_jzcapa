@@ -55,9 +55,10 @@ FiberHit::FiberHit(const FiberHit& right)
   trackID   = right.trackID;
   modNb     = right.modNb;
   radNb     = right.radNb;
-  rodNb     = right.rodNb;  
+  rodNb     = right.rodNb;
   edep      = right.edep;
   pos       = right.pos;
+  originPos = right.originPos;
   particle  = right.particle;
   energy    = right.energy;
   momentum  = right.momentum;
@@ -71,9 +72,10 @@ const FiberHit& FiberHit::operator=(const FiberHit& right)
   trackID   = right.trackID;
   modNb     = right.modNb;
   radNb     = right.radNb;
-  rodNb     = right.rodNb;      
+  rodNb     = right.rodNb;
   edep      = right.edep;
   pos       = right.pos;
+  originPos = right.originPos;
   particle  = right.particle;
   energy    = right.energy;
   momentum  = right.momentum;
@@ -116,4 +118,3 @@ void FiberHit::Print()
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-

@@ -51,12 +51,17 @@ public:
   G4bool ProcessHits         ( G4Step*, G4TouchableHistory* );
   void   EndOfEvent          ( G4HCofThisEvent* );
 
+  inline G4bool   OpticalIsOn    ( ){ return OPTICAL; }
+  inline void     SetTopOfVolume ( G4double _top ){ m_topOfVolume = _top; }
+  inline G4double GetTopOfVolume ( ){ return m_topOfVolume; }
+
 private:
   int HCID;
   G4double m_modCoreIndexRefraction;
   FiberHitsCollection* fiberCollection;
   G4int m_modNum;
   G4bool OPTICAL;
+  G4double m_topOfVolume;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -116,16 +116,14 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   newHit->setRadNb       ( radNum );
   newHit->setRodNb       ( rodNum );
   newHit->setEdep        ( eDep );
-  newHit->setPos         ( aStep->GetTrack()->GetVertexPosition() );
+  newHit->setOrigin      ( aStep->GetTrack()->GetVertexPosition() );
+  newHit->setPos         ( aStep->GetTrack()->GetPosition() );
   newHit->setParticle    ( particle );
   newHit->setEnergy      ( energy );
   newHit->setMomentum    ( momentum );
   newHit->setNCherenkovs ( capturedPhotons );
 
   fiberCollection->insert ( newHit );
-
-  // only want to record photons if optical flag is on
-  //if( OPTICAL && particle->GetPDGEncoding() == 0 ) fiberCollection->insert (newHit );
 
   return true;
 }
