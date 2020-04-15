@@ -181,16 +181,20 @@ protected:
   G4VPhysicalVolume*  m_test_blockPhysical[2];
 
   //pan flute rpd
+  G4VSolid*           m_PFrpd_housing;
+  G4LogicalVolume*    m_PFrpd_housingLogical;
+  G4VPhysicalVolume*  m_PFrpd_housingPhysical;
+
   G4VSolid*           m_PFrpd[4];
-  G4LogicalVolume*    m_PFrpdLogical[512];
+  G4LogicalVolume*    m_PFrpdLogical[4];
   G4VPhysicalVolume*  m_PFrpdPhysical[512];
 
-  G4VSolid*           m_PFrpd_foil[4];
-  G4LogicalVolume*    m_PFrpd_foilLogical[512];
-  G4VPhysicalVolume*  m_PFrpd_foilPhysical[512];
+  G4VSolid*           m_PFrpd_channel[4];
+  G4LogicalVolume*    m_PFrpd_channelLogical[4];
+  G4VPhysicalVolume*  m_PFrpd_channelPhysical[512];
 
   G4VSolid*           m_PFdetec;
-  G4LogicalVolume*    m_PFdetecLogical[512];
+  G4LogicalVolume*    m_PFdetecLogical;
   G4VPhysicalVolume*  m_PFdetecPhysical[512];
 
   G4int               m_PFrpd_cnt;
