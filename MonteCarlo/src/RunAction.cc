@@ -33,7 +33,9 @@
 #include "PrimaryGeneratorAction.hh"
 #include "DetectorConstruction.hh"
 #include "Analysis.hh"
+#include "FiberSD.hh"
 
+#include "G4SDManager.hh"
 #include "G4RunManager.hh"
 #include "G4Run.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -48,6 +50,12 @@
 RunAction::RunAction()
 : G4UserRunAction()
 {
+  //Create the analysis manager
+  m_analysisManager = G4AnalysisManager::Instance();
+  G4cout << "Using " << m_analysisManager->GetType() << " type Analysis Manager" << G4endl;
+  char name[20];
+
+
   // Get number of ZDCs and RPDs from DetectorConstruction
   const DetectorConstruction* constDetectorConstruction
     = static_cast<const DetectorConstruction*>(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
@@ -56,7 +64,7 @@ RunAction::RunAction()
 
   int    nZDCs   = detectorConstruction->GetnZDCs();
   int    nRPDs   = detectorConstruction->GetnRPDs();
-  G4bool CLUSTER = detectorConstruction->GetClusterFlag();
+  CLUSTER = detectorConstruction->GetClusterFlag();
 
   // Get event action
   const EventAction* constEventAction
@@ -71,111 +79,186 @@ RunAction::RunAction()
   // The sizes of these vectors will tell us how many of each detector we have
   // and what branches we want on the trees. We also need the addresses so we can
   // write the contents to the trees.
-  std::vector< std::vector< std::vector<double>* > >*  RPDdblVec
-    = eventAction->GetRPDdoubleVectors( );
-  std::vector< std::vector< std::vector< int  >* > >*  RPDintVec
-    = eventAction->GetRPDintVectors( );
-  std::vector< std::vector< std::vector<double>* > >*  ZDCdblVec
-    = eventAction->GetZDCdoubleVectors( );
-  std::vector< std::vector< std::vector< int  >* > >*  ZDCintVec
-    = eventAction->GetZDCintVectors( );
+  m_ZDCdblVec = eventAction->GetZDCdoubleVectors( );
+  m_ZDCintVec = eventAction->GetZDCintVectors( );
+  m_RPDdblVec = eventAction->GetRPDdoubleVectors( );
+  m_RPDintVec = eventAction->GetRPDintVectors( );
 
-
-  //Create the analysis manager
-  auto analysisManager = G4AnalysisManager::Instance();
-  G4cout << "Using " << analysisManager->GetType() << G4endl;
-  char name[20];
+  FiberSD* sd;
   //Create ZDC trees and branches
   for(int zdcNo = 0; zdcNo < nZDCs; zdcNo++){
-    sprintf(name,"ZDC%dtree",zdcNo);
-    analysisManager->CreateNtuple( name, "ZDC data");
-    if(!CLUSTER){
-      //Make double branches
-      analysisManager->CreateNtupleDColumn( zdcNo, "lastStep"                                 );
-      analysisManager->CreateNtupleDColumn( zdcNo, "lastSteptest"                             );
-      analysisManager->CreateNtupleDColumn( zdcNo, "gunPosX"                                  );
-      analysisManager->CreateNtupleDColumn( zdcNo, "gunPosY"                                  );
-      analysisManager->CreateNtupleDColumn( zdcNo, "gunPosZ"                                  );
-      analysisManager->CreateNtupleDColumn( zdcNo, "x",           *ZDCdblVec->at(zdcNo).at(0) );
-      analysisManager->CreateNtupleDColumn( zdcNo, "y",           *ZDCdblVec->at(zdcNo).at(1) );
-      analysisManager->CreateNtupleDColumn( zdcNo, "z",           *ZDCdblVec->at(zdcNo).at(2) );
-      analysisManager->CreateNtupleDColumn( zdcNo, "Px",          *ZDCdblVec->at(zdcNo).at(3) );
-      analysisManager->CreateNtupleDColumn( zdcNo, "Py",          *ZDCdblVec->at(zdcNo).at(4) );
-      analysisManager->CreateNtupleDColumn( zdcNo, "Pz",          *ZDCdblVec->at(zdcNo).at(5) );
-      analysisManager->CreateNtupleDColumn( zdcNo, "energy",      *ZDCdblVec->at(zdcNo).at(6) );
-      analysisManager->CreateNtupleDColumn( zdcNo, "velocity",    *ZDCdblVec->at(zdcNo).at(7) );
-      analysisManager->CreateNtupleDColumn( zdcNo, "beta",        *ZDCdblVec->at(zdcNo).at(8) );
-      analysisManager->CreateNtupleDColumn( zdcNo, "eDep",        *ZDCdblVec->at(zdcNo).at(9) );
-
-      //Make int branches
-      analysisManager->CreateNtupleIColumn( zdcNo, "EventNo",     *ZDCintVec->at(zdcNo).at(0) );
-      analysisManager->CreateNtupleIColumn( zdcNo, "modNo",       *ZDCintVec->at(zdcNo).at(1) );
-      analysisManager->CreateNtupleIColumn( zdcNo, "radNo",       *ZDCintVec->at(zdcNo).at(2) );
-      analysisManager->CreateNtupleIColumn( zdcNo, "rodNo",       *ZDCintVec->at(zdcNo).at(3) );
-      analysisManager->CreateNtupleIColumn( zdcNo, "nCherenkovs", *ZDCintVec->at(zdcNo).at(4) );
-      analysisManager->CreateNtupleIColumn( zdcNo, "trackID",     *ZDCintVec->at(zdcNo).at(5) );
-      analysisManager->CreateNtupleIColumn( zdcNo, "pid",         *ZDCintVec->at(zdcNo).at(6) );
-      analysisManager->CreateNtupleIColumn( zdcNo, "charge",      *ZDCintVec->at(zdcNo).at(7) );
-
-    } else { // There's only two branches to save space on cluster jobs
-      analysisManager->CreateNtupleDColumn( zdcNo, "lastStep"                                 );
-      analysisManager->CreateNtupleDColumn( zdcNo, "gunPosX"                                  );
-      analysisManager->CreateNtupleDColumn( zdcNo, "gunPosY"                                  );
-      analysisManager->CreateNtupleDColumn( zdcNo, "gunPosZ"                                  );
-      analysisManager->CreateNtupleIColumn( zdcNo, "radNo",       *ZDCintVec->at(zdcNo).at(0) );
-      analysisManager->CreateNtupleIColumn( zdcNo, "nCherenkovs", *ZDCintVec->at(zdcNo).at(1) );
-    }//end if !CLUSTER
+    sprintf(name,"ZDC%d_SD",zdcNo);
+    //Find out from the SD if optical is on for this detector
+    sd = (FiberSD*)G4SDManager::GetSDMpointer()->FindSensitiveDetector( name );
+      if( sd->OpticalIsOn() ) MakeZDCOpticalTree( zdcNo, zdcNo );
+    else MakeZDCTree( zdcNo, zdcNo );
+    m_analysisManager->FinishNtuple();
   }//end ZDC loop
 
   //Create RPD trees and branches
   for(int rpdNo = 0; rpdNo < nRPDs; rpdNo++){
-    sprintf(name,"RPD%dtree",rpdNo);
-    analysisManager->CreateNtuple( name, "RPD data");
+    sprintf(name,"RPD%d_SD",rpdNo);
     int nTuple = nZDCs + rpdNo;
-    if(!CLUSTER){
-      //Make double branches
-      analysisManager->CreateNtupleDColumn( nTuple, "lastStep"                                 );
-      analysisManager->CreateNtupleDColumn( nTuple, "lastSteptest"                             );
-      analysisManager->CreateNtupleDColumn( nTuple, "gunPosX"                                  );
-      analysisManager->CreateNtupleDColumn( nTuple, "gunPosY"                                  );
-      analysisManager->CreateNtupleDColumn( nTuple, "gunPosZ"                                  );
-      analysisManager->CreateNtupleDColumn( nTuple, "x",           *RPDdblVec->at(rpdNo).at(0) );
-      analysisManager->CreateNtupleDColumn( nTuple, "y",           *RPDdblVec->at(rpdNo).at(1) );
-      analysisManager->CreateNtupleDColumn( nTuple, "z",           *RPDdblVec->at(rpdNo).at(2) );
-      analysisManager->CreateNtupleDColumn( nTuple, "Px",          *RPDdblVec->at(rpdNo).at(3) );
-      analysisManager->CreateNtupleDColumn( nTuple, "Py",          *RPDdblVec->at(rpdNo).at(4) );
-      analysisManager->CreateNtupleDColumn( nTuple, "Pz",          *RPDdblVec->at(rpdNo).at(5) );
-      analysisManager->CreateNtupleDColumn( nTuple, "energy",      *RPDdblVec->at(rpdNo).at(6) );
-      analysisManager->CreateNtupleDColumn( nTuple, "velocity",    *RPDdblVec->at(rpdNo).at(7) );
-      analysisManager->CreateNtupleDColumn( nTuple, "beta",        *RPDdblVec->at(rpdNo).at(8) );
-      analysisManager->CreateNtupleDColumn( nTuple, "eDep",        *RPDdblVec->at(rpdNo).at(9) );
-
-      //Make int branches
-      analysisManager->CreateNtupleIColumn( nTuple, "EventNo",     *RPDintVec->at(rpdNo).at(0) );
-      analysisManager->CreateNtupleIColumn( nTuple, "modNo",       *RPDintVec->at(rpdNo).at(1) );
-      analysisManager->CreateNtupleIColumn( nTuple, "radNo",       *RPDintVec->at(rpdNo).at(2) );
-      analysisManager->CreateNtupleIColumn( nTuple, "rodNo",       *RPDintVec->at(rpdNo).at(3) );
-      analysisManager->CreateNtupleIColumn( nTuple, "nCherenkovs", *RPDintVec->at(rpdNo).at(4) );
-      analysisManager->CreateNtupleIColumn( nTuple, "trackID",     *RPDintVec->at(rpdNo).at(5) );
-      analysisManager->CreateNtupleIColumn( nTuple, "pid",         *RPDintVec->at(rpdNo).at(6) );
-      analysisManager->CreateNtupleIColumn( nTuple, "charge",      *RPDintVec->at(rpdNo).at(7) );
-
-    } else { // There's only two branches to save space on cluster jobs
-      //Make double branches
-      analysisManager->CreateNtupleDColumn( nTuple, "lastStep"                                 );
-      analysisManager->CreateNtupleDColumn( nTuple, "gunPosX"                                  );
-      analysisManager->CreateNtupleDColumn( nTuple, "gunPosY"                                  );
-      analysisManager->CreateNtupleDColumn( nTuple, "gunPosZ"                                  );
-      analysisManager->CreateNtupleDColumn( nTuple, "x",           *RPDdblVec->at(rpdNo).at(0) );
-      analysisManager->CreateNtupleDColumn( nTuple, "y",           *RPDdblVec->at(rpdNo).at(1) );
-      analysisManager->CreateNtupleDColumn( nTuple, "z",           *RPDdblVec->at(rpdNo).at(2) );
-
-      //Make int branches
-      analysisManager->CreateNtupleIColumn( nTuple, "rodNo",       *RPDintVec->at(rpdNo).at(0) );
-      analysisManager->CreateNtupleIColumn( nTuple, "nCherenkovs", *RPDintVec->at(rpdNo).at(1) );
-    }//end if !CLUSTER
+    //Find out from the SD if optical is on for this detector
+    sd = (FiberSD*)G4SDManager::GetSDMpointer()->FindSensitiveDetector( name );
+      if( sd->OpticalIsOn() ) MakeRPDOpticalTree( nTuple, rpdNo );
+    else MakeRPDTree( nTuple, rpdNo );
+    m_analysisManager->FinishNtuple();
   }//end RPD loop
+
+
+
+
 }//end constructor
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void RunAction::MakeZDCTree( G4int nTupleNo, G4int zdcNo ){
+  char name[20];
+  sprintf(name,"ZDC%dtree",zdcNo);
+  m_analysisManager->CreateNtuple( name, "ZDC data");
+  if(!CLUSTER){
+    //Make double branches
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep"                                  );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastSteptest"                              );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"                                   );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_ZDCdblVec->at(zdcNo).at(0) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_ZDCdblVec->at(zdcNo).at(1) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "z",           m_ZDCdblVec->at(zdcNo).at(2) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "Px",          m_ZDCdblVec->at(zdcNo).at(3) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "Py",          m_ZDCdblVec->at(zdcNo).at(4) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "Pz",          m_ZDCdblVec->at(zdcNo).at(5) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "energy",      m_ZDCdblVec->at(zdcNo).at(6) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "velocity",    m_ZDCdblVec->at(zdcNo).at(7) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "beta",        m_ZDCdblVec->at(zdcNo).at(8) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "eDep",        m_ZDCdblVec->at(zdcNo).at(9) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "charge",      m_ZDCdblVec->at(zdcNo).at(10) );
+
+    //Make int branches
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "modNo",       m_ZDCintVec->at(zdcNo).at(0) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "radNo",       m_ZDCintVec->at(zdcNo).at(1) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_ZDCintVec->at(zdcNo).at(2) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", m_ZDCintVec->at(zdcNo).at(3) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "trackID",     m_ZDCintVec->at(zdcNo).at(4) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "pid",         m_ZDCintVec->at(zdcNo).at(5) );
+
+  } else { //Fewer vector branches to save storage space
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep"                                  );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepTest"                              );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"                                   );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_ZDCdblVec->at(zdcNo).at(0) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_ZDCdblVec->at(zdcNo).at(1) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "z",           m_ZDCdblVec->at(zdcNo).at(2) );
+
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", m_ZDCintVec->at(zdcNo).at(1) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "radNo",       m_ZDCintVec->at(zdcNo).at(0) );
+  }//end if !CLUSTER
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void RunAction::MakeZDCOpticalTree( G4int nTupleNo, G4int zdcNo ){
+  char name[20];
+  sprintf(name,"ZDC%dtree",zdcNo);
+  m_analysisManager->CreateNtuple( name, "ZDC data");
+
+  //Make double branches
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep"                                  );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepTest"                              );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"                                   );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_ZDCdblVec->at(zdcNo).at(0) );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_ZDCdblVec->at(zdcNo).at(1) );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "z",           m_ZDCdblVec->at(zdcNo).at(2) );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "Px",          m_ZDCdblVec->at(zdcNo).at(6) );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "Py",          m_ZDCdblVec->at(zdcNo).at(7) );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "Pz",          m_ZDCdblVec->at(zdcNo).at(8) );
+
+  //Make int branches
+  m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
+  m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs"                               );
+  m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(zdcNo).at(0) );
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void RunAction::MakeRPDTree       ( G4int nTupleNo, G4int rpdNo ){
+  char name[20];
+  sprintf(name,"RPD%dtree",rpdNo);
+  m_analysisManager->CreateNtuple( name, "RPD data");
+  if(!CLUSTER){
+    //Make double branches
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep"                                  );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepTest"                              );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"                                   );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_RPDdblVec->at(rpdNo).at(0) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_RPDdblVec->at(rpdNo).at(1) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "z",           m_RPDdblVec->at(rpdNo).at(2) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "Px",          m_RPDdblVec->at(rpdNo).at(3) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "Py",          m_RPDdblVec->at(rpdNo).at(4) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "Pz",          m_RPDdblVec->at(rpdNo).at(5) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "energy",      m_RPDdblVec->at(rpdNo).at(6) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "velocity",    m_RPDdblVec->at(rpdNo).at(7) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "beta",        m_RPDdblVec->at(rpdNo).at(8) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "eDep",        m_RPDdblVec->at(rpdNo).at(9) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "charge",      m_RPDdblVec->at(rpdNo).at(10));
+
+    //Make int branches
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "modNo",       m_RPDintVec->at(rpdNo).at(0) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "radNo",       m_RPDintVec->at(rpdNo).at(1) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(rpdNo).at(2) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", m_RPDintVec->at(rpdNo).at(3) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "trackID",     m_RPDintVec->at(rpdNo).at(4) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "pid",         m_RPDintVec->at(rpdNo).at(5) );
+
+  } else { //Fewer vector branches to save storage space
+    //Make double branches
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep"                                  );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepTest"                              );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"                                   );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_RPDdblVec->at(rpdNo).at(0) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_RPDdblVec->at(rpdNo).at(1) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "z",           m_RPDdblVec->at(rpdNo).at(2) );
+
+    //Make int branches
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", m_RPDintVec->at(rpdNo).at(1) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(rpdNo).at(0) );
+  }//end if !CLUSTER
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void RunAction::MakeRPDOpticalTree( G4int nTupleNo, G4int rpdNo ){
+  char name[20];
+  sprintf(name,"RPD%dtree",rpdNo);
+  m_analysisManager->CreateNtuple( name, "RPD data");
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep"                                  );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepTest"                              );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"                                   );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_RPDdblVec->at(rpdNo).at(0) );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_RPDdblVec->at(rpdNo).at(1) );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "z",           m_RPDdblVec->at(rpdNo).at(2) );
+
+  //Make int branches
+  m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
+  m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs"                               );
+  m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(rpdNo).at(0) );
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -186,12 +269,10 @@ RunAction::~RunAction()
 
 void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 {
-  // Get analysis manager
-  auto analysisManager = G4AnalysisManager::Instance();
 
   // Open an output file
-  //if(analysisManager->GetFileName() == "") 
-  analysisManager->OpenFile();
+  //if(analysisManager->GetFileName() == "")
+  m_analysisManager->OpenFile("output.root");
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -202,11 +283,8 @@ void RunAction::EndOfRunAction(const G4Run* run)
 	G4int nofEvents = run->GetNumberOfEvent();
 	if (nofEvents == 0) return;
 
-  // Get analysis manager
-  auto analysisManager = G4AnalysisManager::Instance();
-  // save histograms & ntuple
-  analysisManager->Write();
-  analysisManager->CloseFile();
+  m_analysisManager->Write();
+  m_analysisManager->CloseFile();
 
 }
 
