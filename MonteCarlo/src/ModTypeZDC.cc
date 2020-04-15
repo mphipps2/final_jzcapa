@@ -112,7 +112,6 @@ void ModTypeZDC::ConstructDetector()
 	else if(CLADDING)fiberMaxDia = m_fiberDiam->y();
 	else						 fiberMaxDia = m_fiberDiam->x();
 
-	std::cout << "the world's name is " << m_logicMother->GetName() << std::endl;
 
   // geometric constants
 	float zPitch;
@@ -121,7 +120,7 @@ void ModTypeZDC::ConstructDetector()
   float zStartW; 		 // position where first tungsten plate gets placed
   float zStartRad; 	 // position where first radiator gap gets placed
 
-  float modLengthZ = m_absDim->z()*m_nAbsorbers + m_GapThickness*m_nAbsorbers;
+  float modLengthZ = m_absDim->z()*m_nAbsorbers + m_GapThickness*(m_nAbsorbers + 1 );
   zPitch = m_absDim->z()+ m_GapThickness;
   zStartW = -1*modLengthZ/2 + m_GapThickness + m_absDim->z()/2;
   zStartRad = -1*modLengthZ/2 + m_GapThickness/2;
@@ -278,6 +277,7 @@ void ModTypeZDC::ConstructDetector()
   sprintf( fiberSDname, "ZDC%d_SD", m_modNum);
   FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
   aFiberSD->HistInitialize();
+  aFiberSD->SetTopOfVolume( m_pos->y() + modHeightY/2.0 );
   SDman->AddNewDetector( aFiberSD );
   m_FiberCoreLogical->SetSensitiveDetector( aFiberSD );
 
