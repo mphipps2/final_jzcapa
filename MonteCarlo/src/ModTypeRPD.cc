@@ -385,6 +385,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
 	FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
 	aFiberSD->HistInitialize();
+	aFiberSD->SetTopOfVolume( m_pos->y() - m_HousingThickness/2.0 + housingHeight/2.0);
 	SDman->AddNewDetector( aFiberSD );
   for(int i = 0; i < n_rows; i++){
 	   m_PFrpdLogical[i]->SetSensitiveDetector( aFiberSD );
