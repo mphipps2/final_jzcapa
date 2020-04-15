@@ -21,7 +21,7 @@
 /Detector/ZDC/HousingMaterial aluminum
 /Detector/ZDC/AbsorberMaterial pure
 
-/Detector/ZDC/SetCurrent 1
+#/Detector/ZDC/SetCurrent 1
 
 /Detector/ZDC/Duplicate 1
 /Detector/ZDC/Position 0. 0. 153/2. mm
@@ -37,7 +37,7 @@
 /Detector/RPD/Optical true
 /Detector/RPD/CheckOverlaps false
 
-/Detector/RPD/SetCurrent 1
+#/Detector/RPD/SetCurrent 1
 
-/Detector/RPD/Duplicate 1
-/Detector/RPD/position 280
+#/Detector/RPD/Duplicate 1
+#/Detector/RPD/Position 0. 0. 280. mm
