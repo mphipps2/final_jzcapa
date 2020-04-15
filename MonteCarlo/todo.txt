@@ -5,11 +5,8 @@ MAIN
 -Enable multithreading. Special considerations must be taken when storing std::vector
   in root files.
   Ref: https://indico.cern.ch/event/217511/contributions/444924/attachments/349283/486922/root_in_geant4.pdf
--Add geometry.mac with DetectorMessenger commands
 
 CONSTRUCTION
--Implement the ManualConstruction method
--Implement DetectorMessenger commands
 -Implement an environment flag. i.e. ATLAS, SPS TestBeam, FNAL TestBeam
 -Add cladding and buffer to ZDC and RPD
 -Make RPD volume vectors instead of fixed length arrays
