@@ -32,6 +32,7 @@
 #include "EventAction.hh"
 #include "Analysis.hh"
 #include "DetectorConstruction.hh"
+#include "FiberSD.hh"
 
 #include "G4Step.hh"
 #include "G4Event.hh"
@@ -71,8 +72,21 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
     }
 	}
 
-	if(theTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() && !OPTICAL){
-		theTrack->SetTrackStatus( fStopAndKill );
+	// If we are tracking a photon
+	if(theTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() ){
+		FiberSD* sd = (FiberSD*)theTrack->GetVolume()->GetLogicalVolume()->GetSensitiveDetector();
+		// If World OPTICAL is on
+		if(OPTICAL){
+			// Kill photons only in SD volumes with OPTICAL off
+			if(sd != 0 && !sd->OpticalIsOn() ){
+				theTrack->SetTrackStatus( fStopAndKill );
+			}
+		} else { // World OPTICAL is off
+			// Kill all photons except those in SD volumes with OPTICAL on
+			if(sd == 0 || !sd->OpticalIsOn() ){
+				theTrack->SetTrackStatus( fStopAndKill );
+			}
+		}
 	}
 
 }
