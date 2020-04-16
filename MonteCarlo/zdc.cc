@@ -140,7 +140,7 @@ int main(int argc,char** argv)
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
   //Set the output file name
-  G4String command = "/Analysis/setFileName ";
+  G4String command = "/analysis/setFileName ";
   UImanager->ApplyCommand(command+output);
 
   // Process macro or start UI session

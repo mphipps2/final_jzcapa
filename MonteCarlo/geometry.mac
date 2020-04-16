@@ -24,7 +24,7 @@
 #/Detector/ZDC/SetCurrent 1
 
 /Detector/ZDC/Duplicate 1
-/Detector/ZDC/Position 0. 0. 153/2. mm
+/Detector/ZDC/Position 0. 0. 160. mm
 
 /Detector/RPD/Add
 /Detector/RPD/Position 0. 0. 250. mm
