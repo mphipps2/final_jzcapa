@@ -30,7 +30,7 @@
 
 #include "SteppingAction.hh"
 #include "EventAction.hh"
-#include "Analysis.hh"
+#include "AnalysisManager.hh"
 #include "DetectorConstruction.hh"
 #include "FiberSD.hh"
 
@@ -64,7 +64,8 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
 {
 	G4Track* theTrack = theStep->GetTrack();
 
-	if(theTrack->GetParentID()==0 && theStep->IsLastStepInVolume()){
+	//Find out when the primary particles died
+	if(theTrack->GetParentID()==0 && theTrack->GetTrackStatus() == fStopAndKill ){
 		lastStep = theTrack->GetPosition().getZ();
     auto analysisManager = G4AnalysisManager::Instance();
     for(int i = 0; i < analysisManager->GetNofNtuples(); i++){
