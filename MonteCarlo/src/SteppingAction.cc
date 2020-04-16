@@ -43,15 +43,8 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 SteppingAction::SteppingAction( )
-: G4UserSteppingAction(){
-	// Get number of OPTICAL flag from DetectorConstruction
-	const DetectorConstruction* constDetectorConstruction
-		= static_cast<const DetectorConstruction*>(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-	DetectorConstruction* detectorConstruction
-		= const_cast<DetectorConstruction*>(constDetectorConstruction);
-
-	OPTICAL = detectorConstruction->GetOpticalFlag();
-}
+: G4UserSteppingAction()
+{}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -73,8 +66,10 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
     }
 	}
 
+
 	// If we are tracking a photon
 	if(theTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() ){
+		// Get the SD for the volume we're in. Returns 0 if we aren't in an SD volume
 		FiberSD* sd = (FiberSD*)theTrack->GetVolume()->GetLogicalVolume()->GetSensitiveDetector();
 		// If World OPTICAL is on
 		if(OPTICAL){

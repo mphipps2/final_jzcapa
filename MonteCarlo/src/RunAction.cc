@@ -29,6 +29,7 @@
 /// \brief Implementation of the RunAction class
 
 #include "RunAction.hh"
+#include "SteppingAction.hh"
 
 #include "G4RunManager.hh"
 #include "G4Run.hh"
@@ -59,6 +60,11 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 
   // Book the output file
   m_analysisManager->Book();
+
+  // Hand the OPTICAL flag from analysis manager to Stepping action
+  SteppingAction* steppingAction
+  = (SteppingAction*)G4RunManager::GetRunManager()->GetUserSteppingAction();
+  steppingAction->SetOpticalFlag( m_analysisManager->GetOpticalFlag() );
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

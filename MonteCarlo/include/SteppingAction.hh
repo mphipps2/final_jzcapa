@@ -43,6 +43,8 @@ class SteppingAction : public G4UserSteppingAction
     SteppingAction();
     virtual ~SteppingAction();
 
+    inline  void SetOpticalFlag( G4bool arg ){ OPTICAL = arg; }
+
     // method from the base class
     virtual void UserSteppingAction(const G4Step*);
 

@@ -61,6 +61,7 @@ class AnalysisManager
     void MakeRPDOpticalTree( G4int nTupleNo, G4int rpdNo );
 
     inline G4bool GetClusterFlag(){ return CLUSTER; }
+    inline G4bool GetOpticalFlag(){ return OPTICAL; }
 
     inline  std::vector< std::vector< std::vector<double> > >*  GetRPDdoubleVectors( ){return m_RPDdblVec;}
     inline  std::vector< std::vector< std::vector< int  > > >*  GetRPDintVectors   ( ){return m_RPDintVec;}
@@ -71,7 +72,7 @@ class AnalysisManager
     AnalysisManager();
     static AnalysisManager* analysisManager;
     G4bool m_FactoryOn;
-    G4bool CLUSTER;
+    G4bool CLUSTER, OPTICAL;
     G4AnalysisManager* m_analysisManager;
     DetectorConstruction* m_detectorConstruction;
     std::vector< std::vector< std::vector<double> > > *m_ZDCdblVec, *m_RPDdblVec;
