@@ -23,10 +23,10 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// Author: Chad Lantz
-//
-// \file RunAction.cc
-// \brief Implementation of the RunAction class
+/// \file RunAction.cc
+/// \brief Implementation of the RunAction class
+/// \author Chad Lantz
+/// \date 16 April 2020
 
 #include "EventAction.hh"
 #include "FiberHit.hh"
@@ -87,7 +87,7 @@ void EventAction::EndOfEventAction(const G4Event* evt){
 
       FiberSD* sd = (FiberSD*)G4SDManager::GetSDMpointer()->FindSensitiveDetector( name );
       if( sd->OpticalIsOn() ) ProcessOpticalHitCollection( HC );
-      else ProcessHitCollection( HC );
+      else                    ProcessHitCollection( HC );
       hitsCollID++;
 
     }// end while < nCollections
@@ -98,9 +98,9 @@ void EventAction::EndOfEventAction(const G4Event* evt){
     G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
     // fill ntuples  //
     for(int i = 0; i < analysisManager->GetNofNtuples(); i++){
-      analysisManager->FillNtupleDColumn(i,2, pVert->GetX0() );
-      analysisManager->FillNtupleDColumn(i,3, pVert->GetY0() );
-      analysisManager->FillNtupleDColumn(i,4, pVert->GetZ0() );
+      analysisManager->FillNtupleDColumn(i,1, pVert->GetX0() );
+      analysisManager->FillNtupleDColumn(i,2, pVert->GetY0() );
+      analysisManager->FillNtupleDColumn(i,3, pVert->GetZ0() );
 
       analysisManager->FillNtupleIColumn(i,0, fEventNo );
     }
@@ -121,24 +121,14 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
 
 
   int n_hit = HC->entries();
-  G4cout << "nHits = " << n_hit << G4endl;
+  G4cout << name << " nHits = " << n_hit << G4endl;
   for ( G4int i = 0 ; i < n_hit; i++){
 
-    G4ThreeVector position      = (*HC)[i]->getPos();
-    G4ThreeVector origin        = (*HC)[i]->getOrigin();
-    G4ThreeVector momentum      = (*HC)[i]->getMomentum();
-    G4double      energy        = (*HC)[i]->getEnergy();
-    G4double      velocity      = (*HC)[i]->getVelocity();
-    G4double      beta          = (*HC)[i]->getBeta();
     G4double      eDep          = (*HC)[i]->getEdep();
-    G4double      charge        = (*HC)[i]->getCharge();
 
     G4int         radiatorNo    = (*HC)[i]->getRadNb();
-    G4int         rodNo         = (*HC)[i]->getRodNb();
-    G4int         modNb         = (*HC)[i]->getModNb();
-    G4int         trackID       = (*HC)[i]->getTrackID();
-    G4int         pid           = (*HC)[i]->getParticle()->GetPDGEncoding();
     G4int         nCherenkovs   = (*HC)[i]->getNCherenkovs(); // This is the number of cherenkovs in a single step within the SD
+    G4int         trackID       = (*HC)[i]->getTrackID();
 
     //Sum energy from all steps a particle takes in a single scoring volume
     if (trackID == prevTrackId || radiatorNo == prevRadiatorNo || eDep != 0) {
@@ -150,76 +140,88 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
       continue;
     }// end summation
 
-    if(name.compare(0,3,"RPD")){ //RPD hits
+
+    G4ThreeVector position      = (*HC)[i]->getPos();
+    G4ThreeVector origin        = (*HC)[i]->getOrigin();
+    G4ThreeVector momentum      = (*HC)[i]->getMomentum();
+    G4double      energy        = (*HC)[i]->getEnergy();
+    G4double      velocity      = (*HC)[i]->getVelocity();
+    G4double      beta          = (*HC)[i]->getBeta();
+    G4double      charge        = (*HC)[i]->getCharge();
+
+    G4int         rodNo         = (*HC)[i]->getRodNb();
+    G4int         modNb         = (*HC)[i]->getModNb();
+    G4int         pid           = (*HC)[i]->getParticle()->GetPDGEncoding();
+
+    if(name.compare(0,3,"RPD") == 0){ //RPD hits
       int rpdNo = atoi( name.substr(3,1).c_str() );
       if(!CLUSTER){
         //doubles
-        m_RPDdblVec->at(rpdNo).at(0). push_back( position.x() );
-        m_RPDdblVec->at(rpdNo).at(1). push_back( position.y() );
-        m_RPDdblVec->at(rpdNo).at(2). push_back( position.z() );
-        m_RPDdblVec->at(rpdNo).at(3). push_back( momentum.x() );
-        m_RPDdblVec->at(rpdNo).at(4). push_back( momentum.y() );
-        m_RPDdblVec->at(rpdNo).at(5). push_back( momentum.z() );
-        m_RPDdblVec->at(rpdNo).at(6). push_back( energy       );
-        m_RPDdblVec->at(rpdNo).at(7). push_back( velocity     );
-        m_RPDdblVec->at(rpdNo).at(8). push_back( beta         );
-        m_RPDdblVec->at(rpdNo).at(9). push_back( eDepSum      );
-        m_RPDdblVec->at(rpdNo).at(10).push_back( charge       );
+        m_RPDdblVec->at(rpdNo-1).at(0). push_back( position.x() );
+        m_RPDdblVec->at(rpdNo-1).at(1). push_back( position.y() );
+        m_RPDdblVec->at(rpdNo-1).at(2). push_back( position.z() );
+        m_RPDdblVec->at(rpdNo-1).at(3). push_back( momentum.x() );
+        m_RPDdblVec->at(rpdNo-1).at(4). push_back( momentum.y() );
+        m_RPDdblVec->at(rpdNo-1).at(5). push_back( momentum.z() );
+        m_RPDdblVec->at(rpdNo-1).at(6). push_back( energy       );
+        m_RPDdblVec->at(rpdNo-1).at(7). push_back( velocity     );
+        m_RPDdblVec->at(rpdNo-1).at(8). push_back( beta         );
+        m_RPDdblVec->at(rpdNo-1).at(9). push_back( eDepSum      );
+        m_RPDdblVec->at(rpdNo-1).at(10).push_back( charge       );
 
         //ints
-        m_RPDintVec->at(rpdNo).at(0).push_back( modNb          );
-        m_RPDintVec->at(rpdNo).at(1).push_back( radiatorNo     );
-        m_RPDintVec->at(rpdNo).at(2).push_back( rodNo          );
-        m_RPDintVec->at(rpdNo).at(3).push_back( nCherenkovsSum );
-        m_RPDintVec->at(rpdNo).at(4).push_back( trackID        );
-        m_RPDintVec->at(rpdNo).at(5).push_back( pid            );
+        m_RPDintVec->at(rpdNo-1).at(0).push_back( modNb          );
+        m_RPDintVec->at(rpdNo-1).at(1).push_back( radiatorNo     );
+        m_RPDintVec->at(rpdNo-1).at(2).push_back( rodNo          );
+        m_RPDintVec->at(rpdNo-1).at(3).push_back( nCherenkovsSum );
+        m_RPDintVec->at(rpdNo-1).at(4).push_back( trackID        );
+        m_RPDintVec->at(rpdNo-1).at(5).push_back( pid            );
 
       } else{
         //doubles
-        m_RPDdblVec->at(rpdNo).at(0).push_back( position.x() );
-        m_RPDdblVec->at(rpdNo).at(1).push_back( position.y() );
-        m_RPDdblVec->at(rpdNo).at(2).push_back( position.z() );
+        m_RPDdblVec->at(rpdNo-1).at(0).push_back( position.x() );
+        m_RPDdblVec->at(rpdNo-1).at(1).push_back( position.y() );
+        m_RPDdblVec->at(rpdNo-1).at(2).push_back( position.z() );
 
         //ints
-        m_RPDintVec->at(rpdNo).at(0).push_back( nCherenkovsSum );
-        m_RPDintVec->at(rpdNo).at(1).push_back( rodNo );
+        m_RPDintVec->at(rpdNo-1).at(0).push_back( nCherenkovsSum );
+        m_RPDintVec->at(rpdNo-1).at(1).push_back( rodNo );
       }// end if !CLUSTER
     // end if RPD
     } else{
-      if( name.compare(0,3,"ZDC") ){//ZDC hitsCollID, check to be sure/symmetric
+      if( name.compare(0,3,"ZDC") == 0 ){//ZDC hitsCollID, check to be sure/symmetric
         int zdcNo = atoi( name.substr(3,1).c_str() );
-        G4cout << "Processing ZDC" << zdcNo << " hits" << G4endl;
         if(!CLUSTER){
           //doubles
-          m_ZDCdblVec->at(zdcNo).at(0). push_back( position.x() );
-          m_ZDCdblVec->at(zdcNo).at(1). push_back( position.y() );
-          m_ZDCdblVec->at(zdcNo).at(2). push_back( position.z() );
-          m_ZDCdblVec->at(zdcNo).at(3). push_back( momentum.x() );
-          m_ZDCdblVec->at(zdcNo).at(4). push_back( momentum.y() );
-          m_ZDCdblVec->at(zdcNo).at(5). push_back( momentum.z() );
-          m_ZDCdblVec->at(zdcNo).at(6). push_back( energy       );
-          m_ZDCdblVec->at(zdcNo).at(7). push_back( velocity     );
-          m_ZDCdblVec->at(zdcNo).at(8). push_back( beta         );
-          m_ZDCdblVec->at(zdcNo).at(9). push_back( eDepSum      );
-          m_ZDCdblVec->at(zdcNo).at(10).push_back( charge       );
+          m_ZDCdblVec->at(zdcNo-1).at(0). push_back( position.x() );
+          m_ZDCdblVec->at(zdcNo-1).at(1). push_back( position.y() );
+          m_ZDCdblVec->at(zdcNo-1).at(2). push_back( position.z() );
+          m_ZDCdblVec->at(zdcNo-1).at(3). push_back( momentum.x() );
+          m_ZDCdblVec->at(zdcNo-1).at(4). push_back( momentum.y() );
+          m_ZDCdblVec->at(zdcNo-1).at(5). push_back( momentum.z() );
+          m_ZDCdblVec->at(zdcNo-1).at(6). push_back( energy       );
+          m_ZDCdblVec->at(zdcNo-1).at(7). push_back( velocity     );
+          m_ZDCdblVec->at(zdcNo-1).at(8). push_back( beta         );
+          m_ZDCdblVec->at(zdcNo-1).at(9). push_back( eDepSum      );
+          m_ZDCdblVec->at(zdcNo-1).at(10).push_back( charge       );
 
           //ints
-          m_ZDCintVec->at(zdcNo).at(0).push_back( modNb          );
-          m_ZDCintVec->at(zdcNo).at(1).push_back( radiatorNo     );
-          m_ZDCintVec->at(zdcNo).at(2).push_back( rodNo          );
-          m_ZDCintVec->at(zdcNo).at(3).push_back( nCherenkovsSum );
-          m_ZDCintVec->at(zdcNo).at(4).push_back( trackID        );
-          m_ZDCintVec->at(zdcNo).at(5).push_back( pid            );
+          m_ZDCintVec->at(zdcNo-1).at(0).push_back( modNb          );
+          m_ZDCintVec->at(zdcNo-1).at(1).push_back( radiatorNo     );
+          m_ZDCintVec->at(zdcNo-1).at(2).push_back( rodNo          );
+          m_ZDCintVec->at(zdcNo-1).at(3).push_back( nCherenkovsSum );
+          m_ZDCintVec->at(zdcNo-1).at(4).push_back( trackID        );
+          m_ZDCintVec->at(zdcNo-1).at(5).push_back( pid            );
 
         } else{
           //doubles
-          m_ZDCdblVec->at(zdcNo).at(0). push_back( position.x() );
-          m_ZDCdblVec->at(zdcNo).at(1). push_back( position.y() );
-          m_ZDCdblVec->at(zdcNo).at(2). push_back( position.z() );
+          m_ZDCdblVec->at(zdcNo-1).at(0). push_back( position.x() );
+          m_ZDCdblVec->at(zdcNo-1).at(1). push_back( position.y() );
+          m_ZDCdblVec->at(zdcNo-1).at(2). push_back( position.z() );
 
           //ints
-          m_ZDCintVec->at(zdcNo).at(0).push_back( nCherenkovsSum );
-          m_ZDCintVec->at(zdcNo).at(1).push_back( radiatorNo  );
+          m_ZDCintVec->at(zdcNo-1).at(0).push_back( nCherenkovsSum );
+          m_ZDCintVec->at(zdcNo-1).at(1).push_back( radiatorNo  );
         }// end if !CLUSTER
       }// end if ZDC
     }// end else (!RPD)
@@ -264,29 +266,29 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
 
     G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
     if( trackID != prevTrackId ){
-      if( name.compare(0,3,"ZDC") ){//ZDC hitsCollID, check to be sure/symmetric
+      if( name.compare(0,3,"ZDC") == 0 ){//ZDC hitsCollID, check to be sure/symmetric
         int zdcNo = atoi( name.substr(3,1).c_str() );
-        m_ZDCdblVec->at(zdcNo).at(0). push_back( origin.x()   );
-        m_ZDCdblVec->at(zdcNo).at(1). push_back( origin.y()   );
-        m_ZDCdblVec->at(zdcNo).at(2). push_back( origin.z()   );
-        m_ZDCdblVec->at(zdcNo).at(3). push_back( momentum.x() );
-        m_ZDCdblVec->at(zdcNo).at(4). push_back( momentum.y() );
-        m_ZDCdblVec->at(zdcNo).at(5). push_back( momentum.z() );
+        m_ZDCdblVec->at(zdcNo-1).at(0). push_back( origin.x()   );
+        m_ZDCdblVec->at(zdcNo-1).at(1). push_back( origin.y()   );
+        m_ZDCdblVec->at(zdcNo-1).at(2). push_back( origin.z()   );
+        m_ZDCdblVec->at(zdcNo-1).at(3). push_back( momentum.x() );
+        m_ZDCdblVec->at(zdcNo-1).at(4). push_back( momentum.y() );
+        m_ZDCdblVec->at(zdcNo-1).at(5). push_back( momentum.z() );
 
         analysisManager->FillNtupleIColumn( zdcNo, 1, nCherenkovsSum );
-        m_ZDCintVec->at(zdcNo).at(0).push_back( rodNo          );
+        m_ZDCintVec->at(zdcNo-1).at(0).push_back( rodNo          );
       }//end fill ZDC vectors
-      if( name.compare(0,3,"RPD") ){//RPD hitsCollID, check to be sure/symmetric
+      if( name.compare(0,3,"RPD") == 0 ){//RPD hitsCollID, check to be sure/symmetric
         int rpdNo = atoi( name.substr(3,1).c_str() );
-        m_RPDdblVec->at(rpdNo).at(0). push_back( origin.x()   );
-        m_RPDdblVec->at(rpdNo).at(1). push_back( origin.y()   );
-        m_RPDdblVec->at(rpdNo).at(2). push_back( origin.z()   );
-        m_RPDdblVec->at(rpdNo).at(3). push_back( momentum.x() );
-        m_RPDdblVec->at(rpdNo).at(4). push_back( momentum.y() );
-        m_RPDdblVec->at(rpdNo).at(5). push_back( momentum.z() );
+        m_RPDdblVec->at(rpdNo-1).at(0). push_back( origin.x()   );
+        m_RPDdblVec->at(rpdNo-1).at(1). push_back( origin.y()   );
+        m_RPDdblVec->at(rpdNo-1).at(2). push_back( origin.z()   );
+        m_RPDdblVec->at(rpdNo-1).at(3). push_back( momentum.x() );
+        m_RPDdblVec->at(rpdNo-1).at(4). push_back( momentum.y() );
+        m_RPDdblVec->at(rpdNo-1).at(5). push_back( momentum.z() );
 
         analysisManager->FillNtupleIColumn( rpdNo + m_ZDCdblVec->size(), 1, nCherenkovsSum );
-        m_RPDintVec->at(rpdNo).at(0). push_back( rodNo );
+        m_RPDintVec->at(rpdNo-1).at(0). push_back( rodNo );
       }//end fill RPD vectors
     }// end if trackID
   }// end hit loop
