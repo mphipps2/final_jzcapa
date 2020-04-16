@@ -6,9 +6,6 @@ PhysicsList::PhysicsList( )
 
   m_messenger = new PhysicsMessenger( this );
 
-  //Set Physics list via messenger
-  //Hadronic_PL = _physicsList;
-
   decay = NULL;
   stepLimiter = NULL;
 

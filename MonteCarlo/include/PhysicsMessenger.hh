@@ -24,9 +24,8 @@
 //
 /// \file PhysicsMessenger.hh
 /// \brief Definition of the PhysicsMessenger class
-//
-//
-//
+/// \author Chad Lantz
+/// \date 16 April 2020
 
 #ifndef PhysicsMessenger_h
 #define PhysicsMessenger_h 1

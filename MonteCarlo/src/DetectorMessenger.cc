@@ -23,10 +23,10 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-/// \file optical/OpNovice2/src/DetectorMessenger.cc
+/// \file DetectorMessenger.cc
 /// \brief Implementation of the DetectorMessenger class
-//
-//
+/// \author Chad Lantz
+/// \date 16 April 2020
 
 #include "DetectorMessenger.hh"
 

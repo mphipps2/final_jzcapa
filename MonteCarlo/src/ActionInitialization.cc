@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// Author: Michael Phipps
+//
 
 
 #include "ActionInitialization.hh"
@@ -56,9 +56,9 @@ void ActionInitialization::Build() const
 {
   SetUserAction( new PrimaryGeneratorAction() );
 
-  SetUserAction( new EventAction()            );
-
   SetUserAction( new RunAction()              );
+
+  SetUserAction( new EventAction()            );
 
   SetUserAction( new SteppingAction()         );
 }

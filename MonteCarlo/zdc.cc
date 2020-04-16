@@ -52,7 +52,7 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " lightGuide [-m macro ] [-u UIsession] [-t nThreads] [-r seed] [-o outputFileName]"
+    G4cerr << " lightGuide [-m macro ] [-t nThreads] [-r seed] [-o outputFileName]"
            << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;

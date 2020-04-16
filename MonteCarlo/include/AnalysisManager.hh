@@ -23,8 +23,10 @@
 // ********************************************************************
 //
 //
-/// \file Analysis.hh
+/// \file AnalysisManager.hh
 /// \brief Selection of the analysis technology
+/// \author Chad Lantz
+/// \date 16 April 2020
 
 #ifndef AnalysisManager_h
 #define AnalysisManager_h 1

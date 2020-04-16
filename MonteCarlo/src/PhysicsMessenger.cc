@@ -25,8 +25,8 @@
 //
 /// \file src/PhysicsMessenger.cc
 /// \brief Implementation of the PhysicsMessenger class
-//
-//
+/// \author Chad Lantz
+/// \date 16 April 2020
 
 #include "PhysicsMessenger.hh"
 #include "PhysicsList.hh"

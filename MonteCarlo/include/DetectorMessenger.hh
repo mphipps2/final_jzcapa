@@ -24,9 +24,8 @@
 //
 /// \file DetectorMessenger.hh
 /// \brief Definition of the DetectorMessenger class
-//
-//
-//
+/// \author Chad Lantz
+/// \date 16 April 2020
 
 #ifndef DetectorMessenger_h
 #define DetectorMessenger_h 1

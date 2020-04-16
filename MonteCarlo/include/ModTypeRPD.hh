@@ -23,7 +23,10 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// Author: Michael Phipps
+/// \file ModTypeRPD.hh
+/// \brief Implementation of the ModTypeRPD class
+/// \author Aric Tate
+/// \date February 2019
 
 #ifndef ModTypeRPD_h
 #define ModTypeRPD_h 1

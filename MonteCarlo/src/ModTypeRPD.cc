@@ -23,8 +23,11 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// Michael Phipps
-// For an explanation of the hierarchy scheme see: https://twiki.cern.ch/twiki/bin/view/Atlas/ZdcSimulation#Geometry_Implementation_Develope
+/// \file ModTypeRPD.hh
+/// \brief Implementation of the ModTypeRPD class
+/// \author Aric Tate
+/// \date February 2019
+
 
 #include "ModTypeRPD.hh"
 #include "FiberSD.hh"
