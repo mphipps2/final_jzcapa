@@ -31,7 +31,7 @@
 #include "EventAction.hh"
 #include "FiberHit.hh"
 #include "FiberSD.hh"
-#include "Analysis.hh"
+#include "AnalysisManager.hh"
 
 #include "G4UnitsTable.hh"
 
@@ -49,6 +49,7 @@
 EventAction::EventAction( )
 : G4UserEventAction(){
   hitsCollID = -1;
+  m_analysisManager = AnalysisManager::getInstance();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -56,35 +57,6 @@ EventAction::EventAction( )
 EventAction::~EventAction()
 {}
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-
-void EventAction::SetnZDCs(G4int nZDCs){
-  //Make a new vector of vectors of pointers to vectors of doubles
-  fZDCdblVec = new std::vector< std::vector< std::vector<double> > >(nZDCs);
-  fZDCintVec = new std::vector< std::vector< std::vector< int  > > >(nZDCs);
-
-  // Resize to the largest number of branches we will fill from vectors
-  for(G4int i = 0; i < nZDCs; i++){
-    fZDCdblVec->at(i).resize(10);
-    fZDCintVec->at(i).resize(8);
-  }//end ZDC loop
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-
-void EventAction::SetnRPDs(G4int nRPDs){
-  //Make a new vector of vectors of pointers to vectors of doubles
-  fRPDdblVec = new std::vector< std::vector< std::vector<double> > >(nRPDs);
-  fRPDintVec = new std::vector< std::vector< std::vector< int  > > >(nRPDs);
-
-  for(G4int i = 0; i < nRPDs; i++){
-    fRPDdblVec->at(i).resize(10);
-    fRPDintVec->at(i).resize(8);
-
-  }//end RPD loop
-}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -98,10 +70,11 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 
 void EventAction::EndOfEventAction(const G4Event* evt){
   G4PrimaryVertex* pVert = evt->GetPrimaryVertex();
-
-
-  // Last step in volume?
-  G4double LastStepInVolume = pVert->GetPosition().z();
+  m_RPDdblVec = m_analysisManager->GetRPDdoubleVectors( );
+  m_RPDintVec = m_analysisManager->GetRPDintVectors   ( );
+  m_ZDCdblVec = m_analysisManager->GetZDCdoubleVectors( );
+  m_ZDCintVec = m_analysisManager->GetZDCintVectors   ( );
+  CLUSTER = m_analysisManager->GetClusterFlag();
 
   G4cout << ">>> Event " << evt->GetEventID() << G4endl;
   G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
@@ -119,30 +92,22 @@ void EventAction::EndOfEventAction(const G4Event* evt){
 
     }// end while < nCollections
 
-    // fill ntuples  //
+    //Use the base class to fill individual data points
+    //There's probably a better way to do this, but I just want it
+    //to work right now
     G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+    // fill ntuples  //
     for(int i = 0; i < analysisManager->GetNofNtuples(); i++){
-      analysisManager->FillNtupleDColumn(i,1,LastStepInVolume);
       analysisManager->FillNtupleDColumn(i,2, pVert->GetX0() );
       analysisManager->FillNtupleDColumn(i,3, pVert->GetY0() );
       analysisManager->FillNtupleDColumn(i,4, pVert->GetZ0() );
 
       analysisManager->FillNtupleIColumn(i,0, fEventNo );
-      analysisManager->AddNtupleRow(i);
     }
 
-
-    // Clear ZDC vectors //
-    for(uint i = 0; i < fZDCdblVec->size(); i++){
-        fZDCdblVec->at(i).clear();
-        fZDCintVec->at(i).clear();
-    }
-    // Clear RPD vectors //
-    for(uint i = 0; i < fRPDdblVec->size(); i++){
-      fRPDdblVec->at(i).clear();
-      fRPDintVec->at(i).clear();
-    }
-  }// end if HCE
+    //Use our custom class to finish the job
+    m_analysisManager->FillNtuples();
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -189,71 +154,72 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
       int rpdNo = atoi( name.substr(3,1).c_str() );
       if(!CLUSTER){
         //doubles
-        fRPDdblVec->at(rpdNo).at(0). push_back( position.x() );
-        fRPDdblVec->at(rpdNo).at(1). push_back( position.y() );
-        fRPDdblVec->at(rpdNo).at(2). push_back( position.z() );
-        fRPDdblVec->at(rpdNo).at(3). push_back( momentum.x() );
-        fRPDdblVec->at(rpdNo).at(4). push_back( momentum.y() );
-        fRPDdblVec->at(rpdNo).at(5). push_back( momentum.z() );
-        fRPDdblVec->at(rpdNo).at(6). push_back( energy       );
-        fRPDdblVec->at(rpdNo).at(7). push_back( velocity     );
-        fRPDdblVec->at(rpdNo).at(8). push_back( beta         );
-        fRPDdblVec->at(rpdNo).at(9). push_back( eDepSum      );
-        fRPDdblVec->at(rpdNo).at(10).push_back( charge       );
+        m_RPDdblVec->at(rpdNo).at(0). push_back( position.x() );
+        m_RPDdblVec->at(rpdNo).at(1). push_back( position.y() );
+        m_RPDdblVec->at(rpdNo).at(2). push_back( position.z() );
+        m_RPDdblVec->at(rpdNo).at(3). push_back( momentum.x() );
+        m_RPDdblVec->at(rpdNo).at(4). push_back( momentum.y() );
+        m_RPDdblVec->at(rpdNo).at(5). push_back( momentum.z() );
+        m_RPDdblVec->at(rpdNo).at(6). push_back( energy       );
+        m_RPDdblVec->at(rpdNo).at(7). push_back( velocity     );
+        m_RPDdblVec->at(rpdNo).at(8). push_back( beta         );
+        m_RPDdblVec->at(rpdNo).at(9). push_back( eDepSum      );
+        m_RPDdblVec->at(rpdNo).at(10).push_back( charge       );
 
         //ints
-        fRPDintVec->at(rpdNo).at(0).push_back( modNb          );
-        fRPDintVec->at(rpdNo).at(1).push_back( radiatorNo     );
-        fRPDintVec->at(rpdNo).at(2).push_back( rodNo          );
-        fRPDintVec->at(rpdNo).at(3).push_back( nCherenkovsSum );
-        fRPDintVec->at(rpdNo).at(4).push_back( trackID        );
-        fRPDintVec->at(rpdNo).at(5).push_back( pid            );
+        m_RPDintVec->at(rpdNo).at(0).push_back( modNb          );
+        m_RPDintVec->at(rpdNo).at(1).push_back( radiatorNo     );
+        m_RPDintVec->at(rpdNo).at(2).push_back( rodNo          );
+        m_RPDintVec->at(rpdNo).at(3).push_back( nCherenkovsSum );
+        m_RPDintVec->at(rpdNo).at(4).push_back( trackID        );
+        m_RPDintVec->at(rpdNo).at(5).push_back( pid            );
 
       } else{
         //doubles
-        fRPDdblVec->at(rpdNo).at(0).push_back( position.x() );
-        fRPDdblVec->at(rpdNo).at(1).push_back( position.y() );
-        fRPDdblVec->at(rpdNo).at(2).push_back( position.z() );
+        m_RPDdblVec->at(rpdNo).at(0).push_back( position.x() );
+        m_RPDdblVec->at(rpdNo).at(1).push_back( position.y() );
+        m_RPDdblVec->at(rpdNo).at(2).push_back( position.z() );
 
         //ints
-        fRPDintVec->at(rpdNo).at(0).push_back( nCherenkovsSum );
-        fRPDintVec->at(rpdNo).at(1).push_back( rodNo );
+        m_RPDintVec->at(rpdNo).at(0).push_back( nCherenkovsSum );
+        m_RPDintVec->at(rpdNo).at(1).push_back( rodNo );
       }// end if !CLUSTER
     // end if RPD
     } else{
       if( name.compare(0,3,"ZDC") ){//ZDC hitsCollID, check to be sure/symmetric
         int zdcNo = atoi( name.substr(3,1).c_str() );
+        G4cout << "Processing ZDC" << zdcNo << " hits" << G4endl;
         if(!CLUSTER){
           //doubles
-          fZDCdblVec->at(zdcNo).at(0). push_back( position.x() );
-          fZDCdblVec->at(zdcNo).at(1). push_back( position.y() );
-          fZDCdblVec->at(zdcNo).at(2). push_back( position.z() );
-          fZDCdblVec->at(zdcNo).at(3). push_back( momentum.x() );
-          fZDCdblVec->at(zdcNo).at(4). push_back( momentum.y() );
-          fZDCdblVec->at(zdcNo).at(5). push_back( momentum.z() );
-          fZDCdblVec->at(zdcNo).at(6). push_back( energy       );
-          fZDCdblVec->at(zdcNo).at(7). push_back( velocity     );
-          fZDCdblVec->at(zdcNo).at(8). push_back( beta         );
-          fZDCdblVec->at(zdcNo).at(9). push_back( eDepSum      );
-          fZDCdblVec->at(zdcNo).at(10).push_back( charge       );
+          m_ZDCdblVec->at(zdcNo).at(0). push_back( position.x() );
+          m_ZDCdblVec->at(zdcNo).at(1). push_back( position.y() );
+          m_ZDCdblVec->at(zdcNo).at(2). push_back( position.z() );
+          m_ZDCdblVec->at(zdcNo).at(3). push_back( momentum.x() );
+          m_ZDCdblVec->at(zdcNo).at(4). push_back( momentum.y() );
+          m_ZDCdblVec->at(zdcNo).at(5). push_back( momentum.z() );
+          m_ZDCdblVec->at(zdcNo).at(6). push_back( energy       );
+          m_ZDCdblVec->at(zdcNo).at(7). push_back( velocity     );
+          m_ZDCdblVec->at(zdcNo).at(8). push_back( beta         );
+          m_ZDCdblVec->at(zdcNo).at(9). push_back( eDepSum      );
+          m_ZDCdblVec->at(zdcNo).at(10).push_back( charge       );
 
           //ints
-          fZDCintVec->at(zdcNo).at(0).push_back( modNb          );
-          fZDCintVec->at(zdcNo).at(1).push_back( radiatorNo     );
-          fZDCintVec->at(zdcNo).at(2).push_back( rodNo          );
-          fZDCintVec->at(zdcNo).at(3).push_back( nCherenkovsSum );
-          fZDCintVec->at(zdcNo).at(4).push_back( trackID        );
-          fZDCintVec->at(zdcNo).at(5).push_back( pid            );
+          m_ZDCintVec->at(zdcNo).at(0).push_back( modNb          );
+          m_ZDCintVec->at(zdcNo).at(1).push_back( radiatorNo     );
+          m_ZDCintVec->at(zdcNo).at(2).push_back( rodNo          );
+          m_ZDCintVec->at(zdcNo).at(3).push_back( nCherenkovsSum );
+          m_ZDCintVec->at(zdcNo).at(4).push_back( trackID        );
+          m_ZDCintVec->at(zdcNo).at(5).push_back( pid            );
 
         } else{
           //doubles
-          fZDCdblVec->at(zdcNo).at(0). push_back( position.x() );
-          fZDCdblVec->at(zdcNo).at(1). push_back( position.y() );
-          fZDCdblVec->at(zdcNo).at(2). push_back( position.z() );
+          m_ZDCdblVec->at(zdcNo).at(0). push_back( position.x() );
+          m_ZDCdblVec->at(zdcNo).at(1). push_back( position.y() );
+          m_ZDCdblVec->at(zdcNo).at(2). push_back( position.z() );
 
           //ints
-          fZDCintVec->at(zdcNo).at(0).push_back( nCherenkovsSum );
-          fZDCintVec->at(zdcNo).at(1).push_back( radiatorNo  );
+          m_ZDCintVec->at(zdcNo).at(0).push_back( nCherenkovsSum );
+          m_ZDCintVec->at(zdcNo).at(1).push_back( radiatorNo  );
         }// end if !CLUSTER
       }// end if ZDC
     }// end else (!RPD)
@@ -272,7 +238,7 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
   G4double topOfVolume = sd->GetTopOfVolume();
 
   int n_hit = HC->entries();
-  G4cout << name << " nHits = " << n_hit << G4endl;
+  G4cout << name << " nOpticalHits = " << n_hit << G4endl;
   for ( G4int i = 0 ; i < n_hit; i++){
 
 
@@ -300,27 +266,27 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
     if( trackID != prevTrackId ){
       if( name.compare(0,3,"ZDC") ){//ZDC hitsCollID, check to be sure/symmetric
         int zdcNo = atoi( name.substr(3,1).c_str() );
-        fZDCdblVec->at(zdcNo).at(0). push_back( origin.x()   );
-        fZDCdblVec->at(zdcNo).at(1). push_back( origin.y()   );
-        fZDCdblVec->at(zdcNo).at(2). push_back( origin.z()   );
-        fZDCdblVec->at(zdcNo).at(3). push_back( momentum.x() );
-        fZDCdblVec->at(zdcNo).at(4). push_back( momentum.y() );
-        fZDCdblVec->at(zdcNo).at(5). push_back( momentum.z() );
+        m_ZDCdblVec->at(zdcNo).at(0). push_back( origin.x()   );
+        m_ZDCdblVec->at(zdcNo).at(1). push_back( origin.y()   );
+        m_ZDCdblVec->at(zdcNo).at(2). push_back( origin.z()   );
+        m_ZDCdblVec->at(zdcNo).at(3). push_back( momentum.x() );
+        m_ZDCdblVec->at(zdcNo).at(4). push_back( momentum.y() );
+        m_ZDCdblVec->at(zdcNo).at(5). push_back( momentum.z() );
 
         analysisManager->FillNtupleIColumn( zdcNo, 1, nCherenkovsSum );
-        fZDCintVec->at(zdcNo).at(0).push_back( rodNo          );
+        m_ZDCintVec->at(zdcNo).at(0).push_back( rodNo          );
       }//end fill ZDC vectors
       if( name.compare(0,3,"RPD") ){//RPD hitsCollID, check to be sure/symmetric
         int rpdNo = atoi( name.substr(3,1).c_str() );
-        fRPDdblVec->at(rpdNo).at(0). push_back( origin.x()   );
-        fRPDdblVec->at(rpdNo).at(1). push_back( origin.y()   );
-        fRPDdblVec->at(rpdNo).at(2). push_back( origin.z()   );
-        fRPDdblVec->at(rpdNo).at(3). push_back( momentum.x() );
-        fRPDdblVec->at(rpdNo).at(4). push_back( momentum.y() );
-        fRPDdblVec->at(rpdNo).at(5). push_back( momentum.z() );
+        m_RPDdblVec->at(rpdNo).at(0). push_back( origin.x()   );
+        m_RPDdblVec->at(rpdNo).at(1). push_back( origin.y()   );
+        m_RPDdblVec->at(rpdNo).at(2). push_back( origin.z()   );
+        m_RPDdblVec->at(rpdNo).at(3). push_back( momentum.x() );
+        m_RPDdblVec->at(rpdNo).at(4). push_back( momentum.y() );
+        m_RPDdblVec->at(rpdNo).at(5). push_back( momentum.z() );
 
-        analysisManager->FillNtupleIColumn( rpdNo + fZDCdblVec->size(), 1, nCherenkovsSum );
-        fRPDintVec->at(rpdNo).at(0). push_back( rodNo );
+        analysisManager->FillNtupleIColumn( rpdNo + m_ZDCdblVec->size(), 1, nCherenkovsSum );
+        m_RPDintVec->at(rpdNo).at(0). push_back( rodNo );
       }//end fill RPD vectors
     }// end if trackID
   }// end hit loop

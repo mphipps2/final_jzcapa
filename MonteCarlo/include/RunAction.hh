@@ -31,21 +31,13 @@
 #ifndef RunAction_h
 #define RunAction_h 1
 
-#include "Analysis.hh"
+#include "AnalysisManager.hh"
 
 #include "G4UserRunAction.hh"
 #include "globals.hh"
-#include "G4ThreeVector.hh"
-#include <vector>
 
 
 class G4Run;
-
-/// Run action class
-///
-/// In EndOfRunAction(), it calculates the dose in the selected volume
-/// from the energy deposit accumulated via stepping and event actions.
-/// The computed dose is then printed on the screen.
 
 class RunAction : public G4UserRunAction
 {
@@ -57,19 +49,11 @@ class RunAction : public G4UserRunAction
     virtual void BeginOfRunAction(const G4Run*);
     virtual void   EndOfRunAction(const G4Run*);
 
-    virtual void MakeZDCTree       ( G4int nTupleNo, G4int zdcNo );
-    virtual void MakeZDCOpticalTree( G4int nTupleNo, G4int zdcNo );
-    virtual void MakeRPDTree       ( G4int nTupleNo, G4int rpdNo );
-    virtual void MakeRPDOpticalTree( G4int nTupleNo, G4int rpdNo );
-
-
 
   private:
     G4String m_fileName;
     G4bool   CLUSTER;
-    G4AnalysisManager* m_analysisManager;
-    std::vector< std::vector< std::vector<double> > > *m_ZDCdblVec, *m_RPDdblVec;
-    std::vector< std::vector< std::vector< int  > > > *m_ZDCintVec, *m_RPDintVec;
+    AnalysisManager* m_analysisManager;
 
 };
 

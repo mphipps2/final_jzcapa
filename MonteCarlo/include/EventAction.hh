@@ -31,6 +31,8 @@
 #ifndef EventAction_h
 #define EventAction_h 1
 
+#include "AnalysisManager.hh"
+
 #include "G4UserEventAction.hh"
 #include "FiberHit.hh"
 #include "globals.hh"
@@ -50,23 +52,15 @@ class EventAction : public G4UserEventAction
     virtual void EndOfEventAction            ( const G4Event* event );
     virtual void ProcessHitCollection        ( FiberHitsCollection* HC );
     virtual void ProcessOpticalHitCollection ( FiberHitsCollection* HC );
-    virtual void SetnZDCs                    ( G4int nZDCs );
-    virtual void SetnRPDs                    ( G4int nRPDs );
-    inline  void SetClusterFlag              ( G4bool arg ){CLUSTER = arg;}
-
-
-    inline  std::vector< std::vector< std::vector<double> > >*  GetRPDdoubleVectors( ){return fRPDdblVec;}
-    inline  std::vector< std::vector< std::vector< int  > > >*  GetRPDintVectors   ( ){return fRPDintVec;}
-    inline  std::vector< std::vector< std::vector<double> > >*  GetZDCdoubleVectors( ){return fZDCdblVec;}
-    inline  std::vector< std::vector< std::vector< int  > > >*  GetZDCintVectors   ( ){return fZDCintVec;}
 
 
   private:
     // Indecies are [mod#][dataSet][dataValue]
     // data set order will need to be coordinated betweeen here and Run Action
-    std::vector< std::vector< std::vector<double> > > *fRPDdblVec, *fZDCdblVec;
-    std::vector< std::vector< std::vector< int  > > > *fRPDintVec, *fZDCintVec;
+    std::vector< std::vector< std::vector<double> > > *m_RPDdblVec, *m_ZDCdblVec;
+    std::vector< std::vector< std::vector< int  > > > *m_RPDintVec, *m_ZDCintVec;
 
+    AnalysisManager* m_analysisManager;
     G4int    hitsCollID, fEventNo, fnZDCs, fnRPDs;
     G4double gunPosX, gunPosY, gunPosZ;
     G4bool   CLUSTER;
