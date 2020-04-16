@@ -72,6 +72,8 @@ ModTypeRPD::ModTypeRPD(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos
   m_logicMother( mother )
 {
 	materials = Materials::getInstance();
+  materials->UseOpticalMaterials(true);
+  materials->DefineOpticalProperties();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

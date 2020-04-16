@@ -55,6 +55,8 @@ ModTypeZDC::ModTypeZDC(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos
 	  m_absDim(new G4ThreeVector(90.,180.,11.)), m_logicMother( mother )
 {
 	m_materials = Materials::getInstance();
+  m_materials->UseOpticalMaterials(true);
+  m_materials->DefineOpticalProperties();
 	m_matAbsorber = m_materials->NiW;
 	m_matHousing  = m_materials->Steel;
 }
