@@ -95,6 +95,7 @@ void AnalysisManager::Book()
   int    nZDCs   = detectorConstruction->GetnZDCs();
   int    nRPDs   = detectorConstruction->GetnRPDs();
   CLUSTER = detectorConstruction->GetClusterFlag();
+  OPTICAL = detectorConstruction->GetOpticalFlag();
 
   //Make vectors for the detectors we have
   //Indecies are [module#][dataType][dataPoint]
