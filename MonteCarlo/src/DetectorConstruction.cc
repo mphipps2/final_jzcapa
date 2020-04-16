@@ -75,6 +75,8 @@ DetectorConstruction::DetectorConstruction()
   currentRPD = -1;
   currentZDC = -1;
   m_materials = Materials::getInstance();
+  m_materials->UseOpticalMaterials(true);
+  m_materials->DefineOpticalProperties();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -97,9 +99,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
   UImanager->ApplyCommand("/control/execute geometry.mac");
 
-  m_materials->UseOpticalMaterials(OPTICAL);
-  m_materials->DefineOpticalProperties();
-
   if( ForceDetectorPosition ){
     ManualConstruction();
   }else{
@@ -121,7 +120,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructWorldVolume(G4double x, G4doub
     new G4LogicalVolume(m_solidWorld,     //its solid
                         m_materials->Air, //its material
                         "World");         //its name
-  
+
   m_physWorld =
     new G4PVPlacement(0,                  //no rotation
                       G4ThreeVector(),    //at (0,0,0)

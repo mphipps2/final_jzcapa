@@ -123,6 +123,8 @@ public:
   inline  G4int              GetnRPDs(){return m_RPDvec.size();}
   inline  G4bool             GetClusterFlag(){return CLUSTER;}
   inline  void               SetClusterFlag( G4bool arg ){CLUSTER = arg;}
+  inline  G4bool             GetOverlapsFlag(){return CHECK_OVERLAPS;}
+  inline  void               SetOverlapsFlag( G4bool arg ){CHECK_OVERLAPS = arg;}
   inline  G4bool             GetOpticalFlag(){return OPTICAL;}
   inline  void               SetOpticalFlag( G4bool arg ){OPTICAL = arg;}
   inline  void               ForcePosition ( G4bool arg ){ForceDetectorPosition = arg;}
@@ -195,6 +197,7 @@ private:
   G4bool CLUSTER;
   G4bool OPTICAL;
   G4bool ForceDetectorPosition;
+  G4bool CHECK_OVERLAPS;
 
 };
 

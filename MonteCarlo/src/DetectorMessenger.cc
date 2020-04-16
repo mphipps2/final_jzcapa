@@ -327,10 +327,10 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
     fDetector->SetClusterFlag( fClusterCmd->GetNewBoolValue(newValue) );
   }
   if (command == fOpticalCmd) {
-    fDetector->SetClusterFlag( fOpticalCmd->GetNewBoolValue(newValue) );
+    fDetector->SetOpticalFlag( fOpticalCmd->GetNewBoolValue(newValue) );
   }
   if (command == fOverlapsCmd) {
-    fDetector->SetClusterFlag( fOverlapsCmd->GetNewBoolValue(newValue) );
+    fDetector->SetOverlapsFlag( fOverlapsCmd->GetNewBoolValue(newValue) );
   }
   else if(command == fForcePositionCmd){
     fDetector->ForcePosition( fForcePositionCmd->GetNewBoolValue(newValue) );
