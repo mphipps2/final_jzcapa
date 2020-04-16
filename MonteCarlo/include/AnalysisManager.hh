@@ -26,11 +26,56 @@
 /// \file Analysis.hh
 /// \brief Selection of the analysis technology
 
-#ifndef Analysis_h
-#define Analysis_h 1
+#ifndef AnalysisManager_h
+#define AnalysisManager_h 1
 
 #include "g4root.hh"
 //#include "g4cvs.hh"
 //#include "g4xml.hh"
+
+#include "DetectorConstruction.hh"
+
+#include "G4RunManager.hh"
+
+#include <vector>
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+class AnalysisManager
+{
+  public:
+    static AnalysisManager* getInstance(void);
+   ~AnalysisManager();
+
+    void Book();
+    void Save();
+
+    void FillNtuples( );
+
+    void CreateVectors     ( G4int nZDCs,    G4int nRPDs );
+    void MakeZDCTree       ( G4int nTupleNo, G4int zdcNo );
+    void MakeZDCOpticalTree( G4int nTupleNo, G4int zdcNo );
+    void MakeRPDTree       ( G4int nTupleNo, G4int rpdNo );
+    void MakeRPDOpticalTree( G4int nTupleNo, G4int rpdNo );
+
+    inline G4bool GetClusterFlag(){ return CLUSTER; }
+
+    inline  std::vector< std::vector< std::vector<double> > >*  GetRPDdoubleVectors( ){return m_RPDdblVec;}
+    inline  std::vector< std::vector< std::vector< int  > > >*  GetRPDintVectors   ( ){return m_RPDintVec;}
+    inline  std::vector< std::vector< std::vector<double> > >*  GetZDCdoubleVectors( ){return m_ZDCdblVec;}
+    inline  std::vector< std::vector< std::vector< int  > > >*  GetZDCintVectors   ( ){return m_ZDCintVec;}
+
+  private:
+    AnalysisManager();
+    static AnalysisManager* analysisManager;
+    G4bool m_FactoryOn;
+    G4bool CLUSTER;
+    G4AnalysisManager* m_analysisManager;
+    DetectorConstruction* m_detectorConstruction;
+    std::vector< std::vector< std::vector<double> > > *m_ZDCdblVec, *m_RPDdblVec;
+    std::vector< std::vector< std::vector< int  > > > *m_ZDCintVec, *m_RPDintVec;
+};
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
