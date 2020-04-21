@@ -102,7 +102,7 @@ void EventAction::EndOfEventAction(const G4Event* evt){
       analysisManager->FillNtupleDColumn(i,2, pVert->GetY0() );
       analysisManager->FillNtupleDColumn(i,3, pVert->GetZ0() );
 
-      analysisManager->FillNtupleIColumn(i,0, fEventNo );
+      analysisManager->FillNtupleIColumn(i,4, fEventNo );
     }
 
     //Use our custom class to finish the job
@@ -249,6 +249,7 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
     //Grab nCherenkovs and skip anything that isn't a photon
     if( (*HC)[i]->getParticle() != G4OpticalPhoton::OpticalPhotonDefinition() ){
       nCherenkovsSum += nCherenkovs;
+      nSkipped++;
       continue;
     }
 
@@ -256,6 +257,7 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
     G4ThreeVector position = (*HC)[i]->getPos();
     G4int         trackID  = (*HC)[i]->getTrackID();
     if( position.y() < topOfVolume - 0.2*mm || trackID == prevTrackId ){
+      nSkipped++;
       continue;
     }
     trackID = prevTrackId;
@@ -265,31 +267,29 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
     G4int         rodNo    = (*HC)[i]->getRodNb();
 
     G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-    if( trackID != prevTrackId ){
-      if( name.compare(0,3,"ZDC") == 0 ){//ZDC hitsCollID, check to be sure/symmetric
-        int zdcNo = atoi( name.substr(3,1).c_str() );
-        m_ZDCdblVec->at(zdcNo-1).at(0). push_back( origin.x()   );
-        m_ZDCdblVec->at(zdcNo-1).at(1). push_back( origin.y()   );
-        m_ZDCdblVec->at(zdcNo-1).at(2). push_back( origin.z()   );
-        m_ZDCdblVec->at(zdcNo-1).at(3). push_back( momentum.x() );
-        m_ZDCdblVec->at(zdcNo-1).at(4). push_back( momentum.y() );
-        m_ZDCdblVec->at(zdcNo-1).at(5). push_back( momentum.z() );
+    if( name.compare(0,3,"ZDC") == 0 ){//ZDC hitsCollID, check to be sure/symmetric
+      int zdcNo = atoi( name.substr(3,1).c_str() );
+      m_ZDCdblVec->at(zdcNo-1).at(0). push_back( origin.x()   );
+      m_ZDCdblVec->at(zdcNo-1).at(1). push_back( origin.y()   );
+      m_ZDCdblVec->at(zdcNo-1).at(2). push_back( origin.z()   );
+      m_ZDCdblVec->at(zdcNo-1).at(3). push_back( momentum.x() );
+      m_ZDCdblVec->at(zdcNo-1).at(4). push_back( momentum.y() );
+      m_ZDCdblVec->at(zdcNo-1).at(5). push_back( momentum.z() );
 
-        analysisManager->FillNtupleIColumn( zdcNo, 1, nCherenkovsSum );
-        m_ZDCintVec->at(zdcNo-1).at(0).push_back( rodNo          );
-      }//end fill ZDC vectors
-      if( name.compare(0,3,"RPD") == 0 ){//RPD hitsCollID, check to be sure/symmetric
-        int rpdNo = atoi( name.substr(3,1).c_str() );
-        m_RPDdblVec->at(rpdNo-1).at(0). push_back( origin.x()   );
-        m_RPDdblVec->at(rpdNo-1).at(1). push_back( origin.y()   );
-        m_RPDdblVec->at(rpdNo-1).at(2). push_back( origin.z()   );
-        m_RPDdblVec->at(rpdNo-1).at(3). push_back( momentum.x() );
-        m_RPDdblVec->at(rpdNo-1).at(4). push_back( momentum.y() );
-        m_RPDdblVec->at(rpdNo-1).at(5). push_back( momentum.z() );
+      analysisManager->FillNtupleIColumn( zdcNo, 5, nCherenkovsSum );
+      m_ZDCintVec->at(zdcNo-1).at(0).push_back( rodNo          );
+    }//end fill ZDC vectors
+    if( name.compare(0,3,"RPD") == 0 ){//RPD hitsCollID, check to be sure/symmetric
+      int rpdNo = atoi( name.substr(3,1).c_str() );
+      m_RPDdblVec->at(rpdNo-1).at(0). push_back( origin.x()   );
+      m_RPDdblVec->at(rpdNo-1).at(1). push_back( origin.y()   );
+      m_RPDdblVec->at(rpdNo-1).at(2). push_back( origin.z()   );
+      m_RPDdblVec->at(rpdNo-1).at(3). push_back( momentum.x() );
+      m_RPDdblVec->at(rpdNo-1).at(4). push_back( momentum.y() );
+      m_RPDdblVec->at(rpdNo-1).at(5). push_back( momentum.z() );
 
-        analysisManager->FillNtupleIColumn( rpdNo + m_ZDCdblVec->size(), 1, nCherenkovsSum );
-        m_RPDintVec->at(rpdNo-1).at(0). push_back( rodNo );
-      }//end fill RPD vectors
-    }// end if trackID
+      analysisManager->FillNtupleIColumn( rpdNo - 1 + m_ZDCdblVec->size() , 5, nCherenkovsSum );
+      m_RPDintVec->at(rpdNo-1).at(0). push_back( rodNo );
+    }//end fill RPD vectors
   }// end hit loop
 }

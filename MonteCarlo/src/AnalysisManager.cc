@@ -191,13 +191,18 @@ void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo ){
   sprintf(name,"ZDC%dtree",zdcNo+1);
   m_analysisManager->CreateNtuple( name, "ZDC data");
   if(!CLUSTER){
+    //Make branches containing sipmle data types
+    //Do this first so column ID number is predictable
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep" );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"  );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"  );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"  );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"  );
+
+
     //Resize the vector for the number of branches storing double vectors
     m_ZDCdblVec->at(zdcNo).resize(11);
-    //Make double branches
-    m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep"                                  );
-    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
-    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );
-    m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"                                   );
+    //Make double vector branches
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_ZDCdblVec->at(zdcNo).at(0) );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_ZDCdblVec->at(zdcNo).at(1) );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "z",           m_ZDCdblVec->at(zdcNo).at(2) );
@@ -213,7 +218,6 @@ void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo ){
     //Resize the vector for the number of branches storing int vectors
     m_ZDCintVec->at(zdcNo).resize(6);
     //Make int branches
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "modNo",       m_ZDCintVec->at(zdcNo).at(0) );
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "radNo",       m_ZDCintVec->at(zdcNo).at(1) );
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_ZDCintVec->at(zdcNo).at(2) );
@@ -222,13 +226,17 @@ void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo ){
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "pid",         m_ZDCintVec->at(zdcNo).at(5) );
 
   } else { //Fewer vector branches to save storage space
-    //Resize the vector for the number of branches storing double vectors
-    m_ZDCdblVec->at(zdcNo).resize(6);
-    //Make double branches
+    //Make branches containing sipmle data types
+    //Do this first so column ID number is predictable
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep"                                  );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"                                   );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
+
+    //Resize the vector for the number of branches storing double vectors
+    m_ZDCdblVec->at(zdcNo).resize(6);
+    //Make double branches
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_ZDCdblVec->at(zdcNo).at(0) );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_ZDCdblVec->at(zdcNo).at(1) );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "z",           m_ZDCdblVec->at(zdcNo).at(2) );
@@ -236,7 +244,6 @@ void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo ){
     //Resize the vector for the number of branches storing int vectors
     m_ZDCintVec->at(zdcNo).resize(1);
     //Make int branches
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", m_ZDCintVec->at(zdcNo).at(1) );
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "radNo",       m_ZDCintVec->at(zdcNo).at(0) );
   }//end if !CLUSTER
@@ -250,13 +257,18 @@ void AnalysisManager::MakeZDCOpticalTree( G4int nTupleNo, G4int zdcNo ){
   sprintf(name,"ZDC%dtree",zdcNo+1);
   m_analysisManager->CreateNtuple( name, "ZDC data");
 
-  //Resize the vector for the number of branches storing double vectors
-  m_ZDCdblVec->at(zdcNo).resize(6);
-  //Make double branches
+  //Make branches containing sipmle data types
+  //Do this first so column ID number is predictable
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep"                                  );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"                                   );
+  m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
+  m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs"                               );
+
+  //Resize the vector for the number of branches storing double vectors
+  m_ZDCdblVec->at(zdcNo).resize(6);
+  //Make double branches
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_ZDCdblVec->at(zdcNo).at(0) );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_ZDCdblVec->at(zdcNo).at(1) );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "z",           m_ZDCdblVec->at(zdcNo).at(2) );
@@ -267,8 +279,6 @@ void AnalysisManager::MakeZDCOpticalTree( G4int nTupleNo, G4int zdcNo ){
   //Resize the vector for the number of branches storing int vectors
   m_ZDCintVec->at(zdcNo).resize(1);
   //Make int branches
-  m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
-  m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs"                               );
   m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_ZDCintVec->at(zdcNo).at(0) );
 
   m_analysisManager->FinishNtuple( nTupleNo );
@@ -281,13 +291,18 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo ){
   sprintf(name,"RPD%dtree",rpdNo+1);
   m_analysisManager->CreateNtuple( name, "RPD data");
   if(!CLUSTER){
-    //Resize the vector for the number of branches storing double vectors
-    m_RPDdblVec->at(rpdNo).resize(11);
-    //Make double branches
+    //Make branches containing sipmle data types
+    //Do this first so column ID number is predictable
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep"                                  );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"                                   );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
+
+
+    //Resize the vector for the number of branches storing double vectors
+    m_RPDdblVec->at(rpdNo).resize(11);
+    //Make double branches
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_RPDdblVec->at(rpdNo).at(0) );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_RPDdblVec->at(rpdNo).at(1) );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "z",           m_RPDdblVec->at(rpdNo).at(2) );
@@ -303,7 +318,6 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo ){
     //Resize the vector for the number of branches storing int vectors
     m_RPDintVec->at(rpdNo).resize(6);
     //Make int branches
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "modNo",       m_RPDintVec->at(rpdNo).at(0) );
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "radNo",       m_RPDintVec->at(rpdNo).at(1) );
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(rpdNo).at(2) );
@@ -312,13 +326,17 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo ){
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "pid",         m_RPDintVec->at(rpdNo).at(5) );
 
   } else { //Fewer vector branches to save storage space
-    //Resize the vector for the number of branches storing double vectors
-    m_RPDdblVec->at(rpdNo).resize(3);
-    //Make double branches
+    //Make branches containing sipmle data types
+    //Do this first so column ID number is predictable
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep"                                  );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"                                   );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
+
+    //Resize the vector for the number of branches storing double vectors
+    m_RPDdblVec->at(rpdNo).resize(3);
+    //Make double branches
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_RPDdblVec->at(rpdNo).at(0) );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_RPDdblVec->at(rpdNo).at(1) );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "z",           m_RPDdblVec->at(rpdNo).at(2) );
@@ -326,7 +344,6 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo ){
     //Resize the vector for the number of branches storing int vectors
     m_RPDintVec->at(rpdNo).resize(2);
     //Make int branches
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", m_RPDintVec->at(rpdNo).at(1) );
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(rpdNo).at(0) );
   }//end if !CLUSTER
@@ -340,49 +357,34 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo ){
 void AnalysisManager::MakeRPDOpticalTree( G4int nTupleNo, G4int rpdNo ){
   char name[20];
   sprintf(name,"RPD%dtree",rpdNo+1);
-  //Resize the vector for the number of branches storing double vectors
-  m_RPDdblVec->at(rpdNo).resize(3);
-  //Make double branches
   m_analysisManager->CreateNtuple( name, "RPD data");
+
+  //Make branches containing sipmle data types
+  //Do this first so column ID number is predictable
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStep"                                  );
-  m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepTest"                              );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosZ"                                   );
+  m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
+  m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs"                               );
+
+  //Resize the vector for the number of branches storing double vectors
+  m_RPDdblVec->at(rpdNo).resize(6);
+  //Make double branches
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_RPDdblVec->at(rpdNo).at(0) );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_RPDdblVec->at(rpdNo).at(1) );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "z",           m_RPDdblVec->at(rpdNo).at(2) );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "Px",          m_RPDdblVec->at(rpdNo).at(3) );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "Py",          m_RPDdblVec->at(rpdNo).at(4) );
+  m_analysisManager->CreateNtupleDColumn( nTupleNo, "Pz",          m_RPDdblVec->at(rpdNo).at(5) );
 
   //Resize the vector for the number of branches storing int vectors
   //Make int branches
   m_RPDintVec->at(rpdNo).resize(1);
-  m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
-  m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs"                               );
   m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(rpdNo).at(0) );
 
   m_analysisManager->FinishNtuple( nTupleNo );
 
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void AnalysisManager::CreateVectors(G4int nZDCs, G4int nRPDs){
-  //Make a new vector of vectors of pointers to vectors of doubles
-  m_ZDCdblVec = new std::vector< std::vector< std::vector<double> > >(nZDCs);
-  m_ZDCintVec = new std::vector< std::vector< std::vector< int  > > >(nZDCs);
-  m_RPDdblVec = new std::vector< std::vector< std::vector<double> > >(nRPDs);
-  m_RPDintVec = new std::vector< std::vector< std::vector< int  > > >(nRPDs);
-
-  // Resize to the largest number of branches we will fill from vectors
-  for(G4int i = 0; i < nZDCs; i++){
-    m_ZDCdblVec->at(i).resize(10);
-    m_ZDCintVec->at(i).resize(8);
-  }//end ZDC loop
-  for(G4int i = 0; i < nRPDs; i++){
-    m_RPDdblVec->at(i).resize(10);
-    m_RPDintVec->at(i).resize(8);
-
-  }//end RPD loop
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -54,7 +54,6 @@ class AnalysisManager
 
     void FillNtuples( );
 
-    void CreateVectors     ( G4int nZDCs,    G4int nRPDs );
     void MakeZDCTree       ( G4int nTupleNo, G4int zdcNo );
     void MakeZDCOpticalTree( G4int nTupleNo, G4int zdcNo );
     void MakeRPDTree       ( G4int nTupleNo, G4int rpdNo );
