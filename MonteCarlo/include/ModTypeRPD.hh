@@ -35,6 +35,7 @@
 #include "globals.hh"
 #include "G4PVPlacement.hh"
 #include "G4SubtractionSolid.hh"
+#include "G4AssemblyVolume.hh"
 #include "Materials.hh"
 
 #include <vector>
@@ -190,15 +191,15 @@ protected:
 
   G4VSolid*           m_PFrpd[4];
   G4LogicalVolume*    m_PFrpdLogical[4];
-  G4VPhysicalVolume*  m_PFrpdPhysical[512];
 
   G4VSolid*           m_PFrpd_channel[4];
+  G4SubtractionSolid* m_subChannel[4];
   G4LogicalVolume*    m_PFrpd_channelLogical[4];
-  G4VPhysicalVolume*  m_PFrpd_channelPhysical[512];
+
+  G4AssemblyVolume*   m_PFrpd_FiberAssy[4];
 
   G4VSolid*           m_PFdetec;
   G4LogicalVolume*    m_PFdetecLogical;
-  G4VPhysicalVolume*  m_PFdetecPhysical[512];
 
   G4int               m_PFrpd_cnt;
 

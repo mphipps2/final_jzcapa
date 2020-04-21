@@ -189,8 +189,6 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	float fiber_height;
 	// Distance from the top of the RPD area of interest to the readout
 	float distance_to_readout = 0*mm;
-	// Thickness of the readout puck
-	float readout_thickness = 0.1*mm;
 	// Positions of the current fiber for pattern1 and pattern2
 	float posx1, posz1, posy, posx2, posz2;
 	// Count the number of fibers as we go along
@@ -206,6 +204,8 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	G4RotationMatrix* stripRotation = new G4RotationMatrix();
 	stripRotation->rotateX(90.*deg);
 	G4RotationMatrix* nullRotation = new G4RotationMatrix();
+  G4ThreeVector     nullVector(0.,0.,0.);
+
 
   // Construct the housing
   m_PFrpd_housing = new G4Box( "RPDHousing", housingWidth*mm/2.0, housingHeight*mm/2.0, housingDepth*mm/2.0 );
@@ -225,24 +225,11 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
   m_PFrpd_housingLogical->SetVisAttributes(G4Colour(1.0,1.0,1.0,0.7));//G4Colour(1.0,0.0,0.0,0.3)
 
-	// The SD caps that will go on the fibers. Each fiber will get a separate SD,
-	// so we wait to create the logical volume in the loop
-	m_PFdetec = new G4Tubs( "m_PFdetec",
-													0.0*mm,
-													(fiber_diam/2.0)*mm,
-													(readout_thickness/2.0)*mm ,
-													0.0*deg,
-													360.0*deg);
-
-  m_PFdetecLogical =
-    new G4LogicalVolume(m_PFdetec,
-                        m_matQuartz,
-                        "m_PFdetec_log");
-  m_PFdetecLogical->SetVisAttributes(G4Colour(0.0,6.0,4.0,0.3));//G4Colour(1.0,0.0,0.0,0.3)
 
 
   // Loop over rows
 	for(int row = 0; row < n_rows; row++){
+    // Calculate the height of fibers in this row
 		fiber_height = m_tileSize*(row+1) + distance_to_readout;
 
 		// The fiber solid and logical volume. One length for each row
@@ -263,7 +250,8 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
 	  m_PFrpdLogical[row]->SetVisAttributes( colors[row] );
 
-		// Rectangular fiber channels. One length for each row
+
+		// Create an air channel for the fiber to be routed
 		sprintf(name,"m_PFchannel_%d", row);
 		m_PFrpd_channel[row] =
       new G4Box( name,
@@ -271,10 +259,24 @@ void ModTypeRPD::ConstructPanFluteDetector()
                  (1.1*fiber_diam/2.0)*mm,
                  fiber_height*mm/2.0);
 
-		sprintf(name,"m_PFchannel_log_%d",row);
-		m_PFrpd_channelLogical[row] = new G4LogicalVolume(m_PFrpd_channel[row],m_Air,name);
 
-		m_PFrpd_channelLogical[row]->SetVisAttributes( G4Colour(0.0,0.0,1.0,0.1) );// G4Colour(0.0,0.0,1.0,0.1) or G4VisAttributes::Invisible
+    //Subtract the fiber from the channel
+    sprintf(name,"m_PFsubChannel_%d", row);
+    m_subChannel[row] =
+      new G4SubtractionSolid(name,
+                             m_PFrpd_channel[row],
+                             m_PFrpd[row]);
+
+    sprintf(name,"m_PFchannel_log_%d",row);
+    m_PFrpd_channelLogical[row] = new G4LogicalVolume(m_subChannel[row],m_Air,name);
+
+    // Assemble the fiber and air channel
+    m_PFrpd_FiberAssy[row] = new G4AssemblyVolume();
+    m_PFrpd_FiberAssy[row]->AddPlacedVolume(m_PFrpd_channelLogical[row], nullVector, nullRotation );
+    m_PFrpd_FiberAssy[row]->AddPlacedVolume(m_PFrpdLogical[row],         nullVector, nullRotation );
+
+
+	  m_PFrpd_channelLogical[row]->SetVisAttributes( G4Colour(0.0,0.0,1.0,0.1) );// G4Colour(0.0,0.0,1.0,0.1) or G4VisAttributes::Invisible
 
 		for(int col = 0; col < n_columns; col++){
 			//Now we're in the realm of working on a single tile
@@ -296,77 +298,14 @@ void ModTypeRPD::ConstructPanFluteDetector()
 					//Start at RPDY center + distance to bottom of top tile + half the fiber height
 					posy = ((n_rows/2 - 1) - row)*m_tileSize + fiber_height/2 + m_HousingThickness/2;
 
+          G4ThreeVector pos1(posx1*mm, posy*mm, posz1*mm);
+          G4ThreeVector pos2(posx2*mm, posy*mm, posz2*mm);
 
-          //----------------------- Place the fiber channels -----------------------//
-          sprintf(name,"m_PFchannel_pyhs_%d_%d_%d_%d_0",row,col,cycle,fiber);
-          m_PFrpd_channelPhysical[m_PFrpd_cnt] =
-            new G4PVPlacement(stripRotation,
-                              G4ThreeVector(posx1*mm, posy*mm, posz1*mm),
-                              m_PFrpd_channelLogical[row],
-                              name,
-                              m_PFrpd_housingLogical,
-                              false,
-                              m_PFrpd_cnt,
-                              CHECK_OVERLAPS);
 
-          sprintf(name,"m_PFchannel_pyhs_%d_%d_%d_%d_1",row,col,cycle,fiber);
-          m_PFrpd_channelPhysical[m_PFrpd_cnt+1] =
-            new G4PVPlacement(stripRotation,
-                              G4ThreeVector(posx2*mm, posy*mm, posz2*mm),
-                              m_PFrpd_channelLogical[row],
-                              name,
-                              m_PFrpd_housingLogical,
-                              false,
-                              m_PFrpd_cnt+1,
-                              CHECK_OVERLAPS);
+          //----------------------- Place the fiber assemblies -----------------------//
 
-					//----------------------- Place the rods -----------------------//
-
-					sprintf(name,"m_PFrpd_pyhs_%d_%d_%d_%d_0",row,col,cycle,fiber);
-					m_PFrpdPhysical[m_PFrpd_cnt] =
-						new G4PVPlacement(stripRotation,
-															G4ThreeVector(posx1*mm, posy*mm, posz1*mm),
-															m_PFrpdLogical[row],
-															name,
-															m_PFrpd_housingLogical,
-															false,
-															m_PFrpd_cnt,
-															CHECK_OVERLAPS);
-
-					sprintf(name,"m_PFrpd_pyhs_%d_%d_%d_%d_1",row,col,cycle,fiber);
-					m_PFrpdPhysical[m_PFrpd_cnt+1] =
-						new G4PVPlacement(stripRotation,
-															G4ThreeVector(posx2*mm, posy*mm, posz2*mm),
-															m_PFrpdLogical[row],
-															name,
-															m_PFrpd_housingLogical,
-															false,
-															m_PFrpd_cnt+1,
-															CHECK_OVERLAPS);
-
-					//----------------------- Place the photodector volumes -----------------------//
-
-					sprintf(name,"photo_det_phys_%d_%d_%d_%d_0",row,col,cycle,fiber);
-					m_PFdetecPhysical[m_PFrpd_cnt] =
-						new G4PVPlacement(stripRotation,
-															G4ThreeVector( posx1*mm, 2.0*m_tileSize*mm + m_HousingThickness/2.0, posz1*mm ),
-															m_PFdetecLogical,
-															name,
-															m_PFrpd_housingLogical,
-															false,
-															m_PFrpd_cnt,
-															CHECK_OVERLAPS);
-
-					sprintf(name,"photo_det_phys_%d_%d_%d_%d_1",row,col,cycle,fiber);
-					m_PFdetecPhysical[m_PFrpd_cnt+1] =
-						new G4PVPlacement(stripRotation,
-															G4ThreeVector(posx2*mm, 2.0*m_tileSize*mm + m_HousingThickness/2.0, posz2*mm),
-															m_PFdetecLogical,
-															name,
-															m_PFrpd_housingLogical,
-															false,
-															m_PFrpd_cnt+1,
-															CHECK_OVERLAPS);
+          m_PFrpd_FiberAssy[row]->MakeImprint(m_PFrpd_housingLogical, pos1, stripRotation );
+          m_PFrpd_FiberAssy[row]->MakeImprint(m_PFrpd_housingLogical, pos2, stripRotation );
 
 					m_PFrpd_cnt++;
 					m_PFrpd_cnt++;
