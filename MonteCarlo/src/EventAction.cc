@@ -49,7 +49,6 @@
 EventAction::EventAction( )
 : G4UserEventAction(){
   hitsCollID = -1;
-  m_analysisManager = AnalysisManager::getInstance();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -63,6 +62,7 @@ EventAction::~EventAction()
 void EventAction::BeginOfEventAction(const G4Event* evt)
 {
   fEventNo = evt->GetEventID();
+  m_analysisManager = AnalysisManager::getInstance();
   hitsCollID = 0;
 }
 
@@ -249,7 +249,6 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
     //Grab nCherenkovs and skip anything that isn't a photon
     if( (*HC)[i]->getParticle() != G4OpticalPhoton::OpticalPhotonDefinition() ){
       nCherenkovsSum += nCherenkovs;
-      nSkipped++;
       continue;
     }
 
@@ -257,7 +256,6 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
     G4ThreeVector position = (*HC)[i]->getPos();
     G4int         trackID  = (*HC)[i]->getTrackID();
     if( position.y() < topOfVolume - 0.2*mm || trackID == prevTrackId ){
-      nSkipped++;
       continue;
     }
     trackID = prevTrackId;
@@ -276,7 +274,7 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
       m_ZDCdblVec->at(zdcNo-1).at(4). push_back( momentum.y() );
       m_ZDCdblVec->at(zdcNo-1).at(5). push_back( momentum.z() );
 
-      analysisManager->FillNtupleIColumn( zdcNo, 5, nCherenkovsSum );
+      analysisManager->FillNtupleIColumn( zdcNo - 1, 5, nCherenkovsSum );
       m_ZDCintVec->at(zdcNo-1).at(0).push_back( rodNo          );
     }//end fill ZDC vectors
     if( name.compare(0,3,"RPD") == 0 ){//RPD hitsCollID, check to be sure/symmetric
