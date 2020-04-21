@@ -99,13 +99,12 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   G4double charge = aStep->GetPreStepPoint()->GetCharge();
 
   //Get the number of Cherenkov photons created in this step
-  //If optical is off, stop that track
   int capturedPhotons = 0;
   const std::vector<const G4Track*>* secVec = aStep->GetSecondaryInCurrentStep();
   for(uint i = 0; i < secVec->size(); i++){
     if( secVec->at(i)->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
       capturedPhotons++;
-    }//end if pid==0
+    }//end if photon
   }//end secondary track loop
 
   FiberHit* newHit = new FiberHit();
