@@ -45,7 +45,7 @@
 RunAction::RunAction()
 : G4UserRunAction()
 {
-  m_analysisManager = AnalysisManager::getInstance();
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -57,6 +57,7 @@ RunAction::~RunAction()
 
 void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
 {
+  m_analysisManager = AnalysisManager::getInstance();
 
   // Book the output file
   m_analysisManager->Book();
