@@ -99,7 +99,9 @@
  C- HOW TO RUN
 
   - Execute zdc in the 'interactive mode' with visualization (must be run from the $JZCaPA/bin directory):
+  ```
   $ ./zdc
+  ```
   and type in the commands from run1.mac line by line:  
   ```
   Idle> /run/beamOn 1
