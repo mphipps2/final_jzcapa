@@ -48,7 +48,6 @@
 
 EventAction::EventAction( )
 : G4UserEventAction(){
-  hitsCollID = -1;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -63,51 +62,55 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 {
   fEventNo = evt->GetEventID();
   m_analysisManager = AnalysisManager::getInstance();
-  hitsCollID = 0;
-}
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void EventAction::EndOfEventAction(const G4Event* evt){
-  G4PrimaryVertex* pVert = evt->GetPrimaryVertex();
   m_RPDdblVec = m_analysisManager->GetRPDdoubleVectors( );
   m_RPDintVec = m_analysisManager->GetRPDintVectors   ( );
   m_ZDCdblVec = m_analysisManager->GetZDCdoubleVectors( );
   m_ZDCintVec = m_analysisManager->GetZDCintVectors   ( );
   CLUSTER = m_analysisManager->GetClusterFlag();
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void EventAction::EndOfEventAction(const G4Event* evt){
 
   G4cout << ">>> Event " << evt->GetEventID() << G4endl;
   G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
   FiberHitsCollection* HC = 0;
   G4int nCollections =  HCE->GetNumberOfCollections();
-  if(HCE) {
-    while (hitsCollID < nCollections) {
-      HC = (FiberHitsCollection*)(HCE->GetHC(hitsCollID));
-      G4String name = HC->GetSDname();
 
-      FiberSD* sd = (FiberSD*)G4SDManager::GetSDMpointer()->FindSensitiveDetector( name );
-      if( sd->OpticalIsOn() ) ProcessOpticalHitCollection( HC );
-      else                    ProcessHitCollection( HC );
-      hitsCollID++;
+  //Bail if there are no hit collections
+  if(!HCE) return;
 
-    }// end while < nCollections
+  //Loop over the collections we do have
+  for(int hitsCollID = 0; hitsCollID < nCollections; hitsCollID++) {
+    HC = (FiberHitsCollection*)(HCE->GetHC(hitsCollID));
+    G4String name = HC->GetSDname();
 
-    //Use the base class to fill individual data points
-    //There's probably a better way to do this, but I just want it
-    //to work right now
-    G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-    // fill ntuples  //
-    for(int i = 0; i < analysisManager->GetNofNtuples(); i++){
-      analysisManager->FillNtupleDColumn(i,1, pVert->GetX0() );
-      analysisManager->FillNtupleDColumn(i,2, pVert->GetY0() );
-      analysisManager->FillNtupleDColumn(i,3, pVert->GetZ0() );
+    FiberSD* sd = (FiberSD*)G4SDManager::GetSDMpointer()->FindSensitiveDetector( name );
+    if( sd->OpticalIsOn() ) ProcessOpticalHitCollection( HC );
+    else                    ProcessHitCollection( HC );
 
-      analysisManager->FillNtupleIColumn(i,4, fEventNo );
-    }
+  }// end hit collection loop
 
-    //Use our custom class to finish the job
-    m_analysisManager->FillNtuples();
+
+  //Use the base class to fill individual data points
+  //There's probably a better way to do this, but I just want it
+  //to work right now
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
+  // fill ntuples  //
+  G4PrimaryVertex* pVert = evt->GetPrimaryVertex();
+  for(int i = 0; i < analysisManager->GetNofNtuples(); i++){
+    analysisManager->FillNtupleDColumn(i,1, pVert->GetX0() );
+    analysisManager->FillNtupleDColumn(i,2, pVert->GetY0() );
+    analysisManager->FillNtupleDColumn(i,3, pVert->GetZ0() );
+
+    analysisManager->FillNtupleIColumn(i,4, fEventNo );
   }
+
+  //Use our custom class to finish the job
+  m_analysisManager->FillNtuples();
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -56,12 +56,12 @@ class EventAction : public G4UserEventAction
 
   private:
     // Indecies are [mod#][dataSet][dataValue]
-    // data set order will need to be coordinated betweeen here and Run Action
+    // Vectors are created in AnalysisManager.cc
     std::vector< std::vector< std::vector<double> > > *m_RPDdblVec, *m_ZDCdblVec;
     std::vector< std::vector< std::vector< int  > > > *m_RPDintVec, *m_ZDCintVec;
 
     AnalysisManager* m_analysisManager;
-    G4int    hitsCollID, fEventNo, fnZDCs, fnRPDs;
+    G4int    fEventNo, fnZDCs, fnRPDs;
     G4double gunPosX, gunPosY, gunPosZ;
     G4bool   CLUSTER;
 };
