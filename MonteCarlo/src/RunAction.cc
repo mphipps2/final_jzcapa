@@ -42,8 +42,8 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-RunAction::RunAction()
-: G4UserRunAction()
+RunAction::RunAction(G4String fName)
+: G4UserRunAction(), m_fileName(fName)
 {
 
 }
@@ -51,7 +51,9 @@ RunAction::RunAction()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::~RunAction()
-{}
+{
+  delete m_analysisManager;
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -60,7 +62,7 @@ void RunAction::BeginOfRunAction(__attribute__((unused)) const G4Run* run)
   m_analysisManager = AnalysisManager::getInstance();
 
   // Book the output file
-  m_analysisManager->Book();
+  m_analysisManager->Book(m_fileName);
 
   // Hand the OPTICAL flag from analysis manager to Stepping action
   SteppingAction* steppingAction

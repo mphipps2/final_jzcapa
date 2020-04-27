@@ -34,8 +34,8 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-ActionInitialization::ActionInitialization()
- : G4VUserActionInitialization()
+ActionInitialization::ActionInitialization( G4String fName )
+ : G4VUserActionInitialization(), m_fileName(fName)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -47,7 +47,7 @@ ActionInitialization::~ActionInitialization()
 
 void ActionInitialization::BuildForMaster() const
 {
-  SetUserAction( new RunAction() );
+  SetUserAction( new RunAction( m_fileName ) );
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -56,7 +56,7 @@ void ActionInitialization::Build() const
 {
   SetUserAction( new PrimaryGeneratorAction() );
 
-  SetUserAction( new RunAction()              );
+  SetUserAction( new RunAction( m_fileName )  );
 
   SetUserAction( new EventAction()            );
 

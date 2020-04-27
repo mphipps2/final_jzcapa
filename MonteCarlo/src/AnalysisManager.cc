@@ -67,7 +67,7 @@ AnalysisManager::~AnalysisManager()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void AnalysisManager::Book()
+void AnalysisManager::Book( G4String fileName )
 {
   // Create or get analysis manager
   // The choice of analysis technology is done via selection of a namespace
@@ -79,10 +79,10 @@ void AnalysisManager::Book()
   // Open an output file
   //
   G4bool fileOpen;
-  if(m_analysisManager->GetFileName() == ""){
+  if(fileName == ""){
     fileOpen = m_analysisManager->OpenFile("output");
   } else {
-    fileOpen = m_analysisManager->OpenFile();
+    fileOpen = m_analysisManager->OpenFile(fileName);
   }
   if (! fileOpen) {
     G4cerr << "\n---> AnalysisManager::Book(): cannot open "
@@ -92,10 +92,10 @@ void AnalysisManager::Book()
 
   //Get information about the detector configuration from DetectorConstruction
   DetectorConstruction* detectorConstruction = (DetectorConstruction*)G4RunManager::GetRunManager()->GetUserDetectorConstruction();
-  int    nZDCs   = detectorConstruction->GetnZDCs();
-  int    nRPDs   = detectorConstruction->GetnRPDs();
-  CLUSTER = detectorConstruction->GetClusterFlag();
-  OPTICAL = detectorConstruction->GetOpticalFlag();
+  int nZDCs = detectorConstruction->GetnZDCs();
+  int nRPDs = detectorConstruction->GetnRPDs();
+  CLUSTER   = detectorConstruction->GetClusterFlag();
+  OPTICAL   = detectorConstruction->GetOpticalFlag();
 
   //Make vectors for the detectors we have
   //Indecies are [module#][dataType][dataPoint]

@@ -49,7 +49,7 @@ class AnalysisManager
     static AnalysisManager* getInstance(void);
    ~AnalysisManager();
 
-    void Book();
+    void Book( G4String fileName );
     void Save();
 
     void FillNtuples( );

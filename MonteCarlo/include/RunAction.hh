@@ -42,7 +42,7 @@ class G4Run;
 class RunAction : public G4UserRunAction
 {
   public:
-    RunAction( );
+    RunAction( G4String fName );
     virtual ~RunAction();
 
     // virtual G4Run* GenerateRun();

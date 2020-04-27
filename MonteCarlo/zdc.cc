@@ -130,7 +130,7 @@ int main(int argc,char** argv)
   // Physics list
   runManager->SetUserInitialization( new PhysicsList( ) );
   // User action initialization
-  runManager->SetUserInitialization( new ActionInitialization() );
+  runManager->SetUserInitialization( new ActionInitialization( output ) );
   // Initialize visualization
   G4VisManager* visManager = new G4VisExecutive;
   // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
@@ -139,17 +139,12 @@ int main(int argc,char** argv)
   // Get the pointer to the User Interface manager
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
-  //Set the output file name
-  G4String command = "/analysis/setFileName ";
-  UImanager->ApplyCommand(command+output);
-
   // Process macro or start UI session
   //
   if ( macro.size() ) {
     // batch mode
-    command = "/control/execute ";
-    G4String fileName = macro;
-    UImanager->ApplyCommand(command+fileName);
+    G4String command = "/control/execute ";
+    UImanager->ApplyCommand(command+macro);
 
   }
   else {
