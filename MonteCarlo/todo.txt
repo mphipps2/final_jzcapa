@@ -19,11 +19,8 @@ SENSITIVEDETECTORS
 -Determine if rodNum/radNum are necessary
 
 STEPPINGACTION
--Remove lastStep if it works in EventAction
 
 OUTPUT
--Pass output file name to run action
--Check to see if LastStepInVolume works in EventAction
 
 
 PHYSICS
@@ -33,14 +30,9 @@ PHYSICS
 
 *** By Priority ***
 /// Necessary
--Make fiber SD detect only photons at the top of the volume if OPTICAL is true
-  -Probably separate this into two function
--Pass output file name to run action
 
 // Completeness
--Remove lastStep if it works in EventAction
 -Determine if rodNum/radNum are necessary
--Try making vectors in EventAction not contain pointers
 -Create an environment flag. i.e. ATLAS, SPS TestBeam, FNAL TestBeam
 -Make RPD volume vectors instead of fixed length arrays
 -Add cladding and buffer to RPD::ConstructPrototypeDetector
