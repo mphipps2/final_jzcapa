@@ -51,8 +51,16 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ModTypeZDC::ModTypeZDC(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos)
-  : m_modNum( cn ), m_pos( pos ), m_fiberDiam (new G4ThreeVector(1.5,0.,0.)),
-	  m_absDim(new G4ThreeVector(90.,180.,11.)), m_logicMother( mother )
+  : m_modNum( cn ),
+    m_nAbsorbers(11),
+    m_pos( pos ),
+    m_fiberDiam (new G4ThreeVector(1.5,0.,0.)),
+    m_absDim(new G4ThreeVector(90.,180.,11.)),
+    m_HousingThickness(5.0*mm),
+    m_GapThickness(2.*mm),
+    OPTICAL(false),
+    CHECK_OVERLAPS(false),
+    m_logicMother( mother )
 {
 	m_materials = Materials::getInstance();
   m_materials->UseOpticalMaterials(true);
@@ -78,15 +86,6 @@ ModTypeZDC::ModTypeZDC(const int cn, ModTypeZDC* right)
 		m_matHousing			 = right->m_matHousing;
 		m_logicMother			 = right->m_logicMother;
 		m_materials				 = right->m_materials;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-ModTypeZDC::ModTypeZDC()
-  : m_modNum( 0 ), m_pos(new G4ThreeVector(0.,0.,0.)), m_fiberDiam (new G4ThreeVector(1.5,0.,0.)),
-	m_absDim (new G4ThreeVector(90.,180.,11.)), m_logicMother(NULL)
-{
-	m_materials = Materials::getInstance();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

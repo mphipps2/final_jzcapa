@@ -45,7 +45,6 @@ class G4Material;
 class ModTypeZDC
 {
 public:
-  ModTypeZDC();
   ModTypeZDC(const int, ModTypeZDC*);
   ModTypeZDC(const int, G4LogicalVolume*, G4ThreeVector* );
   ~ModTypeZDC();

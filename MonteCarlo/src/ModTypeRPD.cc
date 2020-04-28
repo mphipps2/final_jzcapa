@@ -68,8 +68,17 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ModTypeRPD::ModTypeRPD(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos )
-  : m_modNum( cn ),  m_pos( pos ), m_fiberDiam(new G4ThreeVector(.6,.68,.73)),
-  m_logicMother( mother )
+  : m_modNum( cn ),
+    m_pos( pos ),
+    m_fiberDiam(new G4ThreeVector(.6,.68,.73)),
+    m_HousingThickness(5.0*mm),
+    m_fiberPitch(0.9*mm),
+    m_tileSize(10.*mm),
+    m_minWallThickness(0.*mm),
+    m_detType(""),
+    OPTICAL(false),
+    CHECK_OVERLAPS(false),
+    m_logicMother( mother )
 {
 	materials = Materials::getInstance();
   materials->UseOpticalMaterials(true);
@@ -92,15 +101,6 @@ ModTypeRPD::ModTypeRPD(const int cn, ModTypeRPD* right)
   CHECK_OVERLAPS 		 = right->CHECK_OVERLAPS;
 	materials					 = right->materials;
 	m_logicMother 		 = right->m_logicMother;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-ModTypeRPD::ModTypeRPD()
-  : m_modNum( 0 ), m_pos(new G4ThreeVector(0.,0.,0.)), m_fiberDiam(new G4ThreeVector(.6,.68,.73)),
-   m_logicMother(NULL)
-{
-  materials = Materials::getInstance();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -51,7 +51,6 @@ class G4Material;
 class ModTypeRPD
 {
 public:
-  ModTypeRPD();
   ModTypeRPD(const int, ModTypeRPD*);
   ModTypeRPD(const int, G4LogicalVolume*, G4ThreeVector*);
   ~ModTypeRPD();
