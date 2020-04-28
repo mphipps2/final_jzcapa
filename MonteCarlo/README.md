@@ -45,7 +45,7 @@
 
    - This is also the stage where individual hits generate Cherenkov radiation and the number of Cherenkov photons created is counted.
 
- ##### VISUALISATION
+#### VISUALISATION
 
    - The visualization manager is set via the G4VisExecutive class
    in the main() function in exampleB1.cc.    
@@ -90,7 +90,7 @@
    - The tracks are automatically drawn at the end of each event, accumulated
    for all events and erased at the beginning of the next run.
 
- ##### USER INTERFACES
+#### USER INTERFACES
 
    - The user command interface is set via the G4UIExecutive class
    in the main() function in zdc.cc. This script is the driver for your simulation
