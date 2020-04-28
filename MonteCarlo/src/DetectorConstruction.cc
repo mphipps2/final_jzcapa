@@ -214,15 +214,15 @@ G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
     if(detZ < firstDetZ) firstDetZ = detZ;
 
     if( survey->detector == "ZDC1" && ZDC1 ){
-      AddZDC( new G4ThreeVector( detX + (      - srvy_rpd->x_pos + tableX_shift)*mm,
-                                 detY + (- 230 - srvy_rpd->y_pos + tableY_shift)*mm,
+      AddZDC( new G4ThreeVector( detX + ( tableX_shift       - srvy_rpd->x_pos )*mm,
+                                 detY + ( tableY_shift - 320 - srvy_rpd->y_pos )*mm,
                                  detZ ) );
     } else if( survey->detector == "ZDC2" && ZDC2 ){
-      AddZDC( new G4ThreeVector( detX + (      - srvy_rpd->x_pos + tableX_shift)*mm,
-                                 detY + (- 230 - srvy_rpd->y_pos + tableY_shift)*mm,
+      AddZDC( new G4ThreeVector( detX + ( tableX_shift       - srvy_rpd->x_pos )*mm,
+                                 detY + ( tableY_shift - 320 - srvy_rpd->y_pos )*mm,
                                  detZ ) );
     }else if( survey->detector == "RPD" && RPD ){
-      AddRPD( new G4ThreeVector( detX, detY, detZ) );
+      AddRPD( new G4ThreeVector( tableX_shift, tableY_shift, detZ) );
     }
   }
 
@@ -239,17 +239,16 @@ G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
 
     pos = zdc->GetPosition();
     modNum = zdc->GetModNum();
-    printf( "ZDC%d center = (%f,%f,%f)", modNum, pos->x(), pos->y(), pos->z() );
+    printf( "ZDC%d center = (%f,%f,%f)\n", modNum, pos->x(), pos->y(), pos->z() );
     zdc->Construct();
   }
 
   for(ModTypeRPD* rpd : m_RPDvec){
-    rpd->SetFiberDiameters( new G4ThreeVector(0.6*mm,0.68*mm,0.72*mm) );
     rpd->SetDetectorType  ( "cms" );
 
     pos = rpd->GetPosition();
     modNum = rpd->GetModNum();
-    printf( "RPD%d center = (%f,%f,%f)", modNum, pos->x(), pos->y(), pos->z() );
+    printf( "RPD%d center = (%f,%f,%f)\n", modNum, pos->x(), pos->y(), pos->z() );
     rpd->Construct();
   }
 //################################ Get SURVEY/ALIGNMENT_END
