@@ -369,7 +369,7 @@ void ModTypeRPD::ConstructCMSDetector()
 	//retrieve RPD parameters
   float tileX 		= 20;
   float tileY 		= 20;
-  float tileZ 		= 20;
+  float tileZ 		= 10;
   float halfX_gap 	= (1.58/2)*mm;
 	float fiber_diam 	= 1*mm;
 	float foil_thickness 	= 0.016*mm;
@@ -1025,7 +1025,5 @@ else{
 	}
 
   std::cout << "ModTypeRPD construction finished: SD name " << fiberSDname << std::endl;
-
-  std::cout << "Fiber      construction finished: SD name " << fiberSDname << std::endl;
 
 }
