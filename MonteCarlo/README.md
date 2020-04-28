@@ -45,7 +45,7 @@
 
    - This is also the stage where individual hits generate Cherenkov radiation and the number of Cherenkov photons created is counted.
 
- ##### VISUALISATION
+##### VISUALISATION
 
    - The visualization manager is set via the G4VisExecutive class
    in the main() function in exampleB1.cc.    
