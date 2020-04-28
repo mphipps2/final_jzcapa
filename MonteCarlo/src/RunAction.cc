@@ -43,7 +43,7 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 RunAction::RunAction(G4String fName)
-: G4UserRunAction(), m_fileName(fName)
+: G4UserRunAction(), m_fileName(fName), m_analysisManager(0)
 {
 
 }
@@ -52,7 +52,7 @@ RunAction::RunAction(G4String fName)
 
 RunAction::~RunAction()
 {
-  delete m_analysisManager;
+  if (m_analysisManager) delete m_analysisManager;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
