@@ -97,7 +97,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct(){
   }
 
   G4UImanager* UImanager = G4UImanager::GetUIpointer();
-  UImanager->ApplyCommand("/control/execute geometry.mac");
+  UImanager->ExecuteMacroFile("geometry.mac");
 
   if( ForceDetectorPosition ){
     ManualConstruction();
@@ -470,6 +470,7 @@ void DetectorConstruction::DuplicateZDC( G4int module ){
   uint newModNum = m_ZDCvec.size()+1;
   if((unsigned)module >= newModNum ){
     printf("\n\n Cannot duplicate. ZDC%d does not exist \n\n",module);
+    return;
   }
   m_ZDCvec.push_back( new ModTypeZDC( newModNum, m_ZDCvec.at(module-1) ) );
   currentZDC = newModNum;
@@ -483,6 +484,7 @@ void DetectorConstruction::DuplicateRPD( G4int module ){
   uint newModNum = m_RPDvec.size()+1;
   if((unsigned)module >= newModNum ){
     printf("\n\n Cannot duplicate. RPD%d does not exist \n\n",module);
+    return;
   }
   m_RPDvec.push_back( new ModTypeRPD( newModNum, m_RPDvec.at(module-1) ) );
   currentRPD = newModNum;
