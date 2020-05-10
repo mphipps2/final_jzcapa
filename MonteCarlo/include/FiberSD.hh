@@ -54,12 +54,14 @@ public:
   inline G4bool   OpticalIsOn    ( ){ return OPTICAL; }
   inline void     SetTopOfVolume ( G4double _top ){ m_topOfVolume = _top; }
   inline G4double GetTopOfVolume ( ){ return m_topOfVolume; }
+  inline int      GetNCherenkovs ( ){ return m_nCherenkovs; }
 
 private:
   int HCID;
   G4double m_modCoreIndexRefraction;
   FiberHitsCollection* fiberCollection;
   G4int m_modNum;
+  G4int m_nCherenkovs;
   G4bool OPTICAL;
   G4double m_topOfVolume;
 };

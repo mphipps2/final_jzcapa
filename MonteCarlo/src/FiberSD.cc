@@ -69,6 +69,8 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
 
   std::string name = collectionName[0];
 
+  m_nCherenkovs = 0;
+
   if(HCID<0)
     { HCID = G4SDManager::GetSDMpointer()->GetCollectionID( name );}
 
@@ -79,8 +81,16 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
-  G4double eDep   = aStep->GetTotalEnergyDeposit();
 
+  //Get the number of Cherenkov photons created in this step
+  int capturedPhotons = 0;
+  const std::vector<const G4Track*>* secVec = aStep->GetSecondaryInCurrentStep();
+  for(uint i = 0; i < secVec->size(); i++){
+    if( secVec->at(i)->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
+      capturedPhotons++;
+    }//end if photon
+  }//end secondary track loop
+  m_nCherenkovs += capturedPhotons; // Record the total in case OPTICAL is true
 
   //      Figure out if this is necessary
   //
@@ -93,36 +103,42 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	radNum = (std::stoi (radNum_s)*100)+rodNum;
   // ^^^^ Figure out if this is necessary ^^^^
 
-  G4double energy = aStep->GetPreStepPoint()->GetTotalEnergy();
-  G4ThreeVector momentum = aStep->GetPreStepPoint()->GetMomentum();
+  G4ThreeVector pos = aStep->GetTrack()->GetPosition();
   G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
-  G4double charge = aStep->GetPreStepPoint()->GetCharge();
 
-  //Get the number of Cherenkov photons created in this step
-  int capturedPhotons = 0;
-  const std::vector<const G4Track*>* secVec = aStep->GetSecondaryInCurrentStep();
-  for(uint i = 0; i < secVec->size(); i++){
-    if( secVec->at(i)->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
-      capturedPhotons++;
-    }//end if photon
-  }//end secondary track loop
+  // If OPTICAL is true, determine if the photon has reached the top of the topOfVolume
+  // and add the hit to the collection if it has
+  if(OPTICAL){
+    if( aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() && pos.y() >= m_topOfVolume){
+      FiberHit* newHit = new FiberHit();
+      newHit->setPos      ( pos );
+      newHit->setOrigin   ( aStep->GetTrack()->GetVertexPosition() );
+      newHit->setMomentum ( aStep->GetPreStepPoint()->GetMomentum() );
+      newHit->setEnergy   ( aStep->GetPreStepPoint()->GetTotalEnergy() );
+      newHit->setRodNb    ( rodNum );
 
-  FiberHit* newHit = new FiberHit();
+      fiberCollection->insert ( newHit );
 
-  newHit->setCharge      ( charge );
-  newHit->setTrackID     ( aStep->GetTrack()->GetTrackID() );
-  newHit->setModNb       ( m_modNum );
-  newHit->setRadNb       ( radNum );
-  newHit->setRodNb       ( rodNum );
-  newHit->setEdep        ( eDep );
-  newHit->setOrigin      ( aStep->GetTrack()->GetVertexPosition() );
-  newHit->setPos         ( aStep->GetTrack()->GetPosition() );
-  newHit->setParticle    ( particle );
-  newHit->setEnergy      ( energy );
-  newHit->setMomentum    ( momentum );
-  newHit->setNCherenkovs ( capturedPhotons );
+      aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
+      return true;
+    }
+  }else{ // Otherwise record all hits
+    FiberHit* newHit = new FiberHit();
+    newHit->setCharge      ( aStep->GetPreStepPoint()->GetCharge() );
+    newHit->setTrackID     ( aStep->GetTrack()->GetTrackID() );
+    newHit->setModNb       ( m_modNum );
+    newHit->setRadNb       ( radNum );
+    newHit->setRodNb       ( rodNum );
+    newHit->setEdep        ( aStep->GetTotalEnergyDeposit() );
+    newHit->setOrigin      ( aStep->GetTrack()->GetVertexPosition() );
+    newHit->setPos         ( pos );
+    newHit->setParticle    ( particle );
+    newHit->setEnergy      ( aStep->GetPreStepPoint()->GetTotalEnergy() );
+    newHit->setMomentum    ( aStep->GetPreStepPoint()->GetMomentum() );
+    newHit->setNCherenkovs ( capturedPhotons );
 
-  fiberCollection->insert ( newHit );
+    fiberCollection->insert ( newHit );
+  }
 
   return true;
 }
