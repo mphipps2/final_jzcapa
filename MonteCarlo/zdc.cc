@@ -143,13 +143,11 @@ int main(int argc,char** argv)
   //
   if ( macro.size() ) {
     // batch mode
-    G4String command = "/control/execute ";
-    UImanager->ApplyCommand(command+macro);
-
+    UImanager->ExecuteMacroFile(macro);
   }
   else {
     // interactive mode
-    UImanager->ApplyCommand("/control/execute init_vis.mac");
+    UImanager->ExecuteMacroFile("init_vis.mac");
     ui->SessionStart();
     delete ui;
   }
