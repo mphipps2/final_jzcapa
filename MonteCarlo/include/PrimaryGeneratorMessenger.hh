@@ -1,4 +1,3 @@
-//
 // ********************************************************************
 // * License and Disclaimer                                           *
 // *                                                                  *
@@ -23,58 +22,52 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: PrimaryGeneratorAction.hh 90623 2015-06-05 09:24:30Z gcosmo $
+/// \file include/PrimaryGeneratorMessenger_h.hh
+/// \brief Definition of the PrimaryGeneratorMessenger_h class
 //
-/// \file PrimaryGeneratorAction.hh
-/// \brief Definition of the PrimaryGeneratorAction class
+//
+//
 
-#ifndef PrimaryGeneratorAction_h
-#define PrimaryGeneratorAction_h 1
+#ifndef PrimaryGeneratorMessenger_h
+#define PrimaryGeneratorMessenger_h 1
 
-#include "G4VUserPrimaryGeneratorAction.hh"
-#include "PrimaryGeneratorMessenger.hh"
-#include "G4ParticleGun.hh"
-#include "G4IonTable.hh"
 #include "globals.hh"
+#include "G4UImessenger.hh"
+
+class PrimaryGeneratorAction;
+class G4UIdirectory;
+class G4UIcommand;
+class G4UIcmdWithAString;
+class G4UIcmdWithAnInteger;
+class G4UIcmdWithADouble;
+class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWithoutParameter;
+class G4UIcmdWith3VectorAndUnit;
 
 
-
-class G4GeneralParticleSource;
-class G4Event;
-
-
-class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
-{
+class PrimaryGeneratorMessenger: public G4UImessenger{
   public:
-    PrimaryGeneratorAction();
-    virtual ~PrimaryGeneratorAction();
 
-    // method from the base class
-    virtual void GeneratePrimaries(G4Event*);
-    virtual void GenerateLHCEvent (G4Event*);
-    virtual void GenerateSPSEvent (G4Event*);
-    virtual void GenerateFNALEvent(G4Event*);
+    PrimaryGeneratorMessenger(PrimaryGeneratorAction* );
+   ~PrimaryGeneratorMessenger();
 
-    inline void SetBeamType               ( G4String arg ){ fBeamType = arg; }
-    inline void SetVerticalCrossingAngle  ( G4double arg ){ fVertXingAngle = arg; }
-    inline void SetHorizontalCrossingAngle( G4double arg ){ fHorizXingAngle = arg; }
-    inline void SetProjectionPlane        ( G4double arg ){ PROJECT = true; fProjPlane = arg; }
-    inline void SetBeamPos                ( G4ThreeVector* arg ){ delete fpos; fpos = arg; }
-
+    virtual void SetNewValue(G4UIcommand*, G4String);
 
   private:
-	G4GeneralParticleSource*   fParticleGun;
-  PrimaryGeneratorMessenger* fGeneratorMessenger;
 
-  G4String       fBeamType;
-  G4double       fVertXingAngle;
-  G4double       fHorizXingAngle;
-  G4double       fProjPlane;
-  G4bool         PROJECT;
-  G4ThreeVector* fpos;
+    PrimaryGeneratorAction*    fGenerator;
+
+    G4UIdirectory*             fGeneratorDir;
+    G4UIdirectory*             fLHCDir;
+    G4UIdirectory*             fSPSDir;
+    G4UIdirectory*             fFNALDir;
+
+    G4UIcmdWithAString*        fBeamTypeCmd;
+    G4UIcmdWithADoubleAndUnit* fVerticalCrossingCmd;
+    G4UIcmdWithADoubleAndUnit* fHorizontalCrossingCmd;
+    G4UIcmdWithADoubleAndUnit* fProjectBeamCmd;
+    G4UIcmdWith3VectorAndUnit* fBeamPosCmd;
+
 
 };
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
 #endif

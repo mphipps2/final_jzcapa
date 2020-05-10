@@ -10,8 +10,8 @@
 
 /control/verbose 2
 /run/verbose 2
-/tracking/verbose 1
-/run/particle/verbose 1
+/tracking/verbose 0
+/run/particle/verbose 0
 
 
 #/gps/particle ion
@@ -54,6 +54,11 @@
 /gps/ang/sigma_r 0.00 deg
 # 1.0milliradians  = 0.057 deg
 #
+
+/beam/type lhc
+/beam/pos 0. 0. -140. m
+/beam/projectBeam -80. mm
+/beam/LHC/horizontalCrossingAngle 0.100 mrad
 
 #if using these commands in interactive mode to visualize, use this to allow more events to be displayed (do not use in batch mode)
 #/vis/ogl/set/displayListLimit 1000000
