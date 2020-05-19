@@ -98,6 +98,7 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithAString*        fRPDTypeCmd;
     G4UIcmdWithABool*          fRPDOpticalFlagCmd;
     G4UIcmdWithABool*          fRPDOverlapsFlagCmd;
+    G4UIcmdWithABool*          fRPDReadoutFlagCmd;
     G4UIcmdWithAnInteger*      fRPDSetCurrentCmd;
     G4UIcmdWithAnInteger*      fRPDDuplicateCmd;
 
