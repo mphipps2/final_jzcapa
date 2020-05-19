@@ -148,20 +148,6 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 void FiberSD::EndOfEvent(G4HCofThisEvent*)
 {
 
-  //  G4int NbHits = fiberCollection->entries();
-
-  /*
-  if(verboseLevel>0) {
-      std::cout << " if verbose loop" << std::endl;
-      std::cout << "\n-------->Hits Collection: in this event they are " << NbHits
-		<< " hits in the calorimeter cells: " << std::endl;
-      for (G4int i=0;i<NbHits;i++) {
-	if (i %100 == 0) std::cout << " i " << i << std::endl;
-	(*fiberCollection)[i]->Print();
-      }
-  }
-  */
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -257,6 +257,12 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDOverlapsFlagCmd->SetDefaultValue(true);
   fRPDOverlapsFlagCmd->SetToBeBroadcasted(false);
 
+  fRPDReadoutFlagCmd = new G4UIcmdWithABool("/Detector/RPD/FiberReadout", this);
+  fRPDReadoutFlagCmd->SetGuidance("Set readout flag for current RPD");
+  fRPDReadoutFlagCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRPDReadoutFlagCmd->SetDefaultValue(false);
+  fRPDReadoutFlagCmd->SetToBeBroadcasted(false);
+
   fRPDSetCurrentCmd = new G4UIcmdWithAnInteger("/Detector/RPD/SetCurrent", this);
   fRPDSetCurrentCmd->SetGuidance("Select RPD to be modified");
   fRPDSetCurrentCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -312,6 +318,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fRPDTypeCmd;
   delete fRPDOpticalFlagCmd;
   delete fRPDOverlapsFlagCmd;
+  delete fRPDReadoutFlagCmd;
   delete fRPDSetCurrentCmd;
   delete fRPDDuplicateCmd;
 
@@ -422,6 +429,9 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   }
   else if(command == fRPDOverlapsFlagCmd){
     fDetector->SetRPDOverlapsFlag( fRPDOverlapsFlagCmd->GetNewBoolValue(newValue) );
+  }
+  else if(command == fRPDReadoutFlagCmd){
+    fDetector->SetRPDReadoutFlag( fRPDOverlapsFlagCmd->GetNewBoolValue(newValue) );
   }
   else if(command == fRPDSetCurrentCmd){
     fDetector->SetCurrentRPD( fRPDSetCurrentCmd->GetNewIntValue(newValue) );

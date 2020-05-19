@@ -36,6 +36,7 @@
 /Detector/RPD/RPDtype panflute
 /Detector/RPD/Optical true
 /Detector/RPD/CheckOverlaps false
+/Detector/RPD/FiberReadout true
 
 #/Detector/RPD/SetCurrent 1
 

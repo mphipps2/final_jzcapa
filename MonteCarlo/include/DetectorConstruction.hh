@@ -157,7 +157,8 @@ public:
   inline  void SetRPDMinWallThickness  ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetMinWallThickness(arg);}
   inline  void SetRPDDetectorType      ( G4String       arg ){ m_RPDvec.at(currentRPD-1)->SetDetectorType(arg);    }
   inline  void SetRPDOpticalFlag       ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOpticalFlag(arg);     }
-  inline  void SetRPDOverlapsFlag      ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOverlapsFlag(arg); }
+  inline  void SetRPDOverlapsFlag      ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOverlapsFlag(arg);    }
+  inline  void SetRPDReadoutFlag       ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetReadoutFlag(arg);     }
   inline  void SetCurrentRPD           ( G4int          arg ){ currentRPD = arg; }
   virtual void DuplicateRPD            ( G4int       module );
 
