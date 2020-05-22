@@ -59,11 +59,7 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
 
 	//Find out when the primary particles died
 	if(theTrack->GetParentID()==0 && theTrack->GetTrackStatus() == fStopAndKill ){
-		lastStep = theTrack->GetPosition().getZ();
-    auto analysisManager = G4AnalysisManager::Instance();
-    for(int i = 0; i < analysisManager->GetNofNtuples(); i++){
-      analysisManager->FillNtupleDColumn(i,0,lastStep);
-    }
+		m_lastStepVec->push_back( theTrack->GetPosition() );
 	}
 
 

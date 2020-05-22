@@ -32,7 +32,10 @@
 #define SteppingAction_h 1
 
 #include "G4UserSteppingAction.hh"
+#include "G4ThreeVector.hh"
 #include "globals.hh"
+
+#include <vector>
 
 /// Stepping action class
 ///
@@ -44,12 +47,13 @@ class SteppingAction : public G4UserSteppingAction
     virtual ~SteppingAction();
 
     inline  void SetOpticalFlag( G4bool arg ){ OPTICAL = arg; }
+    inline  void SetLastStepVec( std::vector< G4ThreeVector >* vec ){ m_lastStepVec = vec; }
 
     // method from the base class
     virtual void UserSteppingAction(const G4Step*);
 
   private:
-    G4double lastStep;
+    std::vector< G4ThreeVector >* m_lastStepVec;
     G4bool   OPTICAL;
 };
 

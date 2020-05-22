@@ -38,6 +38,7 @@
 #include "DetectorConstruction.hh"
 
 #include "G4RunManager.hh"
+#include "G4ThreeVector.hh"
 
 #include <vector>
 
@@ -67,6 +68,7 @@ class AnalysisManager
     inline  std::vector< std::vector< std::vector<double> > >*  GetZDCdoubleVectors( ){return m_ZDCdblVec;}
     inline  std::vector< std::vector< std::vector< int  > > >*  GetZDCintVectors   ( ){return m_ZDCintVec;}
 
+
   private:
     AnalysisManager();
     static AnalysisManager* analysisManager;
@@ -76,6 +78,8 @@ class AnalysisManager
     DetectorConstruction* m_detectorConstruction;
     std::vector< std::vector< std::vector<double> > > *m_ZDCdblVec, *m_RPDdblVec;
     std::vector< std::vector< std::vector< int  > > > *m_ZDCintVec, *m_RPDintVec;
+    std::vector< G4ThreeVector >* m_lastStepVec;
+    std::vector< double > m_lastStepXVec, m_lastStepYVec, m_lastStepZVec;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
