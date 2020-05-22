@@ -67,6 +67,20 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction * Ge
   fBeamTypeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fBeamTypeCmd->SetToBeBroadcasted(false);
 
+  fBeamPosCmd = new G4UIcmdWith3VectorAndUnit("/beam/pos", this);
+  fBeamPosCmd->SetGuidance("Set the origin position of the beam");
+  fBeamPosCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fBeamPosCmd->SetToBeBroadcasted(false);
+  fBeamPosCmd->SetParameterName("X","Y","Z",true);
+  fBeamPosCmd->SetDefaultUnit("mm");
+
+  fProjectBeamCmd = new G4UIcmdWithADoubleAndUnit("/beam/projectBeam", this);
+  fProjectBeamCmd->SetGuidance("Set the plane in Z which the beam will be projected to");
+  fProjectBeamCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fProjectBeamCmd->SetToBeBroadcasted(false);
+  fProjectBeamCmd->SetDefaultUnit("mm");
+
+  //LHC beam commands
   fVerticalCrossingCmd = new G4UIcmdWithADoubleAndUnit("/beam/LHC/verticalCrossingAngle", this);
   fVerticalCrossingCmd->SetGuidance("Set vertical crossing angle for LHC beam");
   fVerticalCrossingCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -79,18 +93,10 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction * Ge
   fHorizontalCrossingCmd->SetToBeBroadcasted(false);
   fHorizontalCrossingCmd->SetDefaultUnit("mrad");
 
-  fProjectBeamCmd = new G4UIcmdWithADoubleAndUnit("/beam/projectBeam", this);
-  fProjectBeamCmd->SetGuidance("Set the plane in Z which the beam will be projected to");
-  fProjectBeamCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
-  fProjectBeamCmd->SetToBeBroadcasted(false);
-  fProjectBeamCmd->SetDefaultUnit("mm");
-
-  fBeamPosCmd = new G4UIcmdWith3VectorAndUnit("/beam/pos", this);
-  fBeamPosCmd->SetGuidance("Set the origin position of the beam");
-  fBeamPosCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
-  fBeamPosCmd->SetToBeBroadcasted(false);
-  fBeamPosCmd->SetParameterName("X","Y","Z",true);
-  fBeamPosCmd->SetDefaultUnit("mm");
+  fnPrimariesCmd = new G4UIcmdWithAnInteger("/beam/LHC/nPrimaries", this);
+  fnPrimariesCmd->SetGuidance("Set the plane in Z which the beam will be projected to");
+  fnPrimariesCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fnPrimariesCmd->SetToBeBroadcasted(false);
 
 
 
@@ -103,7 +109,7 @@ PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger(){
   delete fBeamTypeCmd;
   delete fVerticalCrossingCmd;
   delete fHorizontalCrossingCmd;
-  delete fProjectBeamCmd;
+  delete fnPrimariesCmd;
   delete fBeamPosCmd;
 }
 
@@ -127,5 +133,8 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command,G4String newVal
   }
   else if(command == fBeamPosCmd){
     fGenerator->SetBeamPos( new G4ThreeVector( fBeamPosCmd->GetNew3VectorValue(newValue) ) );
+  }
+  else if(command == fnPrimariesCmd){
+    fGenerator->SetnPrimaries( fnPrimariesCmd->GetNewIntValue(newValue) );
   }
 }

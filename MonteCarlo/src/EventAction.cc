@@ -101,11 +101,11 @@ void EventAction::EndOfEventAction(const G4Event* evt){
   // fill ntuples  //
   G4PrimaryVertex* pVert = evt->GetPrimaryVertex();
   for(int i = 0; i < analysisManager->GetNofNtuples(); i++){
-    analysisManager->FillNtupleDColumn(i,1, pVert->GetX0() );
-    analysisManager->FillNtupleDColumn(i,2, pVert->GetY0() );
-    analysisManager->FillNtupleDColumn(i,3, pVert->GetZ0() );
+    analysisManager->FillNtupleDColumn(i,0, pVert->GetX0() );
+    analysisManager->FillNtupleDColumn(i,1, pVert->GetY0() );
+    analysisManager->FillNtupleDColumn(i,2, pVert->GetZ0() );
 
-    analysisManager->FillNtupleIColumn(i,4, fEventNo );
+    analysisManager->FillNtupleIColumn(i,3, fEventNo );
   }
 
   //Use our custom class to finish the job
@@ -262,7 +262,7 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
       m_ZDCdblVec->at(modNo-1).at(4). push_back( momentum.y() );
       m_ZDCdblVec->at(modNo-1).at(5). push_back( momentum.z() );
 
-      analysisManager->FillNtupleIColumn( modNo - 1, 5, sd->GetNCherenkovs() );
+      analysisManager->FillNtupleIColumn( modNo - 1, 4, sd->GetNCherenkovs() );
       m_ZDCintVec->at(modNo-1).at(0).push_back( rodNo          );
     }//end fill ZDC vectors
     if(RPD){//RPD hitsCollID, check to be sure/symmetric
@@ -273,7 +273,7 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
       m_RPDdblVec->at(modNo-1).at(4). push_back( momentum.y() );
       m_RPDdblVec->at(modNo-1).at(5). push_back( momentum.z() );
 
-      analysisManager->FillNtupleIColumn( modNo - 1 + m_ZDCdblVec->size() , 5, sd->GetNCherenkovs() );
+      analysisManager->FillNtupleIColumn( modNo - 1 + m_ZDCdblVec->size() , 4, sd->GetNCherenkovs() );
       m_RPDintVec->at(modNo-1).at(0). push_back( rodNo );
     }//end fill RPD vectors
   }// end hit loop

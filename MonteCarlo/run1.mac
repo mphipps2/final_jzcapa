@@ -59,6 +59,7 @@
 /beam/pos 0. 0. -140. m
 /beam/projectBeam -80. mm
 /beam/LHC/horizontalCrossingAngle 0.100 mrad
+/beam/LHC/nPrimaries 1
 
 #if using these commands in interactive mode to visualize, use this to allow more events to be displayed (do not use in batch mode)
 #/vis/ogl/set/displayListLimit 1000000

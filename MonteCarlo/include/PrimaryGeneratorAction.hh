@@ -59,6 +59,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     inline void SetVerticalCrossingAngle  ( G4double arg ){ fVertXingAngle = arg; }
     inline void SetHorizontalCrossingAngle( G4double arg ){ fHorizXingAngle = arg; }
     inline void SetProjectionPlane        ( G4double arg ){ PROJECT = true; fProjPlane = arg; }
+    inline void SetnPrimaries             ( G4int    arg ){ fnPrimaries = arg; }
     inline void SetBeamPos                ( G4ThreeVector* arg ){ delete fpos; fpos = arg; }
 
 
@@ -70,6 +71,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
   G4double       fVertXingAngle;
   G4double       fHorizXingAngle;
   G4double       fProjPlane;
+  G4int          fnPrimaries;
   G4bool         PROJECT;
   G4ThreeVector* fpos;
 

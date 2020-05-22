@@ -66,6 +66,7 @@ class PrimaryGeneratorMessenger: public G4UImessenger{
     G4UIcmdWithADoubleAndUnit* fVerticalCrossingCmd;
     G4UIcmdWithADoubleAndUnit* fHorizontalCrossingCmd;
     G4UIcmdWithADoubleAndUnit* fProjectBeamCmd;
+    G4UIcmdWithAnInteger*      fnPrimariesCmd;
     G4UIcmdWith3VectorAndUnit* fBeamPosCmd;
 
 

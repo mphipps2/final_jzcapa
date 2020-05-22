@@ -52,6 +52,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fVertXingAngle(0.),
   fHorizXingAngle(0.),
   fProjPlane(0.),
+  fnPrimaries(0),
   PROJECT(false),
   fpos( new G4ThreeVector(0.,0.,0.) )
 {
@@ -91,11 +92,11 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
 {
   // These values are hard coded for accuracy and consistency
   // Though they need to be updated with the correct values
-  G4double sigmaThetaXZ = 3.57e-6; // 3.57e-6 Corresponds to a 1mm beam diameter
-  G4double sigmaThetaYZ = 3.57e-6;
-  G4double sigmaX = 1.*mm;
-  G4double sigmaY = 1.*mm;
-  G4double sigmaZ = 1.*mm;
+  G4double sigmaThetaXZ = 0.;//3.57e-6; // 3.57e-6 Corresponds to a 1mm beam diameter
+  G4double sigmaThetaYZ = 0.;//3.57e-6;
+  G4double sigmaX = 0.*mm;
+  G4double sigmaY = 0.*mm;
+  G4double sigmaZ = 0.*mm;
   G4double sigmaE = 1.e-3;
   G4double energy = (2.5 + G4RandGauss::shoot(0.0,sigmaE) )*TeV;
 
@@ -119,10 +120,10 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
     position = new G4ThreeVector( fpos->x(), fpos->y(), fpos->z() );
   }
 
-  //Generate the number of neutrons for this event and produce them
-  int nNeutrons = 1;
+  //If nPrimaries is 0, generate a random number from the distribution (to be implemented)
+  if( fnPrimaries == 0 ) fnPrimaries = 1;
   // int nNeutrons = some distribution dependent random number;
-  for(int i = 0; i < nNeutrons; i++){
+  for(int i = 0; i < fnPrimaries; i++){
     G4PrimaryParticle* particle = new G4PrimaryParticle(particleDefinition);
     particle->SetMomentumDirection( momentum );
     particle->SetKineticEnergy( energy );
