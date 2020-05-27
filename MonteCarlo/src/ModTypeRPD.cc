@@ -70,9 +70,10 @@
 ModTypeRPD::ModTypeRPD(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos )
   : m_modNum( cn ),
     m_pos( pos ),
-    m_fiberDiam(new G4ThreeVector(.6,.68,.73)),
-    m_HousingThickness(5.0*mm),
-    m_fiberPitch(0.9*mm),
+    m_fiberDiam(new G4ThreeVector(.71,.68,.73)),
+    m_HousingThickness(2.0*mm),
+    m_fiberPitchX(1.2*mm),
+    m_fiberPitchZ(2.0*mm),
     m_tileSize(10.*mm),
     m_minWallThickness(0.*mm),
     m_detType(""),
@@ -93,12 +94,14 @@ ModTypeRPD::ModTypeRPD(const int cn, ModTypeRPD* right)
 	m_pos 						 = new G4ThreeVector(*right->m_pos);
 	m_fiberDiam 			 = new G4ThreeVector(*right->m_fiberDiam);
 	m_HousingThickness = right->m_HousingThickness;
-	m_fiberPitch 			 = right->m_fiberPitch;
+	m_fiberPitchX 		 = right->m_fiberPitchX;
+  m_fiberPitchZ 		 = right->m_fiberPitchZ;
 	m_tileSize 				 = right->m_tileSize;
 	m_minWallThickness = right->m_minWallThickness;
   m_detType 				 = right->m_detType;
   OPTICAL 					 = right->OPTICAL;
   CHECK_OVERLAPS 		 = right->CHECK_OVERLAPS;
+  READOUT 		       = right->READOUT;
 	materials					 = right->materials;
 	m_logicMother 		 = right->m_logicMother;
 }
@@ -160,10 +163,12 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
   G4Colour colors[4] = { G4Colour::Cyan(),  G4Colour::Red(), G4Colour::Green(), G4Colour::Magenta() };
 
-	int n_rows = 4;
-	int n_columns = 4;
+	int n_rows     = 4;
+	int n_columns  = 4;
 	int n_cycles_per_tile = (m_tileSize/fiber_diam)/n_rows;   //Divide to round down to a whole number
 	int n_fibers_per_tile = n_cycles_per_tile*2*n_rows;  //The pattern will be repeated twice per tile
+  std::cout << "Cycles per tile = " << n_cycles_per_tile << std::endl;
+  std::cout << "Fibers per tile = " << n_fibers_per_tile << std::endl;
 
 	//If you asked for a
 	if(.707*m_minWallThickness < fiber_diam){
@@ -181,14 +186,20 @@ void ModTypeRPD::ConstructPanFluteDetector()
 		goto calculate_wall_thickness;
 	}
 
+  n_cycles_per_tile = 2;
+
 	// Distance on center of fibers
-	float pitch = wall_thickness + fiber_diam;
+	// float pitchX = (m_fiberPitchX < fiber_diam + m_minWallThickness) ? wall_thickness + fiber_diam : m_fiberPitchX;
+  // float pitchZ = (m_fiberPitchZ < fiber_diam + m_minWallThickness) ? wall_thickness + fiber_diam : m_fiberPitchZ;
+	float pitchX = m_fiberPitchX;
+  float pitchZ = m_fiberPitchZ;
 	// Distance in X and Z from one fiber to another diagonally from it
-	float offset = pitch/2;
+	float offsetX = pitchX/2;
+  float offsetZ = pitchZ/2;
 	// Will be filled with fiber height for each row
 	float fiber_height;
 	// Distance from the top of the RPD area of interest to the readout
-	float distance_to_readout = 0*mm;
+	float distance_to_readout = 0;
 	// Positions of the current fiber for pattern1 and pattern2
 	float posx1, posz1, posy, posx2, posz2;
 	// Count the number of fibers as we go along
@@ -198,7 +209,14 @@ void ModTypeRPD::ConstructPanFluteDetector()
   // Height (y) of the RPD housing
   float housingHeight = n_rows*m_tileSize + m_HousingThickness;
   // Depth (z) of the RPD housing
-  float housingDepth = (n_rows + 0.5)*m_fiberPitch + fiber_diam + 2*m_HousingThickness;
+  float housingDepth = (n_rows - 0.5)*pitchZ + fiber_diam + 2*m_HousingThickness;
+
+  if ( READOUT ){
+      //Height of readout above the rpd, in units of housingHeights
+      float readout_height = 3;
+      //Height (y) above the RPD "tiles" to reach PMT
+      distance_to_readout = readout_height * housingHeight * mm;
+  }
 
 	//create some rotation matrices
 	G4RotationMatrix* stripRotation = new G4RotationMatrix();
@@ -206,16 +224,17 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	G4RotationMatrix* nullRotation = new G4RotationMatrix();
   G4ThreeVector     nullVector(0.,0.,0.);
 
-
   // Construct the housing
-  m_PFrpd_housing = new G4Box( "RPDHousing", housingWidth*mm/2.0, housingHeight*mm/2.0, housingDepth*mm/2.0 );
+  m_PFrpd_housing = new G4Box( "RPDHousing",    housingWidth*mm/2.0,
+                                                (housingHeight + distance_to_readout)*mm/2.0,
+                                                housingDepth*mm/2.0 );
 
-  m_PFrpd_housingLogical = new G4LogicalVolume(m_PFrpd_housing, m_Al, "Housing_Logical");
+  m_PFrpd_housingLogical     = new G4LogicalVolume(m_PFrpd_housing,  m_Al,   "Housing_Logical");
 
   sprintf(name,"RPD%d_Case_Physical", m_modNum);
   m_PFrpd_housingPhysical =
     new G4PVPlacement(nullRotation,
-                      G4ThreeVector(m_pos->x(),m_pos->y() - m_HousingThickness/2.0, m_pos->z() ),
+                      G4ThreeVector(m_pos->x(), m_pos->y() - m_HousingThickness/2.0 + distance_to_readout/2.0 , m_pos->z()),
                       m_PFrpd_housingLogical,
                       name,
                       m_logicMother,
@@ -223,60 +242,106 @@ void ModTypeRPD::ConstructPanFluteDetector()
                       m_modNum,
                       CHECK_OVERLAPS);
 
-  m_PFrpd_housingLogical->SetVisAttributes(G4Colour(1.0,1.0,1.0,0.7));//G4Colour(1.0,0.0,0.0,0.3)
+  m_PFrpd_housingLogical->SetVisAttributes( G4Colour(1.0,1.0,1.0,0.7));//G4Colour(1.0,0.0,0.0,0.3)
 
 
+// Construct the readout above RPD tiles
+if ( READOUT ){
+
+    //Air volume that will exist inside aluminum case logical volume
+    m_PFreadout_air     = new G4Box( "RPDReadoutAir",     ( housingWidth - m_HousingThickness)  *mm/2.0,
+                                                            distance_to_readout                 *mm/2.0,
+                                                          ( housingDepth - m_HousingThickness)  *mm/2.0 );
+
+    m_PFreadout_airLogical      = new G4LogicalVolume(m_PFreadout_air,     m_Air, "Readout_Air_Logical");
+
+    sprintf(name,"RPD%d_ReadoutAir_Physical", m_modNum);
+    new G4PVPlacement(nullRotation,
+                      G4ThreeVector( 0.0 , housingHeight*mm/2.0 , 0.0 ),
+                      m_PFreadout_airLogical,
+                      name,
+                      m_PFrpd_housingLogical,
+                      false,
+                      m_modNum,
+                      CHECK_OVERLAPS);
+
+    m_PFreadout_airLogical    ->SetVisAttributes(G4Colour(0.0,0.8,1.0,0.05));
+}
 
   // Loop over rows
 	for(int row = 0; row < n_rows; row++){
     // Calculate the height of fibers in this row
-		fiber_height = m_tileSize*(row+1) + distance_to_readout;
+		fiber_height = m_tileSize*(row+1) ;//removed distance_to_readout: we are now using separate fibers mated to embedded fibers for readout
 
 		// The fiber solid and logical volume. One length for each row
 		sprintf(name,"m_PFrpd_%d", row);
-		m_PFrpd[row] = new G4Tubs(name,
+		m_PFrpd.push_back( new G4Tubs(name,
 														0.0*mm,
 														(fiber_diam/2.0)*mm,
 														fiber_height*mm/2.0 ,
 														0.0*deg,
-														360.0*deg);
+														360.0*deg) );
 
     sprintf(name,"m_PFrpd_log_%d",row);
-    m_PFrpdLogical[row] =
-      new G4LogicalVolume(m_PFrpd[row],
-                          m_matQuartz,
-                          name);
-    m_PFrpdLogical[row]->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
 
-	  m_PFrpdLogical[row]->SetVisAttributes( colors[row] );
+    m_PFrpdLogical.push_back(
+                  new G4LogicalVolume(
+                              m_PFrpd.back(),
+                              m_matQuartz,
+                              name) );
+
+    m_PFrpdLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
+	  m_PFrpdLogical.back()->SetVisAttributes( colors[row] );
 
 
 		// Create an air channel for the fiber to be routed
 		sprintf(name,"m_PFchannel_%d", row);
-		m_PFrpd_channel[row] =
-      new G4Box( name,
-                 (1.1*fiber_diam/2.0)*mm,
-                 (1.1*fiber_diam/2.0)*mm,
-                 fiber_height*mm/2.0);
 
+		m_PFrpd_channel.push_back(
+                  new G4Box( name,
+                             (1.1*fiber_diam/2.0)*mm,
+                             (1.1*fiber_diam/2.0)*mm,
+                             fiber_height*mm/2.0) );
 
     //Subtract the fiber from the channel
     sprintf(name,"m_PFsubChannel_%d", row);
-    m_subChannel[row] =
-      new G4SubtractionSolid(name,
-                             m_PFrpd_channel[row],
-                             m_PFrpd[row]);
+    m_subChannel.push_back(
+                  new G4SubtractionSolid(name,
+                             m_PFrpd_channel.back(),
+                             m_PFrpd.back()) );
 
     sprintf(name,"m_PFchannel_log_%d",row);
-    m_PFrpd_channelLogical[row] = new G4LogicalVolume(m_subChannel[row],m_Air,name);
+    m_PFrpd_channelLogical.push_back( new G4LogicalVolume(m_subChannel.back(),m_Air,name) );
 
     // Assemble the fiber and air channel
-    m_PFrpd_FiberAssy[row] = new G4AssemblyVolume();
-    m_PFrpd_FiberAssy[row]->AddPlacedVolume(m_PFrpd_channelLogical[row], nullVector, nullRotation );
-    m_PFrpd_FiberAssy[row]->AddPlacedVolume(m_PFrpdLogical[row],         nullVector, nullRotation );
+    m_PFrpd_FiberAssy.push_back( new G4AssemblyVolume() );
+    m_PFrpd_FiberAssy.back()->AddPlacedVolume(m_PFrpd_channelLogical.back(), nullVector, nullRotation );
+    m_PFrpd_FiberAssy.back()->AddPlacedVolume(m_PFrpdLogical.back(),         nullVector, nullRotation );
 
 
-	  m_PFrpd_channelLogical[row]->SetVisAttributes( G4Colour(0.0,0.0,1.0,0.1) );// G4Colour(0.0,0.0,1.0,0.1) or G4VisAttributes::Invisible
+	  m_PFrpd_channelLogical.back()->SetVisAttributes( G4Colour(0.0,0.0,1.0,0.1) );// G4Colour(0.0,0.0,1.0,0.1) or G4VisAttributes::Invisible
+
+    //Create readout fibers
+    if ( READOUT ){
+    		sprintf(name,"m_PFreadout_%d", row);
+    		m_PFreadout_fiber.push_back( new G4Tubs(name,
+    														0.0*mm,
+    														(fiber_diam/2.0)*mm,
+    														distance_to_readout*mm/2.0 ,
+    														0.0*deg,
+    														360.0*deg) );
+
+        sprintf(name,"m_PFreadout_log_%d",row);
+        m_PFreadout_fiberLogical.push_back(
+                      new G4LogicalVolume(
+                                  m_PFreadout_fiber.back(),
+                                  m_matQuartz,
+                                  name) );
+
+        m_PFreadout_fiberLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
+    	  m_PFreadout_fiberLogical.back()->SetVisAttributes(colors[row]); //G4Colour(1.0,0.0,1.0,0.9)
+    }
+
 
 		for(int col = 0; col < n_columns; col++){
 			//Now we're in the realm of working on a single tile
@@ -288,15 +353,15 @@ void ModTypeRPD::ConstructPanFluteDetector()
 					// !!!!!!!Position calculations assume an even number of rows and columns!!!!!!! //////
 
 					//Start at RPD center + tile width* number of tiles + cycle number * cycle width + stack number in cycle * pitch
-					posx1 = m_tileSize*((n_columns/2) - col ) - (cycle*n_columns*pitch) - fiber*pitch - pitch/4;  //ARIC ADDED - pitch/4
-					posx2 = posx1 - offset;
+					posx1 = m_tileSize*((n_columns/2) - col ) - (cycle*n_columns*pitchX) - fiber*pitchX - pitchX/4;  //ARIC ADDED - pitch/4
+					posx2 = posx1 - offsetX;
 
 					//Start at Z center - half the stack depth + moving front to back and looping back to front
-					posz1 = - pitch*(n_columns-0.5)/2 + pitch*((row + fiber	  )%4);
-					posz2 = - pitch*(n_columns-0.5)/2 + pitch*((row + fiber + 2)%4) + offset; //Pattern is offset by 2
+					posz1 = - pitchZ*(n_columns-0.5)/2 + pitchZ*((row + fiber	  )%4);
+					posz2 = - pitchZ*(n_columns-0.5)/2 + pitchZ*((row + fiber + 2)%4) + offsetZ; //Pattern is offset by 2
 
 					//Start at RPDY center + distance to bottom of top tile + half the fiber height
-					posy = ((n_rows/2 - 1) - row)*m_tileSize + fiber_height/2 + m_HousingThickness/2;
+					posy = ((n_rows/2 - 1) - row)*m_tileSize + fiber_height/2 + m_HousingThickness/2 - distance_to_readout/2;
 
           G4ThreeVector pos1(posx1*mm, posy*mm, posz1*mm);
           G4ThreeVector pos2(posx2*mm, posy*mm, posz2*mm);
@@ -304,10 +369,34 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
           //----------------------- Place the fiber assemblies -----------------------//
 
-          m_PFrpd_FiberAssy[row]->MakeImprint(m_PFrpd_housingLogical, pos1, stripRotation );
-          m_PFrpd_FiberAssy[row]->MakeImprint(m_PFrpd_housingLogical, pos2, stripRotation );
+          m_PFrpd_FiberAssy.back()->MakeImprint(m_PFrpd_housingLogical, pos1, stripRotation );
+          m_PFrpd_FiberAssy.back()->MakeImprint(m_PFrpd_housingLogical, pos2, stripRotation );
 
-					m_PFrpd_cnt++;
+          if ( READOUT ){//Readout fiber placement inside air volume at top of RPD alum block
+
+          sprintf(name,"phys_PFreadout_%d", m_PFrpd_cnt);
+          new G4PVPlacement(stripRotation,
+                            G4ThreeVector( posx1*mm , 0.0 , posz1*mm ),
+                            m_PFreadout_fiberLogical.back(),
+                            name,
+                            m_PFreadout_airLogical,
+                            false,
+                            m_PFrpd_cnt,
+                            CHECK_OVERLAPS);
+
+          m_PFrpd_cnt++;
+
+          sprintf(name,"phys_PFreadout_%d", m_PFrpd_cnt);
+          new G4PVPlacement(stripRotation,
+                            G4ThreeVector( posx2*mm , 0.0 , posz2*mm ),
+                            m_PFreadout_fiberLogical.back(),
+                            name,
+                            m_PFreadout_airLogical,
+                            false,
+                            m_PFrpd_cnt,
+                            CHECK_OVERLAPS);
+          }
+
 					m_PFrpd_cnt++;
 
 				}//end fiber
@@ -315,11 +404,9 @@ void ModTypeRPD::ConstructPanFluteDetector()
 		}//end column
 	}//end row
 
-
 	//----------------------------------------------
 	// SD and Scoring Volumes
 	//----------------------------------------------
-
 
 	G4SDManager* SDman = G4SDManager::GetSDMpointer();
 
@@ -327,13 +414,27 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	char fiberSDname[256];
 	sprintf( fiberSDname, "RPD%d_SD", m_modNum);
 
+
 	FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
 	aFiberSD->HistInitialize();
-	aFiberSD->SetTopOfVolume( m_pos->y() - m_HousingThickness/2.0 + housingHeight/2.0);
-	SDman->AddNewDetector( aFiberSD );
-  for(int i = 0; i < n_rows; i++){
-	   m_PFrpdLogical[i]->SetSensitiveDetector( aFiberSD );
-   }
+
+  if ( !READOUT ){
+    	aFiberSD->SetTopOfVolume( m_pos->y() - m_HousingThickness/2.0 + housingHeight/2.0);
+    	SDman->AddNewDetector( aFiberSD );
+
+      for(int i = 0; i < n_rows; i++){
+    	   m_PFrpdLogical.at(i)->SetSensitiveDetector( aFiberSD );
+       }
+  }
+  else{
+    	aFiberSD->SetTopOfVolume( m_pos->y() - m_HousingThickness/2.0 + housingHeight/2.0 + distance_to_readout);
+    	SDman->AddNewDetector( aFiberSD );
+
+      for(int i = 0; i < n_rows; i++){
+    	   m_PFreadout_fiberLogical.at(i)->SetSensitiveDetector( aFiberSD );
+       }
+  }
+
 
 	std::cout << "Prototype RPD construction finished: SD name " << fiberSDname << std::endl;
 
@@ -363,7 +464,6 @@ void ModTypeRPD::ConstructCMSDetector()
 	bool fr_bck_flag = rpd_comp[5]; 		// front and back aluminum casing
 	bool vertical_flag = rpd_comp[6]; 	// veritcal aluminum dividers
 	bool air_detec_flag = rpd_comp[7];	// photo detectors
-
 
 
 	//retrieve RPD parameters
@@ -397,9 +497,6 @@ void ModTypeRPD::ConstructCMSDetector()
 	stripRotation->rotateX(90.*deg);
 	G4RotationMatrix* nullRotation = new G4RotationMatrix();
 
-  // Option to switch on/off checking of volumes overlaps
-
-
 	//create tile that has 4 holes to be used repeatedly later
   m_tile_no_fiber_hole = new G4Box("tile_no_hole",(tileX/2)*mm, (tileY/2)*mm, (tileZ/2)*mm);
 	m_fiber_subtract = new G4Tubs( "fiber_sub",
@@ -413,7 +510,6 @@ void ModTypeRPD::ConstructCMSDetector()
   m_tile = new G4SubtractionSolid("tile",m_tile,m_fiber_subtract,stripRotation, G4ThreeVector(( tileX/2.0 - 2*(tileX/5)  )*mm,0,(tileZ/2.0 - fiber_diam/2.0 - grease_offset - hole_center_offset )*mm));
 	m_tile = new G4SubtractionSolid("tile",m_tile,m_fiber_subtract,stripRotation, G4ThreeVector(( tileX/2.0 - 3*(tileX/5)  )*mm,0,(tileZ/2.0 - fiber_diam/2.0 - grease_offset - hole_center_offset )*mm));
 	m_tile = new G4SubtractionSolid("tile",m_tile,m_fiber_subtract,stripRotation, G4ThreeVector(( tileX/2.0 - 4*(tileX/5)  )*mm,0,(tileZ/2.0 - fiber_diam/2.0 - grease_offset - hole_center_offset )*mm));
-
 
   m_tileLogical	 = new G4LogicalVolume(m_tile, m_matQuartz, "tile_Logical");
 
@@ -432,8 +528,7 @@ void ModTypeRPD::ConstructCMSDetector()
 
 
 //positioning variables
-///////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 float factor1 = 1.5;
 float hole_shift		= grease_offset + hole_center_offset;
@@ -587,10 +682,8 @@ m_AlcaseLogical 	= new G4LogicalVolume(m_Alcase
 					"case_fr_bck_log");
 m_AlcaseLogical->SetVisAttributes( G4Colour(0.0,0.0,0.9,0.4));//
 
-
 ///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
-// if Optical is turned on we need to build air detector above each fibers
+// if Optical is turned on we need to build air detector above each fiber
 
 if ( OPTICAL ){
 
@@ -613,8 +706,7 @@ for(int i=0;i<4;i++) {
 			m_air_detect_Logical[air_detecT_cnt]	 = new G4LogicalVolume(m_air_detect, m_PMMA, name);
 			m_air_detect_Logical[air_detecT_cnt]->SetVisAttributes( G4Colour(0.0,1.0,0.0,5.0) );
 
-			//sprintf(name,"photo_detect %d", k);
-			sprintf(name,"photo_detect_phys_%d_%d_%d",i, j, k);//comment
+			sprintf(name,"photo_detect_phys_%d_%d_%d",i, j, k);
 
 			if(air_detec_flag){
 
@@ -629,8 +721,6 @@ for(int i=0;i<4;i++) {
 					false,
 					air_detecT_cnt,
 					CHECK_OVERLAPS);
-
-
 
 					air_detecT_cnt++;
 
@@ -662,6 +752,7 @@ for(int k=0;k<5;k++) {
 						CHECK_OVERLAPS);
 						}
 }
+
 //place front/back plate
 for(int k=0;k<2;k++) {
 
@@ -684,8 +775,6 @@ for(int k=0;k<2;k++) {
 //place tiles, fibers, foil
   for(int j=0;j<4;j++) {
     for(int i=0;i<4;i++) {
-
-
 
 		if(tile_flag){
 			sprintf(name,"tilephys_%d_%d", i,j);
@@ -810,23 +899,7 @@ for(int k=0;k<2;k++) {
 									}
 
 							cn_fiber++;
-		}
-
-			//
-      // std::cout  << std:: endl << "tilex = "
-			// 	<<  RPD_startX - (i*( tileX+(2*halfX_gap) ) )
-			// 	<< ", tiley = "
-			// 	<<  RPD_startY - (j*( tileY+(2*halfY_gap) ) )
-			// 	<< ", tilez = "
-			// 	<< tileZcenter[j]
-			// 	<< ", ("
-			// 	<< i
-			// 	<< ","
-			// 	<< j
-			// 	<< ")"
-			// 	<< std::endl << std::endl;
-
-
+		          }
       cn++;
     }
 }
@@ -855,14 +928,13 @@ if(test_tile){
 		m_test_grease 	= new G4Box("test_grease",(100/2)*mm, (testgreaseY/2)*mm, (testgreaseZ/2)*mm);
 		m_test_block 		= new G4Box("test_blck1",(100/2)*mm, ((testgreaseY)/2)*mm, (testblckZ/2)*mm);
 
-
-		m_test_tileLogical	 = new G4LogicalVolume(m_test_tile, m_matQuartz, "testtile_Logical");
-		m_test_alumLogical	 = new G4LogicalVolume(m_test_alum, m_Al, "testalum_Logical");
-		m_test_wlsLogical	 = new G4LogicalVolume(m_test_wls, m_PMMA, "testwls_Logical");
-		m_test_PDLogical	 = new G4LogicalVolume(m_test_PD, m_PMMA, "testPD_Logical");
-		m_test_cladLogical	 = new G4LogicalVolume(m_test_clad, m_Poly, "testclad_Logical");
+		m_test_tileLogical	   = new G4LogicalVolume(m_test_tile, m_matQuartz, "testtile_Logical");
+		m_test_alumLogical	   = new G4LogicalVolume(m_test_alum, m_Al, "testalum_Logical");
+		m_test_wlsLogical	     = new G4LogicalVolume(m_test_wls, m_PMMA, "testwls_Logical");
+		m_test_PDLogical	     = new G4LogicalVolume(m_test_PD, m_PMMA, "testPD_Logical");
+		m_test_cladLogical	   = new G4LogicalVolume(m_test_clad, m_Poly, "testclad_Logical");
 		m_test_greaseLogical	 = new G4LogicalVolume(m_test_grease, m_Grease, "testgrease_Logical");
-		m_test_blockLogical	 = new G4LogicalVolume(m_test_block, m_Al, "testblck_Logical");
+		m_test_blockLogical	   = new G4LogicalVolume(m_test_block, m_Al, "testblck_Logical");
 
 		m_test_tileLogical->SetVisAttributes( G4Colour(0.0,1.0,0.0,0.3) );
 		m_test_alumLogical->SetVisAttributes( G4Colour(0.8,0.0,0.0,0.3) );

@@ -92,16 +92,8 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   }//end secondary track loop
   m_nCherenkovs += capturedPhotons; // Record the total in case OPTICAL is true
 
-  //      Figure out if this is necessary
-  //
-  G4int    totalRodNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
-  G4String radNum_s = "7" +  aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName() + "0";
-  G4int    rodNum;
-  G4int    radNum;
-
-	rodNum = totalRodNum;
-	radNum = (std::stoi (radNum_s)*100)+rodNum;
-  // ^^^^ Figure out if this is necessary ^^^^
+  G4int    rodNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
+  G4int    radNum = 0;//RPD doesn't have radiator gaps
 
   G4ThreeVector pos = aStep->GetTrack()->GetPosition();
   G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
@@ -147,20 +139,6 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
 void FiberSD::EndOfEvent(G4HCofThisEvent*)
 {
-
-  //  G4int NbHits = fiberCollection->entries();
-
-  /*
-  if(verboseLevel>0) {
-      std::cout << " if verbose loop" << std::endl;
-      std::cout << "\n-------->Hits Collection: in this event they are " << NbHits
-		<< " hits in the calorimeter cells: " << std::endl;
-      for (G4int i=0;i<NbHits;i++) {
-	if (i %100 == 0) std::cout << " i " << i << std::endl;
-	(*fiberCollection)[i]->Print();
-      }
-  }
-  */
 
 }
 

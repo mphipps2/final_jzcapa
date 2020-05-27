@@ -92,12 +92,14 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWith3VectorAndUnit* fRPDPositionCmd;
     G4UIcmdWith3VectorAndUnit* fRPDFiberDiametersCmd;
     G4UIcmdWithADoubleAndUnit* fRPDHousingThicknessCmd;
-    G4UIcmdWithADoubleAndUnit* fRPDSetFiberPitchCmd;
+    G4UIcmdWithADoubleAndUnit* fRPDSetFiberPitchXCmd;
+    G4UIcmdWithADoubleAndUnit* fRPDSetFiberPitchZCmd;
     G4UIcmdWithADoubleAndUnit* fRPDSetTileSizeCmd;
     G4UIcmdWithADoubleAndUnit* fRPDMinWallThicknessCmd;
     G4UIcmdWithAString*        fRPDTypeCmd;
     G4UIcmdWithABool*          fRPDOpticalFlagCmd;
     G4UIcmdWithABool*          fRPDOverlapsFlagCmd;
+    G4UIcmdWithABool*          fRPDReadoutFlagCmd;
     G4UIcmdWithAnInteger*      fRPDSetCurrentCmd;
     G4UIcmdWithAnInteger*      fRPDDuplicateCmd;
 

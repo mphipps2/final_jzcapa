@@ -67,12 +67,14 @@ public:
   inline  void  SetPosition          ( G4ThreeVector* vec ){ delete m_pos;       m_pos       = vec; }
   inline  void  SetFiberDiameters    ( G4ThreeVector* vec ){ delete m_fiberDiam; m_fiberDiam = vec; }
   inline  void  SetHousingThickness  ( G4double       arg ){ m_HousingThickness = arg; }
-  inline  void  SetFiberPitch        ( G4double       arg ){ m_fiberPitch       = arg; }
+  inline  void  SetFiberPitchX       ( G4double       arg ){ m_fiberPitchX      = arg; }
+  inline  void  SetFiberPitchZ       ( G4double       arg ){ m_fiberPitchZ      = arg; }
   inline  void  SetTileSize          ( G4double       arg ){ m_tileSize         = arg; }
   inline  void  SetMinWallThickness  ( G4double       arg ){ m_minWallThickness = arg; }
   inline  void  SetDetectorType      ( G4String       arg ){ m_detType          = arg; }
   inline  void  SetOpticalFlag       ( G4bool         arg ){ OPTICAL            = arg; }
   inline  void  SetOverlapsFlag      ( G4bool         arg ){ CHECK_OVERLAPS     = arg; }
+  inline  void  SetReadoutFlag       ( G4bool         arg ){ READOUT            = arg; }
 
 
   inline  G4ThreeVector* GetPosition ( ){ return m_pos;    }
@@ -83,12 +85,14 @@ protected:
   G4ThreeVector*   m_pos;
   G4ThreeVector*   m_fiberDiam;
   G4double         m_HousingThickness;
-  G4double         m_fiberPitch;
+  G4double         m_fiberPitchX;
+  G4double         m_fiberPitchZ;
   G4double         m_tileSize;
   G4double         m_minWallThickness;
   G4String         m_detType;
   G4bool           OPTICAL;
   G4bool           CHECK_OVERLAPS;
+  G4bool           READOUT;
   Materials*       materials;
   G4LogicalVolume* m_logicMother;
 
@@ -105,6 +109,43 @@ protected:
   G4OpticalSurface*   m_photonDetSurface;
 
   G4SubtractionSolid* m_tile;
+
+
+
+//PAN FLUTE START---------------------------------
+
+  G4VSolid*           m_PFrpd_housing;
+  G4LogicalVolume*    m_PFrpd_housingLogical;
+  G4VPhysicalVolume*  m_PFrpd_housingPhysical;
+
+  G4VSolid*           m_PFreadout_air;
+  G4LogicalVolume*    m_PFreadout_airLogical;
+  G4VPhysicalVolume*  m_PFreadout_airPhysical;
+
+  G4VSolid*           m_PFdetec;
+  G4LogicalVolume*    m_PFdetecLogical;
+
+  std::vector< G4VSolid* >                m_PFrpd;
+  std::vector< G4LogicalVolume* >         m_PFrpdLogical;
+
+  std::vector< G4VSolid* >                m_PFreadout_fiber;
+  std::vector< G4LogicalVolume* >         m_PFreadout_fiberLogical;
+  std::vector< G4VPhysicalVolume* >       m_PFreadout_fiberPhysical;
+
+  std::vector< G4VSolid* >                m_PFrpd_channel;
+  std::vector< G4SubtractionSolid* >      m_subChannel;
+  std::vector< G4LogicalVolume* >         m_PFrpd_channelLogical;
+
+  std::vector< G4AssemblyVolume* >        m_PFrpd_FiberAssy;
+
+  G4int               m_PFrpd_cnt;
+
+//PAN FLUTE STOP----------------------------------
+
+
+
+//CMS RPD DESIGN START----------------------------------
+//STATIC ARRAYS
 
   G4VSolid*           m_tile_no_fiber_hole;
   G4VSolid*           m_fiber_subtract;
@@ -138,7 +179,7 @@ protected:
   G4VPhysicalVolume* m_AlcasePhysical[2];
 
   G4VSolid*          m_fiber[4];
-  G4LogicalVolume*   m_fiberLogical[64];//4
+  G4LogicalVolume*   m_fiberLogical[64];
   G4VPhysicalVolume* m_fiberPhysical[64];
 
   G4VSolid*          m_fiberclad[4];
@@ -153,8 +194,10 @@ protected:
   G4LogicalVolume*   m_air_detect_Logical[64];
   G4VPhysicalVolume* m_air_detectPhysical[64];
 
+//CMS RPD DESIGN STOP ----------------------------------
 
-//test_setup
+//TEST SETUP START -------------------------------------
+//STATIC ARRAYS
   G4VSolid*           m_test_tile;
   G4LogicalVolume*    m_test_tileLogical;
   G4VPhysicalVolume*  m_test_tilePhysical;
@@ -182,25 +225,7 @@ protected:
   G4VSolid*           m_test_block;
   G4LogicalVolume*    m_test_blockLogical;
   G4VPhysicalVolume*  m_test_blockPhysical[2];
-
-  //pan flute rpd
-  G4VSolid*           m_PFrpd_housing;
-  G4LogicalVolume*    m_PFrpd_housingLogical;
-  G4VPhysicalVolume*  m_PFrpd_housingPhysical;
-
-  G4VSolid*           m_PFrpd[4];
-  G4LogicalVolume*    m_PFrpdLogical[4];
-
-  G4VSolid*           m_PFrpd_channel[4];
-  G4SubtractionSolid* m_subChannel[4];
-  G4LogicalVolume*    m_PFrpd_channelLogical[4];
-
-  G4AssemblyVolume*   m_PFrpd_FiberAssy[4];
-
-  G4VSolid*           m_PFdetec;
-  G4LogicalVolume*    m_PFdetecLogical;
-
-  G4int               m_PFrpd_cnt;
+//TEST SETUP STOP ----------------------------------
 
   //rpd booleans
   bool rpd_comp[8];
