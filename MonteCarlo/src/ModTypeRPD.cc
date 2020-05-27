@@ -70,9 +70,10 @@
 ModTypeRPD::ModTypeRPD(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos )
   : m_modNum( cn ),
     m_pos( pos ),
-    m_fiberDiam(new G4ThreeVector(.6,.68,.73)),
-    m_HousingThickness(5.0*mm),
-    m_fiberPitch(0.9*mm),
+    m_fiberDiam(new G4ThreeVector(.71,.68,.73)),
+    m_HousingThickness(2.0*mm),
+    m_fiberPitchX(1.2*mm),
+    m_fiberPitchZ(2.0*mm),
     m_tileSize(10.*mm),
     m_minWallThickness(0.*mm),
     m_detType(""),
@@ -93,7 +94,8 @@ ModTypeRPD::ModTypeRPD(const int cn, ModTypeRPD* right)
 	m_pos 						 = new G4ThreeVector(*right->m_pos);
 	m_fiberDiam 			 = new G4ThreeVector(*right->m_fiberDiam);
 	m_HousingThickness = right->m_HousingThickness;
-	m_fiberPitch 			 = right->m_fiberPitch;
+	m_fiberPitchX 		 = right->m_fiberPitchX;
+  m_fiberPitchZ 		 = right->m_fiberPitchZ;
 	m_tileSize 				 = right->m_tileSize;
 	m_minWallThickness = right->m_minWallThickness;
   m_detType 				 = right->m_detType;
@@ -165,7 +167,8 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	int n_columns  = 4;
 	int n_cycles_per_tile = (m_tileSize/fiber_diam)/n_rows;   //Divide to round down to a whole number
 	int n_fibers_per_tile = n_cycles_per_tile*2*n_rows;  //The pattern will be repeated twice per tile
-
+  std::cout << "Cycles per tile = " << n_cycles_per_tile << std::endl;
+  std::cout << "Fibers per tile = " << n_fibers_per_tile << std::endl;
 
 	//If you asked for a
 	if(.707*m_minWallThickness < fiber_diam){
@@ -177,20 +180,29 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	// the new wall thickness
 	calculate_wall_thickness:
 	float wall_thickness = ((m_tileSize - n_fibers_per_tile*fiber_diam)/n_fibers_per_tile)*mm;
+  std::cout << "wall_thickness " << wall_thickness << std::endl;
 	if( wall_thickness < m_minWallThickness*mm ){
 		--n_cycles_per_tile;
 		n_fibers_per_tile = n_cycles_per_tile*n_rows;
+    std::cout << "Cycles per tile = " << n_cycles_per_tile << std::endl;
+    std::cout << "Fibers per tile = " << n_fibers_per_tile << std::endl;
 		goto calculate_wall_thickness;
 	}
 
+  n_cycles_per_tile = 2;
+
 	// Distance on center of fibers
-	float pitch = wall_thickness + fiber_diam;
+	// float pitchX = (m_fiberPitchX < fiber_diam + m_minWallThickness) ? wall_thickness + fiber_diam : m_fiberPitchX;
+  // float pitchZ = (m_fiberPitchZ < fiber_diam + m_minWallThickness) ? wall_thickness + fiber_diam : m_fiberPitchZ;
+	float pitchX = m_fiberPitchX;
+  float pitchZ = m_fiberPitchZ;
 	// Distance in X and Z from one fiber to another diagonally from it
-	float offset = pitch/2;
+	float offsetX = pitchX/2;
+  float offsetZ = pitchZ/2;
 	// Will be filled with fiber height for each row
 	float fiber_height;
 	// Distance from the top of the RPD area of interest to the readout
-	float distance_to_readout = 0*mm;
+	float distance_to_readout = 0;
 	// Positions of the current fiber for pattern1 and pattern2
 	float posx1, posz1, posy, posx2, posz2;
 	// Count the number of fibers as we go along
@@ -200,7 +212,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
   // Height (y) of the RPD housing
   float housingHeight = n_rows*m_tileSize + m_HousingThickness;
   // Depth (z) of the RPD housing
-  float housingDepth = (n_rows + 0.5)*m_fiberPitch + fiber_diam + 2*m_HousingThickness;
+  float housingDepth = (n_rows - 0.5)*pitchZ + fiber_diam + 2*m_HousingThickness;
 
   if ( READOUT ){
       //Height of readout above the rpd, in units of housingHeights
@@ -217,7 +229,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
   // Construct the housing
   m_PFrpd_housing = new G4Box( "RPDHousing",    housingWidth*mm/2.0,
-                                                (housingHeight+distance_to_readout)*mm/2.0,
+                                                (housingHeight + distance_to_readout)*mm/2.0,
                                                 housingDepth*mm/2.0 );
 
   m_PFrpd_housingLogical     = new G4LogicalVolume(m_PFrpd_housing,  m_Al,   "Housing_Logical");
@@ -344,12 +356,12 @@ if ( READOUT ){
 					// !!!!!!!Position calculations assume an even number of rows and columns!!!!!!! //////
 
 					//Start at RPD center + tile width* number of tiles + cycle number * cycle width + stack number in cycle * pitch
-					posx1 = m_tileSize*((n_columns/2) - col ) - (cycle*n_columns*pitch) - fiber*pitch - pitch/4;  //ARIC ADDED - pitch/4
-					posx2 = posx1 - offset;
+					posx1 = m_tileSize*((n_columns/2) - col ) - (cycle*n_columns*pitchX) - fiber*pitchX - pitchX/4;  //ARIC ADDED - pitch/4
+					posx2 = posx1 - offsetX;
 
 					//Start at Z center - half the stack depth + moving front to back and looping back to front
-					posz1 = - pitch*(n_columns-0.5)/2 + pitch*((row + fiber	  )%4);
-					posz2 = - pitch*(n_columns-0.5)/2 + pitch*((row + fiber + 2)%4) + offset; //Pattern is offset by 2
+					posz1 = - pitchZ*(n_columns-0.5)/2 + pitchZ*((row + fiber	  )%4);
+					posz2 = - pitchZ*(n_columns-0.5)/2 + pitchZ*((row + fiber + 2)%4) + offsetZ; //Pattern is offset by 2
 
 					//Start at RPDY center + distance to bottom of top tile + half the fiber height
 					posy = ((n_rows/2 - 1) - row)*m_tileSize + fiber_height/2 + m_HousingThickness/2 - distance_to_readout/2;

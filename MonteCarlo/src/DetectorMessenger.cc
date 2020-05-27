@@ -219,12 +219,19 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDHousingThicknessCmd->SetToBeBroadcasted(false);
   fRPDHousingThicknessCmd->SetDefaultUnit("mm");
 
-  fRPDSetFiberPitchCmd =
-    new G4UIcmdWithADoubleAndUnit("/Detector/RPD/FiberPitch",this);
-  fRPDSetFiberPitchCmd->SetGuidance("Set fiber pitch of the current RPD");
-  fRPDSetFiberPitchCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
-  fRPDSetFiberPitchCmd->SetToBeBroadcasted(false);
-  fRPDSetFiberPitchCmd->SetDefaultUnit("mm");
+  fRPDSetFiberPitchXCmd =
+    new G4UIcmdWithADoubleAndUnit("/Detector/RPD/FiberPitchX",this);
+  fRPDSetFiberPitchXCmd->SetGuidance("Set fiber pitch of the current RPD");
+  fRPDSetFiberPitchXCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRPDSetFiberPitchXCmd->SetToBeBroadcasted(false);
+  fRPDSetFiberPitchXCmd->SetDefaultUnit("mm");
+
+  fRPDSetFiberPitchZCmd =
+    new G4UIcmdWithADoubleAndUnit("/Detector/RPD/FiberPitchZ",this);
+  fRPDSetFiberPitchZCmd->SetGuidance("Set fiber pitch of the current RPD");
+  fRPDSetFiberPitchZCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRPDSetFiberPitchZCmd->SetToBeBroadcasted(false);
+  fRPDSetFiberPitchZCmd->SetDefaultUnit("mm");
 
   fRPDSetTileSizeCmd =
     new G4UIcmdWithADoubleAndUnit("/Detector/RPD/TileSize",this);
@@ -312,7 +319,8 @@ DetectorMessenger::~DetectorMessenger(){
   delete fRPDPositionCmd;
   delete fRPDFiberDiametersCmd;
   delete fRPDHousingThicknessCmd;
-  delete fRPDSetFiberPitchCmd;
+  delete fRPDSetFiberPitchXCmd;
+  delete fRPDSetFiberPitchZCmd;
   delete fRPDSetTileSizeCmd;
   delete fRPDMinWallThicknessCmd;
   delete fRPDTypeCmd;
@@ -412,8 +420,11 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if(command == fRPDHousingThicknessCmd){
     fDetector->SetRPDHousingThickness( fRPDHousingThicknessCmd->GetNewDoubleValue(newValue) );
   }
-  else if(command == fRPDSetFiberPitchCmd){
-    fDetector->SetRPDFiberPitch( fRPDSetFiberPitchCmd->GetNewDoubleValue(newValue) );
+  else if(command == fRPDSetFiberPitchXCmd){
+    fDetector->SetRPDFiberPitchX( fRPDSetFiberPitchXCmd->GetNewDoubleValue(newValue) );
+  }
+  else if(command == fRPDSetFiberPitchZCmd){
+    fDetector->SetRPDFiberPitchZ( fRPDSetFiberPitchZCmd->GetNewDoubleValue(newValue) );
   }
   else if(command == fRPDSetTileSizeCmd){
     fDetector->SetRPDTileSize( fRPDSetTileSizeCmd->GetNewDoubleValue(newValue) );

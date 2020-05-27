@@ -67,7 +67,8 @@ public:
   inline  void  SetPosition          ( G4ThreeVector* vec ){ delete m_pos;       m_pos       = vec; }
   inline  void  SetFiberDiameters    ( G4ThreeVector* vec ){ delete m_fiberDiam; m_fiberDiam = vec; }
   inline  void  SetHousingThickness  ( G4double       arg ){ m_HousingThickness = arg; }
-  inline  void  SetFiberPitch        ( G4double       arg ){ m_fiberPitch       = arg; }
+  inline  void  SetFiberPitchX       ( G4double       arg ){ m_fiberPitchX      = arg; }
+  inline  void  SetFiberPitchZ       ( G4double       arg ){ m_fiberPitchZ      = arg; }
   inline  void  SetTileSize          ( G4double       arg ){ m_tileSize         = arg; }
   inline  void  SetMinWallThickness  ( G4double       arg ){ m_minWallThickness = arg; }
   inline  void  SetDetectorType      ( G4String       arg ){ m_detType          = arg; }
@@ -84,7 +85,8 @@ protected:
   G4ThreeVector*   m_pos;
   G4ThreeVector*   m_fiberDiam;
   G4double         m_HousingThickness;
-  G4double         m_fiberPitch;
+  G4double         m_fiberPitchX;
+  G4double         m_fiberPitchZ;
   G4double         m_tileSize;
   G4double         m_minWallThickness;
   G4String         m_detType;
