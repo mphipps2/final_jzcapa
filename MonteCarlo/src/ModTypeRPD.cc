@@ -180,12 +180,9 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	// the new wall thickness
 	calculate_wall_thickness:
 	float wall_thickness = ((m_tileSize - n_fibers_per_tile*fiber_diam)/n_fibers_per_tile)*mm;
-  std::cout << "wall_thickness " << wall_thickness << std::endl;
 	if( wall_thickness < m_minWallThickness*mm ){
 		--n_cycles_per_tile;
 		n_fibers_per_tile = n_cycles_per_tile*n_rows;
-    std::cout << "Cycles per tile = " << n_cycles_per_tile << std::endl;
-    std::cout << "Fibers per tile = " << n_fibers_per_tile << std::endl;
 		goto calculate_wall_thickness;
 	}
 
