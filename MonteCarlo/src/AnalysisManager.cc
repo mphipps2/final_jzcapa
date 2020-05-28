@@ -195,9 +195,9 @@ void AnalysisManager::FillNtuples(){
     }
   }
   m_lastStepVec->clear();
-  m_lastStepXVec->clear();
-  m_lastStepYVec->clear();
-  m_lastStepZVec->clear();
+  m_lastStepXVec.clear();
+  m_lastStepYVec.clear();
+  m_lastStepZVec.clear();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
