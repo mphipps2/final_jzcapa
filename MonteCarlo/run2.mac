@@ -47,7 +47,7 @@
 # FUNCTIONING BEAM
 /gps/pos/type Beam
 /gps/pos/shape Circle
-/gps/pos/centre 0. 0. -100. mm
+/gps/pos/centre 0. 0. 10. mm
 /gps/pos/radius 1. mm
 /gps/pos/sigma_r 2. mm
 /gps/ang/rot1 0 1 0

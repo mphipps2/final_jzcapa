@@ -171,11 +171,12 @@ void ModTypeRPD::ConstructPanFluteDetector()
   std::cout << "Fibers per tile = " << n_fibers_per_tile << std::endl;
 
 	//If you asked for a
-	if(.707*m_minWallThickness < fiber_diam){
-		m_minWallThickness = 1.414*fiber_diam;
-		std::cout << "Minimum wall thickness entered is too small!!!" << std::endl;
-		std::cout << "Using " << m_minWallThickness << "mm instead" << std::endl;
-	}
+	// if(.707*m_minWallThickness < fiber_diam){
+	// 	m_minWallThickness = 1.414*fiber_diam;
+	// 	std::cout << "Minimum wall thickness entered is too small!!!" << std::endl;
+	// 	std::cout << "Using " << m_minWallThickness << "mm instead" << std::endl;
+	// }
+
 	// If the remaining space in x leaves less than 1mm for each wall, remove a cycle and calculate
 	// the new wall thickness
 	calculate_wall_thickness:
@@ -186,13 +187,10 @@ void ModTypeRPD::ConstructPanFluteDetector()
 		goto calculate_wall_thickness;
 	}
 
-  n_cycles_per_tile = 2;
-
 	// Distance on center of fibers
-	// float pitchX = (m_fiberPitchX < fiber_diam + m_minWallThickness) ? wall_thickness + fiber_diam : m_fiberPitchX;
-  // float pitchZ = (m_fiberPitchZ < fiber_diam + m_minWallThickness) ? wall_thickness + fiber_diam : m_fiberPitchZ;
-	float pitchX = m_fiberPitchX;
-  float pitchZ = m_fiberPitchZ;
+	float pitchX = (m_fiberPitchX < fiber_diam + m_minWallThickness) ? wall_thickness + fiber_diam : m_fiberPitchX;
+  float pitchZ = (m_fiberPitchZ < fiber_diam + m_minWallThickness) ? wall_thickness + fiber_diam : m_fiberPitchZ;
+
 	// Distance in X and Z from one fiber to another diagonally from it
 	float offsetX = pitchX/2;
   float offsetZ = pitchZ/2;
@@ -213,7 +211,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
   if ( READOUT ){
       //Height of readout above the rpd, in units of housingHeights
-      float readout_height = 3;
+      float readout_height = 9;
       //Height (y) above the RPD "tiles" to reach PMT
       distance_to_readout = readout_height * housingHeight * mm;
   }
