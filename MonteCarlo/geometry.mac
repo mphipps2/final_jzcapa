@@ -1,5 +1,5 @@
 
-/Detector/Cluster false
+/Detector/Cluster true
 /Detector/Optical true
 /Detector/Overlaps false
 /Detector/RunNumber 347

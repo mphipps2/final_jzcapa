@@ -277,7 +277,7 @@ void AnalysisManager::MakeZDCOpticalTree( G4int nTupleNo, G4int zdcNo ){
   sprintf(name,"ZDC%dtree",zdcNo+1);
   m_analysisManager->CreateNtuple( name, "ZDC data");
 
-  //Make branches containing sipmle data types
+  //Make branches containing simple data types
   //Do this first so column ID number is predictable
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosX"                                   );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "gunPosY"                                   );

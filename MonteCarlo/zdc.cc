@@ -113,8 +113,13 @@ int main(int argc,char** argv)
 
   //Set the seed
   if(myseed == -1){
-    long seeds[2];
+
     long systime = time(NULL);
+
+    // long systime = chrono::duration_cast< milliseconds >(
+    // chrono::system_clock::now().time_since_epoch();
+
+    long seeds[2];
     seeds[0] = (long) systime;
     seeds[1] = (long) (systime*G4UniformRand());
     G4Random::setTheSeeds(seeds);
