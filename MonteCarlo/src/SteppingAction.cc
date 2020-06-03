@@ -76,6 +76,7 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
 		} else { // World OPTICAL is off
 			// Kill all photons except those in SD volumes with OPTICAL on
 			if(sd == 0 || !sd->OpticalIsOn() ){
+			
 				theTrack->SetTrackStatus( fStopAndKill );
 			}
 		}
