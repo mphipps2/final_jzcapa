@@ -92,8 +92,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   }//end secondary track loop
   m_nCherenkovs += capturedPhotons; // Record the total in case OPTICAL is true
 
-  G4int    rodNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
-  G4int    radNum = 0;//RPD doesn't have radiator gaps
+  G4int rodNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
 
   G4ThreeVector pos = aStep->GetTrack()->GetPosition();
   G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
@@ -119,7 +118,6 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     newHit->setCharge      ( aStep->GetPreStepPoint()->GetCharge() );
     newHit->setTrackID     ( aStep->GetTrack()->GetTrackID() );
     newHit->setModNb       ( m_modNum );
-    newHit->setRadNb       ( radNum );
     newHit->setRodNb       ( rodNum );
     newHit->setEdep        ( aStep->GetTotalEnergyDeposit() );
     newHit->setOrigin      ( aStep->GetTrack()->GetVertexPosition() );

@@ -117,7 +117,7 @@ void EventAction::EndOfEventAction(const G4Event* evt){
 
 void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
   G4int prevTrackId = 0;
-  G4int prevRadiatorNo = 0;
+  G4int prevRodNo = 0;
   G4int nCherenkovsSum = 0;
   G4double eDepSum = 0.0;
   G4String name = HC->GetSDname();
@@ -132,17 +132,17 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
 
     G4double      eDep          = (*HC)[i]->getEdep();
 
-    G4int         radiatorNo    = (*HC)[i]->getRadNb();
+    G4int         rodNo         = (*HC)[i]->getRodNb();
     G4int         nCherenkovs   = (*HC)[i]->getNCherenkovs(); // This is the number of cherenkovs in a single step within the SD
     G4int         trackID       = (*HC)[i]->getTrackID();
 
     //Sum energy from all steps a particle takes in a single scoring volume
-    if (trackID == prevTrackId || radiatorNo == prevRadiatorNo || eDep != 0) {
+    if (trackID == prevTrackId || rodNo == prevRodNo || eDep != 0) {
       nCherenkovsSum += nCherenkovs;
       eDepSum += eDep;
 
       prevTrackId = trackID;
-      prevRadiatorNo = radiatorNo;
+      prevRodNo = rodNo;
       continue;
     }// end summation
 
@@ -155,7 +155,6 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
     G4double      beta          = (*HC)[i]->getBeta();
     G4double      charge        = (*HC)[i]->getCharge();
 
-    G4int         rodNo         = (*HC)[i]->getRodNb();
     G4int         modNb         = (*HC)[i]->getModNb();
     G4int         pid           = (*HC)[i]->getParticle()->GetPDGEncoding();
 
@@ -176,11 +175,10 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
 
         //ints
         m_RPDintVec->at(modNo-1).at(0).push_back( modNb          );
-        m_RPDintVec->at(modNo-1).at(1).push_back( radiatorNo     );
-        m_RPDintVec->at(modNo-1).at(2).push_back( rodNo          );
-        m_RPDintVec->at(modNo-1).at(3).push_back( nCherenkovsSum );
-        m_RPDintVec->at(modNo-1).at(4).push_back( trackID        );
-        m_RPDintVec->at(modNo-1).at(5).push_back( pid            );
+        m_RPDintVec->at(modNo-1).at(1).push_back( rodNo          );
+        m_RPDintVec->at(modNo-1).at(2).push_back( nCherenkovsSum );
+        m_RPDintVec->at(modNo-1).at(3).push_back( trackID        );
+        m_RPDintVec->at(modNo-1).at(4).push_back( pid            );
 
       } else{
         //doubles
@@ -211,11 +209,10 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
 
           //ints
           m_ZDCintVec->at(modNo-1).at(0).push_back( modNb          );
-          m_ZDCintVec->at(modNo-1).at(1).push_back( radiatorNo     );
-          m_ZDCintVec->at(modNo-1).at(2).push_back( rodNo          );
-          m_ZDCintVec->at(modNo-1).at(3).push_back( nCherenkovsSum );
-          m_ZDCintVec->at(modNo-1).at(4).push_back( trackID        );
-          m_ZDCintVec->at(modNo-1).at(5).push_back( pid            );
+          m_ZDCintVec->at(modNo-1).at(1).push_back( rodNo          );
+          m_ZDCintVec->at(modNo-1).at(2).push_back( nCherenkovsSum );
+          m_ZDCintVec->at(modNo-1).at(3).push_back( trackID        );
+          m_ZDCintVec->at(modNo-1).at(4).push_back( pid            );
 
         } else{
           //doubles
@@ -225,7 +222,7 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
 
           //ints
           m_ZDCintVec->at(modNo-1).at(0).push_back( nCherenkovsSum );
-          m_ZDCintVec->at(modNo-1).at(1).push_back( radiatorNo  );
+          m_ZDCintVec->at(modNo-1).at(1).push_back( rodNo  );
         }// end if !CLUSTER
       }// end if ZDC
     }// end else (!RPD)
