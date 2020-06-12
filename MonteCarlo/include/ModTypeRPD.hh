@@ -71,10 +71,10 @@ public:
   inline  void  SetFiberPitchZ       ( G4double       arg ){ m_fiberPitchZ      = arg; }
   inline  void  SetTileSize          ( G4double       arg ){ m_tileSize         = arg; }
   inline  void  SetMinWallThickness  ( G4double       arg ){ m_minWallThickness = arg; }
+  inline  void  SetReadoutDistance   ( G4double       arg ){ READOUT = true; m_distanceToReadout = arg;}
   inline  void  SetDetectorType      ( G4String       arg ){ m_detType          = arg; }
   inline  void  SetOpticalFlag       ( G4bool         arg ){ OPTICAL            = arg; }
   inline  void  SetOverlapsFlag      ( G4bool         arg ){ CHECK_OVERLAPS     = arg; }
-  inline  void  SetReadoutFlag       ( G4bool         arg ){ READOUT            = arg; }
 
 
   inline  G4ThreeVector* GetPosition ( ){ return m_pos;    }
@@ -89,6 +89,7 @@ protected:
   G4double         m_fiberPitchZ;
   G4double         m_tileSize;
   G4double         m_minWallThickness;
+  G4double         m_distanceToReadout;
   G4String         m_detType;
   G4bool           OPTICAL;
   G4bool           CHECK_OVERLAPS;
@@ -127,6 +128,7 @@ protected:
 
   std::vector< G4VSolid* >                m_PFrpd;
   std::vector< G4LogicalVolume* >         m_PFrpdLogical;
+  std::vector< G4VPhysicalVolume* >       m_PFrpdPhysical;
 
   std::vector< G4VSolid* >                m_PFreadout_fiber;
   std::vector< G4LogicalVolume* >         m_PFreadout_fiberLogical;
@@ -135,6 +137,7 @@ protected:
   std::vector< G4VSolid* >                m_PFrpd_channel;
   std::vector< G4SubtractionSolid* >      m_subChannel;
   std::vector< G4LogicalVolume* >         m_PFrpd_channelLogical;
+  std::vector< G4VPhysicalVolume* >       m_PFrpd_channelPhysical;
 
   std::vector< G4AssemblyVolume* >        m_PFrpd_FiberAssy;
 
