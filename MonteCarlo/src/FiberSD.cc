@@ -36,6 +36,7 @@
 #include "G4Poisson.hh"
 #include "G4ParticleTypes.hh"
 #include "G4ParticleDefinition.hh"
+#include "G4SystemOfUnits.hh"
 
 #include <string>
 #include <iostream>
@@ -101,7 +102,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   // If OPTICAL is true, determine if the photon has reached the top of the topOfVolume
   // and add the hit to the collection if it has
   if(OPTICAL){
-    if( aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() && pos.y() >= m_topOfVolume){
+    if( aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() && pos.y() >= m_topOfVolume - 0.1*mm){
       FiberHit* newHit = new FiberHit();
       newHit->setPos      ( pos );
       newHit->setOrigin   ( aStep->GetTrack()->GetVertexPosition() );
