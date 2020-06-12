@@ -54,7 +54,6 @@ FiberHit::FiberHit(const FiberHit& right)
 {
   trackID   = right.trackID;
   modNb     = right.modNb;
-  radNb     = right.radNb;
   rodNb     = right.rodNb;
   edep      = right.edep;
   pos       = right.pos;
@@ -71,7 +70,6 @@ const FiberHit& FiberHit::operator=(const FiberHit& right)
 {
   trackID   = right.trackID;
   modNb     = right.modNb;
-  radNb     = right.radNb;
   rodNb     = right.rodNb;
   edep      = right.edep;
   pos       = right.pos;
@@ -112,7 +110,7 @@ void FiberHit::Draw()
 void FiberHit::Print()
 {
   G4cout << "  trackID: " << trackID
-	 << "  mod: " << modNb << "  rad: " << radNb
+	 << "  mod: " << modNb << "  rod: " << rodNb
 	 << "  energy deposit: " << G4BestUnit(edep,"Energy")
 	 << "  position: " << G4BestUnit(pos,"Length") << G4endl;
 }

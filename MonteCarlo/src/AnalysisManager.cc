@@ -216,7 +216,7 @@ void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo ){
 
 
     //Resize the vector for the number of branches storing double vectors
-    m_ZDCdblVec->at(zdcNo).resize(14);
+    m_ZDCdblVec->at(zdcNo).resize(11);
     //Make double vector branches
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepX",   m_lastStepXVec               );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepY",   m_lastStepYVec               );
@@ -234,14 +234,13 @@ void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo ){
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "charge",      m_ZDCdblVec->at(zdcNo).at(10) );
 
     //Resize the vector for the number of branches storing int vectors
-    m_ZDCintVec->at(zdcNo).resize(6);
+    m_ZDCintVec->at(zdcNo).resize(5);
     //Make int branches
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "modNo",       m_ZDCintVec->at(zdcNo).at(0) );
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "radNo",       m_ZDCintVec->at(zdcNo).at(1) );
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_ZDCintVec->at(zdcNo).at(2) );
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", m_ZDCintVec->at(zdcNo).at(3) );
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "trackID",     m_ZDCintVec->at(zdcNo).at(4) );
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "pid",         m_ZDCintVec->at(zdcNo).at(5) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_ZDCintVec->at(zdcNo).at(1) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", m_ZDCintVec->at(zdcNo).at(2) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "trackID",     m_ZDCintVec->at(zdcNo).at(3) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "pid",         m_ZDCintVec->at(zdcNo).at(4) );
 
   } else { //Fewer vector branches to save storage space
     //Make branches containing sipmle data types
@@ -252,7 +251,7 @@ void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo ){
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
 
     //Resize the vector for the number of branches storing double vectors
-    m_ZDCdblVec->at(zdcNo).resize(6);
+    m_ZDCdblVec->at(zdcNo).resize(3);
     //Make double branches
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepX",   m_lastStepXVec               );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepY",   m_lastStepYVec               );
@@ -264,8 +263,8 @@ void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo ){
     //Resize the vector for the number of branches storing int vectors
     m_ZDCintVec->at(zdcNo).resize(2);
     //Make int branches
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", m_ZDCintVec->at(zdcNo).at(1) );
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "radNo",       m_ZDCintVec->at(zdcNo).at(0) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", m_ZDCintVec->at(zdcNo).at(0) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_ZDCintVec->at(zdcNo).at(1) );
   }//end if !CLUSTER
   m_analysisManager->FinishNtuple( );
 }
@@ -286,7 +285,7 @@ void AnalysisManager::MakeZDCOpticalTree( G4int nTupleNo, G4int zdcNo ){
   m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs"                               );
 
   //Resize the vector for the number of branches storing double vectors
-  m_ZDCdblVec->at(zdcNo).resize(9);
+  m_ZDCdblVec->at(zdcNo).resize(6);
   //Make double branches
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepX",   m_lastStepXVec               );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepY",   m_lastStepYVec               );
@@ -322,7 +321,7 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo ){
 
 
     //Resize the vector for the number of branches storing double vectors
-    m_RPDdblVec->at(rpdNo).resize(14);
+    m_RPDdblVec->at(rpdNo).resize(11);
     //Make double branches
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepX",   m_lastStepXVec               );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepY",   m_lastStepYVec               );
@@ -340,14 +339,13 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo ){
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "charge",      m_RPDdblVec->at(rpdNo).at(10));
 
     //Resize the vector for the number of branches storing int vectors
-    m_RPDintVec->at(rpdNo).resize(6);
+    m_RPDintVec->at(rpdNo).resize(5);
     //Make int branches
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "modNo",       m_RPDintVec->at(rpdNo).at(0) );
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "radNo",       m_RPDintVec->at(rpdNo).at(1) );
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(rpdNo).at(2) );
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", m_RPDintVec->at(rpdNo).at(3) );
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "trackID",     m_RPDintVec->at(rpdNo).at(4) );
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "pid",         m_RPDintVec->at(rpdNo).at(5) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(rpdNo).at(1) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", m_RPDintVec->at(rpdNo).at(2) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "trackID",     m_RPDintVec->at(rpdNo).at(3) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "pid",         m_RPDintVec->at(rpdNo).at(4) );
 
   } else { //Fewer vector branches to save storage space
     //Make branches containing sipmle data types
@@ -358,7 +356,7 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo ){
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "EventNo"                                   );
 
     //Resize the vector for the number of branches storing double vectors
-    m_RPDdblVec->at(rpdNo).resize(6);
+    m_RPDdblVec->at(rpdNo).resize(3);
     //Make double branches
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepX",   m_lastStepXVec               );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepY",   m_lastStepYVec               );
@@ -394,7 +392,7 @@ void AnalysisManager::MakeRPDOpticalTree( G4int nTupleNo, G4int rpdNo ){
   m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs"                               );
 
   //Resize the vector for the number of branches storing double vectors
-  m_RPDdblVec->at(rpdNo).resize(9);
+  m_RPDdblVec->at(rpdNo).resize(6);
   //Make double branches
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepX",   m_lastStepXVec               );
   m_analysisManager->CreateNtupleDColumn( nTupleNo, "lastStepY",   m_lastStepYVec               );

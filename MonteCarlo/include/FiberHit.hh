@@ -64,7 +64,6 @@ public:
   void setMomentum    (G4ThreeVector mom)          { momentum  = mom;   }
   void setTrackID     (G4int track)                { trackID   = track; }
   void setModNb       (G4int mod)                  { modNb     = mod;   }
-  void setRadNb       (G4int rad)                  { radNb     = rad;   }
   void setRodNb       (G4int rod)                  { rodNb     = rod;   }
   void setNCherenkovs (G4int n)                    { nCherenkovs = n;  }
   void setEdep        (G4double de)                { edep      = de;    }
@@ -78,7 +77,6 @@ public:
   G4ThreeVector          getMomentum    (){ return momentum;    }
   G4int                  getTrackID     (){ return trackID;     }
   G4int                  getModNb       (){ return modNb;       }
-  G4int                  getRadNb       (){ return radNb;       }
   G4int                  getRodNb       (){ return rodNb;       }
   G4int                  getNCherenkovs (){ return nCherenkovs; }
   G4double               getEdep        (){ return edep;        }
@@ -94,7 +92,6 @@ private:
   G4ThreeVector         momentum;
   G4int                 trackID;
   G4int                 modNb;
-  G4int                 radNb;
   G4int                 rodNb;
   G4int                 nCherenkovs;
   G4double              velocity;
