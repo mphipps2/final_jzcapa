@@ -247,6 +247,13 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDMinWallThicknessCmd->SetToBeBroadcasted(false);
   fRPDMinWallThicknessCmd->SetDefaultUnit("mm");
 
+  fRPDReadoutDistanceCmd =
+    new G4UIcmdWithADoubleAndUnit("/Detector/RPD/FiberReadoutDistance", this);
+  fRPDReadoutDistanceCmd->SetGuidance("Set readout distance for current RPD");
+  fRPDReadoutDistanceCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRPDReadoutDistanceCmd->SetToBeBroadcasted(false);
+  fRPDReadoutDistanceCmd->SetDefaultUnit("mm");
+
   fRPDTypeCmd = new G4UIcmdWithAString("/Detector/RPD/RPDtype", this);
   fRPDTypeCmd->SetGuidance("Set design type for the current RPD (cms or panflute)");
   fRPDTypeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -263,12 +270,6 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDOverlapsFlagCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fRPDOverlapsFlagCmd->SetDefaultValue(true);
   fRPDOverlapsFlagCmd->SetToBeBroadcasted(false);
-
-  fRPDReadoutFlagCmd = new G4UIcmdWithABool("/Detector/RPD/FiberReadout", this);
-  fRPDReadoutFlagCmd->SetGuidance("Set readout flag for current RPD");
-  fRPDReadoutFlagCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
-  fRPDReadoutFlagCmd->SetDefaultValue(false);
-  fRPDReadoutFlagCmd->SetToBeBroadcasted(false);
 
   fRPDSetCurrentCmd = new G4UIcmdWithAnInteger("/Detector/RPD/SetCurrent", this);
   fRPDSetCurrentCmd->SetGuidance("Select RPD to be modified");
@@ -323,10 +324,10 @@ DetectorMessenger::~DetectorMessenger(){
   delete fRPDSetFiberPitchZCmd;
   delete fRPDSetTileSizeCmd;
   delete fRPDMinWallThicknessCmd;
+  delete fRPDReadoutDistanceCmd;
   delete fRPDTypeCmd;
   delete fRPDOpticalFlagCmd;
   delete fRPDOverlapsFlagCmd;
-  delete fRPDReadoutFlagCmd;
   delete fRPDSetCurrentCmd;
   delete fRPDDuplicateCmd;
 
@@ -441,8 +442,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if(command == fRPDOverlapsFlagCmd){
     fDetector->SetRPDOverlapsFlag( fRPDOverlapsFlagCmd->GetNewBoolValue(newValue) );
   }
-  else if(command == fRPDReadoutFlagCmd){
-    fDetector->SetRPDReadoutFlag( fRPDOverlapsFlagCmd->GetNewBoolValue(newValue) );
+  else if(command == fRPDReadoutDistanceCmd){
+    fDetector->SetRPDReadoutDistance( fRPDReadoutDistanceCmd->GetNewDoubleValue(newValue) );
   }
   else if(command == fRPDSetCurrentCmd){
     fDetector->SetCurrentRPD( fRPDSetCurrentCmd->GetNewIntValue(newValue) );
