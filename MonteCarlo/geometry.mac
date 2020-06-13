@@ -12,12 +12,12 @@
 #EMCAL
 /Detector/ZDC/Add
 /Detector/ZDC/Position 0. 145. 100. mm
-/Detector/ZDC/FiberDiameters 1.5 0. 0. mm
-/Detector/ZDC/AbsorberDimensions 90. 470. 4. mm
+/Detector/ZDC/AbsorberDimensions 43.5 470. 4. mm #run4
+#/Detector/ZDC/AbsorberDimensions 90. 470. 4. mm #run3
 /Detector/ZDC/nAbsorbers 25
 /Detector/ZDC/HousingThickness 5. mm
 /Detector/ZDC/GapThickness 2. mm
-/Detector/ZDC/Optical true
+/Detector/ZDC/Optical false
 /Detector/ZDC/CheckOverlaps false
 /Detector/ZDC/HousingMaterial aluminum
 /Detector/ZDC/AbsorberMaterial pure
@@ -25,7 +25,8 @@
 /Detector/ZDC/Add
 /Detector/ZDC/Position 0. 0. 266. mm
 /Detector/ZDC/FiberDiameters 1.5 0. 0. mm
-/Detector/ZDC/AbsorberDimensions 90. 180. 10.2 mm
+/Detector/ZDC/AbsorberDimensions 43.5 180. 10.2 mm #run4
+#/Detector/ZDC/AbsorberDimensions 90. 180. 10.2 mm #run3
 /Detector/ZDC/nAbsorbers 11
 /Detector/ZDC/HousingThickness 5. mm
 /Detector/ZDC/GapThickness 2. mm
@@ -50,10 +51,10 @@
 /Detector/RPD/FiberPitchZ 2.0 mm
 /Detector/RPD/TileSize 9.6 mm
 /Detector/RPD/MinWallThickness 0.01 mm
-#/Detector/RPD/FiberReadoutDistance 200 mm
+/Detector/RPD/FiberReadoutDistance 360 mm
 /Detector/RPD/RPDtype panflute
 /Detector/RPD/Optical true
-/Detector/RPD/CheckOverlaps true
+/Detector/RPD/CheckOverlaps false
 
 #/Detector/RPD/SetCurrent 1
 

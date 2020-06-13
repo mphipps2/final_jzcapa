@@ -114,6 +114,10 @@ protected:
 
 
 //PAN FLUTE START---------------------------------
+  G4VSolid*           m_PFdetec;
+  G4LogicalVolume*    m_PFdetecLogical[256];
+  G4VPhysicalVolume*  m_PFdetecPhysical[256];
+
 
   G4VSolid*           m_PFrpd_housing;
   G4LogicalVolume*    m_PFrpd_housingLogical;
@@ -123,8 +127,6 @@ protected:
   G4LogicalVolume*    m_PFreadout_airLogical;
   G4VPhysicalVolume*  m_PFreadout_airPhysical;
 
-  G4VSolid*           m_PFdetec;
-  G4LogicalVolume*    m_PFdetecLogical;
 
   std::vector< G4VSolid* >                m_PFrpd;
   std::vector< G4LogicalVolume* >         m_PFrpdLogical;

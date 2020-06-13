@@ -23,7 +23,7 @@
 
 # the beam energy is in gaussian profile
 /gps/ene/type Gauss
-/gps/ene/mono 300 GeV
+/gps/ene/mono 400 GeV
 /gps/ene/sigma 1 MeV
 
 # FUNCTIONING CONE
@@ -47,7 +47,7 @@
 # FUNCTIONING BEAM
 /gps/pos/type Beam
 /gps/pos/shape Circle
-/gps/pos/centre 0. 0. 10. mm
+/gps/pos/centre 0. 0. 0. mm
 /gps/pos/radius 1. mm
 /gps/pos/sigma_r 2. mm
 /gps/ang/rot1 0 1 0
@@ -57,11 +57,11 @@
 
 
 #if using these commands in interactive mode to visualize, use this to allow more events to be displayed (do not use in batch mode)
-/vis/ogl/set/displayListLimit 1000000000
+/vis/ogl/set/displayListLimit 10000000000
 
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 10
+/run/beamOn 5
 ##############################################################
 ##############################################################

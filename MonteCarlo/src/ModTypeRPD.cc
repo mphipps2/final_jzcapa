@@ -160,7 +160,9 @@ void ModTypeRPD::DefineMaterials()
 void ModTypeRPD::ConstructPanFluteDetector()
 {
 	//retrieve RPD parameters
-	float fiber_diam 	= m_fiberDiam->x(); // Just core for now
+	double fiber_diam 	= m_fiberDiam->x(); // Just core for now
+
+  double readout_thickness = 0.1; //using this for readout detectors for the time being
 
 	char name[256];
 
@@ -170,8 +172,6 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	int n_columns  = 4;
 	int n_cycles_per_tile = (m_tileSize/fiber_diam)/n_rows;   //Divide to round down to a whole number
 	int n_fibers_per_tile = n_cycles_per_tile*2*n_rows;  //The pattern will be repeated twice per tile
-  std::cout << "Cycles per tile = " << n_cycles_per_tile << std::endl;
-  std::cout << "Fibers per tile = " << n_fibers_per_tile << std::endl;
 
 	//If you asked for a
 	// if(.707*m_minWallThickness < fiber_diam){
@@ -183,34 +183,38 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	// If the remaining space in x leaves less than 1mm for each wall, remove a cycle and calculate
 	// the new wall thickness
 	calculate_wall_thickness:
-	float wall_thickness = ((m_tileSize - n_fibers_per_tile*fiber_diam)/n_fibers_per_tile)*mm;
+	double wall_thickness = ((m_tileSize - n_fibers_per_tile*fiber_diam)/n_fibers_per_tile)*mm;
 	if( wall_thickness < m_minWallThickness*mm ){
 		--n_cycles_per_tile;
 		n_fibers_per_tile = n_cycles_per_tile*n_rows;
 		goto calculate_wall_thickness;
 	}
 
+  std::cout << "Cycles per tile = " << n_cycles_per_tile << std::endl;
+  std::cout << "Fibers per tile = " << n_cycles_per_tile*n_rows << std::endl;
+
+
 	// Distance on center of fibers
-	float pitchX = (m_fiberPitchX < fiber_diam + m_minWallThickness) ? wall_thickness + fiber_diam : m_fiberPitchX;
-  float pitchZ = (m_fiberPitchZ < fiber_diam + m_minWallThickness) ? wall_thickness + fiber_diam : m_fiberPitchZ;
+	double pitchX = (m_fiberPitchX < fiber_diam + m_minWallThickness) ? wall_thickness + fiber_diam : m_fiberPitchX;
+  double pitchZ = (m_fiberPitchZ < fiber_diam + m_minWallThickness) ? wall_thickness + fiber_diam : m_fiberPitchZ;
 
 	// Distance in X and Z from one fiber to another diagonally from it
-	float offsetX = pitchX/2;
-  float offsetZ = pitchZ/2;
+	double offsetX = pitchX/2;
+  double offsetZ = pitchZ/2;
 	// Will be filled with fiber height for each row
-	float fiber_height;
+	double fiber_height;
 	// Positions of the current fiber for pattern1 and pattern2
-	float posx[2], posz[2], posy;
+	double posx[2], posz[2], posy;
 	// Count the number of fibers as we go along
 	m_PFrpd_cnt = 0;
   // Height of the active region
-  float activeHeight = n_rows*m_tileSize;
+  double activeHeight = n_rows*m_tileSize;
   // Width (x) of the RPD housing
-  float housingWidth = n_columns*m_tileSize + 2*m_HousingThickness;
+  double housingWidth = n_columns*m_tileSize + 2*m_HousingThickness;
   // Height (y) of the RPD housing
-  float housingHeight = activeHeight + 2*m_HousingThickness + m_distanceToReadout;
+  double housingHeight = activeHeight + 2*m_HousingThickness + m_distanceToReadout;
   // Depth (z) of the RPD housing
-  float housingDepth = (n_rows - 0.5)*pitchZ + fiber_diam + 2*m_HousingThickness;
+  double housingDepth = (n_rows - 0.5)*pitchZ + fiber_diam + 2*m_HousingThickness;
 
 
 
@@ -219,6 +223,15 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	stripRotation->rotateX(90.*deg);
 	G4RotationMatrix* nullRotation = new G4RotationMatrix();
   G4ThreeVector     nullVector(0.,0.,0.);
+
+  // Construct Detector for Top of Fibers
+	m_PFdetec = new G4Tubs( "m_PFdetec",
+												0.0*mm,
+												(fiber_diam/2.0)*mm,
+												(readout_thickness/2.0)*mm ,
+												0.0*deg,
+												360.0*deg);
+
 
   // Construct the housing
   m_PFrpd_housing = new G4Box( "RPDHousing", housingWidth*mm/2.0,
@@ -253,7 +266,7 @@ if ( READOUT ){
 
     sprintf(name,"RPD%d_ReadoutAir_Physical", m_modNum);
     new G4PVPlacement(nullRotation,
-                      G4ThreeVector( 0.0 , activeHeight*mm/2.0 , 0.0 ),
+                      G4ThreeVector( 0.0 , (activeHeight )*mm/2.0 , 0.0 ),
                       m_PFreadout_airLogical,
                       name,
                       m_PFrpd_housingLogical,
@@ -262,6 +275,9 @@ if ( READOUT ){
                       CHECK_OVERLAPS);
 
     m_PFreadout_airLogical->SetVisAttributes(G4Colour(0.0,0.8,1.0,0.05));
+
+  //  std::cout << "m_PFreadout_airLogical = " <<  activeHeight/2.0 + (m_pos->y()) << std::endl << std::endl;
+
 }
 
   // Loop over rows
@@ -320,7 +336,12 @@ if ( READOUT ){
 					//posy = ((n_rows/2 - 1) - row)*m_tileSize + fiber_height/2 + m_HousingThickness/2 - m_distanceToReadout/2;
 					//posy = ((n_rows/2 - 1) - row)*m_tileSize + fiber_height/2 + m_HousingThickness - m_distanceToReadout/2;
           //Start from the top and work down.
-          posy = -1*row*m_tileSize/2.0 - (housingHeight/2.0 - m_HousingThickness - activeHeight + m_tileSize/2.0);
+
+          //posy = -1*row*m_tileSize/2.0 - (housingHeight/2.0 - m_HousingThickness - activeHeight + m_tileSize/2.0);
+          //posy = ((n_rows/2 - 1) - row)*m_tileSize + fiber_height/2 + m_HousingThickness/2 - m_distanceToReadout/2;
+          posy = ((n_rows/2 - 1) - row)*m_tileSize + fiber_height/2 - m_distanceToReadout/2;
+
+          //std::cout << "top fiber = " <<  posy + fiber_height/2 + m_distanceToReadout/2  << std::endl << std::endl;
 
           //Placement is comprised of two patterns
           for(int pattern = 0; pattern < 2; pattern ++){
@@ -360,6 +381,29 @@ if ( READOUT ){
                                   CHECK_OVERLAPS) );
 
 
+
+          //----------------------- Place detector at top of fiber -----------------------//
+					sprintf(name,"m_PFdetec_log_%d",m_PFrpd_cnt);
+					m_PFdetecLogical[m_PFrpd_cnt]	=
+						new G4LogicalVolume(m_PFdetec,
+																m_matQuartz,
+																name);
+					m_PFdetecLogical[m_PFrpd_cnt]->SetVisAttributes(G4Colour(0.0,6.0,4.0,0.3));//G4Colour(1.0,0.0,0.0,0.3)   G4VisAttributes::Invisible
+          sprintf(name,"photo_det_phys_%d",m_PFrpd_cnt);
+
+          if ( !READOUT ){
+    					m_PFdetecPhysical[m_PFrpd_cnt] =
+    						new G4PVPlacement(nullRotation,
+    															G4ThreeVector(0*mm, 0*mm, ((fiber_height/2-readout_thickness/2))*mm),
+    															m_PFdetecLogical[m_PFrpd_cnt],
+    															name,
+    															m_PFrpdLogical.back(),
+    															false,
+    															m_PFrpd_cnt,
+    															CHECK_OVERLAPS);
+          }
+
+
             //----------------------- Place readout fiber in the air volume if selected-----------------------//
             if ( READOUT ){
               sprintf(name,"m_PFreadout_log_%d",m_PFrpd_cnt);
@@ -381,6 +425,16 @@ if ( READOUT ){
                                 false,
                                 m_PFrpd_cnt,
                                 CHECK_OVERLAPS);
+
+    					m_PFdetecPhysical[m_PFrpd_cnt] =
+    						new G4PVPlacement(nullRotation,
+    															G4ThreeVector(0*mm, 0*mm, ((m_distanceToReadout/2-readout_thickness/2))*mm),
+    															m_PFdetecLogical[m_PFrpd_cnt],
+    															name,
+    															m_PFreadout_fiberLogical.back(),
+    															false,
+    															m_PFrpd_cnt,
+    															CHECK_OVERLAPS);
             }
 
   					m_PFrpd_cnt++;
@@ -409,11 +463,13 @@ if ( READOUT ){
 	aFiberSD->SetTopOfVolume( m_pos->y() + (housingHeight - 2.0*m_HousingThickness - activeHeight/2.0)  );
 	SDman->AddNewDetector( aFiberSD );
 
-  for(int i = 0; i < n_rows; i++){
-     m_PFrpdLogical.at(i)->SetSensitiveDetector( aFiberSD );
-	   if( READOUT )m_PFreadout_fiberLogical.at(i)->SetSensitiveDetector( aFiberSD );
-  }
-
+  // for(int i = 0; i < n_rows; i++){
+  //    m_PFrpdLogical.at(i)->SetSensitiveDetector( aFiberSD );
+	//    if( READOUT )m_PFreadout_fiberLogical.at(i)->SetSensitiveDetector( aFiberSD );
+  // }
+	for(int i=0;i<m_PFrpd_cnt;i++){
+	 	m_PFdetecLogical[i]->SetSensitiveDetector( aFiberSD );
+ 	}
 
 	std::cout << "Prototype RPD construction finished: SD name " << fiberSDname << std::endl;
 
@@ -446,28 +502,28 @@ void ModTypeRPD::ConstructCMSDetector()
 
 
 	//retrieve RPD parameters
-  float tileX 		= 20;
-  float tileY 		= 20;
-  float tileZ 		= 10;
-  float halfX_gap 	= (1.58/2)*mm;
-	float fiber_diam 	= 1*mm;
-	float foil_thickness 	= 0.016*mm;
+  double tileX 		= 20;
+  double tileY 		= 20;
+  double tileZ 		= 10;
+  double halfX_gap 	= (1.58/2)*mm;
+	double fiber_diam 	= 1*mm;
+	double foil_thickness 	= 0.016*mm;
 
 
 	//manually create some RPD parameters
-	float halfY_gap 	= (2.5*foil_thickness/2)*mm;
-	float hole_center_offset = 0.05;
-	float case_thickness = 0.9*2.0*halfX_gap;
-	float core_diam;
-	float grease_offset;
+	double halfY_gap 	= (2.5*foil_thickness/2)*mm;
+	double hole_center_offset = 0.05;
+	double case_thickness = 0.9*2.0*halfX_gap;
+	double core_diam;
+	double grease_offset;
 	if(grease_flag) grease_offset = 0.05;
 	else grease_offset = 0.0;
 
 	if(cladding_flag) core_diam = 0.970*(fiber_diam)*mm;
 	else 							core_diam = (fiber_diam)*mm;
 
-	float fiberHeightY[4];
-	float foilHeightY[4];
+	double fiberHeightY[4];
+	double foilHeightY[4];
 
   char name[256];
 
@@ -498,39 +554,39 @@ void ModTypeRPD::ConstructCMSDetector()
 
 	int cn = 0, cn_fiber = 0;
 
-	float RPD_centerX = m_pos->getX();
-	float RPD_centerY = m_pos->getY();
-	float RPD_centerZ = m_pos->getZ();
+	double RPD_centerX = m_pos->getX();
+	double RPD_centerY = m_pos->getY();
+	double RPD_centerZ = m_pos->getZ();
 
-	float RPD_startX = RPD_centerX + 3*halfX_gap + 1.5*tileX;
-	float RPD_startY = RPD_centerY + 3*halfY_gap + 1.5*tileY;
+	double RPD_startX = RPD_centerX + 3*halfX_gap + 1.5*tileX;
+	double RPD_startY = RPD_centerY + 3*halfY_gap + 1.5*tileY;
 
 
 //positioning variables
 
 
-float factor1 = 1.5;
-float hole_shift		= grease_offset + hole_center_offset;
+double factor1 = 1.5;
+double hole_shift		= grease_offset + hole_center_offset;
 
-float tileZcenter[4];
+double tileZcenter[4];
 for(int i=0; i < 4; i++){
 	tileZcenter[i] = RPD_centerZ + (i * (factor1*fiber_diam + foil_thickness) );
 }
-float fiberZcenter[4];
+double fiberZcenter[4];
 for(int i=0; i < 4; i++){
 	fiberZcenter[i] = tileZcenter[i] + tileZ/2.0 - fiber_diam/2.0 - hole_shift;
 }
 
-float foil_gap = (fiberZcenter[1]-(fiber_diam/2.0)) - (fiberZcenter[0] + (fiber_diam/2.0));
+double foil_gap = (fiberZcenter[1]-(fiber_diam/2.0)) - (fiberZcenter[0] + (fiber_diam/2.0));
 
-float foilZcenter[4];
+double foilZcenter[4];
 for(int i=0; i < 4; i++){
 	foilZcenter[i] = fiberZcenter[i] + fiber_diam/2.0 + foil_gap/2.0;
 }
 
-float final_foil_pos = foilZcenter[3]+foil_thickness/2.0;
-float assembly_midZ = RPD_centerZ + (final_foil_pos - (RPD_centerZ + (tileZ/2.0)))/2.0;
-float half_Z_length = final_foil_pos-assembly_midZ;
+double final_foil_pos = foilZcenter[3]+foil_thickness/2.0;
+double assembly_midZ = RPD_centerZ + (final_foil_pos - (RPD_centerZ + (tileZ/2.0)))/2.0;
+double half_Z_length = final_foil_pos-assembly_midZ;
 
 
 int fiber_cnt=0;
@@ -666,8 +722,8 @@ m_AlcaseLogical->SetVisAttributes( G4Colour(0.0,0.0,0.9,0.4));//
 
 if ( OPTICAL ){
 
-float air_detect_thickness = 0.1;
-float correction = 0.0;
+double air_detect_thickness = 0.1;
+double correction = 0.0;
 
 m_air_detect = new G4Tubs( "air_detect",
 					0.0*mm,
@@ -889,15 +945,15 @@ for(int k=0;k<2;k++) {
 
 // TEST SETUP
 if(test_tile){
-		float testtileY = 100;
-		float testtileZ = 50;
-		float testgreaseY = 30;
-		float testgreaseZ = 2.5;
-		float testPDY = 2.5;
-		float testcoreZ = 5;
-		float testblckZ 	= 15;
-		float offsetZ 	= testtileZ/2+testblckZ/2;
-		float offsetY 	= 5;
+		double testtileY = 100;
+		double testtileZ = 50;
+		double testgreaseY = 30;
+		double testgreaseZ = 2.5;
+		double testPDY = 2.5;
+		double testcoreZ = 5;
+		double testblckZ 	= 15;
+		double offsetZ 	= testtileZ/2+testblckZ/2;
+		double offsetY 	= 5;
 
 	  m_test_tile 		= new G4Box("test_tile",(100/2)*mm, (testtileY/2)*mm, (testtileZ/2)*mm);
 		m_test_alum 		= new G4Box("test_alum",(100/2)*mm, (testtileY/2)*mm, (testblckZ/2)*mm);
