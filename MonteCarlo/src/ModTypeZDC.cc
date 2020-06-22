@@ -58,8 +58,10 @@ ModTypeZDC::ModTypeZDC(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos
     m_absDim(new G4ThreeVector(90.,180.,11.)),
     m_HousingThickness(5.0*mm),
     m_GapThickness(2.*mm),
+    m_SteelAbsHeight(0.),
     OPTICAL(false),
     CHECK_OVERLAPS(false),
+    STEEL_ABSORBER(false),
     m_logicMother( mother )
 {
 	m_materials = Materials::getInstance();
@@ -80,8 +82,10 @@ ModTypeZDC::ModTypeZDC(const int cn, ModTypeZDC* right)
 		m_absDim 		 			 = new G4ThreeVector(*right->m_absDim);
 		m_HousingThickness = right->m_HousingThickness;
 		m_GapThickness 		 = right->m_GapThickness;
+		m_SteelAbsHeight 	 = right->m_SteelAbsHeight;
 		OPTICAL 					 = right->OPTICAL;
 		CHECK_OVERLAPS 		 = right->CHECK_OVERLAPS;
+		STEEL_ABSORBER 		 = right->STEEL_ABSORBER;
 		m_matAbsorber 		 = right->m_matAbsorber;
 		m_matHousing			 = right->m_matHousing;
 		m_logicMother			 = right->m_logicMother;
@@ -129,7 +133,7 @@ void ModTypeZDC::ConstructDetector()
   xStartStrip = -1*floor(m_absDim->x()/fiberMaxDia)*stripPitch/2 + stripPitch/2;
   float modWidthX = floor(m_absDim->x()/fiberMaxDia)*stripPitch;
   if (modWidthX == 0) modWidthX = m_absDim->x(); // the case where you are defining a solid absorber block with no active channels
-  float modHeightY = m_absDim->y();
+  float modHeightY = m_absDim->y() + m_SteelAbsHeight;
 	float boxWidthX  = modWidthX  + m_HousingThickness*2;
 	float boxHeightY = modHeightY + m_HousingThickness*2;
   float boxLengthZ = modLengthZ + m_HousingThickness*2;
@@ -150,7 +154,7 @@ void ModTypeZDC::ConstructDetector()
   G4RotationMatrix* nullRotation = new G4RotationMatrix();
   G4ThreeVector  pos;
   pos = G4ThreeVector(0,0,0);
-  m_HousingPhysical = new G4PVPlacement(nullRotation,*m_pos,m_HousingLogical,name,m_logicMother,false,cn,CHECK_OVERLAPS);
+  m_HousingPhysical = new G4PVPlacement(nullRotation,G4ThreeVector( m_pos->x(), m_pos->y() + (modHeightY - m_absDim->y())/2.0, m_pos->z() ) ,m_HousingLogical,name,m_logicMother,false,cn,CHECK_OVERLAPS);
 
   sprintf(name,"ZDC%d_Air_Physical", cn);
   m_ModulePhysical = new G4PVPlacement(nullRotation,pos,m_ModuleLogical,name,m_HousingLogical,false,cn,CHECK_OVERLAPS);
@@ -200,7 +204,7 @@ void ModTypeZDC::ConstructDetector()
   }
 
   //----------------------------------------------
-  // Plates
+  // Tungsten Plates
   //----------------------------------------------
 
   m_W = new G4Box("W",
@@ -216,8 +220,27 @@ void ModTypeZDC::ConstructDetector()
   absorberColor->SetForceSolid(true);
   m_WLogical->SetVisAttributes( absorberColor );
 
-  // Quartz strip dimensions: radiator gap, group, strip
-  // populate all 8 modules with quartz strips
+  //----------------------------------------------
+  // Steel Plates
+  //----------------------------------------------
+  if(STEEL_ABSORBER){
+    m_Steel = new G4Box("SteelAbsorber",
+    								modWidthX*mm/2.0 ,
+    								m_SteelAbsHeight/2.0,
+    								m_absDim->z()/2.0);
+    m_SteelLogical =
+    	new G4LogicalVolume(m_Steel,
+    											m_materials->Steel,
+    											"SteelAbsorber_Logical");
+
+    G4VisAttributes* steelAbsorberColor = new G4VisAttributes( G4Colour::Gray() );
+    steelAbsorberColor->SetForceSolid(true);
+    m_SteelLogical->SetVisAttributes( steelAbsorberColor );
+  }
+
+  //----------------------------------------------
+  // Placement loops
+  //----------------------------------------------
   G4RotationMatrix* stripRotation = new G4RotationMatrix();
   stripRotation->rotateX(90.*deg);
   cn = 0;
@@ -255,16 +278,28 @@ void ModTypeZDC::ConstructDetector()
   cn = 0;
   //  W plates (non pixel modules): Physical plates that span length of each absorber gap
   for(int K = 0; K < m_nAbsorbers; K++) {    // 11 layers of plates
-    char volName[256];
-    sprintf(volName,"ZDC%d_Absorber%d",m_modNum, K);
+    sprintf(name,"ZDC%d_Absorber%d",m_modNum, K);
     m_WPhysical.push_back( new G4PVPlacement(nullRotation,
-													 G4ThreeVector(0,0,zStartW*mm+K*zPitch*mm),
+													 G4ThreeVector(0,(m_absDim->y() - modHeightY)/2.,zStartW*mm+K*zPitch*mm),
 													 m_WLogical,
-													 volName,
+													 name,
 													 m_ModuleLogical,
 													 false,
 													 cn,
 													 CHECK_OVERLAPS) );
+
+    if(STEEL_ABSORBER){
+      sprintf(name,"ZDC%d_SteelAbsorber%d",m_modNum, K);
+      m_SteelPhysical.push_back( new G4PVPlacement(nullRotation,
+  													 G4ThreeVector(0,(modHeightY - m_SteelAbsHeight)/2.,zStartW*mm+K*zPitch*mm),
+  													 m_SteelLogical,
+  													 name,
+  													 m_ModuleLogical,
+  													 false,
+  													 cn,
+  													 CHECK_OVERLAPS) );
+    }
+
     ++cn;
   }
 

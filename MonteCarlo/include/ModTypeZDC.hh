@@ -58,6 +58,7 @@ public:
   inline  void  SetFiberDiameters    ( G4ThreeVector* vec ){ delete m_fiberDiam; m_fiberDiam = vec; }
   inline  void  SetAbsorberDimensions( G4ThreeVector* vec ){ delete m_absDim;    m_absDim    = vec; }
   inline  void  SetnAbsorbers        ( G4int          arg ){ m_nAbsorbers        = arg; }
+  inline  void  SetSteelAbsHeight    ( G4double       arg ){ STEEL_ABSORBER = true; m_SteelAbsHeight = arg; }
   inline  void  SetHousingThickness  ( G4double       arg ){ m_HousingThickness  = arg; }
   inline  void  SetGapThickness      ( G4double       arg ){ m_GapThickness      = arg; }
   inline  void  SetOpticalFlag       ( G4bool         arg ){ OPTICAL             = arg; }
@@ -77,8 +78,10 @@ protected:
   G4ThreeVector*   m_absDim;
   G4double         m_HousingThickness;
   G4double         m_GapThickness;
+  G4double         m_SteelAbsHeight;
   G4bool           OPTICAL;
   G4bool           CHECK_OVERLAPS;
+  G4bool           STEEL_ABSORBER;
   Materials*       m_materials;
   G4Material*      m_matAbsorber;
   G4Material*      m_matHousing;
@@ -101,6 +104,10 @@ protected:
   G4VSolid*          m_W;
   G4LogicalVolume*   m_WLogical;
   std::vector < G4VPhysicalVolume* > m_WPhysical;
+
+  G4VSolid*          m_Steel;
+  G4LogicalVolume*   m_SteelLogical;
+  std::vector < G4VPhysicalVolume* > m_SteelPhysical;
 
   // Vertical quartz strips (these strips are full -- no partial segments)
   G4VSolid*          m_FiberCoreTube;

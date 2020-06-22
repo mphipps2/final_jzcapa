@@ -11,12 +11,13 @@
 
 #EMCAL
 /Detector/ZDC/Add
-/Detector/ZDC/Position 0. 145. 100. mm
-/Detector/ZDC/AbsorberDimensions 43.5 470. 4. mm #run4
-#/Detector/ZDC/AbsorberDimensions 90. 470. 4. mm #run3
+/Detector/ZDC/Position 0. 0. 100. mm
+/Detector/ZDC/AbsorberDimensions 43.5 180. 4. mm #run4
+#/Detector/ZDC/AbsorberDimensions 90. 180. 4. mm #run3
 /Detector/ZDC/nAbsorbers 25
 /Detector/ZDC/HousingThickness 5. mm
 /Detector/ZDC/GapThickness 2. mm
+/Detector/ZDC/SteelAbsorberHeight 290. mm
 /Detector/ZDC/Optical false
 /Detector/ZDC/CheckOverlaps false
 /Detector/ZDC/HousingMaterial aluminum
@@ -30,6 +31,7 @@
 /Detector/ZDC/nAbsorbers 11
 /Detector/ZDC/HousingThickness 5. mm
 /Detector/ZDC/GapThickness 2. mm
+/Detector/ZDC/SteelAbsorberHeight 290. mm
 /Detector/ZDC/Optical true
 /Detector/ZDC/CheckOverlaps false
 /Detector/ZDC/HousingMaterial aluminum

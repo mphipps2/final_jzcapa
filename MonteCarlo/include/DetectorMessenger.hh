@@ -79,6 +79,7 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithAnInteger*      fZDCnAbsorbersCmd;
     G4UIcmdWithADoubleAndUnit* fZDCHousingThicknessCmd;
     G4UIcmdWithADoubleAndUnit* fZDCGapThicknessCmd;
+    G4UIcmdWithADoubleAndUnit* fZDCSteelAbsHeightCmd;
     G4UIcmdWithABool*          fZDCOpticalFlagCmd;
     G4UIcmdWithABool*          fZDCOverlapsFlagCmd;
     G4UIcmdWithAString*        fZDCHousingMaterialCmd;

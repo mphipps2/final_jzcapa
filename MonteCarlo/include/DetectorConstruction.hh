@@ -140,10 +140,11 @@ public:
   inline  void SetZDCnAbsorbers        ( G4int          arg ){ m_ZDCvec.at(currentZDC-1)->SetnAbsorbers(arg);         }
   inline  void SetZDCHousingThickness  ( G4double       arg ){ m_ZDCvec.at(currentZDC-1)->SetHousingThickness(arg);   }
   inline  void SetZDCGapThickness      ( G4double       arg ){ m_ZDCvec.at(currentZDC-1)->SetGapThickness(arg);       }
+  inline  void SetZDCSteelAbsHeight    ( G4double       arg ){ m_ZDCvec.at(currentZDC-1)->SetSteelAbsHeight(arg);     }
   inline  void SetZDCOpticalFlag       ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetOpticalFlag(arg);        }
-  inline  void SetZDCOverlapsFlag      ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetOverlapsFlag(arg);    }
-  inline  void SetZDCHousingMaterial   ( G4String       arg ){ m_ZDCvec.at(currentZDC-1)->SetHousingMaterial(arg); }
-  inline  void SetZDCAbsorberMaterial  ( G4String       arg ){ m_ZDCvec.at(currentZDC-1)->SetAbsorberMaterial(arg);}
+  inline  void SetZDCOverlapsFlag      ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetOverlapsFlag(arg);       }
+  inline  void SetZDCHousingMaterial   ( G4String       arg ){ m_ZDCvec.at(currentZDC-1)->SetHousingMaterial(arg);    }
+  inline  void SetZDCAbsorberMaterial  ( G4String       arg ){ m_ZDCvec.at(currentZDC-1)->SetAbsorberMaterial(arg);   }
   inline  void SetCurrentZDC           ( G4int          arg ){ currentZDC = arg; }
   virtual void DuplicateZDC            ( G4int       module );
 

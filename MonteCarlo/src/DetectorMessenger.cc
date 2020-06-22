@@ -156,6 +156,13 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fZDCGapThicknessCmd->SetToBeBroadcasted(false);
   fZDCGapThicknessCmd->SetDefaultUnit("mm");
 
+  fZDCSteelAbsHeightCmd =
+    new G4UIcmdWithADoubleAndUnit("/Detector/ZDC/SteelAbsorberHeight",this);
+  fZDCSteelAbsHeightCmd->SetGuidance("Set height of the steel absorbers in the current ZDC");
+  fZDCSteelAbsHeightCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fZDCSteelAbsHeightCmd->SetToBeBroadcasted(false);
+  fZDCSteelAbsHeightCmd->SetDefaultUnit("mm");
+
   fZDCOpticalFlagCmd = new G4UIcmdWithABool("/Detector/ZDC/Optical", this);
   fZDCOpticalFlagCmd->SetGuidance("Set optical flag for current ZDC");
   fZDCOpticalFlagCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -307,6 +314,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fZDCnAbsorbersCmd;
   delete fZDCHousingThicknessCmd;
   delete fZDCGapThicknessCmd;
+  delete fZDCSteelAbsHeightCmd;
   delete fZDCOpticalFlagCmd;
   delete fZDCOverlapsFlagCmd;
   delete fZDCHousingMaterialCmd;
@@ -387,6 +395,9 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   }
   else if(command == fZDCGapThicknessCmd){
     fDetector->SetZDCGapThickness( fZDCGapThicknessCmd->GetNewDoubleValue(newValue) );
+  }
+  else if(command == fZDCSteelAbsHeightCmd){
+    fDetector->SetZDCSteelAbsHeight( fZDCSteelAbsHeightCmd->GetNewDoubleValue(newValue) );
   }
   else if(command == fZDCOpticalFlagCmd){
     fDetector->SetZDCOpticalFlag( fZDCOpticalFlagCmd->GetNewBoolValue(newValue) );
