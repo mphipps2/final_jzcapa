@@ -63,37 +63,23 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
 	}
 
 
-	// // If we are tracking a photon
-	// if(theTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() ){
-	//
-	// 	// Get the SD for the volume we're in. Returns 0 if we aren't in an SD volume
-	// 	FiberSD* sd = (FiberSD*)theTrack->GetVolume()->GetLogicalVolume()->GetSensitiveDetector();
-	// 	If World OPTICAL is on
-	// 	if(OPTICAL){
-	// 		// Kill photons only in SD volumes with OPTICAL off
-	// 		if(sd != 0 && !sd->OpticalIsOn() ){
-	// 			theTrack->SetTrackStatus( fStopAndKill );
-	// 		}
-	// 	} else { // World OPTICAL is off
-	// 		// Kill all photons except those in SD volumes with OPTICAL on
-	// 		if(sd == 0 || !sd->OpticalIsOn() ){
-	// 			theTrack->SetTrackStatus( fStopAndKill );
-	// 		}
-	// 	}
-	// }
+	// If we are tracking a photon
+	if(theTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() ){
 
-  G4StepPoint* thePostPoint = theStep->GetPostStepPoint();
-  G4StepPoint* thePrePoint = theStep->GetPreStepPoint();
-  G4VPhysicalVolume* thePostPV = thePostPoint->GetPhysicalVolume();
-  G4VPhysicalVolume* thePrePV = thePrePoint->GetPhysicalVolume();
-  G4ParticleDefinition* particleType = theTrack->GetDefinition();
-  if(particleType==G4OpticalPhoton::OpticalPhotonDefinition() && thePostPV != NULL){
-      if( ( strncmp("pho",thePrePV->GetName().c_str(), 3) == 0) ){
-          theTrack->SetTrackStatus(fStopAndKill);
-      }
-  }
-
-
-
+		// Get the SD for the volume we're in. Returns 0 if we aren't in an SD volume
+		FiberSD* sd = (FiberSD*)theTrack->GetVolume()->GetLogicalVolume()->GetSensitiveDetector();
+		// If World OPTICAL is on
+		if(OPTICAL){
+			// Kill photons only in SD volumes with OPTICAL off
+			if(sd != 0 && !sd->OpticalIsOn() ){
+				theTrack->SetTrackStatus( fStopAndKill );
+			}
+		} else { // World OPTICAL is off
+			// Kill all photons except those in SD volumes with OPTICAL on
+			if(sd == 0 || !sd->OpticalIsOn() ){
+				theTrack->SetTrackStatus( fStopAndKill );
+			}
+		}
+	}
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
