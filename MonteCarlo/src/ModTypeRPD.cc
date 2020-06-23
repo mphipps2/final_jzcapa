@@ -176,7 +176,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
   G4double pitchZ;
 
   // If the user requested option is physically possible, use it. Otherwise calculate the pitch
-  if( sqrt( pow(m_fiberPitchX,2) + pow(m_fiberPitchZ,2) ) > fiber_diam ){
+  if( sqrt( pow(m_fiberPitchX/2.,2) + pow(m_fiberPitchZ/2.,2) ) > fiber_diam ){
 
     pitchX = m_fiberPitchX;
     pitchZ = m_fiberPitchZ;
@@ -193,7 +193,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
     n_fibers_per_tile = n_cycles_per_tile*2*n_rows;
     // Tile size and pitch are correlated and must match precisely, so recalculate the tile size based on the pitch
-    m_tileSize = pitchX*(n_rows*n_cycles_per_tile + 0.5) + fiber_diam;
+    m_tileSize = pitchX*( (n_rows - 1)*n_cycles_per_tile + n_cycles_per_tile - 1 + 0.5) + fiber_diam;
 
     std::cout << "Recalculated tile size based on fiber pitch is " << m_tileSize << "mm" << std::endl;
   }else{
