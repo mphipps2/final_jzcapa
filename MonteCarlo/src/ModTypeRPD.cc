@@ -171,7 +171,6 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	G4int n_rows     = 4;
 	G4int n_columns  = 4;
   G4int n_cycles_per_tile;
-  G4int n_fibers_per_tile;
   G4double pitchX;
   G4double pitchZ;
 
@@ -191,27 +190,32 @@ void ModTypeRPD::ConstructPanFluteDetector()
       n_cycles_per_tile = 1;
     }
 
-    n_fibers_per_tile = n_cycles_per_tile*2*n_rows;
     // Tile size and pitch are correlated and must match precisely, so recalculate the tile size based on the pitch
-    m_tileSize = pitchX*( (n_rows - 1)*n_cycles_per_tile + n_cycles_per_tile - 1 + 0.5) + fiber_diam;
+    m_tileSize = pitchX*n_cycles_per_tile*n_rows;
 
-    std::cout << "Recalculated tile size based on fiber pitch is " << m_tileSize << "mm" << std::endl;
   }else{
-    n_cycles_per_tile = (m_tileSize/fiber_diam)/n_rows;   //Divide to round down to a whole number
-    n_fibers_per_tile = n_cycles_per_tile*2*n_rows;  //The pattern will be repeated twice per tile
-
-    // If the remaining space in x leaves less than the user specified minimum wall thickness
-    // remove a cycle and calculate the new wall thickness.
-    // m_minWallThickness should be determined by manufacturing capablilities
-    calculate_wall_thickness:
-    G4double wall_thickness = ((m_tileSize - n_fibers_per_tile*fiber_diam)/n_fibers_per_tile)*mm;
-    if( wall_thickness < m_minWallThickness*mm ){
-      --n_cycles_per_tile;
-      n_fibers_per_tile = n_cycles_per_tile*n_rows;
-      goto calculate_wall_thickness;
+    //If the user specified a fiber pitch that doesn't work, inform them
+    if( m_fiberPitchX < 0.0 ){
+      G4cerr << "////////////////////////////" << G4endl;
+      G4cerr << "Error in RPD" << m_modNum << ": Requested fiber diameter and pitch are incompatible" << G4endl;
+      G4cerr << "Recalculating tile size based on one cycle of the requested fiber diameter" << G4endl;
+      G4cerr << "////////////////////////////" << G4endl;
     }
-    pitchX = wall_thickness + fiber_diam;
-    pitchZ = wall_thickness + fiber_diam;
+
+    n_cycles_per_tile = 1;
+    //Minimum possible tile size = sqrt(2) * minimum_pitch * n_cycles_per_tile * n_rows
+    G4double min_tileSize = 0.707*(fiber_diam + m_minWallThickness)*n_cycles_per_tile*n_rows;
+
+    if( m_tileSize < min_tileSize ){
+      G4cerr << "////////////////////////////" << G4endl;
+      G4cerr << "Error in RPD" << m_modNum << ": Requested fiber diameter and tile size are incompatible" << G4endl;
+      G4cerr << "Recalculating tile size based on one cycle of the requested fiber diameter" << G4endl;
+      G4cerr << "////////////////////////////" << G4endl;
+      m_tileSize = min_tileSize;
+    }
+
+    pitchX = m_tileSize/(0.707*n_cycles_per_tile*n_rows);
+    pitchZ = pitchX;
 
   }
 
