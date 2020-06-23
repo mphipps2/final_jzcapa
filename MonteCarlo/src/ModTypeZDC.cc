@@ -313,7 +313,7 @@ void ModTypeZDC::ConstructDetector()
   sprintf( fiberSDname, "ZDC%d_SD", m_modNum);
   FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
   aFiberSD->HistInitialize();
-  aFiberSD->SetTopOfVolume( m_pos->y() + modHeightY/2.0 );
+  aFiberSD->SetTopOfVolume( m_pos->y() + m_absDim->y()/2. + m_SteelAbsHeight );
   SDman->AddNewDetector( aFiberSD );
   m_FiberCoreLogical->SetSensitiveDetector( aFiberSD );
 
