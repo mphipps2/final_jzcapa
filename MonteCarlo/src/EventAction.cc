@@ -60,6 +60,7 @@ EventAction::~EventAction()
 
 void EventAction::BeginOfEventAction(const G4Event* evt)
 {
+  G4cout << ">>> Begin event " << evt->GetEventID() << G4endl;
   fEventNo = evt->GetEventID();
   m_analysisManager = AnalysisManager::getInstance();
 
@@ -73,8 +74,7 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void EventAction::EndOfEventAction(const G4Event* evt){
-
-  G4cout << ">>> Event " << evt->GetEventID() << G4endl;
+  G4cout << "Event " << evt->GetEventID() << " ended. Processing hits..." << G4endl;
   G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
   FiberHitsCollection* HC = 0;
   G4int nCollections =  HCE->GetNumberOfCollections();
