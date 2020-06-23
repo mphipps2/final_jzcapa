@@ -84,6 +84,7 @@ protected:
   const G4int      m_modNum;
   G4ThreeVector*   m_pos;
   G4ThreeVector*   m_fiberDiam;
+  G4int            m_fiber_count;
   G4double         m_HousingThickness;
   G4double         m_fiberPitchX;
   G4double         m_fiberPitchZ;
@@ -100,12 +101,12 @@ protected:
 
 protected:
 
-  G4Material*           m_matQuartz;
-  G4Material*           m_Al;
-  G4Material*           m_Poly;
-  G4Material*           m_Air;
-  G4Material*           m_PMMA;
-  G4Material*           m_Grease;
+  G4Material*      m_matQuartz;
+  G4Material*      m_Al;
+  G4Material*      m_Poly;
+  G4Material*      m_Air;
+  G4Material*      m_PMMA;
+  G4Material*      m_Grease;
 
   G4OpticalSurface*   m_photonDetSurface;
 
@@ -114,11 +115,6 @@ protected:
 
 
 //PAN FLUTE START---------------------------------
-  G4VSolid*           m_PFdetec;
-  G4LogicalVolume*    m_PFdetecLogical[256];
-  G4VPhysicalVolume*  m_PFdetecPhysical[256];
-
-
   G4VSolid*           m_PFrpd_housing;
   G4LogicalVolume*    m_PFrpd_housingLogical;
   G4VPhysicalVolume*  m_PFrpd_housingPhysical;
@@ -132,7 +128,7 @@ protected:
   std::vector< G4LogicalVolume* >         m_PFrpdLogical;
   std::vector< G4VPhysicalVolume* >       m_PFrpdPhysical;
 
-  std::vector< G4VSolid* >                m_PFreadout_fiber;
+  G4VSolid*                               m_PFreadout_fiber;
   std::vector< G4LogicalVolume* >         m_PFreadout_fiberLogical;
   std::vector< G4VPhysicalVolume* >       m_PFreadout_fiberPhysical;
 
@@ -142,8 +138,6 @@ protected:
   std::vector< G4VPhysicalVolume* >       m_PFrpd_channelPhysical;
 
   std::vector< G4AssemblyVolume* >        m_PFrpd_FiberAssy;
-
-  G4int               m_PFrpd_cnt;
 
 //PAN FLUTE STOP----------------------------------
 
@@ -201,7 +195,7 @@ protected:
 
 //CMS RPD DESIGN STOP ----------------------------------
 
-//TEST SETUP START -------------------------------------
+//CMS TEST SETUP START -------------------------------------
 //STATIC ARRAYS
   G4VSolid*           m_test_tile;
   G4LogicalVolume*    m_test_tileLogical;
@@ -230,7 +224,7 @@ protected:
   G4VSolid*           m_test_block;
   G4LogicalVolume*    m_test_blockLogical;
   G4VPhysicalVolume*  m_test_blockPhysical[2];
-//TEST SETUP STOP ----------------------------------
+//CMS TEST SETUP STOP ----------------------------------
 
   //rpd booleans
   bool rpd_comp[8];
