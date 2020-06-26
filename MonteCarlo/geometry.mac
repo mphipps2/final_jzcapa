@@ -1,5 +1,4 @@
 
-/Detector/Cluster true
 /Detector/Optical true
 /Detector/Overlaps false
 /Detector/RunNumber 347
@@ -20,6 +19,7 @@
 /Detector/ZDC/SteelAbsorberHeight 290. mm
 /Detector/ZDC/Optical false
 /Detector/ZDC/CheckOverlaps false
+/Detector/ZDC/ReducedTree true
 /Detector/ZDC/HousingMaterial aluminum
 /Detector/ZDC/AbsorberMaterial pure
 
@@ -32,8 +32,9 @@
 /Detector/ZDC/HousingThickness 5. mm
 /Detector/ZDC/GapThickness 2. mm
 /Detector/ZDC/SteelAbsorberHeight 290. mm
-/Detector/ZDC/Optical true
+/Detector/ZDC/Optical false
 /Detector/ZDC/CheckOverlaps false
+/Detector/ZDC/ReducedTree false
 /Detector/ZDC/HousingMaterial aluminum
 /Detector/ZDC/AbsorberMaterial pure
 
@@ -55,8 +56,9 @@
 /Detector/RPD/MinWallThickness 0.01 mm
 /Detector/RPD/FiberReadoutDistance 360 mm
 /Detector/RPD/RPDtype panflute
-/Detector/RPD/Optical true
+/Detector/RPD/Optical false
 /Detector/RPD/CheckOverlaps false
+/Detector/RPD/ReducedTree false
 
 #/Detector/RPD/SetCurrent 1
 
