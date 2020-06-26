@@ -21,13 +21,13 @@ if(NOT WIN32)
 endif()
 
 message("${BoldBlue}
-       # #######  #####         ######     #    
-       #      #  #     #   ##   #     #   # #   
-       #     #   #        #  #  #     #  #   #  
-       #    #    #       #    # ######  #     # 
- #     #   #     #       ###### #       ####### 
- #     #  #      #     # #    # #       #     # 
-  #####  #######  #####  #    # #       #     # 
+       # #######  #####         ######     #
+       #      #  #     #   ##   #     #   # #
+       #     #   #        #  #  #     #  #   #
+       #    #    #       #    # ######  #     #
+ #     #   #     #       ###### #       #######
+ #     #  #      #     # #    # #       #     #
+  #####  #######  #####  #    # #       #     #
 ${ColourReset}")
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
@@ -61,7 +61,7 @@ TARGET_LINK_LIBRARIES(test_JZCaPA ${XERCESC_LIBRARY})
 
 
 #Subdirectory structure
-#Analysis libraries and user functions 
+#Analysis libraries and user functions
 add_subdirectory(Analysis)
 
 #MonteCarlo folder. The installation will be conditional and disabled by default (not everyone needs to work with it and requires dependencies)
@@ -80,7 +80,10 @@ install(FILES Utils/ConfigFile2018.xml DESTINATION Utils)
 install(FILES Utils/Alignment_2018.xml DESTINATION Utils)
 install(FILES Utils/Survey_2018.xml DESTINATION Utils)
 install(FILES Utils/PurgMag3D.TABLE DESTINATION Utils)
-install(FILES MonteCarlo/config/config.cfg DESTINATION Utils)
+install(FILES MonteCarlo/geometry.mac DESTINATION bin)
+install(FILES MonteCarlo/run1.mac DESTINATION bin)
+install(FILES MonteCarlo/init_vis.mac DESTINATION bin)
+install(FILES MonteCarlo/vis.mac DESTINATION bin)
 
 install(FILES Utils/jcapa_env_lxplus.sh DESTINATION Utils)
 install(FILES Utils/jzcapa_env_uiuc.sh DESTINATION Utils)
