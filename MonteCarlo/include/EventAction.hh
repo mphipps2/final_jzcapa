@@ -63,7 +63,6 @@ class EventAction : public G4UserEventAction
     AnalysisManager* m_analysisManager;
     G4int    fEventNo, fnZDCs, fnRPDs;
     G4double gunPosX, gunPosY, gunPosZ;
-    G4bool   CLUSTER;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
