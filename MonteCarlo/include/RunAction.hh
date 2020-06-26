@@ -52,7 +52,6 @@ class RunAction : public G4UserRunAction
 
   private:
     G4String m_fileName;
-    G4bool   CLUSTER;
     AnalysisManager* m_analysisManager;
 
 };
