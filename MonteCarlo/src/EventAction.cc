@@ -68,7 +68,6 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
   m_RPDintVec = m_analysisManager->GetRPDintVectors   ( );
   m_ZDCdblVec = m_analysisManager->GetZDCdoubleVectors( );
   m_ZDCintVec = m_analysisManager->GetZDCintVectors   ( );
-  CLUSTER = m_analysisManager->GetClusterFlag();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -93,22 +92,10 @@ void EventAction::EndOfEventAction(const G4Event* evt){
 
   }// end hit collection loop
 
-
-  //Use the base class to fill individual data points
-  //There's probably a better way to do this, but I just want it
-  //to work right now
-  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-  // fill ntuples  //
+  //Give event information to analysisManager and fill the Ntuples
+  m_analysisManager->SetEventNo( fEventNo );
   G4PrimaryVertex* pVert = evt->GetPrimaryVertex();
-  for(int i = 0; i < analysisManager->GetNofNtuples(); i++){
-    analysisManager->FillNtupleDColumn(i,0, pVert->GetX0() );
-    analysisManager->FillNtupleDColumn(i,1, pVert->GetY0() );
-    analysisManager->FillNtupleDColumn(i,2, pVert->GetZ0() );
-
-    analysisManager->FillNtupleIColumn(i,3, fEventNo );
-  }
-
-  //Use our custom class to finish the job
+  m_analysisManager->SetGunPosition( pVert->GetX0(), pVert->GetY0(), pVert->GetZ0() );
   m_analysisManager->FillNtuples();
 
 }
@@ -120,11 +107,19 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
   G4int prevRodNo = 0;
   G4int nCherenkovsSum = 0;
   G4double eDepSum = 0.0;
+
   G4String name = HC->GetSDname();
-  G4bool RPD = false, ZDC = false;
-  if(name.compare(0,3,"RPD") == 0) RPD = true;
-  if(name.compare(0,3,"ZDC") == 0) ZDC = true;
-  int modNo = atoi( name.substr(3,1).c_str() );
+  FiberSD* sd = (FiberSD*)G4SDManager::GetSDMpointer()->FindSensitiveDetector( name );
+  int modNo = sd->GetModNum();
+
+  // If you're looking for reduced tree stuff, go to FiberSD and AnalysisManager.
+  // FiberSD doesn't add hits to the collection in reduced tree mode, so there
+  // is nothing to process here
+  if( sd->IsReduced() ){
+    G4cout << name << " nHits = " << sd->GetNhits() << G4endl;
+    return;
+  }
+
 
   int n_hit = HC->entries();
   G4cout << name << " nHits = " << n_hit << G4endl;
@@ -155,75 +150,50 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
     G4double      beta          = (*HC)[i]->getBeta();
     G4double      charge        = (*HC)[i]->getCharge();
 
-    G4int         modNb         = (*HC)[i]->getModNb();
     G4int         pid           = (*HC)[i]->getParticle()->GetPDGEncoding();
 
-    if(RPD){
-      if(!CLUSTER){
-        //doubles
-        m_RPDdblVec->at(modNo-1).at(0). push_back( position.x() );
-        m_RPDdblVec->at(modNo-1).at(1). push_back( position.y() );
-        m_RPDdblVec->at(modNo-1).at(2). push_back( position.z() );
-        m_RPDdblVec->at(modNo-1).at(3). push_back( momentum.x() );
-        m_RPDdblVec->at(modNo-1).at(4). push_back( momentum.y() );
-        m_RPDdblVec->at(modNo-1).at(5). push_back( momentum.z() );
-        m_RPDdblVec->at(modNo-1).at(6). push_back( energy       );
-        m_RPDdblVec->at(modNo-1).at(7). push_back( velocity     );
-        m_RPDdblVec->at(modNo-1).at(8). push_back( beta         );
-        m_RPDdblVec->at(modNo-1).at(9). push_back( eDepSum      );
-        m_RPDdblVec->at(modNo-1).at(10).push_back( charge       );
+    if( sd->IsRPD() ){
+      //doubles
+      m_RPDdblVec->at(modNo-1).at(0). push_back( position.x() );
+      m_RPDdblVec->at(modNo-1).at(1). push_back( position.y() );
+      m_RPDdblVec->at(modNo-1).at(2). push_back( position.z() );
+      m_RPDdblVec->at(modNo-1).at(3). push_back( momentum.x() );
+      m_RPDdblVec->at(modNo-1).at(4). push_back( momentum.y() );
+      m_RPDdblVec->at(modNo-1).at(5). push_back( momentum.z() );
+      m_RPDdblVec->at(modNo-1).at(6). push_back( energy       );
+      m_RPDdblVec->at(modNo-1).at(7). push_back( velocity     );
+      m_RPDdblVec->at(modNo-1).at(8). push_back( beta         );
+      m_RPDdblVec->at(modNo-1).at(9). push_back( eDepSum      );
+      m_RPDdblVec->at(modNo-1).at(10).push_back( charge       );
 
-        //ints
-        m_RPDintVec->at(modNo-1).at(0).push_back( modNb          );
-        m_RPDintVec->at(modNo-1).at(1).push_back( rodNo          );
-        m_RPDintVec->at(modNo-1).at(2).push_back( nCherenkovsSum );
-        m_RPDintVec->at(modNo-1).at(3).push_back( trackID        );
-        m_RPDintVec->at(modNo-1).at(4).push_back( pid            );
-
-      } else{
-        //doubles
-        m_RPDdblVec->at(modNo-1).at(0).push_back( position.x() );
-        m_RPDdblVec->at(modNo-1).at(1).push_back( position.y() );
-        m_RPDdblVec->at(modNo-1).at(2).push_back( position.z() );
-
-        //ints
-        m_RPDintVec->at(modNo-1).at(0).push_back( nCherenkovsSum );
-        m_RPDintVec->at(modNo-1).at(1).push_back( rodNo );
-      }// end if !CLUSTER
+      //ints
+      m_RPDintVec->at(modNo-1).at(0).push_back( rodNo          );
+      m_RPDintVec->at(modNo-1).at(1).push_back( modNo          );
+      m_RPDintVec->at(modNo-1).at(2).push_back( nCherenkovsSum );
+      m_RPDintVec->at(modNo-1).at(3).push_back( trackID        );
+      m_RPDintVec->at(modNo-1).at(4).push_back( pid            );
     // end if RPD
     } else{
-      if(ZDC){
-        if(!CLUSTER){
-          //doubles
-          m_ZDCdblVec->at(modNo-1).at(0). push_back( position.x() );
-          m_ZDCdblVec->at(modNo-1).at(1). push_back( position.y() );
-          m_ZDCdblVec->at(modNo-1).at(2). push_back( position.z() );
-          m_ZDCdblVec->at(modNo-1).at(3). push_back( momentum.x() );
-          m_ZDCdblVec->at(modNo-1).at(4). push_back( momentum.y() );
-          m_ZDCdblVec->at(modNo-1).at(5). push_back( momentum.z() );
-          m_ZDCdblVec->at(modNo-1).at(6). push_back( energy       );
-          m_ZDCdblVec->at(modNo-1).at(7). push_back( velocity     );
-          m_ZDCdblVec->at(modNo-1).at(8). push_back( beta         );
-          m_ZDCdblVec->at(modNo-1).at(9). push_back( eDepSum      );
-          m_ZDCdblVec->at(modNo-1).at(10).push_back( charge       );
+      if( sd->IsZDC() ){
+        //doubles
+        m_ZDCdblVec->at(modNo-1).at(0). push_back( position.x() );
+        m_ZDCdblVec->at(modNo-1).at(1). push_back( position.y() );
+        m_ZDCdblVec->at(modNo-1).at(2). push_back( position.z() );
+        m_ZDCdblVec->at(modNo-1).at(3). push_back( momentum.x() );
+        m_ZDCdblVec->at(modNo-1).at(4). push_back( momentum.y() );
+        m_ZDCdblVec->at(modNo-1).at(5). push_back( momentum.z() );
+        m_ZDCdblVec->at(modNo-1).at(6). push_back( energy       );
+        m_ZDCdblVec->at(modNo-1).at(7). push_back( velocity     );
+        m_ZDCdblVec->at(modNo-1).at(8). push_back( beta         );
+        m_ZDCdblVec->at(modNo-1).at(9). push_back( eDepSum      );
+        m_ZDCdblVec->at(modNo-1).at(10).push_back( charge       );
 
-          //ints
-          m_ZDCintVec->at(modNo-1).at(0).push_back( modNb          );
-          m_ZDCintVec->at(modNo-1).at(1).push_back( rodNo          );
-          m_ZDCintVec->at(modNo-1).at(2).push_back( nCherenkovsSum );
-          m_ZDCintVec->at(modNo-1).at(3).push_back( trackID        );
-          m_ZDCintVec->at(modNo-1).at(4).push_back( pid            );
-
-        } else{
-          //doubles
-          m_ZDCdblVec->at(modNo-1).at(0). push_back( position.x() );
-          m_ZDCdblVec->at(modNo-1).at(1). push_back( position.y() );
-          m_ZDCdblVec->at(modNo-1).at(2). push_back( position.z() );
-
-          //ints
-          m_ZDCintVec->at(modNo-1).at(0).push_back( nCherenkovsSum );
-          m_ZDCintVec->at(modNo-1).at(1).push_back( rodNo  );
-        }// end if !CLUSTER
+        //ints
+        m_ZDCintVec->at(modNo-1).at(0).push_back( rodNo          );
+        m_ZDCintVec->at(modNo-1).at(1).push_back( modNo          );
+        m_ZDCintVec->at(modNo-1).at(2).push_back( nCherenkovsSum );
+        m_ZDCintVec->at(modNo-1).at(3).push_back( trackID        );
+        m_ZDCintVec->at(modNo-1).at(4).push_back( pid            );
       }// end if ZDC
     }// end else (!RPD)
     nCherenkovsSum = 0;
@@ -235,12 +205,17 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
 
 void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
   G4String name = HC->GetSDname();
-  G4bool RPD = false, ZDC = false;
-  if(name.compare(0,3,"RPD") == 0) RPD = true;
-  if(name.compare(0,3,"ZDC") == 0) ZDC = true;
-  int modNo = atoi( name.substr(3,1).c_str() );
-
   FiberSD* sd = (FiberSD*)G4SDManager::GetSDMpointer()->FindSensitiveDetector( name );
+  int modNo = sd->GetModNum();
+
+  // If you're looking for reduced tree stuff, go to FiberSD and AnalysisManager.
+  // FiberSD doesn't add hits to the collection in reduced tree mode, so there
+  // is nothing to process here
+  if( sd->IsReduced() ){
+    G4cout << name << " nOpticalHits = " << sd->GetNhits() << G4endl;
+    return;
+  }
+
 
   int n_hit = HC->entries();
   G4cout << name << " nOpticalHits = " << n_hit << G4endl;
@@ -250,8 +225,8 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
     G4ThreeVector momentum = (*HC)[i]->getMomentum();
     G4int         rodNo    = (*HC)[i]->getRodNb();
 
-    G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();
-    if(ZDC){//ZDC hitsCollID, check to be sure/symmetric
+    if( sd->IsZDC() ){//ZDC hitsCollID, check to be sure/symmetric
+      //double
       m_ZDCdblVec->at(modNo-1).at(0). push_back( origin.x()   );
       m_ZDCdblVec->at(modNo-1).at(1). push_back( origin.y()   );
       m_ZDCdblVec->at(modNo-1).at(2). push_back( origin.z()   );
@@ -259,10 +234,11 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
       m_ZDCdblVec->at(modNo-1).at(4). push_back( momentum.y() );
       m_ZDCdblVec->at(modNo-1).at(5). push_back( momentum.z() );
 
-      analysisManager->FillNtupleIColumn( modNo - 1, 4, sd->GetNCherenkovs() );
-      m_ZDCintVec->at(modNo-1).at(0).push_back( rodNo          );
+      //int
+      m_ZDCintVec->at(modNo-1).at(0).push_back( rodNo );
     }//end fill ZDC vectors
-    if(RPD){//RPD hitsCollID, check to be sure/symmetric
+    if( sd->IsRPD() ){//RPD hitsCollID, check to be sure/symmetric
+      //double
       m_RPDdblVec->at(modNo-1).at(0). push_back( origin.x()   );
       m_RPDdblVec->at(modNo-1).at(1). push_back( origin.y()   );
       m_RPDdblVec->at(modNo-1).at(2). push_back( origin.z()   );
@@ -270,8 +246,12 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
       m_RPDdblVec->at(modNo-1).at(4). push_back( momentum.y() );
       m_RPDdblVec->at(modNo-1).at(5). push_back( momentum.z() );
 
-      analysisManager->FillNtupleIColumn( modNo - 1 + m_ZDCdblVec->size() , 4, sd->GetNCherenkovs() );
+      //int
       m_RPDintVec->at(modNo-1).at(0). push_back( rodNo );
     }//end fill RPD vectors
   }// end hit loop
+
+  //Fill the total number of cherenkovs produced in the event
+  if( sd->IsZDC() ) m_analysisManager->FillZDCnCherenkovs( modNo, sd->GetNCherenkovs() );
+  if( sd->IsRPD() ) m_analysisManager->FillRPDnCherenkovs( modNo, sd->GetNCherenkovs() );
 }
