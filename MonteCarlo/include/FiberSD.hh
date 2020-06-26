@@ -34,6 +34,8 @@
 #include "G4VSensitiveDetector.hh"
 #include "FiberHit.hh"
 
+#include <vector>
+
 class G4Step;
 class G4HCofThisEvent;
 
@@ -51,10 +53,17 @@ public:
   G4bool ProcessHits         ( G4Step*, G4TouchableHistory* );
   void   EndOfEvent          ( G4HCofThisEvent* );
 
-  inline G4bool   OpticalIsOn    ( ){ return OPTICAL; }
-  inline void     SetTopOfVolume ( G4double _top ){ m_topOfVolume = _top; }
-  inline G4double GetTopOfVolume ( ){ return m_topOfVolume; }
-  inline int      GetNCherenkovs ( ){ return m_nCherenkovs; }
+  inline        G4bool         OpticalIsOn    ( ){ return OPTICAL;      }
+  inline        G4bool         IsZDC          ( ){ return ZDC;          }
+  inline        G4bool         IsRPD          ( ){ return RPD;          }
+  inline        G4bool         IsReduced      ( ){ return REDUCED_TREE; }
+  inline        void           SetTopOfVolume ( G4double _top  ){ m_topOfVolume = _top; }
+  inline        void           SetReducedTree ( G4int _nFibers ){ REDUCED_TREE = true; m_nFibers = _nFibers; m_cherenkovVec = new std::vector< G4int >( _nFibers, 0 );  }
+  inline        G4double       GetTopOfVolume ( ){ return m_topOfVolume;  }
+  inline        G4int          GetNCherenkovs ( ){ return m_nCherenkovs;  }
+  inline        G4int          GetModNum      ( ){ return m_modNum;       }
+  inline        G4int          GetNhits       ( ){ return m_nHits;        }
+  inline std::vector< G4int >* GetFiberVec    ( ){ return m_cherenkovVec; }
 
 private:
   int HCID;
@@ -62,8 +71,13 @@ private:
   FiberHitsCollection* fiberCollection;
   G4int m_modNum;
   G4int m_nCherenkovs;
+  G4int m_nFibers;
+  G4int m_nHits;
   G4bool OPTICAL;
+  G4bool REDUCED_TREE;
+  G4bool ZDC, RPD;
   G4double m_topOfVolume;
+  std::vector< G4int >* m_cherenkovVec;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

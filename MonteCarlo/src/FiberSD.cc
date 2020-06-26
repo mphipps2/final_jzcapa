@@ -45,9 +45,18 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 FiberSD::FiberSD(G4String sdName, G4int modNum, G4bool optical)
-  :G4VSensitiveDetector(sdName), m_modNum(modNum), OPTICAL(optical) {
+  :G4VSensitiveDetector(sdName),
+  m_modNum(modNum),
+  OPTICAL(optical),
+  REDUCED_TREE(false),
+  ZDC(false),
+  RPD(false),
+  m_cherenkovVec(0) {
   collectionName.insert(sdName);
   HCID = -1;
+
+  if( sdName.contains("R") ) RPD = true;
+  if( sdName.contains("Z") ) ZDC = true;
 
 }
 
@@ -70,7 +79,13 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
 
   std::string name = collectionName[0];
 
+  if(REDUCED_TREE){
+    m_cherenkovVec->clear();
+    m_cherenkovVec->resize( m_nFibers, 0 );
+  }
+
   m_nCherenkovs = 0;
+  m_nHits = 0;
 
   if(HCID<0)
     { HCID = G4SDManager::GetSDMpointer()->GetCollectionID( name );}
@@ -102,6 +117,11 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   // and add the hit to the collection if it has
   if(OPTICAL){
     if( aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() && pos.y() >= m_topOfVolume - 0.1*mm){
+      if(REDUCED_TREE){
+        m_cherenkovVec->at(rodNum)++;
+        m_nHits++;
+        return true;
+      }
       FiberHit* newHit = new FiberHit();
       newHit->setPos      ( pos );
       newHit->setOrigin   ( aStep->GetTrack()->GetVertexPosition() );
@@ -110,11 +130,17 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
       newHit->setRodNb    ( rodNum );
 
       fiberCollection->insert ( newHit );
+      m_nHits++;
 
       aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
       return true;
     }
   }else{ // Otherwise record all hits
+    if(REDUCED_TREE){
+      m_cherenkovVec->at(rodNum) += capturedPhotons;
+      m_nHits++;
+      return true;
+    }
     FiberHit* newHit = new FiberHit();
     newHit->setCharge      ( aStep->GetPreStepPoint()->GetCharge() );
     newHit->setTrackID     ( aStep->GetTrack()->GetTrackID() );
@@ -129,9 +155,11 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     newHit->setNCherenkovs ( capturedPhotons );
 
     fiberCollection->insert ( newHit );
+    m_nHits++;
+    return true;
   }
 
-  return true;
+  return false; //Something failed if we got here
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
