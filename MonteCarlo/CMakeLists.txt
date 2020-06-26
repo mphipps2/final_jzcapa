@@ -80,7 +80,6 @@ set(EXAMPLE_SCRIPTS
   #zdc.out
   init_vis.mac
   run1.mac
-  run2.mac
   vis.mac
   geometry.mac
   )
