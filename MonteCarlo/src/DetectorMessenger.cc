@@ -57,12 +57,6 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fZDCDir = new G4UIdirectory("/Detector/RPD/");
   fZDCDir->SetGuidance("RPD creation and modification");
 
-  fClusterCmd = new G4UIcmdWithABool("/Detector/Cluster", this);
-  fClusterCmd->SetGuidance("Set cluster flag");
-  fClusterCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
-  fClusterCmd->SetDefaultValue(true);
-  fClusterCmd->SetToBeBroadcasted(false);
-
   fOpticalCmd = new G4UIcmdWithABool("/Detector/Optical", this);
   fOpticalCmd->SetGuidance("Set optical flag");
   fOpticalCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -175,6 +169,12 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fZDCOverlapsFlagCmd->SetDefaultValue(true);
   fZDCOverlapsFlagCmd->SetToBeBroadcasted(false);
 
+  fZDCReducedTreeCmd = new G4UIcmdWithABool("/Detector/ZDC/ReducedTree", this);
+  fZDCReducedTreeCmd->SetGuidance("Set reduced tree flag for current ZDC");
+  fZDCReducedTreeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fZDCReducedTreeCmd->SetDefaultValue(true);
+  fZDCReducedTreeCmd->SetToBeBroadcasted(false);
+
   fZDCHousingMaterialCmd = new G4UIcmdWithAString("/Detector/ZDC/HousingMaterial", this);
   fZDCHousingMaterialCmd->SetGuidance("Set current ZDC housing material");
   fZDCHousingMaterialCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -278,6 +278,12 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDOverlapsFlagCmd->SetDefaultValue(true);
   fRPDOverlapsFlagCmd->SetToBeBroadcasted(false);
 
+  fRPDReducedTreeCmd = new G4UIcmdWithABool("/Detector/RPD/ReducedTree", this);
+  fRPDReducedTreeCmd->SetGuidance("Set reduced tree flag for current RPD");
+  fRPDReducedTreeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRPDReducedTreeCmd->SetDefaultValue(true);
+  fRPDReducedTreeCmd->SetToBeBroadcasted(false);
+
   fRPDSetCurrentCmd = new G4UIcmdWithAnInteger("/Detector/RPD/SetCurrent", this);
   fRPDSetCurrentCmd->SetGuidance("Select RPD to be modified");
   fRPDSetCurrentCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -296,7 +302,6 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
  */
 DetectorMessenger::~DetectorMessenger(){
 
-  delete fClusterCmd;
   delete fOpticalCmd;
   delete fOverlapsCmd;
   delete fForcePositionCmd;
@@ -317,6 +322,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fZDCSteelAbsHeightCmd;
   delete fZDCOpticalFlagCmd;
   delete fZDCOverlapsFlagCmd;
+  delete fZDCReducedTreeCmd;
   delete fZDCHousingMaterialCmd;
   delete fZDCAbsorberMaterialCmd;
   delete fZDCSetCurrentCmd;
@@ -336,6 +342,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fRPDTypeCmd;
   delete fRPDOpticalFlagCmd;
   delete fRPDOverlapsFlagCmd;
+  delete fRPDReducedTreeCmd;
   delete fRPDSetCurrentCmd;
   delete fRPDDuplicateCmd;
 
@@ -347,13 +354,10 @@ DetectorMessenger::~DetectorMessenger(){
  */
 void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 {
-  if (command == fClusterCmd) {
-    fDetector->SetClusterFlag( fClusterCmd->GetNewBoolValue(newValue) );
-  }
   if (command == fOpticalCmd) {
     fDetector->SetOpticalFlag( fOpticalCmd->GetNewBoolValue(newValue) );
   }
-  if (command == fOverlapsCmd) {
+  else if (command == fOverlapsCmd) {
     fDetector->SetOverlapsFlag( fOverlapsCmd->GetNewBoolValue(newValue) );
   }
   else if(command == fForcePositionCmd){
@@ -405,6 +409,9 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if(command == fZDCOverlapsFlagCmd){
     fDetector->SetZDCOverlapsFlag( fZDCOverlapsFlagCmd->GetNewBoolValue(newValue) );
   }
+  else if(command == fZDCReducedTreeCmd){
+    fDetector->SetZDCReducedTreeFlag( fZDCReducedTreeCmd->GetNewBoolValue(newValue) );
+  }
   else if(command == fZDCHousingMaterialCmd){
     fDetector->SetZDCHousingMaterial( newValue );
   }
@@ -452,6 +459,9 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   }
   else if(command == fRPDOverlapsFlagCmd){
     fDetector->SetRPDOverlapsFlag( fRPDOverlapsFlagCmd->GetNewBoolValue(newValue) );
+  }
+  else if(command == fRPDReducedTreeCmd){
+    fDetector->SetRPDReducedTreeFlag( fRPDReducedTreeCmd->GetNewBoolValue(newValue) );
   }
   else if(command == fRPDReadoutDistanceCmd){
     fDetector->SetRPDReadoutDistance( fRPDReadoutDistanceCmd->GetNewDoubleValue(newValue) );

@@ -75,7 +75,7 @@ public:
   inline  void  SetDetectorType      ( G4String       arg ){ m_detType          = arg; }
   inline  void  SetOpticalFlag       ( G4bool         arg ){ OPTICAL            = arg; }
   inline  void  SetOverlapsFlag      ( G4bool         arg ){ CHECK_OVERLAPS     = arg; }
-
+  inline  void  SetReducedTreeFlag   ( G4bool         arg ){ REDUCED_TREE       = arg; }
 
   inline  G4ThreeVector* GetPosition ( ){ return m_pos;    }
   inline  G4int          GetModNum   ( ){ return m_modNum; }
@@ -95,6 +95,7 @@ protected:
   G4bool           OPTICAL;
   G4bool           CHECK_OVERLAPS;
   G4bool           READOUT;
+  G4bool           REDUCED_TREE;
   Materials*       materials;
   G4LogicalVolume* m_logicMother;
 

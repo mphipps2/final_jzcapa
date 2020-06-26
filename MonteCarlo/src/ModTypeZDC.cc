@@ -62,6 +62,7 @@ ModTypeZDC::ModTypeZDC(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos
     OPTICAL(false),
     CHECK_OVERLAPS(false),
     STEEL_ABSORBER(false),
+    REDUCED_TREE(false),
     m_logicMother( mother )
 {
 	m_materials = Materials::getInstance();
@@ -86,6 +87,7 @@ ModTypeZDC::ModTypeZDC(const int cn, ModTypeZDC* right)
 		OPTICAL 					 = right->OPTICAL;
 		CHECK_OVERLAPS 		 = right->CHECK_OVERLAPS;
 		STEEL_ABSORBER 		 = right->STEEL_ABSORBER;
+		REDUCED_TREE 		   = right->REDUCED_TREE;
 		m_matAbsorber 		 = right->m_matAbsorber;
 		m_matHousing			 = right->m_matHousing;
 		m_logicMother			 = right->m_logicMother;
@@ -315,6 +317,12 @@ void ModTypeZDC::ConstructDetector()
   aFiberSD->HistInitialize();
   aFiberSD->SetTopOfVolume( m_pos->y() + m_absDim->y()/2. + m_SteelAbsHeight );
   SDman->AddNewDetector( aFiberSD );
+
+  if(REDUCED_TREE){
+    int nFibers = (int)floor(m_absDim->x()/fiberMaxDia)*(m_nAbsorbers + 1);
+    aFiberSD->SetReducedTree( nFibers );
+  }
+
   m_FiberCoreLogical->SetSensitiveDetector( aFiberSD );
 
 

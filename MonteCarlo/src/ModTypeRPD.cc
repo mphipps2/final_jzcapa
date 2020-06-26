@@ -82,6 +82,7 @@ ModTypeRPD::ModTypeRPD(const G4int cn, G4LogicalVolume* mother, G4ThreeVector* p
     OPTICAL(false),
     CHECK_OVERLAPS(false),
     READOUT(false),
+    REDUCED_TREE(false),
     m_logicMother( mother )
 {
 	materials = Materials::getInstance();
@@ -107,6 +108,7 @@ ModTypeRPD::ModTypeRPD(const G4int cn, ModTypeRPD* right)
   OPTICAL 					  = right->OPTICAL;
   CHECK_OVERLAPS 		  = right->CHECK_OVERLAPS;
   READOUT 		        = right->READOUT;
+  REDUCED_TREE 		    = right->REDUCED_TREE;
 	materials					  = right->materials;
 	m_logicMother 		  = right->m_logicMother;
 }
@@ -430,6 +432,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
 	aFiberSD->SetTopOfVolume( m_pos->y() + m_distanceToReadout +  activeHeight/2.0  );
 	SDman->AddNewDetector( aFiberSD );
+  if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count );
 
   for(int i = 0; i < m_fiber_count; i++){
      m_PFrpdLogical.at(i)->SetSensitiveDetector( aFiberSD );
@@ -1083,7 +1086,7 @@ if(test_tile){
   aFiberSD->HistInitialize();
   SDman->AddNewDetector( aFiberSD );
 
-
+if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count );
 
 if(test_tile) m_test_PDLogical->SetSensitiveDetector( aFiberSD );
 else{

@@ -61,7 +61,6 @@ class DetectorMessenger: public G4UImessenger{
     G4UIdirectory*             fRPDDir;
     G4UIdirectory*             fZDCDir;
 
-    G4UIcmdWithABool*          fClusterCmd;
     G4UIcmdWithABool*          fOpticalCmd;
     G4UIcmdWithABool*          fOverlapsCmd;
     G4UIcmdWithABool*          fForcePositionCmd;
@@ -82,6 +81,7 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithADoubleAndUnit* fZDCSteelAbsHeightCmd;
     G4UIcmdWithABool*          fZDCOpticalFlagCmd;
     G4UIcmdWithABool*          fZDCOverlapsFlagCmd;
+    G4UIcmdWithABool*          fZDCReducedTreeCmd;
     G4UIcmdWithAString*        fZDCHousingMaterialCmd;
     G4UIcmdWithAString*        fZDCAbsorberMaterialCmd;
     G4UIcmdWithAnInteger*      fZDCSetCurrentCmd;
@@ -101,6 +101,7 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithAString*        fRPDTypeCmd;
     G4UIcmdWithABool*          fRPDOpticalFlagCmd;
     G4UIcmdWithABool*          fRPDOverlapsFlagCmd;
+    G4UIcmdWithABool*          fRPDReducedTreeCmd;
     G4UIcmdWithAnInteger*      fRPDSetCurrentCmd;
     G4UIcmdWithAnInteger*      fRPDDuplicateCmd;
 

@@ -121,8 +121,6 @@ public:
   virtual void               AddRPD( G4ThreeVector* position = NULL );
   inline  G4int              GetnZDCs(){return m_ZDCvec.size();}
   inline  G4int              GetnRPDs(){return m_RPDvec.size();}
-  inline  G4bool             GetClusterFlag(){return CLUSTER;}
-  inline  void               SetClusterFlag( G4bool arg ){CLUSTER = arg;}
   inline  G4bool             GetOverlapsFlag(){return CHECK_OVERLAPS;}
   inline  void               SetOverlapsFlag( G4bool arg ){CHECK_OVERLAPS = arg;}
   inline  G4bool             GetOpticalFlag(){return OPTICAL;}
@@ -143,6 +141,7 @@ public:
   inline  void SetZDCSteelAbsHeight    ( G4double       arg ){ m_ZDCvec.at(currentZDC-1)->SetSteelAbsHeight(arg);     }
   inline  void SetZDCOpticalFlag       ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetOpticalFlag(arg);        }
   inline  void SetZDCOverlapsFlag      ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetOverlapsFlag(arg);       }
+  inline  void SetZDCReducedTreeFlag   ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetReducedTreeFlag(arg);    }
   inline  void SetZDCHousingMaterial   ( G4String       arg ){ m_ZDCvec.at(currentZDC-1)->SetHousingMaterial(arg);    }
   inline  void SetZDCAbsorberMaterial  ( G4String       arg ){ m_ZDCvec.at(currentZDC-1)->SetAbsorberMaterial(arg);   }
   inline  void SetCurrentZDC           ( G4int          arg ){ currentZDC = arg; }
@@ -161,6 +160,7 @@ public:
   inline  void SetRPDDetectorType      ( G4String       arg ){ m_RPDvec.at(currentRPD-1)->SetDetectorType(arg);    }
   inline  void SetRPDOpticalFlag       ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOpticalFlag(arg);     }
   inline  void SetRPDOverlapsFlag      ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOverlapsFlag(arg);    }
+  inline  void SetRPDReducedTreeFlag   ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetReducedTreeFlag(arg);    }
   inline  void SetCurrentRPD           ( G4int          arg ){ currentRPD = arg; }
   virtual void DuplicateRPD            ( G4int       module );
 
@@ -197,7 +197,6 @@ private:
 	G4Cache<G4MagneticField*> fField;  //pointer to the thread-local fields
 
   /* Run condition flags */
-  G4bool CLUSTER;
   G4bool OPTICAL;
   G4bool ForceDetectorPosition;
   G4bool CHECK_OVERLAPS;
