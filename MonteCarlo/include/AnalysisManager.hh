@@ -54,14 +54,17 @@ class AnalysisManager
     void Save();
 
     void FillNtuples( );
+    void FillZDCnCherenkovs( int zdcNo, int nCherenkovs );
+    void FillRPDnCherenkovs( int rpdNo, int nCherenkovs );
 
-    void MakeZDCTree       ( G4int nTupleNo, G4int zdcNo );
-    void MakeZDCOpticalTree( G4int nTupleNo, G4int zdcNo );
-    void MakeRPDTree       ( G4int nTupleNo, G4int rpdNo );
-    void MakeRPDOpticalTree( G4int nTupleNo, G4int rpdNo );
+    void MakeEventDataTree ( );
+    void MakeZDCTree       ( G4int nTupleNo, G4int zdcNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical );
+    void MakeRPDTree       ( G4int nTupleNo, G4int rpdNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical );
 
-    inline G4bool GetClusterFlag(){ return CLUSTER; }
     inline G4bool GetOpticalFlag(){ return OPTICAL; }
+
+    inline void SetGunPosition ( G4double x, G4double y, G4double z ){ m_gunPos->set(x,y,z); }
+    inline void SetEventNo     ( G4int _eventNo ){ m_eventNo = _eventNo; }
 
     inline  std::vector< std::vector< std::vector<double> > >*  GetRPDdoubleVectors( ){return m_RPDdblVec;}
     inline  std::vector< std::vector< std::vector< int  > > >*  GetRPDintVectors   ( ){return m_RPDintVec;}
@@ -72,8 +75,10 @@ class AnalysisManager
   private:
     AnalysisManager();
     static AnalysisManager* analysisManager;
+    G4int m_eventNo;
     G4bool m_FactoryOn;
-    G4bool CLUSTER, OPTICAL;
+    G4bool OPTICAL;
+    G4ThreeVector* m_gunPos;
     G4AnalysisManager* m_analysisManager;
     DetectorConstruction* m_detectorConstruction;
     std::vector< std::vector< std::vector<double> > > *m_ZDCdblVec, *m_RPDdblVec;
