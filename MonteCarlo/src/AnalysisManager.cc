@@ -274,7 +274,7 @@ void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo, std::vector< int
       m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_ZDCintVec->at(zdcNo).at(0) );
 
       //Resize the vector for the number of optical branches storing double vectors
-      m_ZDCdblVec->at(zdcNo).resize(6);
+      m_ZDCdblVec->at(zdcNo).resize(7);
       //vector< double > branches
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_ZDCdblVec->at(zdcNo).at(0) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_ZDCdblVec->at(zdcNo).at(1) );
@@ -282,10 +282,11 @@ void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo, std::vector< int
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "Px",          m_ZDCdblVec->at(zdcNo).at(3) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "Py",          m_ZDCdblVec->at(zdcNo).at(4) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "Pz",          m_ZDCdblVec->at(zdcNo).at(5) );
+      m_analysisManager->CreateNtupleDColumn( nTupleNo, "time",        m_ZDCdblVec->at(zdcNo).at(6) );
 
     //The next branches are only created if the optical flag is off
     } else {
-      m_ZDCdblVec->at(zdcNo).resize(11);
+      m_ZDCdblVec->at(zdcNo).resize(12);
       //Non-optical vector< double > branches
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_ZDCdblVec->at(zdcNo).at(0) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_ZDCdblVec->at(zdcNo).at(1) );
@@ -298,6 +299,7 @@ void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo, std::vector< int
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "beta",        m_ZDCdblVec->at(zdcNo).at(8) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "eDep",        m_ZDCdblVec->at(zdcNo).at(9) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "charge",      m_ZDCdblVec->at(zdcNo).at(10) );
+      m_analysisManager->CreateNtupleDColumn( nTupleNo, "time",        m_ZDCdblVec->at(zdcNo).at(11) );
 
       //Non-optical vector< int > branches
       m_ZDCintVec->at(zdcNo).resize(5);
@@ -340,7 +342,7 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo, std::vector< int
       m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(rpdNo).at(0) );
 
       //Resize the vector for the number of optical branches storing double vectors
-      m_RPDdblVec->at(rpdNo).resize(6);
+      m_RPDdblVec->at(rpdNo).resize(7);
       //vector< double > branches
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_RPDdblVec->at(rpdNo).at(0) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_RPDdblVec->at(rpdNo).at(1) );
@@ -348,10 +350,11 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo, std::vector< int
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "Px",          m_RPDdblVec->at(rpdNo).at(3) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "Py",          m_RPDdblVec->at(rpdNo).at(4) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "Pz",          m_RPDdblVec->at(rpdNo).at(5) );
+      m_analysisManager->CreateNtupleDColumn( nTupleNo, "time",        m_RPDdblVec->at(rpdNo).at(6) );
 
     //The next branches are only created if the optical flag is off
     } else {
-      m_RPDdblVec->at(rpdNo).resize(11); //Increase the size to store more branches
+      m_RPDdblVec->at(rpdNo).resize(12); //Increase the size to store more branches
       //Non-optical vector< double > branches
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_RPDdblVec->at(rpdNo).at(0) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_RPDdblVec->at(rpdNo).at(1) );
@@ -364,6 +367,7 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo, std::vector< int
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "beta",        m_RPDdblVec->at(rpdNo).at(8) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "eDep",        m_RPDdblVec->at(rpdNo).at(9) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "charge",      m_RPDdblVec->at(rpdNo).at(10));
+      m_analysisManager->CreateNtupleDColumn( nTupleNo, "time",        m_RPDdblVec->at(rpdNo).at(11));
 
       //Non-optical vector< int > branches
       m_RPDintVec->at(rpdNo).resize(5);

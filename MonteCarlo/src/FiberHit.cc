@@ -62,6 +62,7 @@ FiberHit::FiberHit(const FiberHit& right)
   energy    = right.energy;
   momentum  = right.momentum;
   charge    = right.charge;
+  time      = right.time;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -78,6 +79,7 @@ const FiberHit& FiberHit::operator=(const FiberHit& right)
   energy    = right.energy;
   momentum  = right.momentum;
   charge    = right.charge;
+  time      = right.time;
   return *this;
 }
 

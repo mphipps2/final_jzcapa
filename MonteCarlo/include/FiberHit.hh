@@ -69,6 +69,7 @@ public:
   void setEdep        (G4double de)                { edep      = de;    }
   void setEnergy      (G4double e)                 { energy    = e;     }
   void setCharge      (G4double c)                 { charge    = c;     }
+  void setTime        (G4double t)                 { time      = t;     }
 
 
   G4ParticleDefinition*  getParticle    (){ return particle;    }
@@ -84,6 +85,7 @@ public:
   G4double               getCharge      (){ return charge;      }
   G4double               getVelocity    (){ return velocity;    }
   G4double               getBeta        (){ return beta;        }
+  G4double               getTime        (){ return time;        }
 
 private:
   G4ParticleDefinition* particle;
@@ -98,6 +100,7 @@ private:
   G4double              beta;
   G4double              energy;
   G4double              charge;
+  G4double              time;
   G4double              edep;
 
 

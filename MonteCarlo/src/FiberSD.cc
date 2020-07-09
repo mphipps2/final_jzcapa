@@ -127,6 +127,8 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
       newHit->setOrigin   ( aStep->GetTrack()->GetVertexPosition() );
       newHit->setMomentum ( aStep->GetPreStepPoint()->GetMomentum() );
       newHit->setEnergy   ( aStep->GetPreStepPoint()->GetTotalEnergy() );
+      newHit->setEnergy   ( aStep->GetPreStepPoint()->GetTotalEnergy() );
+      newHit->setTime     ( aStep->GetTrack()->GetGlobalTime() );
       newHit->setRodNb    ( rodNum );
 
       fiberCollection->insert ( newHit );
@@ -152,6 +154,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     newHit->setParticle    ( particle );
     newHit->setEnergy      ( aStep->GetPreStepPoint()->GetTotalEnergy() );
     newHit->setMomentum    ( aStep->GetPreStepPoint()->GetMomentum() );
+    newHit->setTime        ( aStep->GetTrack()->GetGlobalTime() );
     newHit->setNCherenkovs ( capturedPhotons );
 
     fiberCollection->insert ( newHit );

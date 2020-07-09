@@ -131,7 +131,7 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
     G4int         nCherenkovs   = (*HC)[i]->getNCherenkovs(); // This is the number of cherenkovs in a single step within the SD
     G4int         trackID       = (*HC)[i]->getTrackID();
 
-    //Sum energy from all steps a particle takes in a single scoring volume
+    //Sum energy and nCherenkovs from all steps a particle takes in a single scoring volume
     if (trackID == prevTrackId || rodNo == prevRodNo || eDep != 0) {
       nCherenkovsSum += nCherenkovs;
       eDepSum += eDep;
@@ -149,6 +149,7 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
     G4double      velocity      = (*HC)[i]->getVelocity();
     G4double      beta          = (*HC)[i]->getBeta();
     G4double      charge        = (*HC)[i]->getCharge();
+    G4double      time          = (*HC)[i]->getTime();
 
     G4int         pid           = (*HC)[i]->getParticle()->GetPDGEncoding();
 
@@ -165,6 +166,7 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
       m_RPDdblVec->at(modNo-1).at(8). push_back( beta         );
       m_RPDdblVec->at(modNo-1).at(9). push_back( eDepSum      );
       m_RPDdblVec->at(modNo-1).at(10).push_back( charge       );
+      m_RPDdblVec->at(modNo-1).at(11).push_back( time         );
 
       //ints
       m_RPDintVec->at(modNo-1).at(0).push_back( rodNo          );
@@ -187,6 +189,7 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
         m_ZDCdblVec->at(modNo-1).at(8). push_back( beta         );
         m_ZDCdblVec->at(modNo-1).at(9). push_back( eDepSum      );
         m_ZDCdblVec->at(modNo-1).at(10).push_back( charge       );
+        m_ZDCdblVec->at(modNo-1).at(11).push_back( time         );
 
         //ints
         m_ZDCintVec->at(modNo-1).at(0).push_back( rodNo          );
@@ -223,6 +226,7 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
 
     G4ThreeVector origin   = (*HC)[i]->getOrigin();
     G4ThreeVector momentum = (*HC)[i]->getMomentum();
+    G4double      time     = (*HC)[i]->getTime();
     G4int         rodNo    = (*HC)[i]->getRodNb();
 
     if( sd->IsZDC() ){//ZDC hitsCollID, check to be sure/symmetric
@@ -233,6 +237,7 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
       m_ZDCdblVec->at(modNo-1).at(3). push_back( momentum.x() );
       m_ZDCdblVec->at(modNo-1).at(4). push_back( momentum.y() );
       m_ZDCdblVec->at(modNo-1).at(5). push_back( momentum.z() );
+      m_ZDCdblVec->at(modNo-1).at(6). push_back( time         );
 
       //int
       m_ZDCintVec->at(modNo-1).at(0).push_back( rodNo );
@@ -245,6 +250,7 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
       m_RPDdblVec->at(modNo-1).at(3). push_back( momentum.x() );
       m_RPDdblVec->at(modNo-1).at(4). push_back( momentum.y() );
       m_RPDdblVec->at(modNo-1).at(5). push_back( momentum.z() );
+      m_RPDdblVec->at(modNo-1).at(6). push_back( time         );
 
       //int
       m_RPDintVec->at(modNo-1).at(0). push_back( rodNo );
