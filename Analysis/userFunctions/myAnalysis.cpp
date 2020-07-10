@@ -34,13 +34,20 @@ int main(int argc, char *argv[]){
           scanNum = i+1;
       }
   }
-  if(scanNum == 0){
+
+  string fNameIn;
+  string outputDir;
+  if( runNum == -1 || runNum == -2){
+    fNameIn = argv[2];
+    outputDir = (argc == 4) ? argv[3] : "";
+  }else if(scanNum == 0){
       cout << "File does not exist... exiting" << endl;
       return 0;
+  } else {
+    fNameIn = Form("/data/phenix/data/TestBeam2018/new_processed_runs/Scan%d/ZDCBeamTestRun%d.root", scanNum, runNum); // !! Change for your test !!
+    gSystem->Exec( Form("mkdir -p /data/phenix/data/TestBeam2018/Post_processing/run%d", runNum) );
+    outputDir = Form("/data/phenix/data/TestBeam2018/Post_processing/run%d/", runNum);
   }
-  string fNameIn = Form("/data/phenix/data/TestBeam2018/new_processed_runs/Scan%d/ZDCBeamTestRun%d.root", scanNum, runNum); // !! Change for your test !!
-  gSystem->Exec( Form("mkdir -p /data/phenix/data/TestBeam2018/Post_processing/run%d", runNum) );
-
   // DataReader is the main class. It reads data and also
   // has analysis classes in it. User should only have to
   // modify the analysis classes and add output in them.
@@ -50,23 +57,23 @@ int main(int argc, char *argv[]){
 
   r->SelectDetectorForAnalysis(true,true,true);
   r->AddPreAnalysis( new WFAnalysis() );
-  r->AddDetectorAnalysis( new ZDCAnalysis() );
+  //r->AddDetectorAnalysis( new ZDCAnalysis() );
   r->AddDetectorAnalysis( new RPDAnalysis() );
   r->LoadConfigurationFile();
   r->LoadAlignmentFile();
   r->LoadTimingFile();
-  r->SetOutputDirectory( Form("/data/phenix/data/TestBeam2018/Post_processing/run%d/", runNum) );
+  r->SetOutputDirectory( outputDir );
   r->EnablePlotLabel();
-  
+
   EventTimer timer(1000, r, kFALSE);
   timer.TurnOn();
-  
+
   r->Run();
-  
+
   timer.TurnOff();
   std::cout << std::endl << "Finished!" << std::endl;
-  
+
   delete r;
-  
+
   return 0;
 }
