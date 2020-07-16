@@ -39,6 +39,7 @@ RPDAnalysis::~RPDAnalysis( ){
  *
  */
 void RPDAnalysis::Initialize( std::vector < Detector* > _vDet ){
+  m_counter = 0;
 
     for( auto& det : _vDet ){
         if(det->GetChannelsVector().size() == 0) continue;
@@ -73,6 +74,7 @@ void RPDAnalysis::Initialize( std::vector < Detector* > _vDet ){
  *  @return none
  */
 void RPDAnalysis::SetupHistograms( ){
+  if(m_viz == NULL) m_viz = new Visualizer( "ATLAS" );
 
    hCharge     = new TH2D("RPD Charge", "average charge per tile", 4, 0, 4, 4, 0, 4);
    hPeak       = new TH2D("RPD Peak", "average peak height per tile", 4, 1, 5, 4, 1, 5);
@@ -83,7 +85,13 @@ void RPDAnalysis::SetupHistograms( ){
    hPeakSum    = new TH1D("RPD Peak Height Sum","RPD Peak Height Sum", 200, 0, 3000);
    hDiffPeakSum= new TH1D("RPD Differential Peak Height Sum","RPD Diff Peak Sum", 200, 0, 55000);
 
+   hChargeArr.resize(4);
+   hPeakArr.resize(4);
+   hDPeakArr.resize(4);
    for(int row = 0; row < 4; row++){
+     hChargeArr[row].resize(4);
+     hPeakArr[row].resize(4);
+     hDPeakArr[row].resize(4);
        for(int col = 0; col < 4; col++){
             hChargeArr[row][col] = new TH1D(Form("rpd%d_%d_Charge",row,col),Form("rpd%d_%d_Charge",row,col), 200 , 0, 15000);
             hChargeArr[row][col]->SetAxisRange(0,1500,"Y");
@@ -95,7 +103,6 @@ void RPDAnalysis::SetupHistograms( ){
             hDPeakArr[row][col]->SetAxisRange(0,1500,"Y");
        }
    }
-
 }
 
 /** @brief Branch setup method for ZDCAnalysis
@@ -136,7 +143,7 @@ void RPDAnalysis::AnalyzeEvent( ){
     //This loop takes the running average of charge and peak height per tile
     for(int row = 0; row < 4; row++){
         for(int col = 0; col < 4; col++){
-            if( rpd[row][col]->is_on && rpd[row][col]->was_hit ){
+            if( rpd[row][col]->is_on ){
                 ChargeSum   += rpd[row][col]->Charge;
                 PeakSum     += rpd[row][col]->Peak_max;
                 DiffPeakSum += rpd[row][col]->Diff_max;
@@ -169,8 +176,6 @@ void RPDAnalysis::AnalyzeEvent( ){
     hChargeSum->Fill(ChargeSum);
     hPeakSum->Fill(PeakSum);
     hDiffPeakSum->Fill(DiffPeakSum);
-
-
 
 }
 
@@ -207,6 +212,7 @@ void RPDAnalysis::Finalize( ){
             hPeak->SetBinContent(  col+1, 4-row, hPeakArr[row][col]->GetMean()  );
         }
     }
+
 
     std::string output =  std::getenv("JZCaPA");
     output += "/results/";
