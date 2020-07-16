@@ -1,7 +1,7 @@
 /** @file ZDC
  *  @brief Function prototypes for ZDC
  *
- *  This contains the prototypes and members 
+ *  This contains the prototypes and members
  *  for ZDC
  *
  *  @author Chad Lantz, Riccardo Longo
@@ -17,12 +17,12 @@ class ZDC : public Detector{
 
  public:
   ZDC( );
-  ZDC(std::vector<Channel *> _readOut , int _zdcNumber);
+  ZDC(std::vector<Channel *> _readOut, int _runNumber, int _zdcNumber);
   virtual ~ZDC( );
-  
+
   virtual void PrintMap  ( );
   void SetNumber ( int _number ) { m_Number = _number; }
- 
+
  private:
   int m_Number;
 };
