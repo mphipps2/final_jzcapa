@@ -576,14 +576,8 @@ void DataReader::Finalize(){
   Visualizer* viz = new Visualizer( "ATLAS" );
 
   if(useLabel){
-      std::string year, beam;
-      if(m_runNumber <= 405) year = "2018";
-      if(m_alignment->magnet_On && m_alignment->target_In) beam = "Fragments - Magnet On";
-      if(!m_alignment->magnet_On && m_alignment->target_In) beam = "Fragments - Magnet Off";
-      if(!m_alignment->magnet_On && m_alignment->target_In && m_alignment->lead_In) beam = "Fragments - Magnet Off - Pb absorber";
-      if(!m_alignment->magnet_On && !m_alignment->target_In && !m_alignment->lead_In) beam = "Pb ions, 150 GeV/A";
       viz->SetOutputDirectory( m_outputDir );
-      viz->SetTestBeamLabel( year, beam);
+      viz->SetTestBeamLabel( m_runNumber, m_alignment);
   }
 
   for( auto& ana : m_ana ){
