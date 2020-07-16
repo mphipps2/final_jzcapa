@@ -304,7 +304,7 @@ void DataReader::LoadTimingFile(std::string _inFile){
         std::cerr << "Scan number not defined, defaulting timing data to Scan 1" << std::endl;
         scanNum = 1;
     }
-    inFile = (std::string)std::getenv("JZCaPA") + Form("/Utils/2018Timing_data/scan%d.txt",scanNum);
+    inFile = (std::string)std::getenv("JZCaPA") + Form("/Utils/Timing_data/2018scan%d.txt",scanNum);
 
     open:
     std::ifstream file( inFile.c_str() );
