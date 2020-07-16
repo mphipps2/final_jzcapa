@@ -96,6 +96,8 @@ class Alignment {
 
  public:
 
+    /** Run number being analyzed **/
+    int runNumber;
     /** X position of the Desy Table **/
     double x_table;
     /** Y position of the Desy Table **/

@@ -1,8 +1,8 @@
  /** @file DataReader.cxxs
  *  @brief Implementation of DataReader.
  *
- *  Function definitions for DataReader are provided. 
- *  This class reads a rootfile with raw waveforms 
+ *  Function definitions for DataReader are provided.
+ *  This class reads a rootfile with raw waveforms
  *  that are processed by rcdaqAnalysis running on prdf files.
  *  Then, in the event loop, analysis classes can be called.
  *
@@ -52,7 +52,7 @@ DataReader::DataReader( const unsigned int nCh, const unsigned int nSamp )
 DataReader::DataReader( const uint nCh, const uint nSamp,
 			const std::string& fNameIn )
   : DataReader( nCh, nSamp, fNameIn, 0 ){
-  
+
 }
 
 
@@ -62,7 +62,7 @@ DataReader::DataReader( const uint nCh, const uint nSamp,
  *  @param nSamp Number of samples per channel
  *  @param4 fNameIn Output file name (custom)
  *  @param3 runNum Run number being used.
- 
+
  */
 DataReader::DataReader( const uint nCh, const uint nSamp,
 			const std::string& fNameIn, const uint runNum )
@@ -76,7 +76,7 @@ DataReader::DataReader( const uint nCh, const uint nSamp,
  */
 DataReader::~DataReader(){
 
-  
+
   for( auto& time : m_time ){
       delete time; time = NULL;
   }
@@ -89,14 +89,14 @@ DataReader::~DataReader(){
   for( auto& det_ana : m_det_ana ){
     delete det_ana; det_ana = NULL;
   }
-  
+
   //This line deletes all histograms so we don't have to
   gDirectory->GetList()->Delete();
-  
+
   delete m_alignment; m_alignment = NULL;
   delete m_fOut; m_fOut = NULL;
   delete m_fIn; m_fIn = NULL;
-  
+
 }
 
 /** @brief Adds an analysis to vector of analysis to be executed before the detector analysis (e.g. WaveForm Analysis)
@@ -171,6 +171,7 @@ void DataReader::LoadAlignmentFile(std::string _inFile ){
     }
 
     m_alignment = new Alignment();
+    m_alignment->runNumber = m_runNumber;
 
     std::cout << "Loading .xml Alignment File..." << std::endl;
     std::cout << "Found " << m_XMLparser->getBaseNodeCount("Alignment") << " alignment entries " << std::endl;
@@ -194,7 +195,7 @@ void DataReader::LoadAlignmentFile(std::string _inFile ){
     if(m_alignment == NULL) std::cout << "WARNING: ALIGNMENT NOT FOUND!!!" << std::endl;
     delete m_XMLparser; m_XMLparser = NULL;
     return;
-    
+
 }
 
 /**
@@ -247,9 +248,9 @@ void DataReader::LoadConfigurationFile(std::string _inFile ){
 
     std::cout << "Loaded " << channelEntries.size() << " configuration entries " << std::endl;
     if( channelEntries.size() < 18 ) std::cout << "WARNING!!!! Number of Channels < 18. Seems that some entry is missed for this run in the config.xml. BE CAREFUL!" << std::endl;
-    ZDC* zdc1 = new ZDC(channelEntries,1);
-    ZDC* zdc2 = new ZDC(channelEntries,2);
-    RPD* rpd = new RPD(channelEntries);
+    ZDC* zdc1 = new ZDC(channelEntries,m_runNumber,1);
+    ZDC* zdc2 = new ZDC(channelEntries,m_runNumber,2);
+    RPD* rpd = new RPD(channelEntries,m_runNumber);
 
     m_detectors.push_back(zdc1); //Position 0 goes for ZDC1
     m_detectors.push_back(zdc2); //Position 1 goes for ZDC2
@@ -270,7 +271,7 @@ void DataReader::LoadConfigurationFile(std::string _inFile ){
  *
  */
 void DataReader::LoadTimingFile(std::string _inFile){
-    
+
     std::string inFile,buffer;
     char data[12];
     float dat;
@@ -279,19 +280,19 @@ void DataReader::LoadTimingFile(std::string _inFile){
     for(int i = 0; i < 5; i++){
         m_time[i] = new std::vector< float >;
     }
-    
+
     int chNo;
     int start[] = {79,  152, 190, 202, 215, 258 };
     int stop[]  = {112, 171, 200, 213, 231, 413 };
     int scanNum = 0;
-    
+
     //If the user has selected a file, use it and skip determining the scan number
     if(_inFile != ""){
         std::cout << "Using timing file definied by user " << _inFile << std::endl;
         inFile = _inFile;
         goto open;
     }
-    
+
     //Determine scan number using ranges defined by start and stop.
     //Scan 6-13 have identical timing data, so we treat them all as scan 6
     for(int i = 0; i < 6; i++){
@@ -304,23 +305,23 @@ void DataReader::LoadTimingFile(std::string _inFile){
         scanNum = 1;
     }
     inFile = (std::string)std::getenv("JZCaPA") + Form("/Utils/2018Timing_data/scan%d.txt",scanNum);
-    
+
     open:
     std::ifstream file( inFile.c_str() );
     if( !file.is_open() ){
         std::cerr << "WARNING: Timing data file didn't open " << inFile << std::endl;
         return;
     }
-    
+
     //Get the headers out
     getline(file,buffer);
     getline(file,buffer);
-    
+
     while(!file.eof()){
         getline(file,buffer);
         if(buffer == "") break;
-        
-        //Loop through the DRS4 modules pushing the data into the vector 
+
+        //Loop through the DRS4 modules pushing the data into the vector
         //and chopping off the front of the string
         for(int drs = 0; drs<4; drs++){
             buffer.copy( data , 11 );
@@ -332,7 +333,7 @@ void DataReader::LoadTimingFile(std::string _inFile){
         m_time[4]->push_back( atof( buffer.c_str() ) );
     }
     file.close();
-    
+
     //Loop through the detector vector and their Channel vectors assigning the
     //time vector based on hardware channel number (Channel::name)
     for( auto& det : m_detectors ){
@@ -342,7 +343,7 @@ void DataReader::LoadTimingFile(std::string _inFile){
             //Remove "Signal" from name and convert to int
             buffer.erase(0,6);
             chNo = atoi( buffer.c_str() );
-            
+
             //If the channel already has a time vector, print an error and continue
             if(ch->pTimeVec != 0){
                 std::cerr << "WARNING: Overwriting Channel time vector" << std::endl;
@@ -386,8 +387,8 @@ void DataReader::UpdateConsole( Long_t _updateRate){
 
     if( m_verbose == 0 ){ return; }
     if(m_event!=0){
-        
-    
+
+
         // Get CPU information
         gSystem->GetCpuInfo(&cpuInfo, 100);
         gSystem->GetProcInfo( &procInfo );
@@ -396,7 +397,7 @@ void DataReader::UpdateConsole( Long_t _updateRate){
         // Get events/second
         double rate = 1000*(m_event-m_event_old)/_updateRate;
         m_event_old = m_event;
-    
+
         std::cout << "\r" << std::left <<  Form("Processed %5d events, ", m_event);
         std::cout << Form( "%5.1f ev/s, ", rate);
         std::cout << Form( "CPU use/time: %3d%%/%6.1fs, ", (int)cpuInfo.fTotal, (double)procInfo.fCpuSys + procInfo.fCpuUser);
@@ -411,7 +412,7 @@ void DataReader::UpdateConsole( Long_t _updateRate){
  *
  *  Call Initialize, ProcessEvents, and Finalize
  *  Made so the driver class only has to call one method.
- *  
+ *
  */
 void DataReader::Run(){
 
@@ -430,7 +431,7 @@ void DataReader::Run(){
  *  file, later this can be extended to read many and make
  *  chain of files for example. Also create and initialize
  *  the analysis that will be running.
- *  
+ *
  *  @return none
  */
 void DataReader::Initialize(){
@@ -459,7 +460,7 @@ void DataReader::Initialize(){
       m_outputDir = (std::string)std::getenv("JZCaPA") + Form("/results/run%d/",m_runNumber);
       gSystem->Exec( ("mkdir -p " + m_outputDir).c_str() );
   }
-  
+
   // If we are reading a list of files, or have no run number
   // make default name output.root, otherwise make it
   // outputN.root, where N is a run number of a file.
@@ -472,7 +473,7 @@ void DataReader::Initialize(){
   m_tOut->Branch("evNo", &m_event, "m_event/I");
   m_tOut->Branch("x_table", &m_alignment->x_table, "x_table/D");
   m_tOut->Branch("y_table", &m_alignment->y_table, "y_table/D");
-  
+
   for( uint detID = 0; detID < (int) m_detectors.size(); detID++ ){
      m_detectors.at(detID)->SetAlignment(m_alignment);
   }
@@ -499,7 +500,7 @@ void DataReader::Initialize(){
  *  Then one can send these to any Analysis function they make.
  *  Here for example (12.12.18), we send to WFAnalysis::AnalyzeEvent( .. )
  *  See below - Have fun!
- *  
+ *
  *  @return none
  */
 void DataReader::ProcessEvents(){
@@ -523,12 +524,12 @@ void DataReader::ProcessEvents(){
   }
 
   std::cout << "File: " << m_fIn->GetName() << " has " << tree->GetEntries() << " events." << std::endl;
-  
+
   // !! EVENT LOOP
   for( int ev = 0; ev < tree->GetEntries(); ev++ ){
     m_event = ev;
     tree->GetEntry( ev );
-    
+
     // Fill the raw waveforms
     for( uint detID = 0; detID < (int) m_detectors.size(); detID++ )
         m_detectors.at(detID)->FillHistograms();
@@ -541,27 +542,27 @@ void DataReader::ProcessEvents(){
       //raw data analysis
         if(useZDC1) ana->AnalyzeEvent( zdc1->GetChannelsVector() );
         if(useZDC2) ana->AnalyzeEvent( zdc2->GetChannelsVector() );
-        if(useRPD) ana->AnalyzeEvent( rpd->GetChannelsVector() ); 
+        if(useRPD) ana->AnalyzeEvent( rpd->GetChannelsVector() );
         }
     for( auto& det_ana : m_det_ana ){
       //Detector level analysis
       det_ana->AnalyzeEvent(  );
     }
-  
+
   m_tOut->Fill();
-  
+
   } // End event loop
 }
 
 /** @brief Finalize method for DataReader
  *
- *  Close any input files 
+ *  Close any input files
  *  Call analysis finalize methods
- *  
+ *
  *  @return none
  */
 void DataReader::Finalize(){
-  
+
   if( m_fIn ){
     m_fIn->Close();
   }
@@ -596,4 +597,3 @@ void DataReader::Finalize(){
   m_tOut->Write();
   m_fOut->Close();
 }
-
