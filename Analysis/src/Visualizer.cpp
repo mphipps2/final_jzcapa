@@ -127,7 +127,7 @@ void Visualizer::SetAtlasStyle(){
 /** @brief OverlayHistos method for Visualizer
  *
  *  Plots two input histograms on the same, specified pad with
- *  separate axis. Draws two horizontal lines at +_line and -_line 
+ *  separate axis. Draws two horizontal lines at +_line and -_line
  *  on h2's axis if f _line is non-zero.
  *
  *  @param h1 - Base histogram (left y-axis)
@@ -161,7 +161,7 @@ void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad, double _lin
    axis.SetLineColor( kRed );
    axis.SetLabelColor( kRed );
    axis.DrawClone();
-   
+
    //Draw two horizontal lines
    if(_line != 0){
      TLine lineLow (0, -_line*scale, h1->GetNbinsX(), -_line*scale );
@@ -170,7 +170,7 @@ void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad, double _lin
      lineHigh.SetLineColor( kGreen );
      lineLow.DrawClone( );
      lineHigh.DrawClone( );
-   }    
+   }
 
    //Rescale h2 back to the original size
    h2->Scale( 1/scale );
@@ -187,9 +187,9 @@ void Visualizer::OverlayHistos( TH1 *h1, TH1 *h2 , TVirtualPad* pad, double _lin
  * @param _out_name - name of the plot (w/o extension, that's defined by a data member [ .pdf by default ]
  * @param _treatment - treatment of the plots (at the moment only one available, overlay)
  */
-void Visualizer::ManyPadsPlot( std::vector< TH1* > _first_form, std::vector< TH1* > _second_form, int _ncol, int _nrow, std::string _out_name, std::string _treatment){
-
-    if(_treatment != "overlay" && _treatment != "OVERLAY" && _treatment != "Overlay"){
+void Visualizer::ManyPadsPlot( std::vector< TH1* > _first_form, std::vector< TH1* > _second_form, int _ncol, int _nrow, std::string _out_name, TString _treatment){
+    _treatment.ToLower();
+    if(_treatment != "overlay"){
         std::cerr << "WARNING!!! You're looking for a treatment that has not been implemented yet! Please check it carefully" << std::endl;
         std::cerr << "Exiting w/o doing anything .." << std::endl;
         return;
@@ -214,7 +214,7 @@ void Visualizer::ManyPadsPlot( std::vector< TH1* > _first_form, std::vector< TH1
     canv->Divide(_ncol,_nrow);
     for( int idraw = 0; idraw < _first_form.size(); idraw++){
         canv->cd(idraw+1);
-        if( _treatment == "overlay" || _treatment != "OVERLAY" || _treatment != "Overlay" ){
+        if( _treatment == "overlay"){
             OverlayHistos( _first_form.at(idraw), _second_form.at(idraw), gPad);
         }
     }
@@ -232,31 +232,31 @@ void Visualizer::ManyPadsPlot( std::vector< TH1* > _first_form, std::vector< TH1
  * @param _line - y value for which a horizontal line will be drawn
  */
 void Visualizer::SinglePlot( std::vector< double > _v1, std::vector< double > _v2, std::string _out_name, std::string _treatment, double _line){
-        
+
     if(_v1.size() != _v2.size())
     std::cerr << "WARNING!!! The two vectors have different size. "
                  "May result in a crash..." << std::endl;
-                     
+
     int sw = -1;
     if( _treatment == "overlay" || _treatment == "OVERLAY" || _treatment == "Overlay" ){ sw = 0; }
     if( _treatment == "overlay with lines" || _treatment == "OVERLAY WITH LINES" || _treatment == "Overlay with lines" ){ sw = 1; }
     if( _treatment == "scatter" || _treatment == "SCATTER" || _treatment == "Scatter" ){ sw = 2; }
-    
+
     if(sw == -1){
         std::cerr << "WARNING!!! You're looking for a treatment that has not been implemented yet! Please check it carefully" << std::endl;
         std::cerr << "Exiting w/o doing anything .." << std::endl;
         return;
     }
-    
+
     int squared_pad_size = 300;
     TCanvas* canv = new TCanvas( _out_name.c_str(),_out_name.c_str(),
                                  squared_pad_size, squared_pad_size*2);
     //TVirtualPad *gpad = canv->cd();
-    
+
     if(sw == 0 || sw == 1){
         TH1D* h1 = new TH1D( _out_name.c_str(), _out_name.c_str(), _v1.size(), _v1.at(0), _v1.at(_v1.size()-1));
         TH1D* h2 = new TH1D( (_out_name + "(1)").c_str(), (_out_name + "(1)").c_str(), _v1.size(), _v2.at(0), _v2.at(_v1.size()-1));
-        
+
         //Fill each histogram separately in case they are different sizes
         for(int bin = 0; bin < _v1.size(); bin++){
             h1->SetBinContent(bin,_v1.at(bin));
@@ -264,7 +264,7 @@ void Visualizer::SinglePlot( std::vector< double > _v1, std::vector< double > _v
         for(int bin = 0; bin < _v2.size(); bin++){
             h2->SetBinContent(bin,_v2.at(bin));
         }
-        
+
         //Draw the overlayed histos either with or without lines, depending on the selection
         if(sw == 0) OverlayHistos( h1, h2, canv->cd());
         if(sw == 1) OverlayHistos( h1, h2, canv->cd(), _line);
@@ -272,12 +272,12 @@ void Visualizer::SinglePlot( std::vector< double > _v1, std::vector< double > _v
     if(sw == 2){
         ScatterPlot(_v1, _v2, canv->cd());
     }
-    
+
     canv->Print(( _out_name + m_extension ).c_str());
 }
 
-/** 
- * @brief Draws a scatter plot from two vectors 
+/**
+ * @brief Draws a scatter plot from two vectors
  *
  * @param _vx - Vector of x values
  * @param _vy - Vector of y values
@@ -289,19 +289,26 @@ void Visualizer::ScatterPlot( std::vector< double > _vx, std::vector< double > _
     TVx.Use(_vx.size(),&_vx[0]);
     TVectorD TVy;
     TVy.Use(_vy.size(),&_vy[0]);
-    
+
     TGraph g(TVx, TVy);
-    g.DrawClone("ap"); 
+    g.DrawClone("ap");
 }
 
 
 
-/** 
+/**
  * @brief Sets plot labels based on run number and alignment data
  *
  */
 void Visualizer::SetTestBeamLabel( int runNo, Alignment* alignment ){
-    if(runNo <= 405) year = "2018";
+    if(runNo == 1){
+      year = "";
+      category = "Simulated";
+    }
+    if(runNo <= 405 && runNo > 10){
+      year = "2018";
+      category = "Test Beam";
+    }
     if(alignment->magnet_On && alignment->target_In) beam = "Fragments - Magnet On";
     if(!alignment->magnet_On && alignment->target_In) beam = "Fragments - Magnet Off";
     if(!alignment->magnet_On && alignment->target_In && alignment->lead_In) beam = "Fragments - Magnet Off - Pb absorber";
@@ -327,7 +334,7 @@ void Visualizer::DrawPlot(TH1 *h2, std::string _xTitle, std::string _yTitle, std
     lx->SetTextFont( 62 );
     lx->SetTextSize( 0.048 );
     if (!h2->InheritsFrom("TH2")){
-        lx->DrawLatexNDC(0.49,0.83,("ZDC Beam Test " + year).c_str());
+        lx->DrawLatexNDC(0.49,0.83,("ZDC " + category + year).c_str());
         lx->SetTextFont( 42 );
         lx->SetTextSize( 0.038 );
         lx->DrawLatexNDC(0.49,0.79,beam.c_str());
@@ -335,7 +342,7 @@ void Visualizer::DrawPlot(TH1 *h2, std::string _xTitle, std::string _yTitle, std
         lx->DrawLatexNDC(0.49,0.75,"Ongoing Analysis");
     }
     if (h2->InheritsFrom("TH2")){
-        lx->DrawLatexNDC(0.15,0.93,("ZDC Beam Test " + year).c_str());
+        lx->DrawLatexNDC(0.15,0.93,("ZDC " + category + year).c_str());
         lx->SetTextFont( 42 );
         lx->SetTextSize( 0.038 );
         lx->DrawLatexNDC(0.55,0.95,beam.c_str());
