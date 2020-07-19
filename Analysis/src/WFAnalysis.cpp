@@ -1,10 +1,10 @@
 /** @file WFAnalysis.cxx
  *  @brief Implementation of WFAnalysis.
  *
- *  Function definitions for WFAnalysis are provided. 
+ *  Function definitions for WFAnalysis are provided.
  *  This class is the main  class for the waveform analysis.
  *  It initializes the histograms used for output of processed events.
- *  Also includes methods that accept all waveforms in an event. 
+ *  Also includes methods that accept all waveforms in an event.
  *  This is where the analysis should be done.
  *
  *  @author Sheng Yang, Chad Lantz, Yakov Kulinich
@@ -33,18 +33,18 @@ WFAnalysis::~WFAnalysis( ){
 
     delete f;
     delete nlFit;
-    
+
 }
 
 /** @brief Initialization method for WFAnalysis
  *
- *  Can add other things here that you would 
+ *  Can add other things here that you would
  *  perhaps not put into the constructor.
  *  I.e. a TTree, some tools. Etc.
  *
  */
 void WFAnalysis::Initialize( ){
-     
+
      nlFit = new TF1("nl1", "(x<660)*(-0.188891+1.03623*x) + \(x>660 && x<850)*( -51210.2 + 260.781*x - 0.4916*pow(x,2) + 0.00041227*pow(x,3) - (1.29681e-7)*pow(x,4) ) + \(x>850)*( -526857 + 1844.37*x - 2.1493*pow(x,2) + 0.000834971*pow(x,3) )", 0, 1000);
 
 }
@@ -57,17 +57,17 @@ void WFAnalysis::Initialize( ){
  *  @return none
  */
 void WFAnalysis::SetupHistograms( ){
-  
+
   f = new TF1("f","gaus",-50,50);
   hRMS = new TH1D("RMS","RMS",75,-75,75);
   hRMSrpd = new TH1D("RMSrpd","RMSrpd",50,-30,30);
   hPed = new TH1D("ped","ped", 1024, -512, 512);
-  
+
 }
 
 
 /** @brief Analyze Events method for WFAnalysis
- *  @param vWF 1D vector of all waveforms for N ch 
+ *  @param vWF 1D vector of all waveforms for N ch
  *
  *  Here is the event-based analysis code.
  *  A const 1D vector of N TH1* is received.
@@ -88,7 +88,7 @@ void WFAnalysis::AnalyzeEvent( const std::vector< TH1* >& vWFH ){
 
 
 /** @brief Analyze Events method for WFAnalysis
- *  @param vWF const 2D vector for all waveforms in event 
+ *  @param vWF const 2D vector for all waveforms in event
  *
  *  Here is the event-based analysis code.
  *  A const 2D vector of NxM is received.
@@ -129,14 +129,14 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
         TH1D* h = vCh.at(ch)->WF_histo;
         TH1D* hProcessed = vCh.at(ch)->PWF_histo;
         TH1D* hDiff = vCh.at(ch)->FirstDerivative;
-      
-      //If row != 0 (i.e. not ZDC channel), set RPD processing values
-        if( vCh.at(ch)->mapping_row ){
+
+      //If Channel belongs to an RPD, set RPD processing values
+        if( vCh.at(ch)->detector.find_first_of("R") != std::string::npos ){
             m_diffSens  = m_RPDdiffSens;
             m_Tmultiple = m_RPDTmultiple;
             fCutoff     = m_RPDfCutoff;
             m_isRPD     = true;
-        }else{ // If row = 0 (ZDC) set ZDC processing values and invert the signal
+        }else{ // If detector = ZDC, set ZDC processing values and invert the signal
             m_diffSens  = m_ZDCdiffSens;
             m_Tmultiple = m_ZDCTmultiple;
             fCutoff     = m_ZDCfCutoff;
@@ -150,38 +150,38 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
                 vCh.at(ch)->pWF->at(bin) *= -1;
             }
         }
-        
+
         //Get the first derivative and determine the hit window from it
         //if a valid hit window is not found was_hit is set to false
         GetDifferential( vCh.at(ch) );
-        
+
         //We set the offset of the DRS4 channels to -250 at first. This lead to clipping
         //of the baseline. If that's the case, estimate the RMS to be 5 based on good runs.
-        vCh.at(ch)->FirstDerivativeRMS = ( vCh.at(ch)->offset != -250 ) ? GetRMS( vCh.at(ch) ) : 5.0; 
+        vCh.at(ch)->FirstDerivativeRMS = ( vCh.at(ch)->offset != -250 ) ? GetRMS( vCh.at(ch) ) : 5.0;
         FindHitWindow( vCh.at(ch) );
-        
+
         //If the channel was hit, proceed with processing
         if( vCh.at(ch)->was_hit ){
             //Get and subtract the pedestal from the data outside the hit window
             GetPedestal( vCh.at(ch) );
             //The DRS4 saturates around 800-900 mV. If we have those values, flag it as saturated
             if( vCh.at(ch)->PWF_histo->GetMaximum() > 890.0 ){ vCh.at(ch)->saturated = true; }
-            
+
             //Calibrate out the DRS4 non-linearity and apply FFT low pass filter if desired
             DRS4Cal( vCh.at(ch) );
             if( filter ){ LowPassFilter( vCh.at(ch), hProcessed ); }
-        
+
             //Zero Suppress the processed waveform vector and retrieve the energy related values from it
             ZeroSuppress( vCh.at(ch) );
             GetCharge( vCh.at(ch) );
             vCh.at(ch)->Diff_Peak_time = vCh.at(ch)->pTimeVec->at( vCh.at(ch)->Diff_Peak_center );
-            
+
             //If the algorithm didn't work, go with a simpler method, just to get values that make sense.
             //This should be changed to work better when I can think straight.
             if( vCh.at(ch)->Peak_center == -1 ){
                 vCh.at(ch)->Peak_max  = vCh.at(ch)->PWF_histo->GetMaximum();
                 vCh.at(ch)->Peak_time = vCh.at(ch)->pTimeVec->at( vCh.at(ch)->PWF_histo->GetMaximumBin() );
-                
+
             }else{
                 vCh.at(ch)->Peak_max  = hProcessed->GetBinContent( vCh.at(ch)->Peak_center );
                 vCh.at(ch)->Peak_time =  vCh.at(ch)->pTimeVec->at( vCh.at(ch)->Peak_center );
@@ -213,9 +213,9 @@ void WFAnalysis::GetDifferential( Channel* Ch ){
         sum_before += Ch->WF.at( bin - i );
         sum_after  += Ch->WF.at( bin + i );
       }
-        //set the bin to the calculated derivative value     
+        //set the bin to the calculated derivative value
         Ch->FirstDerivative->SetBinContent(bin,(sum_after - sum_before));
-        
+
     }//end derivative loop
 }
 
@@ -235,57 +235,57 @@ double WFAnalysis::GetRMS( Channel* Ch ){
     Double_t xmin,xmax;
     Ch->FirstDerivative->GetMinimumAndMaximum(xmin,xmax);
     if(xmax == 0) return 0;
-    
+
     //Loop over the histogram excluding the window used for differentiating to fill hRMS
     Int_t nbins = Ch->FirstDerivative->GetNbinsX();
     for(int bin = m_diffSens; bin < nbins - m_diffSens; bin++){
         hUsed->Fill( Ch->FirstDerivative->GetBinContent( bin ) );
     }
-    
+
     //Set the fit range narrower for the RPD than the ZDC. RPD data is actually smoother
     //Set all fit parameters with random numbers before fitting.
     m_isRPD ? f->SetRange(-15,15) : f->SetRange(-50,50);
-    f->SetParameters( gRandom->Uniform(0,1000) , gRandom->Uniform(-300,300), gRandom->Uniform(0,100));    
+    f->SetParameters( gRandom->Uniform(0,1000) , gRandom->Uniform(-300,300), gRandom->Uniform(0,100));
     hUsed->Fit("f","qR");
-    
+
     //Return parameter 2. "gaus" is [0]*exp(-0.5*((x-[1])/[2])**2)
     //And reset the histogram
     return f->GetParameter(2);
-    
+
 }
 
 
 /** @brief Defines the hit window for a given channel
  *  @param ch Channel to be processed
  *
- *  Determines if the channel was hit first, then determines the hit window using 
- *  the first derivative and first derivative RMS. Also determines the peak height 
- *  and peak center using the raw waveform value at the first derivative zero crossing. 
+ *  Determines if the channel was hit first, then determines the hit window using
+ *  the first derivative and first derivative RMS. Also determines the peak height
+ *  and peak center using the raw waveform value at the first derivative zero crossing.
  *  Saves the results to Channel members.
  */
 void WFAnalysis::FindHitWindow( Channel* ch ){
-    
+
     double threshold = m_Tmultiple*ch->FirstDerivativeRMS;
     ch->Diff_max = ch->FirstDerivative->GetMaximum();
     int risingEdge = ch->Diff_Peak_center = ch->FirstDerivative->GetMaximumBin();
     int fallingEdge = ch->FirstDerivative->GetMinimumBin();
-    
+
     //  If the derivative maximum or minimum are below threshold, no hit
     //  Also, if the rising edge is after the falling edge (i.e. a negative pulse), no hit
     if( ch->Diff_max <= threshold || ch->FirstDerivative->GetMinimum() >= -1*threshold || risingEdge > fallingEdge){
         if( ch->is_on && m_verbose > 1){ std::cerr << std::endl << "No hit found on " << ch->name << std::endl; }
         ch->was_hit = false;
-        
+
         //If the channel didn't register a hit, set all values to -1 if int and 0.0 if double
         ch->Peak_center = ch->Diff_Peak_center = ch->hit_window.first = ch->hit_window.second = -1;
         ch->Peak_max = ch->Charge = ch->Diff_max = ch->Peak_time = ch->Diff_Peak_time = 0.0;
         return;
     }
-    
+
     //If it made it here, we probably have a hit and we can start processing
     ch->was_hit = true;
     int nBins = ch->FirstDerivative->GetNbinsX();
-    
+
     // Find the beginning of the hit window
     for(int bin = risingEdge; bin > 0; bin--){
         if(ch->FirstDerivative->GetBinContent(bin) < threshold){
@@ -293,7 +293,7 @@ void WFAnalysis::FindHitWindow( Channel* ch ){
             break;
         }
     }
-    
+
     // Find the peak center using the derivative
     for(int bin = risingEdge; bin < fallingEdge; bin++){
         if(ch->FirstDerivative->GetBinContent(bin) < 0){
@@ -301,7 +301,7 @@ void WFAnalysis::FindHitWindow( Channel* ch ){
             break;
         }
     }
-    
+
     // Find the end of the hit window
     for(int bin = fallingEdge; bin < nBins; bin++){
         if(ch->FirstDerivative->GetBinContent(bin) > -1*threshold){
@@ -323,7 +323,7 @@ void WFAnalysis::FindHitWindow( Channel* ch ){
 void WFAnalysis::GetPedestal( Channel* ch ){
     int nBins = ch->WF_histo->GetNbinsX();
     //TH1D h("ped","ped", nBins, -nBins/2, nBins/2);
-    
+
     if( ch->was_hit && ch->hit_window.first > ch->hit_window.second ){
         if(ch->is_on && m_verbose > 1){
             std::cerr << std::endl << "Bad hit window on " << ch->name << ": Cannot get pedestal" << std::endl;
@@ -334,13 +334,13 @@ void WFAnalysis::GetPedestal( Channel* ch ){
     for(int bin = 0; bin < nBins; bin++){
         // Skip the hit window
         if( bin == ch->hit_window.first ){ bin = ch->hit_window.second; }
-        
+
         hPed->Fill( ch->pWF->at(bin) );
     }
-    
+
     ch->PedMean = hPed->GetMean();
     ch->PedRMS  = hPed->GetRMS();
-    
+
     // Subtract PedMean from PWF_histo
     for(int bin = 0; bin < nBins; bin++){
         double content = ch->pWF->at(bin) - ch->PedMean;
@@ -355,7 +355,7 @@ void WFAnalysis::GetPedestal( Channel* ch ){
  */
 void WFAnalysis::ZeroSuppress( Channel* ch ){
     int nBins = ch->PWF_histo->GetNbinsX();
-    
+
     for(int bin = 0; bin < nBins; bin++){
         double content = ch->PWF_histo->GetBinContent(bin);
         if( bin > ch->hit_window.first && bin < ch->hit_window.second  ){ continue; }
@@ -373,12 +373,12 @@ void WFAnalysis::LowPassFilter( Channel* ch, TH1D* hIn ){
    if(!hIn){ hIn = ch->WF_histo; }
    Int_t n = hIn->GetNbinsX();
    double re[n], im[n], reOut[n], imOut[n];
-   
+
    TH1 *hm =0;
    hm = hIn->FFT(hm, "MAG");
-   
+
    // Apply the filter
-   TVirtualFFT *fft = TVirtualFFT::GetCurrentTransform();  
+   TVirtualFFT *fft = TVirtualFFT::GetCurrentTransform();
    fft->GetPointsComplex(re,im);
    for(int i = 0; i< fCutoff; i++){
        reOut[i] = re[i];
@@ -394,14 +394,14 @@ void WFAnalysis::LowPassFilter( Channel* ch, TH1D* hIn ){
    fft_back->SetPointsComplex(reOut,imOut);
    fft_back->Transform();
    ch->PWF_histo = (TH1D*)TH1::TransformHisto(fft_back,ch->PWF_histo,"MAG");
-   
+
    //The transform scales the signal by sqrt(n) each time, so rescale by 1/n
    ch->PWF_histo->Scale(1.0/n);
-   
+
    delete hm;
    delete fft;
    delete fft_back;
-   
+
 }
 
 
@@ -413,7 +413,7 @@ void WFAnalysis::LowPassFilter( Channel* ch, TH1D* hIn ){
  *
  */
 void WFAnalysis::DRS4Cal( Channel* ch ){
-    
+
     for(int bin = 0; bin < ch->PWF_histo->GetNbinsX(); bin++){
         ch->PWF_histo->SetBinContent(bin, nlFit->Eval( ch->PWF_histo->GetBinContent(bin) ) );
     }
@@ -422,11 +422,11 @@ void WFAnalysis::DRS4Cal( Channel* ch ){
 /** @brief Uses time vector and input resistance to find the actual charge detected by the DRS4
  *  @param ch Channel to be processed
  *
- * 
+ *
  */
 void WFAnalysis::GetCharge( Channel* ch ){
     ch->Charge = 0.0;
-    
+
     for(int bin = ch->hit_window.first; bin < ch->hit_window.second; bin++){
         //Charge for a given time bin = dt*I = (t(bin+1)-t(bin))*V/R
         //Units are Charge(pC), time(ns), Voltage(mV), resistance(ohm), current(Amp = C/s)

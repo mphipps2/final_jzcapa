@@ -35,11 +35,14 @@ int main(int argc, char *argv[]){
       }
   }
 
-  string fNameIn;
-  string outputDir;
-  if( runNum == -1 || runNum == -2){
+  string fNameIn, outputDir, installDir, alignmentFile, configFile, timingFile;
+  installDir = std::getenv("JZCaPA");
+  if( runNum == 1 ){
     fNameIn = argv[2];
     outputDir = (argc == 4) ? argv[3] : "";
+    alignmentFile = installDir + "/Utils/Alignment_MC.xml";
+    configFile    = installDir + "/Utils/ConfigFileMC.xml";
+    timingFile    = installDir + "/Utils/Timing_data/MC_5.0GHz.txt"; // Using 5GHz for now. Change it to an argument if desired
   }else if(scanNum == 0){
       cout << "File does not exist... exiting" << endl;
       return 0;
@@ -47,6 +50,9 @@ int main(int argc, char *argv[]){
     fNameIn = Form("/data/phenix/data/TestBeam2018/new_processed_runs/Scan%d/ZDCBeamTestRun%d.root", scanNum, runNum); // !! Change for your test !!
     gSystem->Exec( Form("mkdir -p /data/phenix/data/TestBeam2018/Post_processing/run%d", runNum) );
     outputDir = Form("/data/phenix/data/TestBeam2018/Post_processing/run%d/", runNum);
+    alignmentFile = installDir + "/Utils/Alignment_2018.xml";
+    configFile    = installDir + "/Utils/ConfigFile2018.xml";
+    timingFile    = installDir + Form("/Utils/Timing_data/scan%d.txt",scanNum);
   }
   // DataReader is the main class. It reads data and also
   // has analysis classes in it. User should only have to
@@ -55,13 +61,13 @@ int main(int argc, char *argv[]){
   DataReader* r = new DataReader( nCh, nSamp, fNameIn, runNum );
   r->SetVerbosity(1);
 
-  r->SelectDetectorForAnalysis(true,true,true);
+  r->SelectDetectorForAnalysis(false,false,true); //ZDC1, ZDC2, RPD
   r->AddPreAnalysis( new WFAnalysis() );
   //r->AddDetectorAnalysis( new ZDCAnalysis() );
   r->AddDetectorAnalysis( new RPDAnalysis() );
-  r->LoadConfigurationFile();
-  r->LoadAlignmentFile();
-  r->LoadTimingFile();
+  r->LoadConfigurationFile( configFile );
+  r->LoadAlignmentFile( alignmentFile );
+  r->LoadTimingFile( timingFile );
   r->SetOutputDirectory( outputDir );
   r->EnablePlotLabel();
 
