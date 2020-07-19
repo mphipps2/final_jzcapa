@@ -56,6 +56,9 @@ AnalysisManager::AnalysisManager()
   m_analysisManager = G4AnalysisManager::Instance();
   m_lastStepVec = new std::vector< G4ThreeVector >;
   m_gunPos = new G4ThreeVector;
+
+  m_Pi0Vert = new std::vector< G4ThreeVector >;
+  m_Pi0Mom = new std::vector< G4ThreeVector >;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -98,6 +101,7 @@ void AnalysisManager::Book( G4String fileName )
   int nZDCs = detectorConstruction->GetnZDCs();
   int nRPDs = detectorConstruction->GetnRPDs();
   OPTICAL   = detectorConstruction->GetOpticalFlag();
+  PI0   = detectorConstruction->GetPI0Flag();
 
   //Make vectors for the detectors we have
   //Indecies are [module#][dataType][dataPoint]
@@ -108,6 +112,9 @@ void AnalysisManager::Book( G4String fileName )
 
   SteppingAction* steppingAction = (SteppingAction*)G4RunManager::GetRunManager()->GetUserSteppingAction();
   steppingAction->SetLastStepVec( m_lastStepVec );
+  steppingAction->SetPi0Mom( m_Pi0Mom );
+  steppingAction->SetPi0Vertex( m_Pi0Vert );
+
 
   //Create the event data tree
   MakeEventDataTree();
@@ -166,12 +173,26 @@ void AnalysisManager::Save()
 void AnalysisManager::FillNtuples(){
 
   // Fill the last step vectors
-  G4cout << "Before lastStep loop" << G4endl;
+
+  //G4cout << "Before lastStep loop" << G4endl;
   for(uint i = 0; i < m_lastStepVec->size(); i++){
     m_lastStepXVec.push_back( m_lastStepVec->at(i).x() );
     m_lastStepYVec.push_back( m_lastStepVec->at(i).y() );
     m_lastStepZVec.push_back( m_lastStepVec->at(i).z() );
   }
+  for(uint i = 0; i < m_Pi0Mom->size(); i++){
+    m_Pi0MomX.push_back( m_Pi0Mom->at(i).x() );
+    m_Pi0MomY.push_back( m_Pi0Mom->at(i).y() );
+    m_Pi0MomZ.push_back( m_Pi0Mom->at(i).z() );
+  }
+
+  for(uint i = 0; i < m_Pi0Vert->size(); i++){
+    m_Pi0VertX.push_back( m_Pi0Vert->at(i).x() );
+    m_Pi0VertY.push_back( m_Pi0Vert->at(i).y() );
+    m_Pi0VertZ.push_back( m_Pi0Vert->at(i).z() );
+  }
+
+
 
   m_analysisManager->FillNtupleIColumn( 0, 0, m_eventNo );
 
@@ -207,6 +228,18 @@ void AnalysisManager::FillNtuples(){
   m_lastStepXVec.clear();
   m_lastStepYVec.clear();
   m_lastStepZVec.clear();
+
+  m_Pi0Mom->clear();
+  m_Pi0MomX.clear();
+  m_Pi0MomY.clear();
+  m_Pi0MomZ.clear();
+
+  m_Pi0Vert->clear();
+  m_Pi0VertX.clear();
+  m_Pi0VertY.clear();
+  m_Pi0VertZ.clear();
+
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -237,12 +270,22 @@ void AnalysisManager::MakeEventDataTree( ){
   m_analysisManager->CreateNtupleDColumn( 0, "gunPosY"  );
   m_analysisManager->CreateNtupleDColumn( 0, "gunPosZ"  );
 
-
   //std::vector< double >
   m_analysisManager->CreateNtupleDColumn( 0, "lastStepX",   m_lastStepXVec );
   m_analysisManager->CreateNtupleDColumn( 0, "lastStepY",   m_lastStepYVec );
   m_analysisManager->CreateNtupleDColumn( 0, "lastStepZ",   m_lastStepZVec );
 
+  if(PI0){
+      //std::vector< double >
+      m_analysisManager->CreateNtupleDColumn( 0, "pi0Px",   m_Pi0MomX );
+      m_analysisManager->CreateNtupleDColumn( 0, "pi0Py",   m_Pi0MomY );
+      m_analysisManager->CreateNtupleDColumn( 0, "pi0Pz",   m_Pi0MomZ );
+
+      //std::vector< double >
+      m_analysisManager->CreateNtupleDColumn( 0, "pi0Vx",   m_Pi0VertX );
+      m_analysisManager->CreateNtupleDColumn( 0, "pi0Vy",   m_Pi0VertY );
+      m_analysisManager->CreateNtupleDColumn( 0, "pi0Vz",   m_Pi0VertZ );
+  }
 
   m_analysisManager->FinishNtuple( );
 }

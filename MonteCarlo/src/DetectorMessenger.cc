@@ -69,6 +69,12 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fOverlapsCmd->SetDefaultValue(true);
   fOverlapsCmd->SetToBeBroadcasted(false);
 
+  fPI0Cmd = new G4UIcmdWithABool("/Detector/PI0", this);
+  fPI0Cmd->SetGuidance("Set PI0 simulation flag");
+  fPI0Cmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fPI0Cmd->SetDefaultValue(true);
+  fPI0Cmd->SetToBeBroadcasted(false);
+
   fForcePositionCmd = new G4UIcmdWithABool("/Detector/ForcePosition", this);
   fForcePositionCmd->SetGuidance("Force detector positions");
   fForcePositionCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -304,6 +310,7 @@ DetectorMessenger::~DetectorMessenger(){
 
   delete fOpticalCmd;
   delete fOverlapsCmd;
+  delete fPI0Cmd;
   delete fForcePositionCmd;
   delete fSetRunNumberCmd;
   delete fConfigFileCmd;
@@ -359,6 +366,9 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   }
   else if (command == fOverlapsCmd) {
     fDetector->SetOverlapsFlag( fOverlapsCmd->GetNewBoolValue(newValue) );
+  }
+  else if (command == fPI0Cmd) {
+    fDetector->SetPI0Flag( fPI0Cmd->GetNewBoolValue(newValue) );
   }
   else if(command == fForcePositionCmd){
     fDetector->ForcePosition( fForcePositionCmd->GetNewBoolValue(newValue) );

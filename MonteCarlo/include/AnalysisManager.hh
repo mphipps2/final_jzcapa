@@ -62,6 +62,7 @@ class AnalysisManager
     void MakeRPDTree       ( G4int nTupleNo, G4int rpdNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical );
 
     inline G4bool GetOpticalFlag(){ return OPTICAL; }
+    inline G4bool GetPI0Flag(){ return PI0; }
 
     inline void SetGunPosition ( G4double x, G4double y, G4double z ){ m_gunPos->set(x,y,z); }
     inline void SetEventNo     ( G4int _eventNo ){ m_eventNo = _eventNo; }
@@ -78,13 +79,16 @@ class AnalysisManager
     G4int m_eventNo;
     G4bool m_FactoryOn;
     G4bool OPTICAL;
+    G4bool PI0;
     G4ThreeVector* m_gunPos;
     G4AnalysisManager* m_analysisManager;
     DetectorConstruction* m_detectorConstruction;
     std::vector< std::vector< std::vector<double> > > *m_ZDCdblVec, *m_RPDdblVec;
     std::vector< std::vector< std::vector< int  > > > *m_ZDCintVec, *m_RPDintVec;
-    std::vector< G4ThreeVector >* m_lastStepVec;
+    std::vector< G4ThreeVector >* m_lastStepVec, *m_Pi0Mom, *m_Pi0Vert;
     std::vector< double > m_lastStepXVec, m_lastStepYVec, m_lastStepZVec;
+    std::vector< double > m_Pi0MomX, m_Pi0MomY, m_Pi0MomZ;
+    std::vector< double > m_Pi0VertX, m_Pi0VertY, m_Pi0VertZ;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

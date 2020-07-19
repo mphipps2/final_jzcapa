@@ -24,7 +24,8 @@
 #/gps/energy 600 GeV
 
 #/gps/particle proton
-/gps/particle neutron
+#/gps/particle neutron
+/gps/particle pi0
 
 # the beam energy is in gaussian profile
 /gps/ene/type Gauss
@@ -56,8 +57,10 @@
 #
 
 /beam/type lhc
-/beam/pos 0. 0. -140. m
-/beam/projectBeam -80. mm
+#/beam/pos 0. 0. -140.
+#/beam/projectBeam -80. mm
+/beam/pos 0. 0. -127. m
+/beam/projectBeam -127. m
 /beam/LHC/horizontalCrossingAngle 0.100 mrad
 /beam/LHC/nPrimaries 1
 

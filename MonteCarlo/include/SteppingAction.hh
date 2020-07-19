@@ -47,14 +47,23 @@ class SteppingAction : public G4UserSteppingAction
     virtual ~SteppingAction();
 
     inline  void SetOpticalFlag( G4bool arg ){ OPTICAL = arg; }
+    inline  void SetPI0Flag( G4bool arg ){ PI0 = arg; }
+
     inline  void SetLastStepVec( std::vector< G4ThreeVector >* vec ){ m_lastStepVec = vec; }
+    inline  void SetPi0Mom( std::vector< G4ThreeVector >* vec ){ m_Pi0Mom = vec; }
+    inline  void SetPi0Vertex( std::vector< G4ThreeVector >* vec ){ m_Pi0Vert = vec; }
+
 
     // method from the base class
     virtual void UserSteppingAction(const G4Step*);
 
   private:
     std::vector< G4ThreeVector >* m_lastStepVec;
+    std::vector< G4ThreeVector >* m_Pi0Mom;
+    std::vector< G4ThreeVector >* m_Pi0Vert;
+
     G4bool   OPTICAL;
+    G4bool   PI0;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

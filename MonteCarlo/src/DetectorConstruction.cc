@@ -69,7 +69,7 @@
 
 DetectorConstruction::DetectorConstruction()
   : G4VUserDetectorConstruction(), m_solidWorld(NULL), m_logicWorld(NULL),
-  m_physWorld(NULL),OPTICAL(false), ForceDetectorPosition(false)
+  m_physWorld(NULL), OPTICAL(false), ForceDetectorPosition(false), PI0(false)
 {
   new DetectorMessenger(this);
   currentRPD = -1;

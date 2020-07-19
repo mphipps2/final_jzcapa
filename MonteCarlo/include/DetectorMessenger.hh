@@ -63,6 +63,7 @@ class DetectorMessenger: public G4UImessenger{
 
     G4UIcmdWithABool*          fOpticalCmd;
     G4UIcmdWithABool*          fOverlapsCmd;
+    G4UIcmdWithABool*          fPI0Cmd;
     G4UIcmdWithABool*          fForcePositionCmd;
     G4UIcmdWithAnInteger*      fSetRunNumberCmd;
     G4UIcmdWithAString*        fConfigFileCmd;

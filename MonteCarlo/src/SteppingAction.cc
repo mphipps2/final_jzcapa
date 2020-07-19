@@ -59,12 +59,18 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
 
 	//Find out when the primary particles died
 	if(theTrack->GetParentID()==0 && theTrack->GetTrackStatus() == fStopAndKill ){
+
 		m_lastStepVec->push_back( theTrack->GetPosition() );
+
 	}
 
 
-	// If we are tracking a photon
-	if(theTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() ){
+	//If we are tracking a gamma that came from the primary event
+		if(PI0 && theTrack->GetParentID()==1 && theTrack->GetCurrentStepNumber() == 1 &&  theTrack->GetDefinition() == G4Gamma::GammaDefinition()  ){
+				m_Pi0Mom->push_back( theTrack->GetVertexMomentumDirection() );
+				m_Pi0Vert->push_back( theTrack->GetVertexPosition () );
+		}
+		else if(theTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() ){ // If we are tracking an optical photon
 
 		// Get the SD for the volume we're in. Returns 0 if we aren't in an SD volume
 		FiberSD* sd = (FiberSD*)theTrack->GetVolume()->GetLogicalVolume()->GetSensitiveDetector();

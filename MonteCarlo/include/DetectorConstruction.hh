@@ -126,6 +126,8 @@ public:
   inline  G4bool             GetOpticalFlag(){return OPTICAL;}
   inline  void               SetOpticalFlag( G4bool arg ){OPTICAL = arg;}
   inline  void               ForcePosition ( G4bool arg ){ForceDetectorPosition = arg;}
+  inline  G4bool             GetPI0Flag(){return PI0;}
+  inline  void               SetPI0Flag ( G4bool arg ){PI0 = arg;}
 
 
   //Manual World Volume
@@ -200,6 +202,7 @@ private:
   G4bool OPTICAL;
   G4bool ForceDetectorPosition;
   G4bool CHECK_OVERLAPS;
+  G4bool PI0;
 
 };
 
