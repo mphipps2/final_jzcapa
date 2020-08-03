@@ -1,7 +1,7 @@
 /** @file WFAnalysis
  *  @brief Function prototypes for WFAnalysis
  *
- *  This contains the prototypes and members 
+ *  This contains the prototypes and members
  *  for WFAnalysis
  *
  *  @author Yakov Kulinich
@@ -26,6 +26,7 @@ class WFAnalysis : public Analysis{
  public :
   WFAnalysis( );
   WFAnalysis( int _sensitivity, double _threshold ){ m_diffSens = _sensitivity; m_Tmultiple = _threshold; }
+  WFAnalysis( bool _DRS4, bool _FFT = false ){ m_DRS4 = _DRS4; m_FFT = _FFT; }
   virtual ~WFAnalysis( );
 
   virtual void   Initialize     ( );
@@ -49,6 +50,8 @@ class WFAnalysis : public Analysis{
   TH1D *hRMS = 0;
   TH1D *hRMSrpd = 0;
   bool m_isRPD;
+  bool m_DRS4;
+  bool m_FFT;
 
  private :
   /** Sensitivity level to hits (differentiation window) */
@@ -69,7 +72,7 @@ class WFAnalysis : public Analysis{
   double m_ZDCTmultiple = 3.5;
   /** Frequency threshold for low pass filter for ZDC channels*/
   int m_ZDCfCutoff = 50;
-  
+
   /** Histogram used to find pedestal */
   TH1D *hPed = 0;
   /** Fit used to get RMS value */

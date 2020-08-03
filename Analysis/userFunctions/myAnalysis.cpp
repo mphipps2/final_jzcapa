@@ -62,7 +62,7 @@ int main(int argc, char *argv[]){
   r->SetVerbosity(1);
 
   r->SelectDetectorForAnalysis(false,false,true); //ZDC1, ZDC2, RPD
-  r->AddPreAnalysis( new WFAnalysis() );
+  r->AddPreAnalysis( new WFAnalysis( true ) );
   //r->AddDetectorAnalysis( new ZDCAnalysis() );
   r->AddDetectorAnalysis( new RPDAnalysis() );
   r->LoadConfigurationFile( configFile );

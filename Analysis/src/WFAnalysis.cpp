@@ -121,8 +121,6 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
  */
 void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
 
-    //FFT filter flag for testing purposes.
-    bool filter = false;
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
         if( !vCh.at(ch)->is_on){continue;}
       //retrieving information for each channel as a histogram
@@ -168,8 +166,8 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
             if( vCh.at(ch)->PWF_histo->GetMaximum() > 890.0 ){ vCh.at(ch)->saturated = true; }
 
             //Calibrate out the DRS4 non-linearity and apply FFT low pass filter if desired
-            DRS4Cal( vCh.at(ch) );
-            if( filter ){ LowPassFilter( vCh.at(ch), hProcessed ); }
+            if( m_DRS4){ DRS4Cal( vCh.at(ch) ); }
+            if( m_FFT ){ LowPassFilter( vCh.at(ch), hProcessed ); }
 
             //Zero Suppress the processed waveform vector and retrieve the energy related values from it
             ZeroSuppress( vCh.at(ch) );
