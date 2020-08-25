@@ -33,6 +33,15 @@ include_directories (${ROOT_INCLUDE_DIR})
 find_package (Xerces REQUIRED)
 include_directories (${XERCESC_INCLUDE})
 
+#CRMC support
+find_package (CRMC)
+if (CRMC_FOUND)
+    include_directories (${CRMC_INCLUDE_DIR})
+else (NOT CRMC_FOUND)
+  message("${BoldRed} CRMC library was not found! ${ColourReset}")
+endif (CRMC_FOUND)
+
+
 # Add ROOTs header paths
 
 #message(${CMAKE_MODULE_PATH} )
@@ -67,7 +76,7 @@ if(useROOT)
 endif(useROOT)
 
 
-target_link_libraries(zdc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${XERCESC_LIBRARY})
+target_link_libraries(zdc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${XERCESC_LIBRARY} ${CRMC_LIBRARIES})
 
 
 #----------------------------------------------------------------------------

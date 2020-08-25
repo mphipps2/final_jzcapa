@@ -43,6 +43,8 @@
 #include "Randomize.hh"
 #include "G4GeneralParticleSource.hh"
 
+#include "CRMCinterface.h"
+
 #include <iostream>
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
