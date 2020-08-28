@@ -36,9 +36,9 @@ include_directories (${XERCESC_INCLUDE})
 #CRMC support
 find_package (CRMC)
 if (CRMC_FOUND)
-    include_directories (${CRMC_INCLUDE_DIR})
+    include_directories (${CRMC_INCLUDE_DIRS})
 else (NOT CRMC_FOUND)
-  message("${BoldRed} CRMC library was not found! ${ColourReset}")
+  message("${BoldRed} CRMC library was not found! Please set CRMC_SRC and CRMC_INSTALL environment variables. ${ColourReset}")
 endif (CRMC_FOUND)
 
 
@@ -74,7 +74,6 @@ add_executable(zdc zdc.cc ${sources} ${headers})
 if(useROOT)
 	EXECUTE_PROCESS(COMMAND root-config --libs OUTPUT_VARIABLE ROOT_LD_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif(useROOT)
-
 
 target_link_libraries(zdc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${XERCESC_LIBRARY} ${CRMC_LIBRARIES})
 
