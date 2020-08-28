@@ -36,8 +36,12 @@
 #include "G4ParticleGun.hh"
 #include "G4IonTable.hh"
 #include "globals.hh"
+#include "AnalysisManager.hh"
+
+#include "CRMCinterface.h"
 
 
+#include <vector>
 
 class G4GeneralParticleSource;
 class G4Event;
@@ -55,6 +59,9 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     virtual void GenerateSPSEvent (G4Event*);
     virtual void GenerateFNALEvent(G4Event*);
 
+    virtual void InitializeCRMC();
+    virtual void GenerateCRMCEvent();
+
     inline void SetBeamType               ( G4String arg ){ fBeamType = arg; }
     inline void SetVerticalCrossingAngle  ( G4double arg ){ fVertXingAngle = arg; }
     inline void SetHorizontalCrossingAngle( G4double arg ){ fHorizXingAngle = arg; }
@@ -67,13 +74,25 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 	G4GeneralParticleSource*   fParticleGun;
   PrimaryGeneratorMessenger* fGeneratorMessenger;
 
+  CRMCinterface fCRMCInterface;
+
   G4String       fBeamType;
+  G4String       fGenModelStr;
   G4double       fVertXingAngle;
   G4double       fHorizXingAngle;
   G4double       fProjPlane;
+  G4double       fpsrCut;
   G4int          fnPrimaries;
+  G4int          fGenModelCode;
+  G4int          fNtupleNum;
   G4bool         PROJECT;
+  G4bool         CRMC_INITIALIZED;
   G4ThreeVector* fpos;
+  G4AnalysisManager* m_analysisManager;
+  G4RunManager* runManager;
+  std::vector< G4PrimaryParticle* > fPrimaryVec;
+  std::vector< std::vector<double> >* fdblVec;
+  std::vector< std::vector< int  > >* fintVec;
 
 };
 
