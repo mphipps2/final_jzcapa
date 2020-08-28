@@ -55,7 +55,7 @@ Monte Carlo folder added on 12/19/2018.
 The Monte Carlo is an adapted version of what was provided by  Mike Phipps (michael.william.phipps@cern.ch).
 The package was heavily modified for adaptability so it may be used in the ZDC R&D. The overall structure now closely mimics geant4.x.x/examples/extended/analysis/AnaEx01.
 
-Additionally, the package is able to import detector configurations from XML to replicate test beam runs. 
+Additionally, the package is able to import detector configurations from XML to replicate test beam runs.
 
 Please note that MonteCarlo support is *DISABLED* by default. This choice is meant to avoid people not interested in MC to install Geant4 and the other dependencies.
 In order to enable it, add the option
@@ -64,6 +64,12 @@ In order to enable it, add the option
 ```
 while cmaking. Please note that you need the Geant4 toolkit (and the corresponding dependencies) to successfully enable the MC support.
 More details will come in the future.
+
+##### CRMC Event Generation #####
+
+CRMC is an optional component for this MC. To be used you must install CRMC with the models you intend to use (Edit the CRMC CMakeLists.txt). Please note that some models are limited in their ability to simulate heavy ion events. Please see the CRMC Readme for details.
+
+Two environment variables must also be set. CRMC_INSTALL and CRMC_SRC pointing to the install and source directories of your CRMC implementation.
 
 #### Doxygen documentation ####
 First, check that doxygen is installed on your machine.   
