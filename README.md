@@ -65,11 +65,24 @@ In order to enable it, add the option
 while cmaking. Please note that you need the Geant4 toolkit (and the corresponding dependencies) to successfully enable the MC support.
 More details will come in the future.
 
-##### CRMC Event Generation #####
+##### Monte Carlo Event Generation #####
 
-CRMC is an optional component for this MC. To be used you must install CRMC with the models you intend to use (Edit the CRMC CMakeLists.txt). Please note that some models are limited in their ability to simulate heavy ion events. Please see the CRMC Readme for details.
+CRMC is an optional component for this MC. To be used you must install CRMC with the models you intend to use (Edit the CRMC CMakeLists.txt). Please note that some models are limited in their ability to simulate heavy ion events, see the CRMC Readme for details. Macro commands are in place to configure CRMC event generation. Examples can be found in run1.mac. Additionally, the user can specify a root file containing pre-generated events to be used for a run by using either the macro command
+```
+/beam/input inputFileName.root
+```
+or the runtime argument
+```
+-o inputFileName.root
+```
 
-Two environment variables must also be set. CRMC_INSTALL and CRMC_SRC pointing to the install and source directories of your CRMC implementation.
+Two environment variables must also be set, CRMC_INSTALL and CRMC_SRC, pointing to the install and source directories of your CRMC implementation.
+
+In order to enable CRMC, add the option
+```bash
+-DUSE_CRMC=YES
+```
+while cmaking
 
 #### Doxygen documentation ####
 First, check that doxygen is installed on your machine.   
