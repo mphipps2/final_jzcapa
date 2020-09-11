@@ -43,25 +43,27 @@
 #include "Randomize.hh"
 #include "G4GeneralParticleSource.hh"
 
-#include "CRMCinterface.h"
+#include "CRMCconfig.h"
 
 #include <iostream>
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 PrimaryGeneratorAction::PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),
   fParticleGun(0),
   fBeamType("gps"),
-  fGenModelStr(""),
+  fGenModelStr("dpmjet"),
   fVertXingAngle(0.),
   fHorizXingAngle(0.),
   fProjPlane(0.),
   fpsrCut(5.),
   fnPrimaries(0),
-  fGenModelCode(-1),
+  fCurrentEvent(0),
   PROJECT(false),
   CRMC_INITIALIZED(false),
-  fpos( new G4ThreeVector(0.,0.,0.) )
+  fpos( new G4ThreeVector(0.,0.,0.) ),
+  eventGenFile(0)
 {
   runManager = G4RunManager::GetRunManager();
   fGeneratorMessenger = new PrimaryGeneratorMessenger(this);
@@ -74,6 +76,14 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 {
   delete fGeneratorMessenger;
   delete fParticleGun;
+
+  if( eventGenFile && eventGenFile->IsOpen() ){
+    eventGenFile->Close();
+    delete eventGenFile;
+    for(std::vector<int>* vec : fintVec) delete vec;
+    for(std::vector<double>* vec : fdblVec) delete vec;
+
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -83,7 +93,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   // Initialize CRMC if necessary
   if(fGenModelStr != "" && !CRMC_INITIALIZED) InitializeCRMC();
-
 
   if(fBeamType == "gps")
     fParticleGun->GeneratePrimaryVertex(anEvent);
@@ -136,6 +145,8 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
 
   for(uint i = 0; i < fPrimaryVec.size(); i++){
 
+    // TODO: Add charge cut here
+
     // Project the beam to the plane requested by the user if requested
     // Otherwise carry forward the beam position
     G4ThreeVector* position;
@@ -176,7 +187,8 @@ void PrimaryGeneratorAction::GenerateFNALEvent(G4Event* anEvent)
 void PrimaryGeneratorAction::InitializeCRMC()
 {
 
-  //Determine avaialble models
+  //################################ Determine avaialble models
+
   std::vector< bool > modelsAvail(12,false);
 
   // EPOS_LHC and EPOS_1.99 are always avaialble apparently
@@ -222,19 +234,24 @@ void PrimaryGeneratorAction::InitializeCRMC()
   #endif
 
 
-  fGenModelStr.toLower();
+  //################################ Determine requested model
 
-       if(fGenModelStr.contains( "epos_lhc"   ) && modelsAvail[0]  ) fGenModelCode = 0;
-  else if(fGenModelStr.contains( "epos_1.99"  ) && modelsAvail[1]  ) fGenModelCode = 1;
-  else if(fGenModelStr.contains( "qgsjet01"   ) && modelsAvail[2]  ) fGenModelCode = 2;
-  else if(fGenModelStr.contains( "gheisha"    ) && modelsAvail[3]  ) fGenModelCode = 3;
-  else if(fGenModelStr.contains( "pythia"     ) && modelsAvail[4]  ) fGenModelCode = 4;
-  else if(fGenModelStr.contains( "hijing"     ) && modelsAvail[5]  ) fGenModelCode = 5;
-  else if(fGenModelStr.contains( "sibyll"     ) && modelsAvail[6]  ) fGenModelCode = 6;
-  else if(fGenModelStr.contains( "qgsjetii04" ) && modelsAvail[7]  ) fGenModelCode = 7;
-  else if(fGenModelStr.contains( "phojet"     ) && modelsAvail[8]  ) fGenModelCode = 8;
-  else if(fGenModelStr.contains( "qgsjetii03" ) && modelsAvail[11] ) fGenModelCode = 11;
-  else if(fGenModelStr.contains( "dpmjet"     ) && modelsAvail[12] ) fGenModelCode = 12;
+  fGenModelStr.toLower();
+  G4int genModelCode = -1;
+  G4String libName = "";
+  G4String outputName;
+
+       if(fGenModelStr.contains( "epos_lhc"   ) && modelsAvail[0]  ){ genModelCode = 0;  libName = "libEpos.so";       outputName = "epos199";    }
+  else if(fGenModelStr.contains( "epos_1.99"  ) && modelsAvail[1]  ){ genModelCode = 1;  libName = "libEpos.so";       outputName = "eposlhc";    }
+  else if(fGenModelStr.contains( "qgsjet01"   ) && modelsAvail[2]  ){ genModelCode = 2;  libName = "libQgsjet01.so";   outputName = "qgejet01";   }
+  else if(fGenModelStr.contains( "pythia"     ) && modelsAvail[4]  ){ genModelCode = 4;  libName = "libPythia.so";     outputName = "pythia";     }
+  else if(fGenModelStr.contains( "gheisha"    ) && modelsAvail[3]  ){ genModelCode = 3;  libName = "libGheisha.so";    outputName = "gheisha";    }
+  else if(fGenModelStr.contains( "hijing"     ) && modelsAvail[5]  ){ genModelCode = 5;  libName = "libHijing.so";     outputName = "hijing";     }
+  else if(fGenModelStr.contains( "sibyll"     ) && modelsAvail[6]  ){ genModelCode = 6;  libName = "libSibyll.so";     outputName = "sibyll";     }
+  else if(fGenModelStr.contains( "qgsjetii04" ) && modelsAvail[7]  ){ genModelCode = 7;  libName = "libQgsjetII04.so"; outputName = "qgsjetII04"; }
+  else if(fGenModelStr.contains( "phojet"     ) && modelsAvail[8]  ){ genModelCode = 8;  libName = "libPhojet.so";     outputName = "phojet";     }
+  else if(fGenModelStr.contains( "qgsjetii03" ) && modelsAvail[11] ){ genModelCode = 11; libName = "libQgsjetII03.so"; outputName = "qgsjetII03"; }
+  else if(fGenModelStr.contains( "dpmjet"     ) && modelsAvail[12] ){ genModelCode = 12; libName = "libDpmjet.so";     outputName = "dpmjet";     }
   else{
     G4cerr << "Invalid event generator model. Available options are (not case sensitive):\n" << modelList << G4endl;
 
@@ -245,58 +262,61 @@ void PrimaryGeneratorAction::InitializeCRMC()
     return;
   }
 
-  // It should work fine at this point, but double check the init to be safe
-  if( fCRMCInterface.init( fGenModelCode ) != 1) return;
+  //################################ Generate the events
 
-  // open FORTRAN IO at first call
-  fCRMCInterface.crmc_set(runManager->GetNumberOfEventsToBeProcessed(),
-                      G4Random::getTheSeed(),
-                      2500,           // Projectile momentum
-                      -2500,          // Target momentum
-                      208,            // Projectile ID
-                      208,            // Target ID
-                      fGenModelCode,  // Model
-                      false,          // Produce tables (for output?)
-                      1,              // Output type. Not applicable for us
-                      "crmc.param "); // Parameter file name
+  long seed = CLHEP::RandFlat::shootInt(100000000);
+  char command[128];
+  sprintf(command,"%s/bin/crmc -o root -p2500 -P-2500 -n%d -s %ld -i208 -I208 -m%d",
+          std::getenv("CRMC_INSTALL"),
+          runManager->GetNumberOfEventsToBeProcessed(),
+          seed,
+          genModelCode );
 
-  //call here variable settings from c++ interface
-  //init models with set variables
-  // fCRMCInterface.crmc_init(fCfg.GetOutputFileName().c_str(),fCfg.GetOutputFileName().size());
-  fCRMCInterface.crmc_init("I don't think this matters",5);
+  system(command);
 
-  m_analysisManager = G4AnalysisManager::Instance();
+  //################################ Initialize event gen output tree
 
-  fNtupleNum = m_analysisManager->GetNofNtuples();
+  m_analysisManager = AnalysisManager::getInstance();
 
+  //Assign vectors with reference names and place them in a vector for export to AnalysisManager
+  int maxNpart = 200000;
+  fintVec.push_back( fCRMCpdgid = new std::vector<int>(maxNpart,0) );
+  fintVec.push_back( fCRMCstatus = new std::vector<int>(maxNpart,0) );
+  fintVec.push_back( fCRMCkeptStatus = new std::vector<int>(maxNpart,0) );
 
-  //Integer
-  m_analysisManager->CreateNtupleIColumn( fNtupleNum, "nGenParticles"  );
-  m_analysisManager->CreateNtupleIColumn( fNtupleNum, "nSpectators"  );
-  m_analysisManager->CreateNtupleIColumn( fNtupleNum, "model"  );
+  fdblVec.push_back( fCRMCpx = new std::vector<double>(maxNpart,0) );
+  fdblVec.push_back( fCRMCpy = new std::vector<double>(maxNpart,0) );
+  fdblVec.push_back( fCRMCpz = new std::vector<double>(maxNpart,0) );
+  fdblVec.push_back( fCRMCenergy = new std::vector<double>(maxNpart,0) );
+  fdblVec.push_back( fCRMCm = new std::vector<double>(maxNpart,0) );
 
-  //Doubles
-  m_analysisManager->CreateNtupleDColumn( fNtupleNum, "impactParameter"  );
+  // Send the vectors to the analysis manager to set them as output
+  m_analysisManager->MakeEventGenTree( fintVec, fdblVec );
 
-  ////std::vector< double >
-  fdblVec->resize(5);
-  m_analysisManager->CreateNtupleDColumn( fNtupleNum, "px",   fdblVec->at(0) );
-  m_analysisManager->CreateNtupleDColumn( fNtupleNum, "py",   fdblVec->at(1) );
-  m_analysisManager->CreateNtupleDColumn( fNtupleNum, "pz",   fdblVec->at(2) );
-  m_analysisManager->CreateNtupleDColumn( fNtupleNum,  "E",   fdblVec->at(3) );
-  m_analysisManager->CreateNtupleDColumn( fNtupleNum,  "m",   fdblVec->at(4) );
+  //################################ Open event gen file as input
 
+  char fileName[128];
+  sprintf(fileName, "crmc_%s_%ld_Pb_Pb_2500.root", outputName.data(), seed );
 
-  //vector< int > branches
-  fintVec->resize(3);
-  m_analysisManager->CreateNtupleIColumn( fNtupleNum,      "pdgid", fintVec->at(0) );
-  m_analysisManager->CreateNtupleIColumn( fNtupleNum, "CRMCstatus", fintVec->at(1) );
-  m_analysisManager->CreateNtupleIColumn( fNtupleNum, "keptStatus", fintVec->at(2) );
+  eventGenFile = new TFile( fileName, "read" );
+  if(eventGenFile->IsZombie()){
+    G4cout << "file didn't read" << G4endl;
+  }
 
-  m_analysisManager->FinishNtuple( );
+  eventGenParticleTree = (TTree*)eventGenFile->Get("Particle");
+
+  eventGenParticleTree->SetBranchAddress("nPart",&fCRMCnPart);
+  eventGenParticleTree->SetBranchAddress("pdgid", &fCRMCpdgid->at(0) );
+  eventGenParticleTree->SetBranchAddress("status",&fCRMCstatus->at(0) );
+  eventGenParticleTree->SetBranchAddress("ImpactParameter",&fCRMCimpactPar);
+  eventGenParticleTree->SetBranchAddress("px",&fCRMCpx->at(0) );
+  eventGenParticleTree->SetBranchAddress("py",&fCRMCpy->at(0) );
+  eventGenParticleTree->SetBranchAddress("pz",&fCRMCpz->at(0) );
+  eventGenParticleTree->SetBranchAddress("E", &fCRMCenergy->at(0) );
+  eventGenParticleTree->SetBranchAddress("m", &fCRMCm->at(0) );
 
   CRMC_INITIALIZED = true;
-}
+}//end InitializeCRMC
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -304,119 +324,41 @@ void PrimaryGeneratorAction::GenerateCRMCEvent()
 {
   //double RPinclination = G4RandGauss::shoot(0.0,sigmaThetaXZ));
   G4ThreeVector momentum(0.,0.,0.);
-  // cleanup vectors
-  gCRMC_data.Clean();
+  eventGenParticleTree->GetEntry( fCurrentEvent++ );
 
-  fCRMCInterface.crmc_generate(1,runManager->GetCurrentEvent()->GetEventID()+1,
-                           gCRMC_data.fNParticles,
-                           gCRMC_data.fImpactParameter,
-                           gCRMC_data.fPartId[0],
-                           gCRMC_data.fPartPx[0],
-                           gCRMC_data.fPartPy[0],
-                           gCRMC_data.fPartPz[0],
-                           gCRMC_data.fPartEnergy[0],
-                           gCRMC_data.fPartMass[0],
-                           gCRMC_data.fPartStatus[0]);
-
-  //Add all final state particles to
-  for(int part = 0; part < gCRMC_data.fNParticles; part++){
-    // Check for fragments in final state particles
-    if(gCRMC_data.fPartStatus[part] == 1 && !(gCRMC_data.fPartId[part] > 1000) ){
-      momentum.set( gCRMC_data.fPartPx[part],
-                    gCRMC_data.fPartPy[part],
-                    gCRMC_data.fPartPz[part]);
-
-      //Rotate momentum for crossing angle and reaction plane
-      momentum.rotateY(fHorizXingAngle);
-      momentum.rotateX(fVertXingAngle);
-      //momentum.rotateZ(RPinclination);
+  //Clear vectors
+  fPrimaryVec.clear();
+  for(auto vec : fdblVec) vec->resize(fCRMCnPart);
+  for(auto vec : fintVec) vec->resize(fCRMCnPart);
 
 
-      fdblVec->at(0).push_back(momentum.x()); //px
-      fdblVec->at(1).push_back(momentum.y()); //py
-      fdblVec->at(2).push_back(momentum.z()); //pz
-      fdblVec->at(3).push_back(gCRMC_data.fPartEnergy[part]); // E
-      fdblVec->at(4).push_back(gCRMC_data.fPartMass[part]); // m
+  //Add all final state particles to the particle vector
+  for(int part = 0; part < fCRMCnPart; part++){
 
-      fintVec->at(1).push_back(gCRMC_data.fPartStatus[part]); // CRMCstatus
+    // Cut out fragments in final state particles
+    if(fCRMCstatus->at(part) == 1 && !(fCRMCpdgid->at(part) > 1000) ) continue;
 
-      if(momentum.pseudoRapidity() < fpsrCut){
-        fPrimaryVec.push_back( new G4PrimaryParticle(gCRMC_data.fPartId[part] ) ),
-        fPrimaryVec.back()->SetKineticEnergy( gCRMC_data.fPartEnergy[part] );
+    momentum.set( fCRMCpx->at(part), //px
+                  fCRMCpy->at(part), //py
+                  fCRMCpz->at(part));//pz
 
-        fintVec->at(2).push_back(1); //kept status == 1
-      }else{
-        fintVec->at(2).push_back(0); //Not kept status == 0
-      }// end if pseudoRapidity
-    }// end if fragment
+    //Rotate momentum for crossing angle and reaction plane
+    momentum.rotateY(fHorizXingAngle);
+    momentum.rotateX(fVertXingAngle);
+    //momentum.rotateZ(RPinclination);
+
+    // Push into the output vectors
+    fCRMCpx->at(part) = momentum.x();
+    fCRMCpy->at(part) = momentum.y();
+    fCRMCpz->at(part) = momentum.z();
+
+    if(momentum.pseudoRapidity() < fpsrCut){
+      fPrimaryVec.push_back( new G4PrimaryParticle(fCRMCpdgid->at(part) ) ),
+      fPrimaryVec.back()->SetKineticEnergy( fCRMCenergy->at(part) );
+
+      fCRMCkeptStatus->push_back(1); //kept status == 1
+    }else{
+      fCRMCkeptStatus->push_back(0); //Not kept status == 0
+    }// end if pseudoRapidity
   }// end particle loop
-
-  gCRMC_data.sigtot = double(hadr5_.sigtot);      // ........ h-p total cross section in mb
-  gCRMC_data.sigine = double(hadr5_.sigine);      // ........ h-p inelastic cross section in mb (all inelastic processes=sigtot-sigela)
-  gCRMC_data.sigela = double(hadr5_.sigela);      // ........ h-p elastic cross section in mb
-  gCRMC_data.sigdd = double(hadr5_.sigdd);        // ........ h-p double diffractive cross section in mb (both side)
-  gCRMC_data.sigsd = double(hadr5_.sigsd);        // ........ h-p single diffractive cross section in mb (both side)
-  gCRMC_data.sloela = double(hadr5_.sloela);      // ........ h-p elastic slope
-  gCRMC_data.sigtotaa = double(hadr5_.sigtotaa);  // ........ h-A or A-A total cross section in mb
-  gCRMC_data.sigineaa = double(hadr5_.sigineaa);  // ........ h-A or A-A cross section in mb (inelastic cross section to be used as CURRENT EVENT XS for defined projectile and target, previous h-p xs are really for h-p even if the projectile/target were defined as a nuclei)
-  gCRMC_data.sigelaaa = double(hadr5_.sigelaaa);  // ........ h-A or A-A elastic cross section in mb
-  gCRMC_data.npjevt = cevt_.npjevt;               // ........ number of primary projectile participants
-  gCRMC_data.ntgevt = cevt_.ntgevt;               // ........ number of primary target participants
-  gCRMC_data.kolevt = cevt_.kolevt;               // ........ number of collisions
-  gCRMC_data.kohevt = cevt_.kohevt;               // ........ number of inelastic hard collisions
-  gCRMC_data.npnevt = cevt_.npnevt;               // ........ number of primary projectile neutron spectators
-  gCRMC_data.ntnevt = cevt_.ntnevt;               // ........ number of primary target neutron spectators
-  gCRMC_data.nppevt = cevt_.nppevt;               // ........ number of primary projectile proton spectators
-  gCRMC_data.ntpevt = cevt_.ntpevt;               // ........ number of primary target proton spectators
-  gCRMC_data.nglevt = cevt_.nglevt;               // ........ number of collisions acc to  Glauber
-  gCRMC_data.ng1evt = c2evt_.ng1evt;              // ........ number of collisions acc to  Glauber
-  gCRMC_data.ng2evt = c2evt_.ng2evt;              // ........ number of Glauber participants with at least two IAs
-  gCRMC_data.bimevt = double(cevt_.bimevt);       // ........ absolute value of impact parameter
-  gCRMC_data.phievt = double(cevt_.phievt);       // ........ angle of impact parameter
-  gCRMC_data.fglevt = double(c2evt_.fglevt);      // ........
-  gCRMC_data.typevt = int(c2evt_.typevt);         // ........ type of event (1=Non Diff, 2=Double Diff, 3=Central Diff, 4=AB->XB, -4=AB->AX)
-
-
-
-  m_analysisManager->CreateNtupleIColumn( fNtupleNum, "nGenParticles"  );
-  m_analysisManager->CreateNtupleIColumn( fNtupleNum, "nSpectators"  );
-  m_analysisManager->CreateNtupleIColumn( fNtupleNum, "model"  );
-
-  //Doubles
-  m_analysisManager->CreateNtupleDColumn( fNtupleNum, "impactParameter"  );
-
-
-
-/* Unused vaiables
-
-  hadr5_
-      float sigcut;    // ........ h-p cut cross section in mb : in principle it is the non-diffractive xs but the definition depends on the model
-      float sigdif;    // ........ h-p diffractive cross section in mb (SD+DD+DPE) (in principle sigdif+sigcut=sigine but it depends how DPE xs is counted (in EPOS 1.99 it is counted as elastic because nothing was produced but in EPOS LHC DPE are produced)
-      float sigcutaa;  // ........ h-A or A-A ND xs or production xs mb
-
-  cevt_
-      int   nevt;   // ........ error code. 1=valid event, 0=invalid event
-      int   koievt; // ........ number of inelastic collisions
-      float pmxevt; // ........ reference momentum
-      float egyevt; // ........ pp cm energy (hadron) or string energy (lepton)
-      int   jpnevt; // ........ number of absolute projectile neutron spectators
-      int   jppevt; // ........ number of absolute projectile proton spectators
-      int   jtnevt; // ........ number of absolute target neutron spectators
-      int   jtpevt; // ........ number of absolute target proton spectators
-      float xbjevt; // ........ bjorken x for dis
-      float qsqevt; // ........ q**2 for dis
-      float zppevt; // ........ average Z-parton-proj
-      float zptevt; // ........ average Z-parton-targ
-      int   minfra; // ........
-      int   maxfra; // ........
-
-  c2evt_
-      float rglevt; // ........
-      float sglevt; // ........
-      float eglevt; // ........
-      int   ikoevt; // ........ number of elementary parton-parton scatterings
-*/
-
-
-
-}
+}// end GenerateCRMCEvent

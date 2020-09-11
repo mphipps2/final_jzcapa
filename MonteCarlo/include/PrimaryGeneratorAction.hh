@@ -38,8 +38,8 @@
 #include "globals.hh"
 #include "AnalysisManager.hh"
 
-#include "CRMCinterface.h"
-
+#include "TFile.h"
+#include "TTree.h"
 
 #include <vector>
 
@@ -69,12 +69,19 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     inline void SetnPrimaries             ( G4int    arg ){ fnPrimaries = arg; }
     inline void SetBeamPos                ( G4ThreeVector* arg ){ delete fpos; fpos = arg; }
 
+    void (*crmc_generate)( const int&, const int&, int&, double&, int&, double&,
+                      double&, double&,double&, double&, int&); //crmc_f
+    void (*crmc_set)( const int&, const int&, const double&, const double&,
+                      const int&, const int&, const int&, const int&, const int&,
+                      const char*);
+    void (*crmc_init)(const char*,const int&);
+    void (*crmc_xsection)(double&, double&, double&, double&, double&, double&, double&, double&, double&);
+
+
 
   private:
 	G4GeneralParticleSource*   fParticleGun;
   PrimaryGeneratorMessenger* fGeneratorMessenger;
-
-  CRMCinterface fCRMCInterface;
 
   G4String       fBeamType;
   G4String       fGenModelStr;
@@ -82,17 +89,23 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
   G4double       fHorizXingAngle;
   G4double       fProjPlane;
   G4double       fpsrCut;
+  G4double       fCRMCimpactPar;
   G4int          fnPrimaries;
-  G4int          fGenModelCode;
-  G4int          fNtupleNum;
+  G4int          fCRMCnPart;
+  G4int          fCurrentEvent;
   G4bool         PROJECT;
   G4bool         CRMC_INITIALIZED;
   G4ThreeVector* fpos;
-  G4AnalysisManager* m_analysisManager;
+  AnalysisManager* m_analysisManager;
   G4RunManager* runManager;
   std::vector< G4PrimaryParticle* > fPrimaryVec;
-  std::vector< std::vector<double> >* fdblVec;
-  std::vector< std::vector< int  > >* fintVec;
+  std::vector< std::vector<double>* > fdblVec;
+  std::vector< std::vector< int  >* > fintVec;
+  std::vector<double> *fCRMCpx, *fCRMCpy, *fCRMCpz, *fCRMCenergy, *fCRMCm;
+  std::vector< int  > *fCRMCpdgid, *fCRMCstatus, *fCRMCkeptStatus;
+  TFile* eventGenFile;
+  TTree* eventGenDataTree;
+  TTree* eventGenParticleTree;
 
 };
 
