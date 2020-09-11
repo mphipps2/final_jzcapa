@@ -102,7 +102,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
   std::vector< std::vector<double>* > fdblVec;
   std::vector< std::vector< int  >* > fintVec;
   std::vector<double> *fCRMCpx, *fCRMCpy, *fCRMCpz, *fCRMCenergy, *fCRMCm;
-  std::vector< int  > *fCRMCpdgid, *fCRMCstatus, *fCRMCkeptStatus;
+  std::vector< int  > *fCRMCpdgid, *fCRMCstatus, *fCRMCkeptStatus, fCRMCkeptIndex;
   TFile* eventGenFile;
   TTree* eventGenDataTree;
   TTree* eventGenParticleTree;

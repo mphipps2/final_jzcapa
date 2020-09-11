@@ -57,7 +57,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fVertXingAngle(0.),
   fHorizXingAngle(0.),
   fProjPlane(0.),
-  fpsrCut(5.),
+  fpsrCut(9.),
   fnPrimaries(0),
   fCurrentEvent(0),
   PROJECT(false),
@@ -145,7 +145,12 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
 
   for(uint i = 0; i < fPrimaryVec.size(); i++){
 
-    // TODO: Add charge cut here
+    // If the particle is charged it will be swept away by the steering magnets.
+    // Change the kept status to 0 (not kept) and continue to the next particle.
+    if( fPrimaryVec[i]->GetCharge() != 0.0 ){
+      fCRMCkeptStatus->at( fCRMCkeptIndex[i] ) = 0;
+      continue;
+    }
 
     // Project the beam to the plane requested by the user if requested
     // Otherwise carry forward the beam position
@@ -187,7 +192,7 @@ void PrimaryGeneratorAction::GenerateFNALEvent(G4Event* anEvent)
 void PrimaryGeneratorAction::InitializeCRMC()
 {
 
-  //################################ Determine avaialble models
+  //################################ Determine avaialble models as defined in CRMCconfig.h
 
   std::vector< bool > modelsAvail(12,false);
 
@@ -264,6 +269,10 @@ void PrimaryGeneratorAction::InitializeCRMC()
 
   //################################ Generate the events
 
+  //******************************************************
+  //      ADD AN OPTION TO USE PRE-GENERATED EVENTS
+  //******************************************************
+
   long seed = CLHEP::RandFlat::shootInt(100000000);
   char command[128];
   sprintf(command,"%s/bin/crmc -o root -p2500 -P-2500 -n%d -s %ld -i208 -I208 -m%d",
@@ -328,6 +337,7 @@ void PrimaryGeneratorAction::GenerateCRMCEvent()
 
   //Clear vectors
   fPrimaryVec.clear();
+  fCRMCkeptIndex.clear();
   for(auto vec : fdblVec) vec->resize(fCRMCnPart);
   for(auto vec : fintVec) vec->resize(fCRMCnPart);
 
@@ -352,13 +362,14 @@ void PrimaryGeneratorAction::GenerateCRMCEvent()
     fCRMCpy->at(part) = momentum.y();
     fCRMCpz->at(part) = momentum.z();
 
-    if(momentum.pseudoRapidity() < fpsrCut){
+    if(momentum.pseudoRapidity() > fpsrCut){
       fPrimaryVec.push_back( new G4PrimaryParticle(fCRMCpdgid->at(part) ) ),
       fPrimaryVec.back()->SetKineticEnergy( fCRMCenergy->at(part) );
+      fCRMCkeptIndex.push_back(part);
 
-      fCRMCkeptStatus->push_back(1); //kept status == 1
+      fCRMCkeptStatus->at(part) = 1; //kept status == 1
     }else{
-      fCRMCkeptStatus->push_back(0); //Not kept status == 0
+      fCRMCkeptStatus->at(part) = 0; //Not kept status == 0
     }// end if pseudoRapidity
   }// end particle loop
 }// end GenerateCRMCEvent
