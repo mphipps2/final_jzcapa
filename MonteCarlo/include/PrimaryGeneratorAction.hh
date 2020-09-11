@@ -59,12 +59,12 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     virtual void GenerateSPSEvent (G4Event*);
     virtual void GenerateFNALEvent(G4Event*);
 
-    virtual void InitializeCRMC(G4String GenModel);
+    virtual void InitializeCRMC( );
     virtual void OpenInputFile(G4String fileName);
     virtual void ReadEvent();
 
     inline void SetBeamType               ( G4String arg ){ fBeamType = arg; }
-    inline void SetCRMCmodel              ( G4String arg ){ InitializeCRMC( arg ); }
+    inline void SetCRMCmodel              ( G4String arg ){ GENERATE_CRMC_EVENTS = true; fGenModel = arg; }
     inline void SetInputFile              ( G4String arg ){ OpenInputFile( arg ); }
     inline void SetVerticalCrossingAngle  ( G4double arg ){ fVertXingAngle = arg; }
     inline void SetHorizontalCrossingAngle( G4double arg ){ fHorizXingAngle = arg; }
@@ -80,6 +80,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
     G4String       fBeamType;
     G4String       fGenInputFile;
+    G4String       fGenModel;
     G4double       fVertXingAngle;
     G4double       fHorizXingAngle;
     G4double       fProjPlane;
@@ -90,6 +91,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4int          fCurrentEvent;
     G4bool         PROJECT;
     G4bool         INPUT_INITIALIZED;
+    G4bool         GENERATE_CRMC_EVENTS;
     G4ThreeVector* fpos;
     AnalysisManager* m_analysisManager;
     G4RunManager* runManager;

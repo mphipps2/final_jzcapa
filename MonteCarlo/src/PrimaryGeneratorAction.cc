@@ -56,6 +56,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fParticleGun(0),
   fBeamType("gps"),
   fGenInputFile(""),
+  fGenModel(""),
   fVertXingAngle(0.),
   fHorizXingAngle(0.),
   fProjPlane(0.),
@@ -92,6 +93,8 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
+
+  if(GENERATE_CRMC_EVENTS && !INPUT_INITIALIZED) InitializeCRMC();
 
   if(fBeamType == "gps")
     fParticleGun->GeneratePrimaryVertex(anEvent);
@@ -187,7 +190,7 @@ void PrimaryGeneratorAction::GenerateFNALEvent(G4Event* anEvent)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::InitializeCRMC(G4String GenModel)
+void PrimaryGeneratorAction::InitializeCRMC()
 {
 
   #ifndef CRMC
@@ -248,17 +251,17 @@ void PrimaryGeneratorAction::InitializeCRMC(G4String GenModel)
   G4String libName = "";
   G4String model;
 
-       if(GenModel.contains( "epos_lhc"   ) && modelsAvail[0]  ){ genModelCode = 0;  libName = "libEpos.so";       model = "epos199";    }
-  else if(GenModel.contains( "epos_1.99"  ) && modelsAvail[1]  ){ genModelCode = 1;  libName = "libEpos.so";       model = "eposlhc";    }
-  else if(GenModel.contains( "qgsjet01"   ) && modelsAvail[2]  ){ genModelCode = 2;  libName = "libQgsjet01.so";   model = "qgejet01";   }
-  else if(GenModel.contains( "pythia"     ) && modelsAvail[4]  ){ genModelCode = 4;  libName = "libPythia.so";     model = "pythia";     }
-  else if(GenModel.contains( "gheisha"    ) && modelsAvail[3]  ){ genModelCode = 3;  libName = "libGheisha.so";    model = "gheisha";    }
-  else if(GenModel.contains( "hijing"     ) && modelsAvail[5]  ){ genModelCode = 5;  libName = "libHijing.so";     model = "hijing";     }
-  else if(GenModel.contains( "sibyll"     ) && modelsAvail[6]  ){ genModelCode = 6;  libName = "libSibyll.so";     model = "sibyll";     }
-  else if(GenModel.contains( "qgsjetii04" ) && modelsAvail[7]  ){ genModelCode = 7;  libName = "libQgsjetII04.so"; model = "qgsjetII04"; }
-  else if(GenModel.contains( "phojet"     ) && modelsAvail[8]  ){ genModelCode = 8;  libName = "libPhojet.so";     model = "phojet";     }
-  else if(GenModel.contains( "qgsjetii03" ) && modelsAvail[11] ){ genModelCode = 11; libName = "libQgsjetII03.so"; model = "qgsjetII03"; }
-  else if(GenModel.contains( "dpmjet"     ) && modelsAvail[12] ){ genModelCode = 12; libName = "libDpmjet.so";     model = "dpmjet";     }
+       if(fGenModel.contains( "epos_lhc"   ) && modelsAvail[0]  ){ genModelCode = 0;  libName = "libEpos.so";       model = "epos199";    }
+  else if(fGenModel.contains( "epos_1.99"  ) && modelsAvail[1]  ){ genModelCode = 1;  libName = "libEpos.so";       model = "eposlhc";    }
+  else if(fGenModel.contains( "qgsjet01"   ) && modelsAvail[2]  ){ genModelCode = 2;  libName = "libQgsjet01.so";   model = "qgejet01";   }
+  else if(fGenModel.contains( "pythia"     ) && modelsAvail[4]  ){ genModelCode = 4;  libName = "libPythia.so";     model = "pythia";     }
+  else if(fGenModel.contains( "gheisha"    ) && modelsAvail[3]  ){ genModelCode = 3;  libName = "libGheisha.so";    model = "gheisha";    }
+  else if(fGenModel.contains( "hijing"     ) && modelsAvail[5]  ){ genModelCode = 5;  libName = "libHijing.so";     model = "hijing";     }
+  else if(fGenModel.contains( "sibyll"     ) && modelsAvail[6]  ){ genModelCode = 6;  libName = "libSibyll.so";     model = "sibyll";     }
+  else if(fGenModel.contains( "qgsjetii04" ) && modelsAvail[7]  ){ genModelCode = 7;  libName = "libQgsjetII04.so"; model = "qgsjetII04"; }
+  else if(fGenModel.contains( "phojet"     ) && modelsAvail[8]  ){ genModelCode = 8;  libName = "libPhojet.so";     model = "phojet";     }
+  else if(fGenModel.contains( "qgsjetii03" ) && modelsAvail[11] ){ genModelCode = 11; libName = "libQgsjetII03.so"; model = "qgsjetII03"; }
+  else if(fGenModel.contains( "dpmjet"     ) && modelsAvail[12] ){ genModelCode = 12; libName = "libDpmjet.so";     model = "dpmjet";     }
   else{
     G4cerr << "Invalid event generator model. Available options are (not case sensitive):\n" << modelList << G4endl;
 
