@@ -61,6 +61,7 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
 	if(theTrack->GetParentID()==0 && theTrack->GetTrackStatus() == fStopAndKill ){
 
 		m_lastStepVec->push_back( theTrack->GetPosition() );
+		m_lastStepPidVec->push_back( theTrack->GetParticleDefinition()->GetParticleDefinitionID() );
 
 	}
 

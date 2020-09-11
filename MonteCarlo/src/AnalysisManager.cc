@@ -111,7 +111,7 @@ void AnalysisManager::Book( G4String fileName )
   m_RPDintVec = new std::vector< std::vector< std::vector< int  > > >(nRPDs);
 
   SteppingAction* steppingAction = (SteppingAction*)G4RunManager::GetRunManager()->GetUserSteppingAction();
-  steppingAction->SetLastStepVec( m_lastStepVec );
+  steppingAction->SetLastStepVec( m_lastStepVec, &m_lastStepPidVec );
   steppingAction->SetPi0Mom( m_Pi0Mom );
   steppingAction->SetPi0Vertex( m_Pi0Vert );
 
@@ -228,6 +228,7 @@ void AnalysisManager::FillNtuples(){
   m_lastStepXVec.clear();
   m_lastStepYVec.clear();
   m_lastStepZVec.clear();
+  m_lastStepPidVec.clear();
 
   m_Pi0Mom->clear();
   m_Pi0MomX.clear();
@@ -271,9 +272,13 @@ void AnalysisManager::MakeEventDataTree( ){
   m_analysisManager->CreateNtupleDColumn( 0, "gunPosZ"  );
 
   //std::vector< double >
-  m_analysisManager->CreateNtupleDColumn( 0, "lastStepX",   m_lastStepXVec );
-  m_analysisManager->CreateNtupleDColumn( 0, "lastStepY",   m_lastStepYVec );
-  m_analysisManager->CreateNtupleDColumn( 0, "lastStepZ",   m_lastStepZVec );
+  m_analysisManager->CreateNtupleDColumn( 0, "lastStepX",   m_lastStepXVec   );
+  m_analysisManager->CreateNtupleDColumn( 0, "lastStepY",   m_lastStepYVec   );
+  m_analysisManager->CreateNtupleDColumn( 0, "lastStepZ",   m_lastStepZVec   );
+
+
+  //std::vector< int >
+  m_analysisManager->CreateNtupleIColumn( 0, "lastStepPID", m_lastStepPidVec );
 
   if(PI0){
       //std::vector< double >
