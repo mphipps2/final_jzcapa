@@ -63,6 +63,9 @@ class PrimaryGeneratorMessenger: public G4UImessenger{
     G4UIdirectory*             fFNALDir;
 
     G4UIcmdWithAString*        fBeamTypeCmd;
+    G4UIcmdWithAString*        fCRMCmodelCmd;
+    G4UIcmdWithAString*        fInputFileCmd;
+    G4UIcmdWithADouble*        fPseudorapitityCutCmd;
     G4UIcmdWithADoubleAndUnit* fVerticalCrossingCmd;
     G4UIcmdWithADoubleAndUnit* fHorizontalCrossingCmd;
     G4UIcmdWithADoubleAndUnit* fProjectBeamCmd;

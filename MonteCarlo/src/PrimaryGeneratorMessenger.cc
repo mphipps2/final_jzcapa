@@ -67,12 +67,29 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction * Ge
   fBeamTypeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fBeamTypeCmd->SetToBeBroadcasted(false);
 
+  fCRMCmodelCmd = new G4UIcmdWithAString("/beam/CRMCmodel", this);
+  fCRMCmodelCmd->SetGuidance("Generate events from CRMC using the selected model");
+  fCRMCmodelCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fCRMCmodelCmd->SetParameterName("Event generator model",true);
+  fCRMCmodelCmd->SetToBeBroadcasted(false);
+
+  fInputFileCmd = new G4UIcmdWithAString("/beam/input", this);
+  fInputFileCmd->SetGuidance("Set an input file with pre-generated events");
+  fInputFileCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fInputFileCmd->SetParameterName("Input file name",true);
+  fInputFileCmd->SetToBeBroadcasted(false);
+
   fBeamPosCmd = new G4UIcmdWith3VectorAndUnit("/beam/pos", this);
   fBeamPosCmd->SetGuidance("Set the origin position of the beam");
   fBeamPosCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fBeamPosCmd->SetToBeBroadcasted(false);
   fBeamPosCmd->SetParameterName("X","Y","Z",true);
   fBeamPosCmd->SetDefaultUnit("mm");
+
+  fPseudorapitityCutCmd = new G4UIcmdWithADouble("/beam/SetMinimmPseudorapidity", this);
+  fPseudorapitityCutCmd->SetGuidance("Minimum pseudorapidity to be considered by the event generator");
+  fPseudorapitityCutCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fPseudorapitityCutCmd->SetToBeBroadcasted(false);
 
   fProjectBeamCmd = new G4UIcmdWithADoubleAndUnit("/beam/projectBeam", this);
   fProjectBeamCmd->SetGuidance("Set the plane in Z which the beam will be projected to");
@@ -107,8 +124,12 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction * Ge
  */
 PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger(){
   delete fBeamTypeCmd;
+  delete fCRMCmodelCmd;
+  delete fInputFileCmd;
+  delete fPseudorapitityCutCmd;
   delete fVerticalCrossingCmd;
   delete fHorizontalCrossingCmd;
+  delete fProjectBeamCmd;
   delete fnPrimariesCmd;
   delete fBeamPosCmd;
 }
@@ -121,6 +142,17 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command,G4String newVal
   if(command == fBeamTypeCmd){
     newValue.toLower();
     fGenerator->SetBeamType(newValue);
+  }
+  if(command == fCRMCmodelCmd){
+    newValue.toLower();
+    fGenerator->SetCRMCmodel(newValue);
+  }
+  if(command == fInputFileCmd){
+    newValue.toLower();
+    fGenerator->SetInputFile(newValue);
+  }
+  else if(command == fPseudorapitityCutCmd){
+    fGenerator->SetPseudorapidityCut( fPseudorapitityCutCmd->GetNewDoubleValue(newValue) );
   }
   else if(command == fVerticalCrossingCmd){
     fGenerator->SetVerticalCrossingAngle( fVerticalCrossingCmd->GetNewDoubleValue(newValue) );

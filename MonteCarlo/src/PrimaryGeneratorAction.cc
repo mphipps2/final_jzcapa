@@ -43,7 +43,9 @@
 #include "Randomize.hh"
 #include "G4GeneralParticleSource.hh"
 
+#ifdef CRMC
 #include "CRMCconfig.h"
+#endif
 
 #include <iostream>
 
@@ -53,7 +55,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 : G4VUserPrimaryGeneratorAction(),
   fParticleGun(0),
   fBeamType("gps"),
-  fGenModelStr("dpmjet"),
+  fGenInputFile(""),
   fVertXingAngle(0.),
   fHorizXingAngle(0.),
   fProjPlane(0.),
@@ -61,7 +63,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fnPrimaries(0),
   fCurrentEvent(0),
   PROJECT(false),
-  CRMC_INITIALIZED(false),
+  INPUT_INITIALIZED(false),
   fpos( new G4ThreeVector(0.,0.,0.) ),
   eventGenFile(0)
 {
@@ -77,7 +79,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
   delete fGeneratorMessenger;
   delete fParticleGun;
 
-  if( eventGenFile && eventGenFile->IsOpen() ){
+  if( INPUT_INITIALIZED ){
     eventGenFile->Close();
     delete eventGenFile;
     for(std::vector<int>* vec : fintVec) delete vec;
@@ -90,9 +92,6 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-
-  // Initialize CRMC if necessary
-  if(fGenModelStr != "" && !CRMC_INITIALIZED) InitializeCRMC();
 
   if(fBeamType == "gps")
     fParticleGun->GeneratePrimaryVertex(anEvent);
@@ -113,9 +112,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
 {
 
-  if( CRMC_INITIALIZED ){
+  if( INPUT_INITIALIZED ){
 
-    GenerateCRMCEvent();
+    ReadEvent();
 
   }else{ // Generate some neutrons
     // These values are hard coded for accuracy and consistency
@@ -186,11 +185,15 @@ void PrimaryGeneratorAction::GenerateFNALEvent(G4Event* anEvent)
   (void)anEvent; //Silence the unused variable message until this function is implemented
 }
 
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::InitializeCRMC()
+void PrimaryGeneratorAction::InitializeCRMC(G4String GenModel)
 {
+
+  #ifndef CRMC
+  G4cerr << "CRMC wasn't found. Check your configuration before trying again" << G4endl;
+  return;
+  #endif
 
   //################################ Determine avaialble models as defined in CRMCconfig.h
 
@@ -241,22 +244,21 @@ void PrimaryGeneratorAction::InitializeCRMC()
 
   //################################ Determine requested model
 
-  fGenModelStr.toLower();
   G4int genModelCode = -1;
   G4String libName = "";
-  G4String outputName;
+  G4String model;
 
-       if(fGenModelStr.contains( "epos_lhc"   ) && modelsAvail[0]  ){ genModelCode = 0;  libName = "libEpos.so";       outputName = "epos199";    }
-  else if(fGenModelStr.contains( "epos_1.99"  ) && modelsAvail[1]  ){ genModelCode = 1;  libName = "libEpos.so";       outputName = "eposlhc";    }
-  else if(fGenModelStr.contains( "qgsjet01"   ) && modelsAvail[2]  ){ genModelCode = 2;  libName = "libQgsjet01.so";   outputName = "qgejet01";   }
-  else if(fGenModelStr.contains( "pythia"     ) && modelsAvail[4]  ){ genModelCode = 4;  libName = "libPythia.so";     outputName = "pythia";     }
-  else if(fGenModelStr.contains( "gheisha"    ) && modelsAvail[3]  ){ genModelCode = 3;  libName = "libGheisha.so";    outputName = "gheisha";    }
-  else if(fGenModelStr.contains( "hijing"     ) && modelsAvail[5]  ){ genModelCode = 5;  libName = "libHijing.so";     outputName = "hijing";     }
-  else if(fGenModelStr.contains( "sibyll"     ) && modelsAvail[6]  ){ genModelCode = 6;  libName = "libSibyll.so";     outputName = "sibyll";     }
-  else if(fGenModelStr.contains( "qgsjetii04" ) && modelsAvail[7]  ){ genModelCode = 7;  libName = "libQgsjetII04.so"; outputName = "qgsjetII04"; }
-  else if(fGenModelStr.contains( "phojet"     ) && modelsAvail[8]  ){ genModelCode = 8;  libName = "libPhojet.so";     outputName = "phojet";     }
-  else if(fGenModelStr.contains( "qgsjetii03" ) && modelsAvail[11] ){ genModelCode = 11; libName = "libQgsjetII03.so"; outputName = "qgsjetII03"; }
-  else if(fGenModelStr.contains( "dpmjet"     ) && modelsAvail[12] ){ genModelCode = 12; libName = "libDpmjet.so";     outputName = "dpmjet";     }
+       if(GenModel.contains( "epos_lhc"   ) && modelsAvail[0]  ){ genModelCode = 0;  libName = "libEpos.so";       model = "epos199";    }
+  else if(GenModel.contains( "epos_1.99"  ) && modelsAvail[1]  ){ genModelCode = 1;  libName = "libEpos.so";       model = "eposlhc";    }
+  else if(GenModel.contains( "qgsjet01"   ) && modelsAvail[2]  ){ genModelCode = 2;  libName = "libQgsjet01.so";   model = "qgejet01";   }
+  else if(GenModel.contains( "pythia"     ) && modelsAvail[4]  ){ genModelCode = 4;  libName = "libPythia.so";     model = "pythia";     }
+  else if(GenModel.contains( "gheisha"    ) && modelsAvail[3]  ){ genModelCode = 3;  libName = "libGheisha.so";    model = "gheisha";    }
+  else if(GenModel.contains( "hijing"     ) && modelsAvail[5]  ){ genModelCode = 5;  libName = "libHijing.so";     model = "hijing";     }
+  else if(GenModel.contains( "sibyll"     ) && modelsAvail[6]  ){ genModelCode = 6;  libName = "libSibyll.so";     model = "sibyll";     }
+  else if(GenModel.contains( "qgsjetii04" ) && modelsAvail[7]  ){ genModelCode = 7;  libName = "libQgsjetII04.so"; model = "qgsjetII04"; }
+  else if(GenModel.contains( "phojet"     ) && modelsAvail[8]  ){ genModelCode = 8;  libName = "libPhojet.so";     model = "phojet";     }
+  else if(GenModel.contains( "qgsjetii03" ) && modelsAvail[11] ){ genModelCode = 11; libName = "libQgsjetII03.so"; model = "qgsjetII03"; }
+  else if(GenModel.contains( "dpmjet"     ) && modelsAvail[12] ){ genModelCode = 12; libName = "libDpmjet.so";     model = "dpmjet";     }
   else{
     G4cerr << "Invalid event generator model. Available options are (not case sensitive):\n" << modelList << G4endl;
 
@@ -283,6 +285,24 @@ void PrimaryGeneratorAction::InitializeCRMC()
 
   system(command);
 
+  char fileName[128];
+  sprintf(fileName, "crmc_%s_%ld_Pb_Pb_2500.root", model.data(), seed );
+  OpenInputFile( fileName );
+
+}// end InitializeCRMC
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void PrimaryGeneratorAction::OpenInputFile(G4String fileName)
+{
+
+  //If input has already been initialized inform the user and bail
+  if( INPUT_INITIALIZED ){
+    G4cerr << "WARNING: Multiple input files/methods selected." << G4endl;
+    G4cerr << "Make sure /beam/eventGen and /beam/input aren't both selected in your run macro" << G4endl;
+    return;
+  }
+
   //################################ Initialize event gen output tree
 
   m_analysisManager = AnalysisManager::getInstance();
@@ -302,14 +322,12 @@ void PrimaryGeneratorAction::InitializeCRMC()
   // Send the vectors to the analysis manager to set them as output
   m_analysisManager->MakeEventGenTree( fintVec, fdblVec );
 
-  //################################ Open event gen file as input
 
-  char fileName[128];
-  sprintf(fileName, "crmc_%s_%ld_Pb_Pb_2500.root", outputName.data(), seed );
-
-  eventGenFile = new TFile( fileName, "read" );
+  //################################ Open input file
+  eventGenFile = new TFile( fileName.data(), "read" );
   if(eventGenFile->IsZombie()){
     G4cout << "file didn't read" << G4endl;
+    return;
   }
 
   eventGenParticleTree = (TTree*)eventGenFile->Get("Particle");
@@ -324,12 +342,13 @@ void PrimaryGeneratorAction::InitializeCRMC()
   eventGenParticleTree->SetBranchAddress("E", &fCRMCenergy->at(0) );
   eventGenParticleTree->SetBranchAddress("m", &fCRMCm->at(0) );
 
-  CRMC_INITIALIZED = true;
-}//end InitializeCRMC
+  INPUT_INITIALIZED = true;
+
+}//end OpenInputFile
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::GenerateCRMCEvent()
+void PrimaryGeneratorAction::ReadEvent()
 {
   //double RPinclination = G4RandGauss::shoot(0.0,sigmaThetaXZ));
   G4ThreeVector momentum(0.,0.,0.);
@@ -372,4 +391,4 @@ void PrimaryGeneratorAction::GenerateCRMCEvent()
       fCRMCkeptStatus->at(part) = 0; //Not kept status == 0
     }// end if pseudoRapidity
   }// end particle loop
-}// end GenerateCRMCEvent
+}// end ReadEvent

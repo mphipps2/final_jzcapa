@@ -34,13 +34,16 @@ find_package (Xerces REQUIRED)
 include_directories (${XERCESC_INCLUDE})
 
 #CRMC support
-find_package (CRMC)
-if (CRMC_FOUND)
-    include_directories (${CRMC_INCLUDE_DIRS})
-    link_directories(${CRMC_INCLUDE_DIRS})
-else (NOT CRMC_FOUND)
-  message("${BoldRed} CRMC library was not found! Please set CRMC_SRC and CRMC_INSTALL environment variables. ${ColourReset}")
-endif (CRMC_FOUND)
+if (USE_CRMC)
+  find_package (CRMC)
+  if (CRMC_FOUND)
+      add_compile_definitions( CRMC='true' )
+      include_directories (${CRMC_INCLUDE_DIRS})
+      link_directories(${CRMC_INCLUDE_DIRS})
+  else (NOT CRMC_FOUND)
+    message("${BoldRed} CRMC library was not found! Please set CRMC_SRC and CRMC_INSTALL environment variables. ${ColourReset}")
+  endif (CRMC_FOUND)
+endif(USE_CRMC)
 
 
 # Add ROOTs header paths
@@ -78,10 +81,9 @@ endif(useROOT)
 
 target_link_libraries(zdc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${XERCESC_LIBRARY} )
 
-
-if (CRMC_FOUND)
+if (USE_CRMC AND CRMC_FOUND)
     target_link_libraries(zdc  ${CRMC_LIBRARIES} )
-endif (CRMC_FOUND)
+endif ()
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
@@ -115,7 +117,7 @@ add_custom_target( DEPENDS zdc)
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 
-if (CRMC_FOUND)
+if (USE_CRMC AND CRMC_FOUND)
     install(FILES $ENV{CRMC_INSTALL}/crmc.param DESTINATION bin)
-endif (CRMC_FOUND)
+endif ()
 install(TARGETS zdc DESTINATION bin)

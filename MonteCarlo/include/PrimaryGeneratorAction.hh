@@ -59,53 +59,48 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     virtual void GenerateSPSEvent (G4Event*);
     virtual void GenerateFNALEvent(G4Event*);
 
-    virtual void InitializeCRMC();
-    virtual void GenerateCRMCEvent();
+    virtual void InitializeCRMC(G4String GenModel);
+    virtual void OpenInputFile(G4String fileName);
+    virtual void ReadEvent();
 
     inline void SetBeamType               ( G4String arg ){ fBeamType = arg; }
+    inline void SetCRMCmodel              ( G4String arg ){ InitializeCRMC( arg ); }
+    inline void SetInputFile              ( G4String arg ){ OpenInputFile( arg ); }
     inline void SetVerticalCrossingAngle  ( G4double arg ){ fVertXingAngle = arg; }
     inline void SetHorizontalCrossingAngle( G4double arg ){ fHorizXingAngle = arg; }
     inline void SetProjectionPlane        ( G4double arg ){ PROJECT = true; fProjPlane = arg; }
+    inline void SetPseudorapidityCut      ( G4double arg ){ fpsrCut = arg; }
     inline void SetnPrimaries             ( G4int    arg ){ fnPrimaries = arg; }
     inline void SetBeamPos                ( G4ThreeVector* arg ){ delete fpos; fpos = arg; }
 
-    void (*crmc_generate)( const int&, const int&, int&, double&, int&, double&,
-                      double&, double&,double&, double&, int&); //crmc_f
-    void (*crmc_set)( const int&, const int&, const double&, const double&,
-                      const int&, const int&, const int&, const int&, const int&,
-                      const char*);
-    void (*crmc_init)(const char*,const int&);
-    void (*crmc_xsection)(double&, double&, double&, double&, double&, double&, double&, double&, double&);
-
-
 
   private:
-	G4GeneralParticleSource*   fParticleGun;
-  PrimaryGeneratorMessenger* fGeneratorMessenger;
+  	G4GeneralParticleSource*   fParticleGun;
+    PrimaryGeneratorMessenger* fGeneratorMessenger;
 
-  G4String       fBeamType;
-  G4String       fGenModelStr;
-  G4double       fVertXingAngle;
-  G4double       fHorizXingAngle;
-  G4double       fProjPlane;
-  G4double       fpsrCut;
-  G4double       fCRMCimpactPar;
-  G4int          fnPrimaries;
-  G4int          fCRMCnPart;
-  G4int          fCurrentEvent;
-  G4bool         PROJECT;
-  G4bool         CRMC_INITIALIZED;
-  G4ThreeVector* fpos;
-  AnalysisManager* m_analysisManager;
-  G4RunManager* runManager;
-  std::vector< G4PrimaryParticle* > fPrimaryVec;
-  std::vector< std::vector<double>* > fdblVec;
-  std::vector< std::vector< int  >* > fintVec;
-  std::vector<double> *fCRMCpx, *fCRMCpy, *fCRMCpz, *fCRMCenergy, *fCRMCm;
-  std::vector< int  > *fCRMCpdgid, *fCRMCstatus, *fCRMCkeptStatus, fCRMCkeptIndex;
-  TFile* eventGenFile;
-  TTree* eventGenDataTree;
-  TTree* eventGenParticleTree;
+    G4String       fBeamType;
+    G4String       fGenInputFile;
+    G4double       fVertXingAngle;
+    G4double       fHorizXingAngle;
+    G4double       fProjPlane;
+    G4double       fpsrCut;
+    G4double       fCRMCimpactPar;
+    G4int          fnPrimaries;
+    G4int          fCRMCnPart;
+    G4int          fCurrentEvent;
+    G4bool         PROJECT;
+    G4bool         INPUT_INITIALIZED;
+    G4ThreeVector* fpos;
+    AnalysisManager* m_analysisManager;
+    G4RunManager* runManager;
+    std::vector< G4PrimaryParticle* > fPrimaryVec;
+    std::vector< std::vector<double>* > fdblVec;
+    std::vector< std::vector< int  >* > fintVec;
+    std::vector<double> *fCRMCpx, *fCRMCpy, *fCRMCpz, *fCRMCenergy, *fCRMCm;
+    std::vector< int  > *fCRMCpdgid, *fCRMCstatus, *fCRMCkeptStatus, fCRMCkeptIndex;
+    TFile* eventGenFile;
+    TTree* eventGenDataTree;
+    TTree* eventGenParticleTree;
 
 };
 
