@@ -71,6 +71,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     inline void SetProjectionPlane        ( G4double arg ){ PROJECT = true; fProjPlane = arg; }
     inline void SetPseudorapidityCut      ( G4double arg ){ fpsrCut = arg; }
     inline void SetnPrimaries             ( G4int    arg ){ fnPrimaries = arg; }
+    inline void SetRandomizeRP            ( G4bool   arg ){ RANDOMIZE_RP = arg; }
     inline void SetBeamPos                ( G4ThreeVector* arg ){ delete fpos; fpos = arg; }
 
 
@@ -92,6 +93,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4bool         PROJECT;
     G4bool         INPUT_INITIALIZED;
     G4bool         GENERATE_CRMC_EVENTS;
+    G4bool         RANDOMIZE_RP;
     G4ThreeVector* fpos;
     AnalysisManager* m_analysisManager;
     G4RunManager* runManager;

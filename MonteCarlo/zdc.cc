@@ -52,7 +52,7 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " zdc [-m macro ] [-t nThreads] [-r seed] [-o outputFileName] [-i inputFileName]"
+    G4cerr << " zdc [-m macro ] [-t nThreads] [-r seed] [-i inputFileName] [-o outputFileName]"
            << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;
@@ -149,6 +149,9 @@ int main(int argc,char** argv)
   // Process macro or start UI session
   //
   if ( macro.size() ) {
+    if(input != ""){
+      UImanager->ApplyCommand("/beam/input " + input);
+    }
     // batch mode
     if(input != ""){
       G4String command = "/beam/input " + input;

@@ -67,6 +67,7 @@
 #/beam/SetMinimmPseudorapidity 9.0
 #/beam/CRMCmodel dpmjet
 #/beam/input generatedEvents.root
+#/beam/randomizeReactionPlane true
 
 #if using these commands in interactive mode to visualize, use this to allow more events to be displayed (do not use in batch mode)
 #/vis/ogl/set/displayListLimit 1000000
