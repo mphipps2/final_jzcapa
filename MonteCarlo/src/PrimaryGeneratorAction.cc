@@ -64,6 +64,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fCurrentEvent(0),
   PROJECT(false),
   INPUT_INITIALIZED(false),
+  RANDOMIZE_RP(false),
   fpos( new G4ThreeVector(0.,0.,0.) ),
   eventGenFile(0)
 {
@@ -128,11 +129,13 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
         G4ParticleTable::GetParticleTable()->FindParticle("neutron");
 
     // Adjust the momentum for the crossing angle
+    G4double psiRP = (RANDOMIZE_RP) ? CLHEP::RandFlat::shootInt( CLHEP::twopi ) : 0.0;
     G4ThreeVector momentum(0.,0.,1.);
     momentum.rotateY(fHorizXingAngle + G4RandGauss::shoot(0.0,sigmaThetaXZ));
     momentum.rotateX(fVertXingAngle  + G4RandGauss::shoot(0.0,sigmaThetaYZ));
+    momentum.rotateZ( psiRP );
 
-    //If nPrimaries is 0, generate a random number from the distribution (to be implemented)
+    // If nPrimaries is 0, generate a random number from the distribution (to be implemented)
     if( fnPrimaries == 0 ) fnPrimaries = 1;
     // int nNeutrons = some distribution dependent random number;
     for(int i = 0; i < fnPrimaries; i++){
@@ -145,8 +148,10 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
   for(uint i = 0; i < fPrimaryVec.size(); i++){
 
     // If the particle is charged it will be swept away by the steering magnets.
+    // Also, if particle is outside of the acceptance of the detector (set by user)
     // Change the kept status to 0 (not kept) and continue to the next particle.
-    if( fPrimaryVec[i]->GetCharge() != 0.0 ){
+    G4ThreeVector momentum = fPrimaryVec[i]->GetMomentumDirection();
+    if( fPrimaryVec[i]->GetCharge() != 0.0 || momentum.pseudoRapidity() < fpsrCut ){
       fCRMCkeptStatus->at( fCRMCkeptIndex[i] ) = 0;
       continue;
     }
@@ -155,7 +160,6 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
     // Otherwise carry forward the beam position
     G4ThreeVector* position;
     if(PROJECT){
-      G4ThreeVector momentum = fPrimaryVec[i]->GetMomentumDirection();
       G4double projDist = fabs( fProjPlane - fpos->z() );
       G4double projectedX = fpos->x() + momentum.x()*projDist;
       G4double projectedY = fpos->y() + momentum.y()*projDist;
@@ -271,10 +275,6 @@ void PrimaryGeneratorAction::InitializeCRMC(G4String GenModel)
 
   //################################ Generate the events
 
-  //******************************************************
-  //      ADD AN OPTION TO USE PRE-GENERATED EVENTS
-  //******************************************************
-
   long seed = CLHEP::RandFlat::shootInt(100000000);
   char command[128];
   sprintf(command,"%s/bin/crmc -o root -p2500 -P-2500 -n%d -s %ld -i208 -I208 -m%d",
@@ -296,7 +296,7 @@ void PrimaryGeneratorAction::InitializeCRMC(G4String GenModel)
 void PrimaryGeneratorAction::OpenInputFile(G4String fileName)
 {
 
-  //If input has already been initialized inform the user and bail
+  // If input has already been initialized inform the user and bail
   if( INPUT_INITIALIZED ){
     G4cerr << "WARNING: Multiple input files/methods selected." << G4endl;
     G4cerr << "Make sure /beam/eventGen and /beam/input aren't both selected in your run macro" << G4endl;
@@ -307,7 +307,7 @@ void PrimaryGeneratorAction::OpenInputFile(G4String fileName)
 
   m_analysisManager = AnalysisManager::getInstance();
 
-  //Assign vectors with reference names and place them in a vector for export to AnalysisManager
+  // Assign vectors with reference names and place them in a vector for export to AnalysisManager
   int maxNpart = 200000;
   fintVec.push_back( fCRMCpdgid = new std::vector<int>(maxNpart,0) );
   fintVec.push_back( fCRMCstatus = new std::vector<int>(maxNpart,0) );
@@ -344,51 +344,55 @@ void PrimaryGeneratorAction::OpenInputFile(G4String fileName)
 
   INPUT_INITIALIZED = true;
 
-}//end OpenInputFile
+}// end OpenInputFile
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void PrimaryGeneratorAction::ReadEvent()
 {
-  //double RPinclination = G4RandGauss::shoot(0.0,sigmaThetaXZ));
+  if( eventGenParticleTree->GetEntries() < runManager->GetNumberOfEventsToBeProcessed() ){
+      G4cerr << "Not enough entries in input file to complete the run" << G4endl;
+
+      G4cerr << "Exiting or crashing or resetting the number of events, depending on if I figured out a good way to exit" << G4endl;
+  }
   G4ThreeVector momentum(0.,0.,0.);
+  G4double psiRP = (RANDOMIZE_RP) ? CLHEP::RandFlat::shootInt( CLHEP::twopi ) : 0.0;
   eventGenParticleTree->GetEntry( fCurrentEvent++ );
 
-  //Clear vectors
+  // Clear vectors
   fPrimaryVec.clear();
   fCRMCkeptIndex.clear();
+  fCRMCkeptStatus->clear();
+  fCRMCkeptStatus->resize(fCRMCnPart,0);
   for(auto vec : fdblVec) vec->resize(fCRMCnPart);
   for(auto vec : fintVec) vec->resize(fCRMCnPart);
 
 
-  //Add all final state particles to the particle vector
+  // Add all final state particles to the particle vector
   for(int part = 0; part < fCRMCnPart; part++){
-
-    // Cut out fragments in final state particles
-    if(fCRMCstatus->at(part) == 1 && !(fCRMCpdgid->at(part) > 1000) ) continue;
 
     momentum.set( fCRMCpx->at(part), //px
                   fCRMCpy->at(part), //py
                   fCRMCpz->at(part));//pz
 
-    //Rotate momentum for crossing angle and reaction plane
+    // Rotate momentum for crossing angle and reaction plane
     momentum.rotateY(fHorizXingAngle);
     momentum.rotateX(fVertXingAngle);
-    //momentum.rotateZ(RPinclination);
+    momentum.rotateZ(psiRP);
 
-    // Push into the output vectors
+    // Replace the content of the output vectors with the rotated components
     fCRMCpx->at(part) = momentum.x();
     fCRMCpy->at(part) = momentum.y();
     fCRMCpz->at(part) = momentum.z();
 
-    if(momentum.pseudoRapidity() > fpsrCut){
-      fPrimaryVec.push_back( new G4PrimaryParticle(fCRMCpdgid->at(part) ) ),
-      fPrimaryVec.back()->SetKineticEnergy( fCRMCenergy->at(part) );
-      fCRMCkeptIndex.push_back(part);
 
-      fCRMCkeptStatus->at(part) = 1; //kept status == 1
-    }else{
-      fCRMCkeptStatus->at(part) = 0; //Not kept status == 0
-    }// end if pseudoRapidity
+    // Cut out fragments in final state particles
+    if(fCRMCstatus->at(part) == 1 && !(fCRMCpdgid->at(part) > 1000) ) continue;
+
+    fPrimaryVec.push_back( new G4PrimaryParticle(fCRMCpdgid->at(part) ) ),
+    fPrimaryVec.back()->SetKineticEnergy( fCRMCenergy->at(part) );
+    fCRMCkeptIndex.push_back(part);
+
+    fCRMCkeptStatus->at(part) = 1; //kept status == 1
   }// end particle loop
 }// end ReadEvent
