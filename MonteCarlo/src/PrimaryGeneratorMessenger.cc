@@ -43,6 +43,7 @@
 #include "G4UIcmdWithAnInteger.hh"
 #include "G4UIcmdWithADouble.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
+#include "G4UIcmdWithABool.hh"
 #include "G4UIcmdWithoutParameter.hh"
 #include "G4UIcmdWith3VectorAndUnit.hh"
 
@@ -97,6 +98,12 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction * Ge
   fProjectBeamCmd->SetToBeBroadcasted(false);
   fProjectBeamCmd->SetDefaultUnit("mm");
 
+  fRandomizeRPCmd = new G4UIcmdWithABool("/beam/randomizeReactionPlane", this);
+  fRandomizeRPCmd->SetGuidance("Randomize the reaction plane angle each event");
+  fRandomizeRPCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRandomizeRPCmd->SetDefaultValue(true);
+  fRandomizeRPCmd->SetToBeBroadcasted(false);
+
   //LHC beam commands
   fVerticalCrossingCmd = new G4UIcmdWithADoubleAndUnit("/beam/LHC/verticalCrossingAngle", this);
   fVerticalCrossingCmd->SetGuidance("Set vertical crossing angle for LHC beam");
@@ -130,6 +137,7 @@ PrimaryGeneratorMessenger::~PrimaryGeneratorMessenger(){
   delete fVerticalCrossingCmd;
   delete fHorizontalCrossingCmd;
   delete fProjectBeamCmd;
+  delete fRandomizeRPCmd;
   delete fnPrimariesCmd;
   delete fBeamPosCmd;
 }
@@ -162,6 +170,9 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command,G4String newVal
   }
   else if(command == fProjectBeamCmd){
     fGenerator->SetProjectionPlane( fProjectBeamCmd->GetNewDoubleValue(newValue) );
+  }
+  else if(command == fRandomizeRPCmd){
+    fGenerator->SetRandomizeRP( fRandomizeRPCmd->GetNewBoolValue(newValue) );
   }
   else if(command == fBeamPosCmd){
     fGenerator->SetBeamPos( new G4ThreeVector( fBeamPosCmd->GetNew3VectorValue(newValue) ) );
