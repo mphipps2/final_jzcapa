@@ -52,7 +52,7 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " lightGuide [-m macro ] [-t nThreads] [-r seed] [-o outputFileName]"
+    G4cerr << " zdc [-m macro ] [-t nThreads] [-r seed] [-i inputFileName] [-o outputFileName]"
            << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;
@@ -72,6 +72,7 @@ int main(int argc,char** argv)
 
   G4String macro;
   G4String output = "";
+  G4String input = "";
   G4long   myseed = -1;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
@@ -81,6 +82,7 @@ int main(int argc,char** argv)
     if      ( G4String(argv[i]) == "-m"  ) macro      = argv[i+1];
     else if ( G4String(argv[i]) == "-o"  ) output     = argv[i+1];
     else if ( G4String(argv[i]) == "-r"  ) myseed     = atoi(argv[i+1]);
+    else if ( G4String(argv[i]) == "-i"  ) input      = argv[i+1];
 #ifdef G4MULTITHREADED
     else if ( G4String(argv[i]) == "-t" ) {
        nThreads = G4UIcommand::ConvertToInt(argv[i+1]);
@@ -147,6 +149,9 @@ int main(int argc,char** argv)
   // Process macro or start UI session
   //
   if ( macro.size() ) {
+    if(input != ""){
+      UImanager->ApplyCommand("/beam/input " + input);
+    }
     // batch mode
     UImanager->ExecuteMacroFile(macro);
   }
