@@ -66,11 +66,17 @@ class PrimaryGeneratorMessenger: public G4UImessenger{
     G4UIcmdWithAString*        fBeamTypeCmd;
     G4UIcmdWithAString*        fCRMCmodelCmd;
     G4UIcmdWithAString*        fInputFileCmd;
+    G4UIcmdWithAString*        fPtDistCmd;
+    G4UIcmdWithAString*        fMultiplicityDistCmd;
     G4UIcmdWithADouble*        fPseudorapitityCutCmd;
+    G4UIcmdWithADouble*        fCollisionPtMeanCmd;
+    G4UIcmdWithADouble*        fFragmentationPtMeanCmd;
     G4UIcmdWithADoubleAndUnit* fVerticalCrossingCmd;
     G4UIcmdWithADoubleAndUnit* fHorizontalCrossingCmd;
     G4UIcmdWithADoubleAndUnit* fProjectBeamCmd;
     G4UIcmdWithAnInteger*      fnPrimariesCmd;
+    G4UIcmdWithAnInteger*      fMinSpectatorsCmd;
+    G4UIcmdWithAnInteger*      fMaxSpectatorsCmd;
     G4UIcmdWithABool*          fRandomizeRPCmd;
     G4UIcmdWith3VectorAndUnit* fBeamPosCmd;
 

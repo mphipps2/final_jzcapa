@@ -62,17 +62,24 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     virtual void InitializeCRMC( );
     virtual void OpenInputFile(G4String fileName);
     virtual void ReadEvent();
+    virtual void GenerateToyV1();
 
-    inline void SetBeamType               ( G4String arg ){ fBeamType = arg; }
-    inline void SetCRMCmodel              ( G4String arg ){ GENERATE_CRMC_EVENTS = true; fGenModel = arg; }
-    inline void SetInputFile              ( G4String arg ){ OpenInputFile( arg ); }
-    inline void SetVerticalCrossingAngle  ( G4double arg ){ fVertXingAngle = arg; }
-    inline void SetHorizontalCrossingAngle( G4double arg ){ fHorizXingAngle = arg; }
-    inline void SetProjectionPlane        ( G4double arg ){ PROJECT = true; fProjPlane = arg; }
-    inline void SetPseudorapidityCut      ( G4double arg ){ fpsrCut = arg; }
-    inline void SetnPrimaries             ( G4int    arg ){ fnPrimaries = arg; }
-    inline void SetRandomizeRP            ( G4bool   arg ){ RANDOMIZE_RP = arg; }
-    inline void SetBeamPos                ( G4ThreeVector* arg ){ delete fpos; fpos = arg; }
+    virtual void SetGeneratorModel           ( G4String model );
+    inline  void SetBeamType                 ( G4String arg ){ fBeamType = arg; }
+    inline  void SetInputFile                ( G4String arg ){ OpenInputFile( arg ); }
+    inline  void SetFragmentationPtDist      ( G4String arg ){ fPtDist = arg; }
+    inline  void SetMultiplicityDist         ( G4String arg ){ fMultDist = arg; }
+    inline  void SetVerticalCrossingAngle    ( G4double arg ){ fVertXingAngle = arg; }
+    inline  void SetHorizontalCrossingAngle  ( G4double arg ){ fHorizXingAngle = arg; }
+    inline  void SetProjectionPlane          ( G4double arg ){ PROJECT = true; fProjPlane = arg; }
+    inline  void SetPseudorapidityCut        ( G4double arg ){ fpsrCut = arg; }
+    inline  void SetCollisionPtMean          ( G4double arg ){ fCollisionPt = arg; }
+    inline  void SetFragmentationPtMean      ( G4double arg ){ fFragmentationPt = arg; }
+    inline  void SetnPrimaries               ( G4int    arg ){ fnPrimaries = arg; }
+    inline  void SetMinNspectators           ( G4int    arg ){ fMinNspec = arg; }
+    inline  void SetMaxNspectators           ( G4int    arg ){ fMaxNspec = arg; }
+    inline  void SetRandomizeRP              ( G4bool   arg ){ RANDOMIZE_RP = arg; }
+    inline  void SetBeamPos                  ( G4ThreeVector* arg ){ delete fpos; fpos = arg; }
 
 
   private:
@@ -82,14 +89,20 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4String       fBeamType;
     G4String       fGenInputFile;
     G4String       fGenModel;
+    G4String       fPtDist;
+    G4String       fMultDist;
     G4double       fVertXingAngle;
     G4double       fHorizXingAngle;
     G4double       fProjPlane;
     G4double       fpsrCut;
     G4double       fCRMCimpactPar;
+    G4double       fCollisionPt;
+    G4double       fFragmentationPt;
     G4int          fnPrimaries;
     G4int          fCRMCnPart;
     G4int          fCurrentEvent;
+    G4int          fMinNspec;
+    G4int          fMaxNspec;
     G4bool         PROJECT;
     G4bool         INPUT_INITIALIZED;
     G4bool         GENERATE_CRMC_EVENTS;

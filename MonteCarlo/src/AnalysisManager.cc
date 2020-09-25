@@ -297,32 +297,50 @@ void AnalysisManager::MakeEventDataTree( ){
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void AnalysisManager::MakeEventGenTree( std::vector< std::vector<int>* > &intVec , std::vector< std::vector<double>* > &dblVec ){
+void AnalysisManager::MakeEventGenTree( std::vector< std::vector<int>* > &intVec , std::vector< std::vector<double>* > &dblVec, G4int type ){
 
   m_eventGenNtupleNo = m_analysisManager->GetNofNtuples();
 
   m_analysisManager->CreateNtuple( "eventGen", "Event Generator Data");
 
-  //Integer
-  m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "nPart"  );
-  m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "nSpec"  );
-  m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "model"  );
+  if(type == 0){ // CRMC generated events
+    //Integer
+    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "nPart"  );
+    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "nSpec"  );
+    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "model"  );
 
-  //Doubles
-  m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "impactParameter"  );
+    //Doubles
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "impactParameter"  );
 
-  ////std::vector< double >
-  m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "px", *dblVec[0] );
-  m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "py", *dblVec[1] );
-  m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "pz", *dblVec[2] );
-  m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo,  "E", *dblVec[3] );
-  m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo,  "m", *dblVec[4] );
+    ////std::vector< double >
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "px", *dblVec[0] );
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "py", *dblVec[1] );
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "pz", *dblVec[2] );
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo,  "E", *dblVec[3] );
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo,  "m", *dblVec[4] );
 
 
-  //vector< int > branches
-  m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo,      "pdgid", *intVec[0] );
-  m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "CRMCstatus", *intVec[1] );
-  m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "keptStatus", *intVec[2] );
+    //vector< int > branches
+    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo,      "pdgid", *intVec[0] );
+    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "CRMCstatus", *intVec[1] );
+    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "keptStatus", *intVec[2] );
+  }
+  else if(type == 1){ // Toy pt Generator
+    //Integer
+    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "nSpectators"  );
+
+    //Doubles
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "ptCollision"  );
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "ptBreakup"    );
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "rpAngle"      );
+
+    ////std::vector< double >
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "px", *dblVec[0] );
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "py", *dblVec[1] );
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "pz", *dblVec[2] );
+    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo,  "E", *dblVec[3] );
+
+  }
 
   m_analysisManager->FinishNtuple( );
 
@@ -338,6 +356,19 @@ void AnalysisManager::FillEventGenTree( int nPart, int nSpec, int model, double 
 
   //Doubles
   m_analysisManager->FillNtupleDColumn( m_eventGenNtupleNo, 3, impactParam );
+
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void AnalysisManager::FillEventGenTree( int nSpectators, double ptCollision, double ptBreakup, double rpAngle ){
+
+  m_analysisManager->FillNtupleIColumn( m_eventGenNtupleNo, 0, nSpectators );
+
+  //Doubles
+  m_analysisManager->FillNtupleDColumn( m_eventGenNtupleNo, 1, ptCollision );
+  m_analysisManager->FillNtupleDColumn( m_eventGenNtupleNo, 2, ptBreakup   );
+  m_analysisManager->FillNtupleDColumn( m_eventGenNtupleNo, 3, rpAngle     );
 
 }
 

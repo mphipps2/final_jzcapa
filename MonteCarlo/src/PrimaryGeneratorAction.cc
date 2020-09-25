@@ -47,6 +47,11 @@
 #include "CRMCconfig.h"
 #endif
 
+#include "TRandom3.h"
+#include "TF1.h"
+#include "TH1.h"
+#include "TH2.h"
+
 #include <iostream>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -57,12 +62,18 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fBeamType("gps"),
   fGenInputFile(""),
   fGenModel(""),
+  fPtDist(""),
+  fMultDist(""),
   fVertXingAngle(0.),
   fHorizXingAngle(0.),
   fProjPlane(0.),
   fpsrCut(9.),
+  fCollisionPt(0.15),
+  fFragmentationPt(0.15),
   fnPrimaries(0),
   fCurrentEvent(0),
+  fMinNspec(0),
+  fMaxNspec(120),
   PROJECT(false),
   INPUT_INITIALIZED(false),
   GENERATE_CRMC_EVENTS(false),
@@ -73,6 +84,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   runManager = G4RunManager::GetRunManager();
   fGeneratorMessenger = new PrimaryGeneratorMessenger(this);
   fParticleGun = new G4GeneralParticleSource();
+  m_analysisManager = AnalysisManager::getInstance();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -114,14 +126,19 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void PrimaryGeneratorAction::SetGeneratorModel( G4String model ){
+  if(!model.contains("toy")) GENERATE_CRMC_EVENTS = true;
+  fGenModel = model;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
 {
 
-  if( INPUT_INITIALIZED ){
-
-    ReadEvent();
-
-  }else{ // Generate some neutrons
+       if( INPUT_INITIALIZED ) ReadEvent();
+  else if( fGenModel = "toyv1" ) GenerateToyV1();
+  else{ // Generate some neutrons
     // These values are hard coded for accuracy and consistency
     // Though they need to be updated with the correct values
     G4double sigmaThetaXZ = 0.;//3.57e-6; // 3.57e-6 Corresponds to a 1mm beam diameter
@@ -309,8 +326,6 @@ void PrimaryGeneratorAction::OpenInputFile(G4String fileName)
 
   //################################ Initialize event gen output tree
 
-  m_analysisManager = AnalysisManager::getInstance();
-
   // Assign vectors with reference names and place them in a vector for export to AnalysisManager
   int maxNpart = 200000;
   fintVec.push_back( fCRMCpdgid = new std::vector<int>(maxNpart,0) );
@@ -324,7 +339,7 @@ void PrimaryGeneratorAction::OpenInputFile(G4String fileName)
   fdblVec.push_back( fCRMCm = new std::vector<double>(maxNpart,0) );
 
   // Send the vectors to the analysis manager to set them as output
-  m_analysisManager->MakeEventGenTree( fintVec, fdblVec );
+  m_analysisManager->MakeEventGenTree( fintVec, fdblVec, 0 );
 
 
   //################################ Open input file
@@ -400,3 +415,188 @@ void PrimaryGeneratorAction::ReadEvent()
     fCRMCkeptStatus->at(part) = 1; //kept status == 1
   }// end particle loop
 }// end ReadEvent
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void PrimaryGeneratorAction::GenerateToyV1(){
+
+  //################################
+  // Set up output variables
+  //################################
+    std::vector< double > *Px, *Py, *Pz, *E;
+    if( fCurrentEvent == 0 ){
+
+      fdblVec.push_back( Px = new std::vector<double> );
+      fdblVec.push_back( Py = new std::vector<double> );
+      fdblVec.push_back( Pz = new std::vector<double> );
+      fdblVec.push_back( E  = new std::vector<double> );
+
+      m_analysisManager->MakeEventGenTree( fintVec, fdblVec, 1);
+    }else{
+      Px = fdblVec[0];
+      Py = fdblVec[1];
+      Pz = fdblVec[2];
+      E  = fdblVec[3];
+
+      for(uint i = 0; i < fdblVec.size(); i++){
+        fdblVec[i]->clear();
+      }
+      fPrimaryVec.clear();
+    }
+    fCurrentEvent++;
+
+  //################################
+  // Set up pt generation method
+  //################################
+
+  // Selection of pT generation scheme
+  G4int pTChoice = 0;
+         if( fPtDist.contains("gaus") ) pTChoice = 0; //< pT generation accoding to a gaussian of given sigma
+    else if( fPtDist.contains("hist") ) pTChoice = 1; //< generation according to pT from histo
+    else if( fPtDist.contains("func") ) pTChoice = 2; //< generation according to pT from function
+
+    //Pt generation pre-stages
+    TH1D* pThist = NULL;
+    TFile* pTfile = NULL;
+    if(pTChoice == 1){
+      // Try to open the file in the Utils directory then try locally
+      pTfile = TFile::Open( (std::getenv("JZCaPA") + (std::string)"Utils/eposPTneut.root").c_str() );
+      if( pTfile->IsZombie() ){
+        delete pTfile;
+        pTfile = TFile::Open("eposPTneut.root");
+      }
+
+      // Grab the histogram
+      pThist = (TH1D*)pTfile->Get("npt");
+    }
+
+    TF1 *pTfun = NULL;
+    if(pTChoice == 2){
+      pTfun = new TF1("pTfun","gaus(0)+pol1(3)",0,1.5);
+      pTfun->SetParameter(0,850);
+      pTfun->SetParameter(1,0.10); //pT avg in GeV
+      pTfun->SetParameter(2,0.04);
+      pTfun->SetParameter(3,300.);
+      pTfun->SetParameter(4,-600.);
+    }
+
+
+    //################################
+    // Set up multiplicity generation method
+    //################################
+
+    //Selection of # of neutrons generation method
+    int spectatorChoice = 0;
+         if( fMultDist.contains("func") ) spectatorChoice = 0; //< random from poisson distribution
+    else if( fMultDist.contains("hist") ) spectatorChoice = 1; //< from ATLAS ZDC multiplicity histogram
+
+    //Spectators Number pre-stages
+    TFile* nAnBfile = NULL;
+    TH2D* nAnBhist = NULL;
+
+    if(spectatorChoice == 1){
+      // Try to open the file in the Utils directory then try locally
+      nAnBfile = TFile::Open( (std::getenv("JZCaPA") + (std::string)"Utils/ZDC_AvsC.root").c_str() );
+      if( nAnBfile->IsZombie() ){
+        delete nAnBfile;
+        nAnBfile = TFile::Open("ZDC_AvsC.root");
+      }
+      nAnBhist = (TH2D*)nAnBfile->Get("hZdcAZdcC_MB");
+    }
+
+    //Per nucleon energy in the HI collision, in GeV
+    double Ptot = 2760.;
+
+    //PARAMETER FOR GENERATION
+    double pTNuclearComponents[2];
+    double reactionPlaneAngle; //Defining the reaction plane angle along which the pT of v1 will be applied
+
+    int particles  = -1;  //# of neutrons going to ZDC + (or A)
+    int particles2 = -1;  //# of neutrons going to ZDC - (or C)
+
+    double bufferPtGen;
+    //Random number generator engine
+    TRandom3* myRand = new TRandom3(0);
+    //Containers
+    std::vector < double > pTplus;         //Vector containing pT of neutrons going towards ZDC + (or A)
+    std::vector < double > azimuth_plus;   //Vector containing azimuthal angle of neutrons going towards ZDC + (or A)
+    std::vector < double > pTminus;        //Vector containing pT of neutrons going towards ZDC - (or C)
+    std::vector < double > azimuth_minus;  //Vector containing azimuthal angle of neutrons going towards ZDC - (or C)
+
+    //Buffer variables for kinematic computation
+    double neutron_mass = 0.939565; // GeV
+    G4ParticleDefinition* particleDefinition=
+        G4ParticleTable::GetParticleTable()->FindParticle("neutron");
+
+    //################################
+    // Implementation
+    //################################
+
+    //===================================
+    //Spectators Block - Here is defined how many spectators we have for the event
+    if(spectatorChoice == 0){
+      particles = -1.;
+      while( particles < 0){
+        particles = myRand->Poisson(fnPrimaries);
+        particles2 = myRand->Poisson(fnPrimaries);
+        if(particles < fMinNspec || particles > fMaxNspec) particles = -1;
+      }
+    }else if(spectatorChoice == 1){
+      double buffer, buffer2;
+      particles = -1;
+      particles2 = -1;
+      //TODO: make this also for particles2 - at the moment 1 arm implementation
+      //How TODO: Make more particles and change the sign of their momentum components
+      while( particles < 0){
+        nAnBhist->GetRandom2(buffer, buffer2);
+        particles = (int)buffer;
+        particles2 = (int)buffer2;
+        if(particles < fMinNspec || particles > fMaxNspec) particles = -1;
+      }
+    }
+    //===================================
+    //pT nuclear block - Here we extract a direction for the pT nuclear and we compute components
+    reactionPlaneAngle = -TMath::Pi()+(myRand->Rndm()*TMath::TwoPi());
+    pTNuclearComponents[0] = fCollisionPt*TMath::Cos(reactionPlaneAngle);
+    pTNuclearComponents[1] = fCollisionPt*TMath::Sin(reactionPlaneAngle);
+
+    for(int i = 0; i < particles; i++){
+      //Extraction of pT for particle i
+      if(pTChoice == 0) pTplus.push_back(TMath::Abs(myRand->Gaus(0,fFragmentationPt)));
+      else if(pTChoice == 1) pTplus.push_back(pThist->GetRandom());
+      else if(pTChoice == 2) {
+        double fVal = -1.;
+        while( fVal < 0){
+           bufferPtGen = -1.;
+           bufferPtGen = pTfun->GetRandom();
+           fVal = pTfun->Eval(bufferPtGen);
+         }
+        pTplus.push_back(bufferPtGen);
+      }
+      //Now azimuth
+      azimuth_plus.push_back(-TMath::Pi()+(myRand->Rndm()*TMath::TwoPi()));
+      //Neutrons without nuclear pT kick
+      Px->push_back( pTplus.back()*TMath::Cos(azimuth_plus.back()) );
+      Py->push_back( pTplus.back()*TMath::Sin(azimuth_plus.back()) );
+      Pz->push_back( sqrt(pow(Ptot,2)-pow(Px->back(),2)-pow(Py->back(),2)) );
+      E ->push_back( sqrt(pow(Ptot,2)+pow(neutron_mass,2)) );
+      //Now adding the contribution of pT nuclear
+      Px->back() += pTNuclearComponents[0];
+      Py->back() += pTNuclearComponents[1];
+      Pz->back() = sqrt(pow(Ptot,2)-pow(Px->back(),2)-pow(Py->back(),2));
+
+      // Push the neutron into the primary particle vector
+      fPrimaryVec.push_back( new G4PrimaryParticle( particleDefinition,
+                                                    Px->back(),
+                                                    Py->back(),
+                                                    Pz->back(),
+                                                    E->back() ) );
+
+  	}//End of loop on particles of ZDC + (A)
+
+    m_analysisManager->FillEventGenTree( particles,           // Number of neutrons on side A
+                                         fCollisionPt,        // Spectator pt from collision
+                                         fFragmentationPt,    // Additional pt from fragmentation
+                                         reactionPlaneAngle );// Reaction plane angle (Psi)
+
+}

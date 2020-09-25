@@ -57,11 +57,12 @@ class AnalysisManager
     void FillZDCnCherenkovs( int zdcNo, int nCherenkovs );
     void FillRPDnCherenkovs( int rpdNo, int nCherenkovs );
     void FillEventGenTree  ( int nPart, int nSpec, int model, double impactParam );
+    void FillEventGenTree  ( int nSpectators, double ptCollision, double ptBreakup, double rpAngle );
 
     void MakeEventDataTree ( );
     void MakeZDCTree       ( G4int nTupleNo, G4int zdcNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical );
     void MakeRPDTree       ( G4int nTupleNo, G4int rpdNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical );
-    void MakeEventGenTree  ( std::vector< std::vector<int>* > &intVec , std::vector< std::vector<double>* > &dblVec   );
+    void MakeEventGenTree  ( std::vector< std::vector<int>* > &intVec , std::vector< std::vector<double>* > &dblVec, G4int type );
 
     inline G4bool GetOpticalFlag(){ return OPTICAL; }
     inline G4bool GetPI0Flag(){ return PI0; }

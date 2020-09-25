@@ -59,13 +59,23 @@
 /beam/type lhc
 #/beam/pos 0. 0. -140.
 #/beam/projectBeam -80. mm
+/beam/nPrimaries 30
 /beam/pos 0. 0. -127. m
 /beam/projectBeam -127. m
 /beam/LHC/horizontalCrossingAngle 0.100 mrad
-/beam/LHC/nPrimaries 1
+
+#ToyV1 generator variables
+/beam/GeneratorModel toyV1
+/beam/FragmentationPtDistribution func
+/beam/MultiplicityDistribution func
+/beam/SetMeanFragmentationPt .150
+/beam/SetMeanCollisionPt .150
+/beam/MinSpectators 0
+/beam/MaxSpectators 120
+
 
 #/beam/SetMinimmPseudorapidity 9.0
-#/beam/CRMCmodel dpmjet
+#/beam/GeneratorModel dpmjet
 #/beam/input generatedEvents.root
 #/beam/randomizeReactionPlane true
 
