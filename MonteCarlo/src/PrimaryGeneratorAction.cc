@@ -587,10 +587,10 @@ void PrimaryGeneratorAction::GenerateToyV1(){
 
       // Push the neutron into the primary particle vector
       fPrimaryVec.push_back( new G4PrimaryParticle( particleDefinition,
-                                                    Px->back(),
-                                                    Py->back(),
-                                                    Pz->back(),
-                                                    E->back() ) );
+                                                    Px->back()*GeV,
+                                                    Py->back()*GeV,
+                                                    Pz->back()*GeV,
+                                                    E->back()*GeV ) );
 
   	}//End of loop on particles of ZDC + (A)
 
