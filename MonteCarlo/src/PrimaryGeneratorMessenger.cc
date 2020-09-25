@@ -104,12 +104,12 @@ PrimaryGeneratorMessenger::PrimaryGeneratorMessenger(PrimaryGeneratorAction * Ge
   fPseudorapitityCutCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fPseudorapitityCutCmd->SetToBeBroadcasted(false);
 
-  fCollisionPtMeanCmd = new G4UIcmdWithADouble("/beam/SetMeanFragmentationPt", this);
+  fCollisionPtMeanCmd = new G4UIcmdWithADouble("/beam/SetMeanCollisionPt", this);
   fCollisionPtMeanCmd->SetGuidance("Set the mean pt kick due to fragmentation in the ToyV1 generator");
   fCollisionPtMeanCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fCollisionPtMeanCmd->SetToBeBroadcasted(false);
 
-  fFragmentationPtMeanCmd = new G4UIcmdWithADouble("/beam/SetMeanCollisionPt", this);
+  fFragmentationPtMeanCmd = new G4UIcmdWithADouble("/beam/SetMeanFragmentationPt", this);
   fFragmentationPtMeanCmd->SetGuidance("Set the mean pt kick due to the collision in the ToyV1 generator");
   fFragmentationPtMeanCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fFragmentationPtMeanCmd->SetToBeBroadcasted(false);
