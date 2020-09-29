@@ -137,7 +137,7 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
 {
 
        if( INPUT_INITIALIZED ) ReadEvent();
-  else if( fGenModel = "toyv1" ) GenerateToyV1();
+  else if( fGenModel.contains("toyv1") ) GenerateToyV1();
   else{ // Generate some neutrons
     // These values are hard coded for accuracy and consistency
     // Though they need to be updated with the correct values
@@ -145,6 +145,7 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
     G4double sigmaThetaYZ = 0.;//3.57e-6;
     G4double sigmaE = 1.e-3;
     G4double energy = (2.5 + G4RandGauss::shoot(0.0,sigmaE) )*TeV;
+    fPrimaryVec.clear();
 
     G4ParticleDefinition* particleDefinition=
         G4ParticleTable::GetParticleTable()->FindParticle("neutron");
