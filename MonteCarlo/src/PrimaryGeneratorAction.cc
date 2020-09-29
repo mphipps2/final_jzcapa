@@ -548,7 +548,7 @@ void PrimaryGeneratorAction::GenerateToyV1(){
       particles2 = -1;
       //TODO: make this also for particles2 - at the moment 1 arm implementation
       //How TODO: Make more particles and change the sign of their momentum components
-      while( particles < 0){
+      while( particles < 1){
         nAnBhist->GetRandom2(buffer, buffer2);
         particles = (int)buffer;
         particles2 = (int)buffer2;
