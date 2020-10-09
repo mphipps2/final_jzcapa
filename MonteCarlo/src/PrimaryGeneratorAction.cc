@@ -407,12 +407,16 @@ void PrimaryGeneratorAction::ReadEvent()
 
 
     // Cut out fragments in final state particles
-    if(fCRMCstatus->at(part) == 1 && !(fCRMCpdgid->at(part) > 1000) ) continue;
+    if(fCRMCstatus->at(part) == 1 && !(fCRMCpdgid->at(part) > 999999999) ) continue;
 
-    fPrimaryVec.push_back( new G4PrimaryParticle(fCRMCpdgid->at(part) ) ),
-    fPrimaryVec.back()->SetKineticEnergy( fCRMCenergy->at(part) );
+    fPrimaryVec.push_back(
+      new G4PrimaryParticle( fCRMCpdgid->at(part),
+                             Px->back()*GeV,
+                             Py->back()*GeV,
+                             Pz->back()*GeV,
+                             E->back()*GeV) );
+
     fCRMCkeptIndex.push_back(part);
-
     fCRMCkeptStatus->at(part) = 1; //kept status == 1
   }// end particle loop
 }// end ReadEvent
