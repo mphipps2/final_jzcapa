@@ -395,6 +395,7 @@ void PrimaryGeneratorAction::ReadEvent()
                   fCRMCpy->at(part), //py
                   fCRMCpz->at(part));//pz
 
+
     // Rotate momentum for crossing angle and reaction plane
     momentum.rotateY(fHorizXingAngle);
     momentum.rotateX(fVertXingAngle);
@@ -411,10 +412,10 @@ void PrimaryGeneratorAction::ReadEvent()
 
     fPrimaryVec.push_back(
       new G4PrimaryParticle( fCRMCpdgid->at(part),
-                             Px->back()*GeV,
-                             Py->back()*GeV,
-                             Pz->back()*GeV,
-                             E->back()*GeV) );
+                             fCRMCpx->at(part)*GeV,
+                             fCRMCpy->at(part)*GeV,
+                             fCRMCpz->at(part)*GeV,
+                             fCRMCenergy->at(part)*GeV) );
 
     fCRMCkeptIndex.push_back(part);
     fCRMCkeptStatus->at(part) = 1; //kept status == 1
