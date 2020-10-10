@@ -408,7 +408,7 @@ void PrimaryGeneratorAction::ReadEvent()
 
 
     // Cut out fragments in final state particles
-    if(fCRMCstatus->at(part) == 1 && !(fCRMCpdgid->at(part) > 999999999) ) continue;
+    if(fCRMCstatus->at(part) == 1 && fCRMCpdgid->at(part) > 999999999 ) continue;
 
     fPrimaryVec.push_back(
       new G4PrimaryParticle( fCRMCpdgid->at(part),
