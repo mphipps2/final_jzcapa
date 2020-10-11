@@ -305,9 +305,18 @@ void ModTypeZDC::ConstructDetector()
     ++cn;
   }
 
-  //----------------------------------------------
-  // SD and Scoring Volumes
-  //----------------------------------------------
+  m_nFibers = m_FiberCorePhysical.size()*m_FiberCorePhysical[0].size();
+
+  m_topOfVolume = m_pos->y() + m_absDim->y()/2. + m_SteelAbsHeight;
+
+  std::cout << "ModTypeZDC construction finished: Module Number " << m_modNum << std::endl;
+
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void ModTypeZDC::ConstructSDandField(){
+
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
 
   //Note one SD object for each module
@@ -315,20 +324,20 @@ void ModTypeZDC::ConstructDetector()
   sprintf( fiberSDname, "ZDC%d_SD", m_modNum);
   FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
   aFiberSD->HistInitialize();
-  aFiberSD->SetTopOfVolume( m_pos->y() + m_absDim->y()/2. + m_SteelAbsHeight );
+  aFiberSD->SetTopOfVolume( m_topOfVolume );
   SDman->AddNewDetector( aFiberSD );
 
   if(REDUCED_TREE){
-    int nFibers = (int)floor(m_absDim->x()/fiberMaxDia)*(m_nAbsorbers + 1);
-    aFiberSD->SetReducedTree( nFibers );
+    aFiberSD->SetReducedTree( m_nFibers );
   }
 
   m_FiberCoreLogical->SetSensitiveDetector( aFiberSD );
 
-
-  std::cout << "ModTypeZDC construction finished: SD name " << fiberSDname << std::endl;
+  std::cout << "ZDC SD construction finished: SD name " << fiberSDname << std::endl;
 
 }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void ModTypeZDC::SetHousingMaterial(G4String material)
 {
@@ -337,6 +346,8 @@ void ModTypeZDC::SetHousingMaterial(G4String material)
 	else if( material == "aluminum") m_matHousing = m_materials->Al;
 	else G4cout << "Invalid housing material selection, defaulting to steel" << G4endl;
 }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void ModTypeZDC::SetAbsorberMaterial(G4String material)
 {

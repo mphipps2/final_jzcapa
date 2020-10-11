@@ -50,6 +50,7 @@ public:
   ~ModTypeZDC();
 
   virtual void  Construct();
+  virtual void  ConstructSDandField();
 
   virtual void  ConstructDetector();
 
@@ -63,23 +64,31 @@ public:
   inline  void  SetGapThickness      ( G4double       arg ){ m_GapThickness      = arg; }
   inline  void  SetOpticalFlag       ( G4bool         arg ){ OPTICAL             = arg; }
   inline  void  SetOverlapsFlag      ( G4bool         arg ){ CHECK_OVERLAPS      = arg; }
-  inline  void  SetReducedTreeFlag   ( G4bool         arg ){ REDUCED_TREE       = arg; }
+  inline  void  SetReducedTreeFlag   ( G4bool         arg ){ REDUCED_TREE        = arg; }
   virtual void  SetHousingMaterial   ( G4String  material );
   virtual void  SetAbsorberMaterial  ( G4String  material );
 
 
-  inline  G4ThreeVector* GetPosition ( ){ return m_pos;    }
-  inline  G4int          GetModNum   ( ){ return m_modNum; }
+
+  inline  G4LogicalVolume* GetAbsorberLogicalVolume( ){ return m_WLogical;    }
+  inline  G4Material*      GetAbsorberMaterial     ( ){ return m_matAbsorber; }
+  inline  G4ThreeVector*   GetPosition             ( ){ return m_pos;         }
+  inline  G4int            GetModNum               ( ){ return m_modNum;      }
+  inline  G4int            GetnFibers              ( ){ return m_nFibers;     }
+  inline  G4bool           GetOpticalFlag          ( ){ return OPTICAL;       }
+  inline  G4bool           GetReducedTreeFlag      ( ){ return REDUCED_TREE;  }
 
 protected:
   const G4int      m_modNum;
   G4int            m_nAbsorbers;
+  G4int            m_nFibers;
   G4ThreeVector*   m_pos;
   G4ThreeVector*   m_fiberDiam;
   G4ThreeVector*   m_absDim;
   G4double         m_HousingThickness;
   G4double         m_GapThickness;
   G4double         m_SteelAbsHeight;
+  G4double         m_topOfVolume;
   G4bool           OPTICAL;
   G4bool           CHECK_OVERLAPS;
   G4bool           STEEL_ABSORBER;
@@ -119,8 +128,6 @@ protected:
   G4VSolid*          m_CladdingTube;
   G4LogicalVolume*   m_CladdingLogical;
   std::vector< std::vector < G4VPhysicalVolume* > > m_FiberCladdingPhysical;
-
-
 
 };
 

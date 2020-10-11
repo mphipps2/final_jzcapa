@@ -32,7 +32,8 @@
 #include "AnalysisManager.hh"
 #include "DetectorConstruction.hh"
 #include "SteppingAction.hh"
-#include "FiberSD.hh"
+#include "ModTypeZDC.hh"
+#include "ModTypeRPD.hh"
 
 #include "G4SDManager.hh"
 
@@ -98,17 +99,17 @@ void AnalysisManager::Book( G4String fileName )
 
   //Get information about the detector configuration from DetectorConstruction
   DetectorConstruction* detectorConstruction = (DetectorConstruction*)G4RunManager::GetRunManager()->GetUserDetectorConstruction();
-  int nZDCs = detectorConstruction->GetnZDCs();
-  int nRPDs = detectorConstruction->GetnRPDs();
+  std::vector< ModTypeZDC* > *ZDCvec = detectorConstruction->GetZDCvec();
+  std::vector< ModTypeRPD* > *RPDvec = detectorConstruction->GetRPDvec();
   OPTICAL   = detectorConstruction->GetOpticalFlag();
   PI0   = detectorConstruction->GetPI0Flag();
 
   //Make vectors for the detectors we have
   //Indecies are [module#][dataType][dataPoint]
-  m_ZDCdblVec = new std::vector< std::vector< std::vector<double> > >(nZDCs);
-  m_ZDCintVec = new std::vector< std::vector< std::vector< int  > > >(nZDCs);
-  m_RPDdblVec = new std::vector< std::vector< std::vector<double> > >(nRPDs);
-  m_RPDintVec = new std::vector< std::vector< std::vector< int  > > >(nRPDs);
+  m_ZDCdblVec = new std::vector< std::vector< std::vector<double> > >( ZDCvec->size() );
+  m_ZDCintVec = new std::vector< std::vector< std::vector< int  > > >( ZDCvec->size() );
+  m_RPDdblVec = new std::vector< std::vector< std::vector<double> > >( RPDvec->size() );
+  m_RPDintVec = new std::vector< std::vector< std::vector< int  > > >( RPDvec->size() );
 
   SteppingAction* steppingAction = (SteppingAction*)G4RunManager::GetRunManager()->GetUserSteppingAction();
   steppingAction->SetLastStepVec( m_lastStepVec, &m_lastStepPidVec );
@@ -116,32 +117,38 @@ void AnalysisManager::Book( G4String fileName )
   steppingAction->SetPi0Vertex( m_Pi0Vert );
 
 
-  //Create the event data tree
+  //Create the event data tree (Tree 0)
   MakeEventDataTree();
 
-  //Create ZDC trees and branches
-  FiberSD* sd;
-  char name[20];
-  for(int zdcNo = 0; zdcNo < nZDCs; zdcNo++){
-    int nTuple = zdcNo + 1;
+  //Create ZDC trees and branches (Tree 1 - nZDCs)
+  m_ZDCfiberVec.resize( ZDCvec->size(), 0 );
+  for(uint i = 0; i < ZDCvec->size(); i++){
+    int nTuple = ZDCvec->at(i)->GetModNum();
 
-    //Find out from the SD if optical is on for this detector
-    sprintf(name,"ZDC%d_SD",zdcNo+1);
-    sd = (FiberSD*)G4SDManager::GetSDMpointer()->FindSensitiveDetector( name );
+    // Create the vector that will store nCherenkovs for the SD if necessary.
+    // Must be done here because the vector address is needed to create
+    // the output tree, but the SD has not been created yet
+    if( ZDCvec->at(i)->GetReducedTreeFlag() ){
+      m_ZDCfiberVec[i] = new std::vector< G4int  >( ZDCvec->at(i)->GetnFibers(), 0 );
+    }
 
-    MakeZDCTree( nTuple, zdcNo, sd->GetFiberVec(), sd->OpticalIsOn() );
+    MakeZDCTree( nTuple, ZDCvec->at(i)->GetModNum() - 1, m_ZDCfiberVec[i], ZDCvec->at(i)->GetOpticalFlag() );
 
   }//end ZDC loop
 
-  //Create RPD trees
-  for(int rpdNo = 0; rpdNo < nRPDs; rpdNo++){
-    int nTuple = nZDCs + 1 + rpdNo;
+  //Create RPD trees (Tree nZDCs - nZDCs + nRPDs)
+  m_RPDfiberVec.resize( RPDvec->size(), 0 );
+  for(uint i = 0; i < RPDvec->size(); i++){
+    int nTuple = ZDCvec->size() + RPDvec->at(i)->GetModNum();
 
-    //Find out from the SD if optical is on for this detector
-    sprintf(name,"RPD%d_SD",rpdNo+1);
-    sd = (FiberSD*)G4SDManager::GetSDMpointer()->FindSensitiveDetector( name );
+    // Create the vector that will store nCherenkovs for the SD if necessary.
+    // Must be done here because the vector address is needed to create
+    // the output tree, but the SD has not been created yet
+    if( ZDCvec->at(i)->GetReducedTreeFlag() ){
+      m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnFibers(), 0 );
+    }
 
-    MakeRPDTree( nTuple, rpdNo, sd->GetFiberVec(), sd->OpticalIsOn() );
+    MakeRPDTree( nTuple, RPDvec->at(i)->GetModNum() - 1, m_RPDfiberVec[i], RPDvec->at(i)->GetOpticalFlag() );
 
   }//end RPD loop
 
@@ -507,3 +514,11 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo, std::vector< int
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+std::vector< G4int >* AnalysisManager::GetFiberVector( G4bool ZDC, G4bool RPD, G4int modNum  ){
+
+       if(ZDC) return m_ZDCfiberVec[ modNum - 1 ];
+  else if(RPD) return m_RPDfiberVec[ modNum - 1 ];
+
+  return 0;
+}

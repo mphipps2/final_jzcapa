@@ -64,8 +64,9 @@ class AnalysisManager
     void MakeRPDTree       ( G4int nTupleNo, G4int rpdNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical );
     void MakeEventGenTree  ( std::vector< std::vector<int>* > &intVec , std::vector< std::vector<double>* > &dblVec, G4int type );
 
-    inline G4bool GetOpticalFlag(){ return OPTICAL; }
-    inline G4bool GetPI0Flag(){ return PI0; }
+    inline G4bool         GetOpticalFlag( ){ return OPTICAL; }
+    inline G4bool         GetPI0Flag    ( ){ return PI0;     }
+    std::vector< G4int >* GetFiberVector( G4bool ZDC, G4bool RPD, G4int modNum );
 
     inline void SetGunPosition ( G4double x, G4double y, G4double z ){ m_gunPos->set(x,y,z); }
     inline void SetEventNo     ( G4int _eventNo ){ m_eventNo = _eventNo; }
@@ -89,6 +90,7 @@ class AnalysisManager
     DetectorConstruction* m_detectorConstruction;
     std::vector< std::vector< std::vector<double> > > *m_ZDCdblVec, *m_RPDdblVec;
     std::vector< std::vector< std::vector< int  > > > *m_ZDCintVec, *m_RPDintVec;
+    std::vector< std::vector< G4int  >* > m_ZDCfiberVec, m_RPDfiberVec;
     std::vector< G4ThreeVector >* m_lastStepVec, *m_Pi0Mom, *m_Pi0Vert;
     std::vector< int >  m_lastStepPidVec;
     std::vector< double > m_lastStepXVec, m_lastStepYVec, m_lastStepZVec;

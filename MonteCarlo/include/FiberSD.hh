@@ -57,13 +57,13 @@ public:
   inline        G4bool         IsZDC          ( ){ return ZDC;          }
   inline        G4bool         IsRPD          ( ){ return RPD;          }
   inline        G4bool         IsReduced      ( ){ return REDUCED_TREE; }
-  inline        void           SetTopOfVolume ( G4double _top  ){ m_topOfVolume = _top; }
-  inline        void           SetReducedTree ( G4int _nFibers ){ REDUCED_TREE = true; m_nFibers = _nFibers; m_cherenkovVec = new std::vector< G4int >( _nFibers, 0 );  }
   inline        G4double       GetTopOfVolume ( ){ return m_topOfVolume;  }
   inline        G4int          GetNCherenkovs ( ){ return m_nCherenkovs;  }
   inline        G4int          GetModNum      ( ){ return m_modNum;       }
   inline        G4int          GetNhits       ( ){ return m_nHits;        }
-  inline std::vector< G4int >* GetFiberVec    ( ){ return m_cherenkovVec; }
+
+  inline void SetTopOfVolume ( G4double _top  ){ m_topOfVolume = _top; }
+  inline void SetReducedTree ( G4int _nFibers ){ REDUCED_TREE = true; m_nFibers = _nFibers; }
 
 private:
   int HCID;
