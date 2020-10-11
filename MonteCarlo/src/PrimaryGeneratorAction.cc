@@ -323,6 +323,8 @@ void PrimaryGeneratorAction::OpenInputFile(G4String fileName)
     G4cerr << "WARNING: Multiple input files/methods selected." << G4endl;
     G4cerr << "Make sure /beam/eventGen and /beam/input aren't both selected in your run macro" << G4endl;
     return;
+  }else{
+    G4cout << "Opening " << fileName << " for PrimaryGeneratorAction input" << G4endl;
   }
 
   //################################ Initialize event gen output tree
