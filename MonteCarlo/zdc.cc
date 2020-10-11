@@ -149,18 +149,18 @@ int main(int argc,char** argv)
   // Process macro or start UI session
   //
   if ( macro.size() ) {
-    if(input != ""){
-      UImanager->ApplyCommand("/beam/input " + input);
-    }
     // batch mode
     if(input != ""){
-      G4String command = "/beam/input " + input;
-      UImanager->ApplyCommand(command);
+      UImanager->ApplyCommand("/beam/input " + input);
     }
     UImanager->ExecuteMacroFile(macro);
   }
   else {
     // interactive mode
+    if(input != ""){
+      G4String command = "/beam/input " + input;
+      UImanager->ApplyCommand(command);
+    }
     UImanager->ExecuteMacroFile("init_vis.mac");
     ui->SessionStart();
     delete ui;
