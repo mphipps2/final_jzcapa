@@ -194,7 +194,7 @@ void PrimaryGeneratorMessenger::SetNewValue(G4UIcommand* command,G4String newVal
     fGenerator->SetGeneratorModel(newValue);
   }
   if(command == fInputFileCmd){
-    fGenerator->SetInputFile(newValue);
+    fGenerator->OpenInputFile(newValue);
   }
   if(command == fPtDistCmd){
     newValue.toLower();

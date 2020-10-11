@@ -66,7 +66,6 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
     virtual void SetGeneratorModel           ( G4String model );
     inline  void SetBeamType                 ( G4String arg ){ fBeamType = arg; }
-    inline  void SetInputFile                ( G4String arg ){ OpenInputFile( arg ); }
     inline  void SetFragmentationPtDist      ( G4String arg ){ fPtDist = arg; }
     inline  void SetMultiplicityDist         ( G4String arg ){ fMultDist = arg; }
     inline  void SetVerticalCrossingAngle    ( G4double arg ){ fVertXingAngle = arg; }
