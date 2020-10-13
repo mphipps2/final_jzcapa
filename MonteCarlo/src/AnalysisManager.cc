@@ -123,25 +123,21 @@ void AnalysisManager::Book( G4String fileName )
   FiberSD* sd;
   char name[20];
   for(int zdcNo = 0; zdcNo < nZDCs; zdcNo++){
-    int nTuple = zdcNo + 1;
-
     //Find out from the SD if optical is on for this detector
     sprintf(name,"ZDC%d_SD",zdcNo+1);
     sd = (FiberSD*)G4SDManager::GetSDMpointer()->FindSensitiveDetector( name );
 
-    MakeZDCTree( nTuple, zdcNo, sd->GetFiberVec(), sd->OpticalIsOn() );
+    MakeZDCTree( zdcNo, sd->GetFiberVec(), sd->OpticalIsOn() );
 
   }//end ZDC loop
 
   //Create RPD trees
   for(int rpdNo = 0; rpdNo < nRPDs; rpdNo++){
-    int nTuple = nZDCs + 1 + rpdNo;
-
     //Find out from the SD if optical is on for this detector
     sprintf(name,"RPD%d_SD",rpdNo+1);
     sd = (FiberSD*)G4SDManager::GetSDMpointer()->FindSensitiveDetector( name );
 
-    MakeRPDTree( nTuple, rpdNo, sd->GetFiberVec(), sd->OpticalIsOn() );
+    MakeRPDTree( rpdNo, sd->GetFiberVec(), sd->OpticalIsOn() );
 
   }//end RPD loop
 
@@ -194,11 +190,11 @@ void AnalysisManager::FillNtuples(){
 
 
 
-  m_analysisManager->FillNtupleIColumn( 0, 0, m_eventNo );
+  m_analysisManager->FillNtupleIColumn( m_eventDataNtupleNo, 0, m_eventNo );
 
-  m_analysisManager->FillNtupleDColumn( 0, 1, m_gunPos->x() );
-  m_analysisManager->FillNtupleDColumn( 0, 2, m_gunPos->y() );
-  m_analysisManager->FillNtupleDColumn( 0, 3, m_gunPos->z() );
+  m_analysisManager->FillNtupleDColumn( m_eventDataNtupleNo, 1, m_gunPos->x() );
+  m_analysisManager->FillNtupleDColumn( m_eventDataNtupleNo, 2, m_gunPos->y() );
+  m_analysisManager->FillNtupleDColumn( m_eventDataNtupleNo, 3, m_gunPos->z() );
 
 
   // fill ntuples  //
@@ -246,53 +242,58 @@ void AnalysisManager::FillNtuples(){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void AnalysisManager::FillZDCnCherenkovs( int zdcNo, int nCherenkovs ){
-  // nTuple 0 is the EventData tree, and ZDC numbering starts at 1,
-  // so the ZDC number is also the nTuple number
-  m_analysisManager->FillNtupleIColumn( zdcNo, 0, nCherenkovs );
+
+  m_analysisManager->FillNtupleIColumn( m_ZDCnTupleNo[zdcNo - 1], 0, nCherenkovs );
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void AnalysisManager::FillRPDnCherenkovs( int rpdNo, int nCherenkovs ){
-  // RPD trees are made last, so their nTuple number is rpdNo + nZDCs
-  m_analysisManager->FillNtupleIColumn( rpdNo + m_ZDCintVec->size(), 0, nCherenkovs );
+
+  m_analysisManager->FillNtupleIColumn( m_RPDnTupleNo[rpdNo - 1], 0, nCherenkovs );
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void AnalysisManager::MakeEventDataTree( ){
+  m_eventDataNtupleNo = m_analysisManager->GetNofNtuples();
   m_analysisManager->CreateNtuple( "EventData", "Event Data");
 
   //Integer
-  m_analysisManager->CreateNtupleIColumn( 0, "EventNo"  );
+  m_analysisManager->CreateNtupleIColumn( m_eventDataNtupleNo, "EventNo"  );
 
   //Doubles
-  m_analysisManager->CreateNtupleDColumn( 0, "gunPosX"  );
-  m_analysisManager->CreateNtupleDColumn( 0, "gunPosY"  );
-  m_analysisManager->CreateNtupleDColumn( 0, "gunPosZ"  );
+  m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "gunPosX"  );
+  m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "gunPosY"  );
+  m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "gunPosZ"  );
 
   //std::vector< double >
-  m_analysisManager->CreateNtupleDColumn( 0, "lastStepX",   m_lastStepXVec   );
-  m_analysisManager->CreateNtupleDColumn( 0, "lastStepY",   m_lastStepYVec   );
-  m_analysisManager->CreateNtupleDColumn( 0, "lastStepZ",   m_lastStepZVec   );
+  m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "lastStepX",   m_lastStepXVec   );
+  m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "lastStepY",   m_lastStepYVec   );
+  m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "lastStepZ",   m_lastStepZVec   );
 
 
   //std::vector< int >
-  m_analysisManager->CreateNtupleIColumn( 0, "lastStepPID", m_lastStepPidVec );
+  m_analysisManager->CreateNtupleIColumn( m_eventDataNtupleNo, "lastStepPID", m_lastStepPidVec );
 
   if(PI0){
       //std::vector< double >
-      m_analysisManager->CreateNtupleDColumn( 0, "pi0Px",   m_Pi0MomX );
-      m_analysisManager->CreateNtupleDColumn( 0, "pi0Py",   m_Pi0MomY );
-      m_analysisManager->CreateNtupleDColumn( 0, "pi0Pz",   m_Pi0MomZ );
+      m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "pi0Px",   m_Pi0MomX );
+      m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "pi0Py",   m_Pi0MomY );
+      m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "pi0Pz",   m_Pi0MomZ );
 
       //std::vector< double >
-      m_analysisManager->CreateNtupleDColumn( 0, "pi0Vx",   m_Pi0VertX );
-      m_analysisManager->CreateNtupleDColumn( 0, "pi0Vy",   m_Pi0VertY );
-      m_analysisManager->CreateNtupleDColumn( 0, "pi0Vz",   m_Pi0VertZ );
+      m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "pi0Vx",   m_Pi0VertX );
+      m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "pi0Vy",   m_Pi0VertY );
+      m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "pi0Vz",   m_Pi0VertZ );
   }
 
   m_analysisManager->FinishNtuple( );
+
+  G4cout << "Created EventData tree with ntuple number " << m_eventDataNtupleNo << G4endl;
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -301,7 +302,7 @@ void AnalysisManager::MakeEventGenTree( std::vector< std::vector<int>* > &intVec
 
   m_eventGenNtupleNo = m_analysisManager->GetNofNtuples();
 
-  m_analysisManager->CreateNtuple( "eventGen", "Event Generator Data");
+  m_analysisManager->CreateNtuple( "EventGen", "Event Generator Data");
 
   if(type == 0){ // CRMC generated events
     //Integer
@@ -344,6 +345,8 @@ void AnalysisManager::MakeEventGenTree( std::vector< std::vector<int>* > &intVec
 
   m_analysisManager->FinishNtuple( );
 
+  G4cout << "Created eventGen tree with ntuple number " << m_eventGenNtupleNo << G4endl;
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -374,7 +377,9 @@ void AnalysisManager::FillEventGenTree( int nSpectators, double ptCollision, dou
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical ){
+void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical ){
+  G4int nTupleNo = m_analysisManager->GetNofNtuples();
+  m_ZDCnTupleNo.push_back( nTupleNo );
   char name[20];
   sprintf(name,"ZDC%dtree",zdcNo+1);
   m_analysisManager->CreateNtuple( name, "ZDC data");
@@ -436,11 +441,16 @@ void AnalysisManager::MakeZDCTree( G4int nTupleNo, G4int zdcNo, std::vector< int
     }
   }//end if nCherenkovVec
   m_analysisManager->FinishNtuple( );
+
+  G4cout << "Created " << name << " tree with ntuple number " << nTupleNo << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical ){
+void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical ){
+  G4int nTupleNo = m_analysisManager->GetNofNtuples();
+  m_RPDnTupleNo.push_back( nTupleNo );
+
   char name[20];
   sprintf(name,"RPD%dtree",rpdNo+1);
   m_analysisManager->CreateNtuple( name, "RPD data");
@@ -504,6 +514,8 @@ void AnalysisManager::MakeRPDTree( G4int nTupleNo, G4int rpdNo, std::vector< int
     }
   }//end if nCherenkovVec
   m_analysisManager->FinishNtuple( nTupleNo );
+
+  G4cout << "Created " << name << " tree with ntuple number " << nTupleNo << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

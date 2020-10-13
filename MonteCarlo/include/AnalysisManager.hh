@@ -60,8 +60,8 @@ class AnalysisManager
     void FillEventGenTree  ( int nSpectators, double ptCollision, double ptBreakup, double rpAngle );
 
     void MakeEventDataTree ( );
-    void MakeZDCTree       ( G4int nTupleNo, G4int zdcNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical );
-    void MakeRPDTree       ( G4int nTupleNo, G4int rpdNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical );
+    void MakeZDCTree       ( G4int zdcNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical );
+    void MakeRPDTree       ( G4int rpdNo, std::vector< int >* nCherenkovVec, G4bool thisIsOptical );
     void MakeEventGenTree  ( std::vector< std::vector<int>* > &intVec , std::vector< std::vector<double>* > &dblVec, G4int type );
 
     inline G4bool GetOpticalFlag(){ return OPTICAL; }
@@ -80,6 +80,7 @@ class AnalysisManager
     AnalysisManager();
     static AnalysisManager* analysisManager;
     G4int m_eventNo;
+    G4int m_eventDataNtupleNo;
     G4int m_eventGenNtupleNo;
     G4bool m_FactoryOn;
     G4bool OPTICAL;
@@ -90,7 +91,7 @@ class AnalysisManager
     std::vector< std::vector< std::vector<double> > > *m_ZDCdblVec, *m_RPDdblVec;
     std::vector< std::vector< std::vector< int  > > > *m_ZDCintVec, *m_RPDintVec;
     std::vector< G4ThreeVector >* m_lastStepVec, *m_Pi0Mom, *m_Pi0Vert;
-    std::vector< int >  m_lastStepPidVec;
+    std::vector< int >  m_lastStepPidVec, m_ZDCnTupleNo, m_RPDnTupleNo;
     std::vector< double > m_lastStepXVec, m_lastStepYVec, m_lastStepZVec;
     std::vector< double > m_Pi0MomX, m_Pi0MomY, m_Pi0MomZ;
     std::vector< double > m_Pi0VertX, m_Pi0VertY, m_Pi0VertZ;
