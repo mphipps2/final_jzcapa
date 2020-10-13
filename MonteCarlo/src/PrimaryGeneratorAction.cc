@@ -71,6 +71,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fCollisionPt(0.15),
   fFragmentationPt(0.15),
   fnPrimaries(0),
+  fCRMCmodelCode(-1),
   fCurrentEvent(0),
   fMinNspec(0),
   fMaxNspec(120),
@@ -101,14 +102,14 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
     for(std::vector<double>* vec : fdblVec) delete vec;
 
   }
-}
+}//end destructor
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
-{
+void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
 
   if(GENERATE_CRMC_EVENTS && !INPUT_INITIALIZED) InitializeCRMC();
+  if(fGenInputFile  != "" && !INPUT_INITIALIZED) OpenInputFile( fGenInputFile );
 
   if(fBeamType == "gps")
     fParticleGun->GeneratePrimaryVertex(anEvent);
@@ -122,19 +123,18 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     G4cerr << "\nInvalid beam type selection. Aborting event\n" << G4endl;
     anEvent->SetEventAborted();
   }
-}
+}//end GeneratePrimaries
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void PrimaryGeneratorAction::SetGeneratorModel( G4String model ){
   if(!model.contains("toy")) GENERATE_CRMC_EVENTS = true;
   fGenModel = model;
-}
+}//end SetGeneratorModel
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
-{
+void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent){
 
        if( INPUT_INITIALIZED ) ReadEvent();
   else if( fGenModel.contains("toyv1") ) GenerateToyV1();
@@ -195,26 +195,23 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent)
     anEvent->AddPrimaryVertex( vertex );
   }
 
-}
+}//end GenerateLHCEvent
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::GenerateSPSEvent(G4Event* anEvent)
-{
+void PrimaryGeneratorAction::GenerateSPSEvent(G4Event* anEvent){
   (void)anEvent; //Silence the unused variable message until this function is implemented
-}
+}//end GenerateSPSEvent
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::GenerateFNALEvent(G4Event* anEvent)
-{
+void PrimaryGeneratorAction::GenerateFNALEvent(G4Event* anEvent){
   (void)anEvent; //Silence the unused variable message until this function is implemented
-}
+}//end GenerateFNALEvent
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::InitializeCRMC()
-{
+void PrimaryGeneratorAction::InitializeCRMC(){
 
   #ifndef CRMC
   G4cerr << "CRMC wasn't found. Check your configuration before trying again" << G4endl;
@@ -270,21 +267,20 @@ void PrimaryGeneratorAction::InitializeCRMC()
 
   //################################ Determine requested model
 
-  G4int genModelCode = -1;
   G4String libName = "";
   G4String model;
 
-       if(fGenModel.contains( "epos_lhc"   ) && modelsAvail[0]  ){ genModelCode = 0;  libName = "libEpos.so";       model = "epos199";    }
-  else if(fGenModel.contains( "epos_1.99"  ) && modelsAvail[1]  ){ genModelCode = 1;  libName = "libEpos.so";       model = "eposlhc";    }
-  else if(fGenModel.contains( "qgsjet01"   ) && modelsAvail[2]  ){ genModelCode = 2;  libName = "libQgsjet01.so";   model = "qgejet01";   }
-  else if(fGenModel.contains( "pythia"     ) && modelsAvail[4]  ){ genModelCode = 4;  libName = "libPythia.so";     model = "pythia";     }
-  else if(fGenModel.contains( "gheisha"    ) && modelsAvail[3]  ){ genModelCode = 3;  libName = "libGheisha.so";    model = "gheisha";    }
-  else if(fGenModel.contains( "hijing"     ) && modelsAvail[5]  ){ genModelCode = 5;  libName = "libHijing.so";     model = "hijing";     }
-  else if(fGenModel.contains( "sibyll"     ) && modelsAvail[6]  ){ genModelCode = 6;  libName = "libSibyll.so";     model = "sibyll";     }
-  else if(fGenModel.contains( "qgsjetii04" ) && modelsAvail[7]  ){ genModelCode = 7;  libName = "libQgsjetII04.so"; model = "qgsjetII04"; }
-  else if(fGenModel.contains( "phojet"     ) && modelsAvail[8]  ){ genModelCode = 8;  libName = "libPhojet.so";     model = "phojet";     }
-  else if(fGenModel.contains( "qgsjetii03" ) && modelsAvail[11] ){ genModelCode = 11; libName = "libQgsjetII03.so"; model = "qgsjetII03"; }
-  else if(fGenModel.contains( "dpmjet"     ) && modelsAvail[12] ){ genModelCode = 12; libName = "libDpmjet.so";     model = "dpmjet";     }
+       if(fGenModel.contains( "epos_lhc"   ) && modelsAvail[0]  ){ fCRMCmodelCode = 0;  libName = "libEpos.so";       model = "epos199";    }
+  else if(fGenModel.contains( "epos_1.99"  ) && modelsAvail[1]  ){ fCRMCmodelCode = 1;  libName = "libEpos.so";       model = "eposlhc";    }
+  else if(fGenModel.contains( "qgsjet01"   ) && modelsAvail[2]  ){ fCRMCmodelCode = 2;  libName = "libQgsjet01.so";   model = "qgejet01";   }
+  else if(fGenModel.contains( "pythia"     ) && modelsAvail[4]  ){ fCRMCmodelCode = 4;  libName = "libPythia.so";     model = "pythia";     }
+  else if(fGenModel.contains( "gheisha"    ) && modelsAvail[3]  ){ fCRMCmodelCode = 3;  libName = "libGheisha.so";    model = "gheisha";    }
+  else if(fGenModel.contains( "hijing"     ) && modelsAvail[5]  ){ fCRMCmodelCode = 5;  libName = "libHijing.so";     model = "hijing";     }
+  else if(fGenModel.contains( "sibyll"     ) && modelsAvail[6]  ){ fCRMCmodelCode = 6;  libName = "libSibyll.so";     model = "sibyll";     }
+  else if(fGenModel.contains( "qgsjetii04" ) && modelsAvail[7]  ){ fCRMCmodelCode = 7;  libName = "libQgsjetII04.so"; model = "qgsjetII04"; }
+  else if(fGenModel.contains( "phojet"     ) && modelsAvail[8]  ){ fCRMCmodelCode = 8;  libName = "libPhojet.so";     model = "phojet";     }
+  else if(fGenModel.contains( "qgsjetii03" ) && modelsAvail[11] ){ fCRMCmodelCode = 11; libName = "libQgsjetII03.so"; model = "qgsjetII03"; }
+  else if(fGenModel.contains( "dpmjet"     ) && modelsAvail[12] ){ fCRMCmodelCode = 12; libName = "libDpmjet.so";     model = "dpmjet";     }
   else{
     G4cerr << "Invalid event generator model. Available options are (not case sensitive):\n" << modelList << G4endl;
 
@@ -303,20 +299,18 @@ void PrimaryGeneratorAction::InitializeCRMC()
           std::getenv("CRMC_INSTALL"),
           runManager->GetNumberOfEventsToBeProcessed(),
           seed,
-          genModelCode );
+          fCRMCmodelCode );
 
   system(command);
 
   char fileName[128];
   sprintf(fileName, "crmc_%s_%ld_Pb_Pb_2500.root", model.data(), seed );
   OpenInputFile( fileName );
-
 }// end InitializeCRMC
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::OpenInputFile(G4String fileName)
-{
+void PrimaryGeneratorAction::OpenInputFile(G4String fileName){
 
   // If input has already been initialized inform the user and bail
   if( INPUT_INITIALIZED ){
@@ -342,6 +336,7 @@ void PrimaryGeneratorAction::OpenInputFile(G4String fileName)
   fdblVec.push_back( fCRMCm = new std::vector<double>(maxNpart,0) );
 
   // Send the vectors to the analysis manager to set them as output
+
   m_analysisManager->MakeEventGenTree( fintVec, fdblVec, 0 );
 
 
@@ -364,14 +359,23 @@ void PrimaryGeneratorAction::OpenInputFile(G4String fileName)
   eventGenParticleTree->SetBranchAddress("E", &fCRMCenergy->at(0) );
   eventGenParticleTree->SetBranchAddress("m", &fCRMCm->at(0) );
 
+  TTree* eventGenHeaderTree = (TTree*)eventGenFile->Get("Header"); //returns 0 if Header is not in file
+  if( eventGenHeaderTree ){
+    G4int model;
+    eventGenHeaderTree->SetBranchAddress("HEModel", &model);
+    eventGenHeaderTree->GetEntry(0);
+    fCRMCmodelCode = model;
+
+    delete eventGenHeaderTree;
+  }
+
   INPUT_INITIALIZED = true;
 
 }// end OpenInputFile
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void PrimaryGeneratorAction::ReadEvent()
-{
+void PrimaryGeneratorAction::ReadEvent(){
   if( eventGenParticleTree->GetEntries() < runManager->GetNumberOfEventsToBeProcessed() ){
       G4cerr << "Not enough entries in input file to complete the run" << G4endl;
 
@@ -389,10 +393,10 @@ void PrimaryGeneratorAction::ReadEvent()
   for(auto vec : fdblVec) vec->resize(fCRMCnPart);
   for(auto vec : fintVec) vec->resize(fCRMCnPart);
 
-
+  int nSpectators = 0;
   // Add all final state particles to the particle vector
   for(int part = 0; part < fCRMCnPart; part++){
-
+    
     momentum.set( fCRMCpx->at(part), //px
                   fCRMCpy->at(part), //py
                   fCRMCpz->at(part));//pz
@@ -408,6 +412,8 @@ void PrimaryGeneratorAction::ReadEvent()
     fCRMCpy->at(part) = momentum.y();
     fCRMCpz->at(part) = momentum.z();
 
+    //Count number of spectators
+    if(fCRMCstatus->at(part) == 1 && fCRMCpdgid->at(part) == 2112 && momentum.pseudoRapidity() > fpsrCut ) nSpectators++;
 
     // Cut out fragments in final state particles
     if(fCRMCstatus->at(part) == 1 && fCRMCpdgid->at(part) > 999999999 ) continue;
@@ -422,6 +428,7 @@ void PrimaryGeneratorAction::ReadEvent()
     fCRMCkeptIndex.push_back(part);
     fCRMCkeptStatus->at(part) = 1; //kept status == 1
   }// end particle loop
+  m_analysisManager->FillEventGenTree( fCRMCkeptIndex.size(), nSpectators, fCRMCmodelCode, fCRMCimpactPar );
 }// end ReadEvent
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -607,4 +614,4 @@ void PrimaryGeneratorAction::GenerateToyV1(){
                                          fFragmentationPt,    // Additional pt from fragmentation
                                          reactionPlaneAngle );// Reaction plane angle (Psi)
 
-}
+}//end GenerateToyV1

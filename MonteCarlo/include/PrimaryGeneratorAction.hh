@@ -68,6 +68,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     inline  void SetBeamType                 ( G4String arg ){ fBeamType = arg; }
     inline  void SetFragmentationPtDist      ( G4String arg ){ fPtDist = arg; }
     inline  void SetMultiplicityDist         ( G4String arg ){ fMultDist = arg; }
+    inline  void SetInputFileName            ( G4String arg ){ fGenInputFile = arg; }
     inline  void SetVerticalCrossingAngle    ( G4double arg ){ fVertXingAngle = arg; }
     inline  void SetHorizontalCrossingAngle  ( G4double arg ){ fHorizXingAngle = arg; }
     inline  void SetProjectionPlane          ( G4double arg ){ PROJECT = true; fProjPlane = arg; }
@@ -99,6 +100,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4double       fFragmentationPt;
     G4int          fnPrimaries;
     G4int          fCRMCnPart;
+    G4int          fCRMCmodelCode;
     G4int          fCurrentEvent;
     G4int          fMinNspec;
     G4int          fMaxNspec;
