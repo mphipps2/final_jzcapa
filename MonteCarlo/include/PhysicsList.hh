@@ -70,7 +70,7 @@
 class PhysicsList : public G4VUserPhysicsList
 {
   public:
-    PhysicsList();
+    PhysicsList(G4bool);
     ~PhysicsList(void);
     void ConstructParticle(void);
     void ConstructProcess(void);
@@ -85,11 +85,13 @@ class PhysicsList : public G4VUserPhysicsList
     PhysicsMessenger *m_messenger;
     G4String Hadronic_PL;
     int verboseLevel;
+    G4bool gflash;
 
     void constructEM(void);
     void constructDecay(void);
     void addHadronic(void);
     void addGflash(void);
+    void addParameterisation(void);
     void constructOptical(void);
 
     G4Decay* decay;

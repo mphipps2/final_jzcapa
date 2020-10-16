@@ -1,7 +1,7 @@
 #include "PhysicsList.hh"
 #include "PhysicsMessenger.hh"
 
-PhysicsList::PhysicsList( )
+PhysicsList::PhysicsList( G4bool _gflash):gflash(_gflash)
 {
 
   m_messenger = new PhysicsMessenger( this );
@@ -17,8 +17,6 @@ PhysicsList::PhysicsList( )
   boundary = NULL;
   opmiehg  = NULL;
   wlshift  = NULL;
-
-//  gflash = NULL;
 
   verboseLevel = 1;
 }
@@ -84,6 +82,7 @@ void PhysicsList::ConstructProcess(void)
   constructEM();
   constructDecay();
   addHadronic();
+  if(gflash) addParameterisation();
   for (unsigned int i = 0; i < hadronPhysics.size(); i++)
       hadronPhysics[i]->ConstructProcess();
 
@@ -268,6 +267,27 @@ void PhysicsList::SetCuts(void)
 
   SetCutsWithDefault();
 }
+
+//From Par02 modified with e+/e- for use with GFlash
+void PhysicsList::addParameterisation() {
+  G4FastSimulationManagerProcess* fastSimProcess =
+    new G4FastSimulationManagerProcess( "G4FSMP" );
+
+  // Registers the fastSimProcess with all the particles as a discrete and
+  // continuous process (this works in all cases; in the case that parallel
+  // geometries are not used, as in this example, it would be enough to
+  // add it as a discrete process).
+  theParticleIterator->reset();
+  while ( (*theParticleIterator)() ) {
+    G4ParticleDefinition* particle = theParticleIterator->value();
+    if( particle->GetParticleName().contains("e+") || particle->GetParticleName().contains("e-") ){
+      G4ProcessManager* pmanager = particle->GetProcessManager();
+      //pmanager->AddDiscreteProcess( fastSimProcess );    // No parallel geometry
+      pmanager->AddProcess( fastSimProcess, -1, 0, 0 );  // General
+    }
+  }
+}
+
 
 G4ParticleDefinition* PhysicsList::getParticleByID(G4int id)
 {

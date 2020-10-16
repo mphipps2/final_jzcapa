@@ -82,12 +82,13 @@ G4ThreadLocal GFlashHitMaker* DetectorConstruction::m_HitMaker = 0;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-DetectorConstruction::DetectorConstruction()
+DetectorConstruction::DetectorConstruction(G4bool _GFlash)
   : G4VUserDetectorConstruction(),
   m_solidWorld(NULL),
   m_logicWorld(NULL),
   m_physWorld(NULL),
   m_alignment(NULL),
+  m_GFlash(_GFlash),
   OPTICAL(false),
   ForceDetectorPosition(false),
   PI0(false)
@@ -358,27 +359,28 @@ void DetectorConstruction::ConstructSDandField( ){
     pFieldMgr->CreateChordFinder(fField.Get());
   }
 
-  // TODO: Create fast simulation flag
-  // -- fast simulation models:
-  // **********************************************
-  // * Initializing shower model
-  // **********************************************
-  G4cout << "Creating shower parameterization models" << G4endl;
-  m_FastShowerModel = new GFlashShowerModel( "m_FastShowerModel", m_Region);
-  m_Parameterisation = new GFlashHomoShowerParameterisation( m_ZDCvec[0]->GetAbsorberMaterial() );
-  m_FastShowerModel->SetParameterisation(*m_Parameterisation);
-  // Energy Cuts to kill particles:
-  m_ParticleBounds = new GFlashParticleBounds();
-  //Define the values below
-  // SetMinEneToParametrise (G4ParticleDefinition &particleType, G4double enemin);
-  // SetMaxEneToParametrise (G4ParticleDefinition &particleType, G4double enemax);
-  // SetEneToKill (G4ParticleDefinition &particleType, G4double enekill);
-  m_FastShowerModel->SetParticleBounds(*m_ParticleBounds);
-  // Makes the EnergieSpots
-  //m_HitMaker = new GFlashHitMaker();
-  //m_FastShowerModel->SetHitMaker(*m_HitMaker);
-  G4cout<<"end shower parameterization."<<G4endl;
-  // **********************************************
+  if(m_GFlash){
+    // -- fast simulation models:
+    // **********************************************
+    // * Initializing shower model
+    // **********************************************
+    G4cout << "Creating shower parameterization models" << G4endl;
+    m_FastShowerModel = new GFlashShowerModel( "m_FastShowerModel", m_Region);
+    m_Parameterisation = new GFlashHomoShowerParameterisation( m_ZDCvec[0]->GetAbsorberMaterial() );
+    m_FastShowerModel->SetParameterisation(*m_Parameterisation);
+    // Energy Cuts to kill particles:
+    m_ParticleBounds = new GFlashParticleBounds();
+    //Define the values below
+    // GFlashParticleBounds::SetMinEneToParametrise (G4ParticleDefinition &particleType, G4double enemin);
+    // GFlashParticleBounds::SetMaxEneToParametrise (G4ParticleDefinition &particleType, G4double enemax);
+    // GFlashParticleBounds::SetEneToKill (G4ParticleDefinition &particleType, G4double enekill);
+    m_FastShowerModel->SetParticleBounds(*m_ParticleBounds);
+    // Makes the EnergieSpots (not necessary in non-sensitive regions)
+    //m_HitMaker = new GFlashHitMaker();
+    //m_FastShowerModel->SetHitMaker(*m_HitMaker);
+    G4cout<<"end shower parameterization."<<G4endl;
+    // **********************************************
+  }
 
   for(ModTypeZDC* zdc : m_ZDCvec){
     zdc->ConstructSDandField();

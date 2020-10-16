@@ -55,7 +55,7 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " zdc [-m macro ] [-t nThreads] [-r seed] [-i inputFileName] [-o outputFileName]"
+    G4cerr << " zdc [-m macro ] [-t nThreads] [-r seed] [-i inputFileName] [-o outputFileName] [-p physicsParameterization]"
            << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;
@@ -76,7 +76,7 @@ int main(int argc,char** argv)
   G4String macro;
   G4String output = "";
   G4String input = "";
-  G4String physics = "";
+  G4bool   gflash = false;
   G4long   myseed = -1;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
@@ -86,8 +86,11 @@ int main(int argc,char** argv)
     if      ( G4String(argv[i]) == "-m"  ) macro      = argv[i+1];
     else if ( G4String(argv[i]) == "-o"  ) output     = argv[i+1];
     else if ( G4String(argv[i]) == "-i"  ) input      = argv[i+1];
-    else if ( G4String(argv[i]) == "-p"  ) physics    = argv[i+1];
     else if ( G4String(argv[i]) == "-r"  ) myseed     = atoi(argv[i+1]);
+    else if ( G4String(argv[i]) == "-p"  ){
+      G4String buffer = argv[i+1];
+      if( buffer.contains("t") ) gflash = true;
+    }
 #ifdef G4MULTITHREADED
     else if ( G4String(argv[i]) == "-t" ) {
        nThreads = G4UIcommand::ConvertToInt(argv[i+1]);
@@ -138,36 +141,9 @@ int main(int argc,char** argv)
   // Set mandatory initialization classes
   //
   // Detector construction
-  runManager->SetUserInitialization( new DetectorConstruction() );
-
+  runManager->SetUserInitialization( new DetectorConstruction( gflash ) );
   // Physics list
-  // Modular is a combo of extended/gflash/gflash1 and extended/optical/OpNovice
-  if( physics.contains("modular") ){
-    G4VModularPhysicsList* physicsList = new FTFP_BERT();
-    //physicsList->ReplacePhysics(new G4EmStandardPhysics_option4());
-    G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
-    physicsList->RegisterPhysics(opticalPhysics);
-    // -- Create a fast simulation physics constructor, used to augment
-    // -- the above physics list to allow for fast simulation:
-    G4FastSimulationPhysics* fastSimulationPhysics = new G4FastSimulationPhysics();
-    // -- We now configure the fastSimulationPhysics object.
-    // -- The gflash model (GFlashShowerModel, see ExGflashDetectorConstruction.cc)
-    // -- is applicable to e+ and e- : we augment the physics list for these
-    // -- particles (by adding a G4FastSimulationManagerProcess with below's
-    // -- calls), this will make the fast simulation to be activated:
-    fastSimulationPhysics->ActivateFastSimulation("e-");
-    fastSimulationPhysics->ActivateFastSimulation("e+");
-    // -- Register this fastSimulationPhysics to the physicsList,
-    // -- when the physics list will be called by the run manager
-    // -- (will happen at initialization of the run manager)
-    // -- for physics process construction, the fast simulation
-    // -- configuration will be applied as well.
-    physicsList->RegisterPhysics( fastSimulationPhysics );
-    runManager->SetUserInitialization(physicsList);
-  }else{
-    runManager->SetUserInitialization( new PhysicsList( ) );
-  }
-
+  runManager->SetUserInitialization( new PhysicsList( gflash ) );
   // User action initialization
   runManager->SetUserInitialization( new ActionInitialization( output ) );
   // Initialize visualization

@@ -111,7 +111,7 @@ class Alignment {
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
-  DetectorConstruction();
+  DetectorConstruction(G4bool);
   virtual ~DetectorConstruction();
 
   virtual G4VPhysicalVolume* Construct();
@@ -207,6 +207,7 @@ private:
 	G4Cache<G4MagneticField*> fField;  //pointer to the thread-local fields
 
   /* Run condition flags */
+  G4bool m_GFlash;
   G4bool OPTICAL;
   G4bool ForceDetectorPosition;
   G4bool CHECK_OVERLAPS;
