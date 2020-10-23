@@ -51,7 +51,8 @@ class PhysicsMessenger: public G4UImessenger{
     PhysicsMessenger(PhysicsList* );
    ~PhysicsMessenger();
 
-    virtual void SetNewValue(G4UIcommand*, G4String);
+    virtual void     SetNewValue     (G4UIcommand*, G4String);
+    virtual G4String GetCurrentValue (G4UIcommand * command);
 
   private:
 
@@ -62,7 +63,20 @@ class PhysicsMessenger: public G4UImessenger{
 
     //Commands
     G4UIcmdWithAString*        fSelectListCmd;
-
+    G4UIcmdWithADoubleAndUnit* fsetCutCmd;
+    G4UIcommand*               fsetCutRCmd;
+    G4UIcommand*               fsetCutForAGivenParticleCmd;
+    G4UIcmdWithAString*        fgetCutForAGivenParticleCmd;
+    G4UIcmdWithAnInteger*      fverboseCmd;
+    G4UIcmdWithoutParameter*   fdumpListCmd;
+    G4UIcmdWithAString*        faddProcManCmd;
+    G4UIcmdWithAString*        fbuildPTCmd;
+    G4UIcmdWithAString*        fstoreCmd;
+    G4UIcmdWithAString*        fretrieveCmd;
+    G4UIcmdWithAnInteger*      fasciiCmd;
+    G4UIcommand*               fapplyCutsCmd;
+    G4UIcmdWithAString*        fdumpCutValuesCmd;
+    G4UIcmdWithAnInteger*      fdumpOrdParamCmd;
 
 };
 #endif
