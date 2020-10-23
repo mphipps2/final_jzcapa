@@ -58,6 +58,7 @@ public:
 
 
   virtual void  Construct();
+  virtual void  ConstructSDandField();
   virtual void  ConstructCMSDetector();
   virtual void  ConstructPanFluteDetector();
 
@@ -77,8 +78,11 @@ public:
   inline  void  SetOverlapsFlag      ( G4bool         arg ){ CHECK_OVERLAPS     = arg; }
   inline  void  SetReducedTreeFlag   ( G4bool         arg ){ REDUCED_TREE       = arg; }
 
-  inline  G4ThreeVector* GetPosition ( ){ return m_pos;    }
-  inline  G4int          GetModNum   ( ){ return m_modNum; }
+  inline  G4ThreeVector* GetPosition        ( ){ return m_pos;         }
+  inline  G4int          GetModNum          ( ){ return m_modNum;      }
+  inline  G4int          GetnFibers         ( ){ return m_fiber_count; }
+  inline  G4bool         GetOpticalFlag     ( ){ return OPTICAL;       }
+  inline  G4bool         GetReducedTreeFlag ( ){ return REDUCED_TREE;  }
 
 protected:
   const G4int      m_modNum;
@@ -91,6 +95,7 @@ protected:
   G4double         m_tileSize;
   G4double         m_minWallThickness;
   G4double         m_distanceToReadout;
+  G4double         m_topOfVolume;
   G4String         m_detType;
   G4bool           OPTICAL;
   G4bool           CHECK_OVERLAPS;
@@ -198,6 +203,8 @@ protected:
 
 //CMS TEST SETUP START -------------------------------------
 //STATIC ARRAYS
+  G4bool              m_test_tile_bool;
+
   G4VSolid*           m_test_tile;
   G4LogicalVolume*    m_test_tileLogical;
   G4VPhysicalVolume*  m_test_tilePhysical;

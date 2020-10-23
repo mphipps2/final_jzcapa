@@ -54,6 +54,13 @@ class G4Material;
 class G4UniformMagField;
 class PurgMagTabulatedField3D;
 
+class G4Region;
+
+class GFlashHomoShowerParameterisation;
+class GFlashShowerModel;
+class GFlashHitMaker;
+class GFlashParticleBounds;
+
 
 class Survey {
 
@@ -104,31 +111,32 @@ class Alignment {
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
-  DetectorConstruction();
+  DetectorConstruction(G4bool);
   virtual ~DetectorConstruction();
 
   virtual G4VPhysicalVolume* Construct();
   virtual G4VPhysicalVolume* ConstructWorldVolume(G4double x, G4double y, G4double z);
   virtual G4VPhysicalVolume* ConstructSPSTestBeam();
   virtual G4VPhysicalVolume* ManualConstruction();
+  virtual void ConstructSDandField();
 
-  virtual void               LoadConfigurationFile( G4String _inFile = "" );
-  virtual void               SetConfigFileName    ( G4String _name ){ m_configFileName = _name; }
-  virtual void               LoadAlignmentFile( G4String _inFile = "" );
-  virtual void               SetRunNumber( G4int _run ){ m_runNumber = _run; }
-  virtual Survey*            GetSurvey( G4String name );
-  virtual void               AddZDC( G4ThreeVector* position = NULL );
-  virtual void               AddRPD( G4ThreeVector* position = NULL );
-  inline  G4int              GetnZDCs(){return m_ZDCvec.size();}
-  inline  G4int              GetnRPDs(){return m_RPDvec.size();}
-  inline  G4bool             GetOverlapsFlag(){return CHECK_OVERLAPS;}
-  inline  void               SetOverlapsFlag( G4bool arg ){CHECK_OVERLAPS = arg;}
-  inline  G4bool             GetOpticalFlag(){return OPTICAL;}
-  inline  void               SetOpticalFlag( G4bool arg ){OPTICAL = arg;}
-  inline  void               ForcePosition ( G4bool arg ){ForceDetectorPosition = arg;}
-  inline  G4bool             GetPI0Flag(){return PI0;}
-  inline  void               SetPI0Flag ( G4bool arg ){PI0 = arg;}
+  virtual void    LoadConfigurationFile ( G4String _inFile = "" );
+  virtual void    LoadAlignmentFile     ( G4String _inFile = "" );
+  virtual void    AddZDC                ( G4ThreeVector* position = NULL );
+  virtual void    AddRPD                ( G4ThreeVector* position = NULL );
+  virtual void    SetConfigFileName     ( G4String _name ){ m_configFileName = _name; }
+  virtual void    SetRunNumber          ( G4int _run ){ m_runNumber = _run; }
+  inline  void    SetOverlapsFlag       ( G4bool arg ){CHECK_OVERLAPS = arg;}
+  inline  void    SetOpticalFlag        ( G4bool arg ){OPTICAL = arg;}
+  inline  void    ForcePosition         ( G4bool arg ){ForceDetectorPosition = arg;}
+  inline  void    SetPI0Flag            ( G4bool arg ){PI0 = arg;}
 
+  virtual Survey* GetSurvey             ( G4String name );
+  inline  G4bool  GetOverlapsFlag       ( ){ return CHECK_OVERLAPS;  }
+  inline  G4bool  GetOpticalFlag        ( ){ return OPTICAL;         }
+  inline  G4bool  GetPI0Flag            ( ){ return PI0;             }
+  inline  std::vector< ModTypeZDC* >* GetZDCvec ( ){ return &m_ZDCvec; }
+  inline  std::vector< ModTypeRPD* >* GetRPDvec ( ){ return &m_RPDvec; }
 
   //Manual World Volume
   inline  void SetWorldDimensions      ( G4ThreeVector* vec ){ ConstructWorldVolume( vec->x(), vec->y(), vec->z() ); }
@@ -199,10 +207,19 @@ private:
 	G4Cache<G4MagneticField*> fField;  //pointer to the thread-local fields
 
   /* Run condition flags */
+  G4bool m_GFlash;
   G4bool OPTICAL;
   G4bool ForceDetectorPosition;
   G4bool CHECK_OVERLAPS;
   G4bool PI0;
+
+  //Fast simulation
+  G4Region*           m_Region;
+
+  static G4ThreadLocal GFlashShowerModel* m_FastShowerModel;
+  static G4ThreadLocal GFlashHomoShowerParameterisation* m_Parameterisation;
+  static G4ThreadLocal GFlashParticleBounds* m_ParticleBounds;
+  static G4ThreadLocal GFlashHitMaker* m_HitMaker;
 
 };
 

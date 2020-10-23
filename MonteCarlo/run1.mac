@@ -14,6 +14,18 @@
 /run/particle/verbose 0
 
 
+#################################
+# Physics List Options
+#################################
+#/run/particle/SelectList FTFP_BERT
+#/run/setCut 10. mm
+#/run/setCutForAGivenParticle e+ 10. mm
+/run/setCutForRegion tungsten 10. mm
+
+#################################
+# gps Options
+#################################
+
 #/gps/particle ion
 #/gps/ion 82 208 0 0.0
 #/gps/energy 31.2 TeV
@@ -54,18 +66,32 @@
 # the beam angular dispersion
 /gps/ang/sigma_r 0.00 deg
 # 1.0milliradians  = 0.057 deg
-#
+
+
+
+#################################
+# Prebuilt beam Options
+# Note: if /beam/type is selected all gps options will be ignored
+# Descriptions of commands can be found in the UI command tree
+#################################
 
 /beam/type lhc
-#/beam/pos 0. 0. -140.
-#/beam/projectBeam -80. mm
-/beam/nPrimaries 30
-/beam/pos 0. 0. -127. m
-/beam/projectBeam -127. m
-/beam/LHC/horizontalCrossingAngle 0.100 mrad
+/beam/pos 0. 0. -140.
+/beam/projectBeam -80. mm
+/beam/nPrimaries 1
+#/beam/LHC/horizontalCrossingAngle 0.100 mrad
+#/beam/LHC/verticalCrossingAngle 0.100 mrad
+
+
+
+#################################
+# Event Generator Options
+# Note: if /beam/GeneratorModel is selected it will be used. Otherwise, the default
+# behavior for the selected environment will be used
+#################################
 
 #ToyV1 generator variables
-/beam/GeneratorModel toyV1
+#/beam/GeneratorModel toyV1
 /beam/FragmentationPtDistribution func
 /beam/MultiplicityDistribution func
 /beam/SetMeanFragmentationPt .150
@@ -78,6 +104,9 @@
 #/beam/GeneratorModel dpmjet
 #/beam/input generatedEvents.root
 #/beam/randomizeReactionPlane true
+
+
+
 
 #if using these commands in interactive mode to visualize, use this to allow more events to be displayed (do not use in batch mode)
 #/vis/ogl/set/displayListLimit 1000000

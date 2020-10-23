@@ -27,6 +27,7 @@
 
 #include "FiberSD.hh"
 #include "SteppingAction.hh"
+#include "AnalysisManager.hh"
 
 #include "G4HCofThisEvent.hh"
 #include "G4Step.hh"
@@ -80,6 +81,10 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
   std::string name = collectionName[0];
 
   if(REDUCED_TREE){
+    // Grab the vector from AnalysisManager if reduced tree mode is active
+    m_cherenkovVec = AnalysisManager::getInstance()->GetFiberVector(ZDC,RPD,m_modNum);
+
+    // Clear it and resize in case this isn't the first event
     m_cherenkovVec->clear();
     m_cherenkovVec->resize( m_nFibers, 0 );
   }

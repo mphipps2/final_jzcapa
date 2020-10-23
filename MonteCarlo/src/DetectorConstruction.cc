@@ -61,15 +61,37 @@
 #include "G4CashKarpRKF45.hh"
 #include "G4RKG3_Stepper.hh"
 
+//fast simulation
+#include "GFlashHomoShowerParameterisation.hh"
+#include "G4FastSimulationManager.hh"
+#include "GFlashShowerModel.hh"
+#include "GFlashHitMaker.hh"
+#include "GFlashParticleBounds.hh"
 
 #include <iostream>
 #include <stdio.h>
 
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-DetectorConstruction::DetectorConstruction()
-  : G4VUserDetectorConstruction(), m_solidWorld(NULL), m_logicWorld(NULL),
-  m_physWorld(NULL), OPTICAL(false), ForceDetectorPosition(false), PI0(false)
+G4ThreadLocal GFlashShowerModel* DetectorConstruction::m_FastShowerModel = 0;
+G4ThreadLocal
+GFlashHomoShowerParameterisation* DetectorConstruction::m_Parameterisation = 0;
+G4ThreadLocal GFlashParticleBounds* DetectorConstruction::m_ParticleBounds = 0;
+G4ThreadLocal GFlashHitMaker* DetectorConstruction::m_HitMaker = 0;
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+DetectorConstruction::DetectorConstruction(G4bool _GFlash)
+  : G4VUserDetectorConstruction(),
+  m_solidWorld(NULL),
+  m_logicWorld(NULL),
+  m_physWorld(NULL),
+  m_alignment(NULL),
+  m_GFlash(_GFlash),
+  OPTICAL(false),
+  ForceDetectorPosition(false),
+  PI0(false)
 {
   new DetectorMessenger(this);
   currentRPD = -1;
@@ -147,12 +169,18 @@ G4VPhysicalVolume* DetectorConstruction::ManualConstruction(){
   std::cout << "******************************************" << std::endl
             << "        PLACING DETECTORS MANUALLY        " << std::endl
             << "******************************************" << std::endl;
+  // define the Parameterisation region
+  m_Region = new G4Region("tungsten_absorber");
 
   G4ThreeVector* pos;
   for(ModTypeZDC* zdc : m_ZDCvec){
     pos = zdc->GetPosition();
     printf( "ZDC%d center = (%f,%f,%f)\n", zdc->GetModNum(), pos->x(), pos->y(), pos->z() );
     zdc->Construct();
+
+    //Add the tungsten absorbers to a region
+    zdc->GetAbsorberLogicalVolume()->SetRegion(m_Region);
+    m_Region->AddRootLogicalVolume(zdc->GetAbsorberLogicalVolume());
   }
 
   for(ModTypeRPD* rpd : m_RPDvec){
@@ -171,7 +199,7 @@ G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
   // Create variables to be used in beamtest 2018 simulation
   G4ThreeVector zdc1Pos,zdc2Pos, rpdPos;
   bool ZDC1 = false, ZDC2 = false, RPD = false;
-  G4double mag_zOffset=0, firstDetZ, detX, detY, detZ,
+  G4double firstDetZ, detX, detY, detZ,
            tableX_shift=0, tableY_shift=0;
   G4Material* Lead = m_materials->Pb;
   G4double worldSizeX = 180*mm;
@@ -226,6 +254,9 @@ G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
     }
   }
 
+  // define the Parameterisation region
+  m_Region = new G4Region("tungsten_absorber");
+
   G4ThreeVector* pos;
   G4int modNum;
   for(ModTypeZDC* zdc : m_ZDCvec){
@@ -241,6 +272,10 @@ G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
     modNum = zdc->GetModNum();
     printf( "ZDC%d center = (%f,%f,%f)\n", modNum, pos->x(), pos->y(), pos->z() );
     zdc->Construct();
+
+    //Add the tungsten absorbers to a region
+    zdc->GetAbsorberLogicalVolume()->SetRegion(m_Region);
+    m_Region->AddRootLogicalVolume(zdc->GetAbsorberLogicalVolume());
   }
 
   for(ModTypeRPD* rpd : m_RPDvec){
@@ -253,37 +288,23 @@ G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
   }
 //################################ Get SURVEY/ALIGNMENT_END
 
+  // Setup lead target
+  if( m_alignment->target_In ){
+    G4Box* leadTarget = new G4Box("Target",5*cm, 5*cm, 1.3*cm);
 
-  // Setup magnetic field
-  if( m_alignment->magnet_On ){
-    mag_zOffset=-9.55*m;
-    //Field grid in A9.TABLE. File must be accessible from run directory.
-    G4MagneticField* PurgMagField= new PurgMagTabulatedField3D((std::getenv("JZCaPA") + std::string("/Utils/PurgMag3D.TABLE")).c_str(), mag_zOffset+(worldZoffset/1000.0));
-    fField.Put(PurgMagField);
+    logic_leadTarget
+    = new G4LogicalVolume(leadTarget,
+                          Lead,
+                          "LeadTarget");
 
-    //This is thread-local
-    G4FieldManager* pFieldMgr = G4TransportationManager::GetTransportationManager()->GetFieldManager();
-
-    pFieldMgr->SetDetectorField(fField.Get());
-    pFieldMgr->CreateChordFinder(fField.Get());
-  }
-    // Setup lead target
-    if( m_alignment->target_In ){
-      G4Box* leadTarget = new G4Box("Target",5*cm, 5*cm, 1.3*cm);
-
-      logic_leadTarget
-      = new G4LogicalVolume(leadTarget,
-                            Lead,
-                            "LeadTarget");
-
-      new G4PVPlacement(0,
-                        G4ThreeVector(0.0, 0.0, (2600-worldZoffset)*mm),
-                        logic_leadTarget,
-                        "LeadTarget1",
-                        m_logicWorld,
-                        false,
-                        0
-                        );
+    new G4PVPlacement(0,
+                      G4ThreeVector(0.0, 0.0, (2600-worldZoffset)*mm),
+                      logic_leadTarget,
+                      "LeadTarget1",
+                      m_logicWorld,
+                      false,
+                      0
+                      );
 
     // Visualization attributes
     G4VisAttributes* boxVisAtt_lead= new G4VisAttributes(G4Colour(1.0,0.0,1.0)); //magenta
@@ -321,7 +342,54 @@ G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
 }
 
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void DetectorConstruction::ConstructSDandField( ){
+  // Setup Goliath magnetic field (SPS test beam only)
+  if( m_alignment && m_alignment->magnet_On ){
+    G4double mag_zOffset = -9.55*m;
+    //Field grid in A9.TABLE. File must be accessible from run directory.
+    G4MagneticField* PurgMagField= new PurgMagTabulatedField3D((std::getenv("JZCaPA") + std::string("/Utils/PurgMag3D.TABLE")).c_str(), mag_zOffset+(32000*mm/2000.0));
+    fField.Put(PurgMagField);
+
+    //This is thread-local
+    G4FieldManager* pFieldMgr = G4TransportationManager::GetTransportationManager()->GetFieldManager();
+
+    pFieldMgr->SetDetectorField(fField.Get());
+    pFieldMgr->CreateChordFinder(fField.Get());
+  }
+
+  if(m_GFlash){
+    // -- fast simulation models:
+    // **********************************************
+    // * Initializing shower model
+    // **********************************************
+    G4cout << "Creating shower parameterization models" << G4endl;
+    m_FastShowerModel = new GFlashShowerModel( "m_FastShowerModel", m_Region);
+    m_Parameterisation = new GFlashHomoShowerParameterisation( m_ZDCvec[0]->GetAbsorberMaterial() );
+    m_FastShowerModel->SetParameterisation(*m_Parameterisation);
+    // Energy Cuts to kill particles:
+    m_ParticleBounds = new GFlashParticleBounds();
+    //Define the values below
+    // GFlashParticleBounds::SetMinEneToParametrise (G4ParticleDefinition &particleType, G4double enemin);
+    // GFlashParticleBounds::SetMaxEneToParametrise (G4ParticleDefinition &particleType, G4double enemax);
+    // GFlashParticleBounds::SetEneToKill (G4ParticleDefinition &particleType, G4double enekill);
+    m_FastShowerModel->SetParticleBounds(*m_ParticleBounds);
+    // Makes the EnergieSpots (not necessary in non-sensitive regions)
+    //m_HitMaker = new GFlashHitMaker();
+    //m_FastShowerModel->SetHitMaker(*m_HitMaker);
+    G4cout<<"end shower parameterization."<<G4endl;
+    // **********************************************
+  }
+
+  for(ModTypeZDC* zdc : m_ZDCvec){
+    zdc->ConstructSDandField();
+  }
+
+  for(ModTypeRPD* rpd : m_RPDvec){
+    rpd->ConstructSDandField();
+  }
+}
 
 
 //***********************************************************************************

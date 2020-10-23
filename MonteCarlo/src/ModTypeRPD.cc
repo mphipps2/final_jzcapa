@@ -416,33 +416,10 @@ void ModTypeRPD::ConstructPanFluteDetector()
 		}//end column
 	}//end row
 
-	//----------------------------------------------
-	// SD and Scoring Volumes
-	//----------------------------------------------
-
-	G4SDManager* SDman = G4SDManager::GetSDMpointer();
-
-	//Note one SD object for each module
-	char fiberSDname[256];
-	sprintf( fiberSDname, "RPD%d_SD", m_modNum);
-	FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
-	aFiberSD->HistInitialize();
-
-  std::cout << "Top of volume is " << m_pos->y() + m_distanceToReadout +  activeHeight/2.0 << std::endl;
-
-	aFiberSD->SetTopOfVolume( m_pos->y() + m_distanceToReadout +  activeHeight/2.0  );
-	SDman->AddNewDetector( aFiberSD );
-  if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count );
-
-  for(int i = 0; i < m_fiber_count; i++){
-     m_PFrpdLogical.at(i)->SetSensitiveDetector( aFiberSD );
-	   if( READOUT )m_PFreadout_fiberLogical.at(i)->SetSensitiveDetector( aFiberSD );
-  }
+  m_topOfVolume = m_pos->y() + m_distanceToReadout +  activeHeight/2.0;
 
 	std::cout << "Prototype RPD construction finished with ";
   std::cout << m_fiber_count << " Fibers, " << m_tileSize << "mm tiles." << std::endl;
-  std::cout << "SD name is " << fiberSDname << std::endl;
-
 
 }
 
@@ -450,9 +427,9 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
 void ModTypeRPD::ConstructCMSDetector()
 {
-	bool test_tile = false;
+	m_test_tile_bool = false;
 
-	if(test_tile){
+	if(m_test_tile_bool){
 		for(G4int i =0;i<8;i++){
 		rpd_comp[i]=false;
 		}
@@ -913,7 +890,7 @@ for(G4int k=0;k<2;k++) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TEST SETUP
-if(test_tile){
+if(m_test_tile_bool){
 		G4double testtileY = 100;
 		G4double testtileZ = 50;
 		G4double testgreaseY = 30;
@@ -1069,37 +1046,43 @@ if(test_tile){
 							CHECK_OVERLAPS);
 
 
+  }
 }
 
-  //----------------------------------------------
-  // SD and Scoring Volumes
-  //----------------------------------------------
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+void ModTypeRPD::ConstructSDandField(){
+  G4SDManager* SDman = G4SDManager::GetSDMpointer();
 
- G4SDManager* SDman = G4SDManager::GetSDMpointer();
+	//Create and initialize the SD
+	char fiberSDname[256];
+	sprintf( fiberSDname, "RPD%d_SD", m_modNum);
+	FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
+	aFiberSD->HistInitialize();
 
-  //Note one SD object for each module
-  char fiberSDname[256];
-  sprintf( fiberSDname, "RPD%d_SD", m_modNum);
+	aFiberSD->SetTopOfVolume( m_topOfVolume );
+	SDman->AddNewDetector( aFiberSD );
+  if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count );
 
-  FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum+1, OPTICAL );
-  aFiberSD->HistInitialize();
-  SDman->AddNewDetector( aFiberSD );
+  // Assign fibers as SD volumes
+  if(m_detType == "cms"){
+    if(m_test_tile_bool){
+      m_test_PDLogical->SetSensitiveDetector( aFiberSD );
+    }else{
+    	if (OPTICAL){
+    		for(G4int i=0;i<64;i++){
+  				m_air_detect_Logical[i]->SetSensitiveDetector( aFiberSD );}
+      }else{
+    		for(G4int k=0;k<64;k++){
+  				m_fiberLogical[k]->SetSensitiveDetector( aFiberSD );}}
+  	}
+  }else{// not CMS i.e. Pan Flute
+    for(int i = 0; i < m_fiber_count; i++){
+       m_PFrpdLogical.at(i)->SetSensitiveDetector( aFiberSD );
+  	   if( READOUT )m_PFreadout_fiberLogical.at(i)->SetSensitiveDetector( aFiberSD );
+    }// end fiber loop
+  }// end else CMS
 
-if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count );
-
-if(test_tile) m_test_PDLogical->SetSensitiveDetector( aFiberSD );
-else{
-	if (OPTICAL){
-		for(G4int i=0;i<64;i++){
-				m_air_detect_Logical[i]->SetSensitiveDetector( aFiberSD );}}
-	else{
-		for(G4int k=0;k<64;k++) {
-				m_fiberLogical[k]->SetSensitiveDetector( aFiberSD );
-  		}
-		}
-	}
-
-  std::cout << "ModTypeRPD construction finished: SD name " << fiberSDname << std::endl;
+  std::cout << "SD name is " << fiberSDname << std::endl;
 
 }

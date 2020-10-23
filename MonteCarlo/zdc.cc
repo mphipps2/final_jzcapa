@@ -42,6 +42,9 @@
 
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
+#include "G4VModularPhysicsList.hh"
+#include "G4FastSimulationPhysics.hh"
+#include "FTFP_BERT.hh"
 
 #include "Randomize.hh"
 
@@ -52,7 +55,7 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " zdc [-m macro ] [-t nThreads] [-r seed] [-i inputFileName] [-o outputFileName]"
+    G4cerr << " zdc [-m macro ] [-t nThreads] [-r seed] [-i inputFileName] [-o outputFileName] [-p physicsParameterization]"
            << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;
@@ -73,6 +76,7 @@ int main(int argc,char** argv)
   G4String macro;
   G4String output = "";
   G4String input = "";
+  G4bool   gflash = false;
   G4long   myseed = -1;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
@@ -83,6 +87,10 @@ int main(int argc,char** argv)
     else if ( G4String(argv[i]) == "-o"  ) output     = argv[i+1];
     else if ( G4String(argv[i]) == "-i"  ) input      = argv[i+1];
     else if ( G4String(argv[i]) == "-r"  ) myseed     = atoi(argv[i+1]);
+    else if ( G4String(argv[i]) == "-p"  ){
+      G4String buffer = argv[i+1];
+      if( buffer.contains("t") ) gflash = true;
+    }
 #ifdef G4MULTITHREADED
     else if ( G4String(argv[i]) == "-t" ) {
        nThreads = G4UIcommand::ConvertToInt(argv[i+1]);
@@ -133,9 +141,9 @@ int main(int argc,char** argv)
   // Set mandatory initialization classes
   //
   // Detector construction
-  runManager->SetUserInitialization( new DetectorConstruction() );
+  runManager->SetUserInitialization( new DetectorConstruction( gflash ) );
   // Physics list
-  runManager->SetUserInitialization( new PhysicsList( ) );
+  runManager->SetUserInitialization( new PhysicsList( gflash ) );
   // User action initialization
   runManager->SetUserInitialization( new ActionInitialization( output ) );
   // Initialize visualization
