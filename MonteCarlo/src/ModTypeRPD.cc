@@ -1083,6 +1083,6 @@ void ModTypeRPD::ConstructSDandField(){
     }// end fiber loop
   }// end else CMS
 
-  std::cout << "SD name is " << fiberSDname << std::endl;
+  std::cout << "RPD SD construction finished: SD name " << fiberSDname << std::endl;
 
 }
