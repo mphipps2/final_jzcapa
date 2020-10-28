@@ -20,7 +20,10 @@
 #/run/particle/SelectList FTFP_BERT
 #/run/setCut 10. mm
 #/run/setCutForAGivenParticle e+ 10. mm
-/run/setCutForRegion tungsten 10. mm
+#/run/setCutForRegion ZDC1_absorber 4. mm
+#/run/setCutForRegion ZDC2_absorber 10. mm
+#/run/setCutForRegion ZDC3_absorber 10. mm
+#/run/setCutForRegion ZDC4_absorber 10. mm
 
 #################################
 # gps Options

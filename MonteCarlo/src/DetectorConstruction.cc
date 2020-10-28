@@ -71,15 +71,6 @@
 #include <iostream>
 #include <stdio.h>
 
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-G4ThreadLocal GFlashShowerModel* DetectorConstruction::m_FastShowerModel = 0;
-G4ThreadLocal
-GFlashHomoShowerParameterisation* DetectorConstruction::m_Parameterisation = 0;
-G4ThreadLocal GFlashParticleBounds* DetectorConstruction::m_ParticleBounds = 0;
-G4ThreadLocal GFlashHitMaker* DetectorConstruction::m_HitMaker = 0;
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorConstruction::DetectorConstruction(G4bool _GFlash)
@@ -169,18 +160,19 @@ G4VPhysicalVolume* DetectorConstruction::ManualConstruction(){
   std::cout << "******************************************" << std::endl
             << "        PLACING DETECTORS MANUALLY        " << std::endl
             << "******************************************" << std::endl;
-  // define the Parameterisation region
-  m_Region = new G4Region("tungsten_absorber");
 
   G4ThreeVector* pos;
+  char name[32];
   for(ModTypeZDC* zdc : m_ZDCvec){
     pos = zdc->GetPosition();
     printf( "ZDC%d center = (%f,%f,%f)\n", zdc->GetModNum(), pos->x(), pos->y(), pos->z() );
     zdc->Construct();
 
-    //Add the tungsten absorbers to a region
-    zdc->GetAbsorberLogicalVolume()->SetRegion(m_Region);
-    m_Region->AddRootLogicalVolume(zdc->GetAbsorberLogicalVolume());
+    //Create a region for this module's tungsten absorbers
+    sprintf(name,"ZDC%d_absorber", zdc->GetModNum());
+    m_Region.push_back( new G4Region( name ) );
+    zdc->GetAbsorberLogicalVolume()->SetRegion(m_Region.back());
+    m_Region.back()->AddRootLogicalVolume(zdc->GetAbsorberLogicalVolume());
   }
 
   for(ModTypeRPD* rpd : m_RPDvec){
@@ -254,11 +246,10 @@ G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
     }
   }
 
-  // define the Parameterisation region
-  m_Region = new G4Region("tungsten_absorber");
 
   G4ThreeVector* pos;
   G4int modNum;
+  char name[32];
   for(ModTypeZDC* zdc : m_ZDCvec){
     zdc->SetFiberDiameters    ( new G4ThreeVector(1.5*mm,0.0,0.0) );
     zdc->SetAbsorberDimensions( new G4ThreeVector(90.0*mm, 180.0*mm, 11.0*mm) );
@@ -273,9 +264,11 @@ G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
     printf( "ZDC%d center = (%f,%f,%f)\n", modNum, pos->x(), pos->y(), pos->z() );
     zdc->Construct();
 
-    //Add the tungsten absorbers to a region
-    zdc->GetAbsorberLogicalVolume()->SetRegion(m_Region);
-    m_Region->AddRootLogicalVolume(zdc->GetAbsorberLogicalVolume());
+    //Create a region for this module's tungsten absorbers
+    sprintf(name,"ZDC%d_absorber", zdc->GetModNum());
+    m_Region.push_back( new G4Region( name ) );
+    zdc->GetAbsorberLogicalVolume()->SetRegion(m_Region.back());
+    m_Region.back()->AddRootLogicalVolume(zdc->GetAbsorberLogicalVolume());
   }
 
   for(ModTypeRPD* rpd : m_RPDvec){
@@ -359,28 +352,28 @@ void DetectorConstruction::ConstructSDandField( ){
     pFieldMgr->CreateChordFinder(fField.Get());
   }
 
+  // -- fast simulation models:
+  // **********************************************
+  // * Initializing shower model
+  // **********************************************
   if(m_GFlash){
-    // -- fast simulation models:
-    // **********************************************
-    // * Initializing shower model
-    // **********************************************
-    G4cout << "Creating shower parameterization models" << G4endl;
-    m_FastShowerModel = new GFlashShowerModel( "m_FastShowerModel", m_Region);
-    m_Parameterisation = new GFlashHomoShowerParameterisation( m_ZDCvec[0]->GetAbsorberMaterial() );
-    m_FastShowerModel->SetParameterisation(*m_Parameterisation);
-    // Energy Cuts to kill particles:
-    m_ParticleBounds = new GFlashParticleBounds();
-    //Define the values below
-    // GFlashParticleBounds::SetMinEneToParametrise (G4ParticleDefinition &particleType, G4double enemin);
-    // GFlashParticleBounds::SetMaxEneToParametrise (G4ParticleDefinition &particleType, G4double enemax);
-    // GFlashParticleBounds::SetEneToKill (G4ParticleDefinition &particleType, G4double enekill);
-    m_FastShowerModel->SetParticleBounds(*m_ParticleBounds);
-    // Makes the EnergieSpots (not necessary in non-sensitive regions)
-    //m_HitMaker = new GFlashHitMaker();
-    //m_FastShowerModel->SetHitMaker(*m_HitMaker);
+    for(G4Region* region : m_Region){
+      G4cout << "Creating shower parameterization model for region: " << region->GetName() << G4endl;
+      GFlashShowerModel* FastShowerModel = new GFlashShowerModel( "FastShowerModel", region);
+      GFlashHomoShowerParameterisation Parameterisation( m_ZDCvec[0]->GetAbsorberMaterial() );
+      FastShowerModel->SetParameterisation(Parameterisation);
+      // Energy Cuts to kill particles:
+      GFlashParticleBounds ParticleBounds;
+      //Define the values below
+      // GFlashParticleBounds::SetMinEneToParametrise (G4ParticleDefinition &particleType, G4double enemin);
+      // GFlashParticleBounds::SetMaxEneToParametrise (G4ParticleDefinition &particleType, G4double enemax);
+      // GFlashParticleBounds::SetEneToKill (G4ParticleDefinition &particleType, G4double enekill);
+      FastShowerModel->SetParticleBounds(ParticleBounds);
+
+    }
     G4cout<<"end shower parameterization."<<G4endl;
-    // **********************************************
   }
+  // **********************************************
 
   for(ModTypeZDC* zdc : m_ZDCvec){
     zdc->ConstructSDandField();

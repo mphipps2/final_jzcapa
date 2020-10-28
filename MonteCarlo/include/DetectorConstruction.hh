@@ -214,12 +214,7 @@ private:
   G4bool PI0;
 
   //Fast simulation
-  G4Region*           m_Region;
-
-  static G4ThreadLocal GFlashShowerModel* m_FastShowerModel;
-  static G4ThreadLocal GFlashHomoShowerParameterisation* m_Parameterisation;
-  static G4ThreadLocal GFlashParticleBounds* m_ParticleBounds;
-  static G4ThreadLocal GFlashHitMaker* m_HitMaker;
+  std::vector< G4Region* > m_Region;
 
 };
 
