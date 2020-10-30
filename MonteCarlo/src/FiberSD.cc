@@ -114,7 +114,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   m_nCherenkovs += capturedPhotons; // Record the total in case OPTICAL is true
 
   //Don't record hits that didn't produce cherenkov photons
-  if(capturedPhotons == 0) return true;
+  // if(capturedPhotons == 0) return true;
 
   G4int rodNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
 
