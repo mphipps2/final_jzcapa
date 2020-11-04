@@ -78,6 +78,7 @@ private:
   G4bool ZDC, RPD;
   G4double m_topOfVolume;
   std::vector< G4int >* m_cherenkovVec;
+  std::vector< G4int >* m_timeVec;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

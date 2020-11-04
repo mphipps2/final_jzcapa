@@ -82,11 +82,15 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
 
   if(REDUCED_TREE){
     // Grab the vector from AnalysisManager if reduced tree mode is active
-    m_cherenkovVec = AnalysisManager::getInstance()->GetFiberVector(ZDC,RPD,m_modNum);
+    AnalysisManager* analysisManager = AnalysisManager::getInstance();
+    m_cherenkovVec = analysisManager->GetFiberVector(ZDC,RPD,m_modNum);
+    m_timeVec      = analysisManager->GetTimeVector(ZDC,RPD,m_modNum);
 
     // Clear it and resize in case this isn't the first event
     m_cherenkovVec->clear();
     m_cherenkovVec->resize( m_nFibers, 0 );
+    m_timeVec->clear();
+    m_timeVec->resize( 128, 0 );
   }
 
   m_nCherenkovs = 0;
@@ -127,6 +131,12 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     if( aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() && pos.y() >= m_topOfVolume - 0.1*mm){
       if(REDUCED_TREE){
         m_cherenkovVec->at(rodNum)++;
+
+        // This vector ranges from 0 to 64ns in 0.5ns bins. The 128th bin is overflow
+        double time = aStep->GetTrack()->GetGlobalTime();
+        int bin = (time <= 64*ns) ? time/0.5 : 127;
+        m_timeVec->at(bin)++;
+
         m_nHits++;
         return true;
       }
@@ -134,7 +144,6 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
       newHit->setPos      ( pos );
       newHit->setOrigin   ( aStep->GetTrack()->GetVertexPosition() );
       newHit->setMomentum ( aStep->GetPreStepPoint()->GetMomentum() );
-      newHit->setEnergy   ( aStep->GetPreStepPoint()->GetTotalEnergy() );
       newHit->setEnergy   ( aStep->GetPreStepPoint()->GetTotalEnergy() );
       newHit->setTime     ( aStep->GetTrack()->GetGlobalTime() );
       newHit->setRodNb    ( rodNum );
@@ -148,6 +157,12 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   }else{ // Otherwise record all hits
     if(REDUCED_TREE){
       m_cherenkovVec->at(rodNum) += capturedPhotons;
+
+      // This vector ranges from 0 to 64ns in 0.5ns bins. The 128th bin is overflow
+      double time = aStep->GetTrack()->GetGlobalTime();
+      int bin = (time <= 64*ns) ? time/0.5 : 127;
+      m_timeVec->at(bin) += capturedPhotons;
+
       m_nHits++;
       return true;
     }
