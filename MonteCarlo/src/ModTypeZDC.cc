@@ -328,7 +328,7 @@ void ModTypeZDC::ConstructSDandField(){
   SDman->AddNewDetector( aFiberSD );
 
   if(REDUCED_TREE){
-    aFiberSD->SetReducedTree( m_nFibers );
+    aFiberSD->SetReducedTree( m_nFibers, 1 );
   }
 
   m_FiberCoreLogical->SetSensitiveDetector( aFiberSD );

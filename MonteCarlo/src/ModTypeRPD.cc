@@ -1062,7 +1062,7 @@ void ModTypeRPD::ConstructSDandField(){
 
 	aFiberSD->SetTopOfVolume( m_topOfVolume );
 	SDman->AddNewDetector( aFiberSD );
-  if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count );
+  if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count, 16 );
 
   // Assign fibers as SD volumes
   if(m_detType == "cms"){

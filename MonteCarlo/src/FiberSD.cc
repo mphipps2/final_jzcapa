@@ -90,7 +90,7 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
     m_cherenkovVec->clear();
     m_cherenkovVec->resize( m_nFibers, 0 );
     m_timeVec->clear();
-    m_timeVec->resize( 128, 0 );
+    m_timeVec->resize( 128*m_nSegments, 0 );
   }
 
   m_nCherenkovs = 0;
@@ -131,11 +131,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     if( aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() && pos.y() >= m_topOfVolume - 0.1*mm){
       if(REDUCED_TREE){
         m_cherenkovVec->at(rodNum)++;
-
-        // This vector ranges from 0 to 64ns in 0.5ns bins. The 128th bin is overflow
-        double time = aStep->GetTrack()->GetGlobalTime();
-        int bin = (time <= 64*ns) ? time/0.5 : 127;
-        m_timeVec->at(bin)++;
+        FillTimeVector( rodNum, aStep->GetTrack()->GetGlobalTime() );
 
         m_nHits++;
         return true;
@@ -157,11 +153,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   }else{ // Otherwise record all hits
     if(REDUCED_TREE){
       m_cherenkovVec->at(rodNum) += capturedPhotons;
-
-      // This vector ranges from 0 to 64ns in 0.5ns bins. The 128th bin is overflow
-      double time = aStep->GetTrack()->GetGlobalTime();
-      int bin = (time <= 64*ns) ? time/0.5 : 127;
-      m_timeVec->at(bin) += capturedPhotons;
+      FillTimeVector( rodNum, aStep->GetTrack()->GetGlobalTime(), capturedPhotons );
 
       m_nHits++;
       return true;
@@ -196,3 +188,22 @@ void FiberSD::EndOfEvent(G4HCofThisEvent*)
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void FiberSD::SetReducedTree ( G4int _nFibers, G4int _nSegments ){
+  REDUCED_TREE = true;
+  m_nFibers = _nFibers;
+  m_nSegments = _nSegments;
+  m_nFibersPerSegment = _nFibers/_nSegments;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void FiberSD::FillTimeVector( G4int fiberNo, G4double time, G4int weight ){
+  // This vector consists of nSegments number of "histograms" each 128 bins long, covering 64ns
+  // concatenated in order of segment number (fiber number/m_nFibersPerSegment a.k.a. Channel)
+
+  int bin = (time <= 64*ns) ? time/0.5 : 127;  // Determine the bin for this segments histo
+  int offset = fiberNo/m_nFibersPerSegment;    // Do this because there was a rounding issue when just using an int cast
+  bin += 128*offset;                           // Add the offset for the current segment (channel)
+  m_timeVec->at(bin) += weight;                // Add the weight (nPhotons).
+}
