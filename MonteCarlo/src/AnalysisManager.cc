@@ -145,7 +145,7 @@ void AnalysisManager::Book( G4String fileName )
     // Create the vector that will store nCherenkovs for the SD if necessary.
     // Must be done here because the vector address is needed to create
     // the output tree, but the SD has not been created yet
-    if( ZDCvec->at(i)->GetReducedTreeFlag() ){
+    if( RPDvec->at(i)->GetReducedTreeFlag() ){
       m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnFibers(), 0 );
       m_RPDtimeVec[i]  = new std::vector< G4int  >( 128, 0 );
     }
