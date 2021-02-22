@@ -350,14 +350,29 @@ void PrimaryGeneratorAction::OpenInputFile(G4String fileName){
   eventGenParticleTree = (TTree*)eventGenFile->Get("Particle");
 
   eventGenParticleTree->SetBranchAddress("nPart",&fCRMCnPart);
-  eventGenParticleTree->SetBranchAddress("pdgid", &fCRMCpdgid->at(0) );
-  eventGenParticleTree->SetBranchAddress("status",&fCRMCstatus->at(0) );
   eventGenParticleTree->SetBranchAddress("ImpactParameter",&fCRMCimpactPar);
-  eventGenParticleTree->SetBranchAddress("px",&fCRMCpx->at(0) );
-  eventGenParticleTree->SetBranchAddress("py",&fCRMCpy->at(0) );
-  eventGenParticleTree->SetBranchAddress("pz",&fCRMCpz->at(0) );
-  eventGenParticleTree->SetBranchAddress("E", &fCRMCenergy->at(0) );
-  eventGenParticleTree->SetBranchAddress("m", &fCRMCm->at(0) );
+
+  // CRMC uses c style arrays in the output
+  TString branchType = eventGenParticleTree->GetBranch("status");
+  if( branchType.Contains("vector") ){
+    eventGenParticleTree->SetBranchAddress("pdgid", &fCRMCpdgid );
+    eventGenParticleTree->SetBranchAddress("status",&fCRMCstatus );
+    eventGenParticleTree->SetBranchAddress("px",&fCRMCpx );
+    eventGenParticleTree->SetBranchAddress("py",&fCRMCpy );
+    eventGenParticleTree->SetBranchAddress("pz",&fCRMCpz );
+    eventGenParticleTree->SetBranchAddress("E", &fCRMCenergy );
+    eventGenParticleTree->SetBranchAddress("m", &fCRMCm );
+  }else{
+    eventGenParticleTree->SetBranchAddress("pdgid", &fCRMCpdgid->at(0) );
+    eventGenParticleTree->SetBranchAddress("status",&fCRMCstatus->at(0) );
+    eventGenParticleTree->SetBranchAddress("px",&fCRMCpx->at(0) );
+    eventGenParticleTree->SetBranchAddress("py",&fCRMCpy->at(0) );
+    eventGenParticleTree->SetBranchAddress("pz",&fCRMCpz->at(0) );
+    eventGenParticleTree->SetBranchAddress("E", &fCRMCenergy->at(0) );
+    eventGenParticleTree->SetBranchAddress("m", &fCRMCm->at(0) );
+  }
+
+
 
   TTree* eventGenHeaderTree = (TTree*)eventGenFile->Get("Header"); //returns 0 if Header is not in file
   if( eventGenHeaderTree ){
@@ -396,7 +411,7 @@ void PrimaryGeneratorAction::ReadEvent(){
   int nSpectators = 0;
   // Add all final state particles to the particle vector
   for(int part = 0; part < fCRMCnPart; part++){
-    
+
     momentum.set( fCRMCpx->at(part), //px
                   fCRMCpy->at(part), //py
                   fCRMCpz->at(part));//pz
