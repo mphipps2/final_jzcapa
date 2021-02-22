@@ -353,7 +353,7 @@ void PrimaryGeneratorAction::OpenInputFile(G4String fileName){
   eventGenParticleTree->SetBranchAddress("ImpactParameter",&fCRMCimpactPar);
 
   // CRMC uses c style arrays in the output
-  TString branchType = eventGenParticleTree->GetBranch("status");
+  TString branchType = eventGenParticleTree->GetBranch("status")->GetClassName();
   if( branchType.Contains("vector") ){
     eventGenParticleTree->SetBranchAddress("pdgid", &fCRMCpdgid );
     eventGenParticleTree->SetBranchAddress("status",&fCRMCstatus );
