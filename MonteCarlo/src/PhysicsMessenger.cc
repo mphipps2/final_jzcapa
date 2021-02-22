@@ -100,7 +100,7 @@ PhysicsMessenger::PhysicsMessenger(PhysicsList * pList)
   param->SetParameterRange("cut>=0.0") ;
   fsetCutForAGivenParticleCmd->SetParameter(param) ;
   param = new G4UIparameter("unit",'s',false) ;
-  param->SetDefaultUnit("mm");
+  //param->SetDefaultUnit("mm");
   fsetCutForAGivenParticleCmd->SetParameter(param) ;
   fsetCutForAGivenParticleCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
 
