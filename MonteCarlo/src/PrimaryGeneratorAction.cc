@@ -36,6 +36,7 @@
 #include "G4Box.hh"
 #include "G4Event.hh"
 #include "G4RunManager.hh"
+#include "G4UImanager.hh"
 #include "G4ParticleGun.hh"
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
@@ -195,6 +196,15 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent){
     anEvent->AddPrimaryVertex( vertex );
   }
 
+  if( anEvent->GetNumberOfPrimaryVertex() == 0 ){
+    G4cout << G4endl;
+    G4cerr << "**********************************************************************" << G4endl;
+    G4cerr << "FATAL ERROR: This event has no particles which meet the specified cuts" << G4endl;
+    G4cerr << "             Check your geometry and cuts" << G4endl;
+    G4cerr << "             The program will crash after attempting to process hits..." << G4endl;
+    G4cerr << "**********************************************************************" << G4endl;
+    G4cout << G4endl;
+  }
 }//end GenerateLHCEvent
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
