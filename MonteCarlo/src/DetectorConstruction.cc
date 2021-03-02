@@ -22,7 +22,156 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// Author: Michael Phipps
+// Author: Chad Lantz
+
+/** \ingroup mc
+    \file DetectorConstruction.cc
+    \class DetectorConstruction
+    \brief Detector Construction
+
+  DetectorConstruction is responsible for coordinating the placement of detectors in the scene.
+  There are two ways in which geometry can be placed. The method is set in geometry.mac via the
+  /Detector/ForcePosition command which is false by default, but can be set to true by the user for manual placement.
+  - Manual Placement (ForcePosition == true) uses UI commands in geometry.mac to:
+    - Create the world volume
+    - Create detectors
+    - Specify detector geometry and physical material
+    - Specify detector placement
+
+  -Auto placement (ForcePosition == false) uses prototype detector geometry and materials (hard coded)
+  and placement from the 2018 test beam which is gathered from the Alignment file contained in the Utils folder.
+  Alternate alignments can be specified with the /Detector/ConfigFile command in geometry.mac.
+
+  ## Sequence of events for manual placement
+  - DetectorConstruction::Construct is called by G4RunManager
+  - Geometry stores are cleared if for some reason Construct has been called before
+  - geometry.mac is executed, within which
+    - The world volume is created via /Detector/SetWorldDimensions (Mandatory)
+    - Detectors are added (object created) via the /Detector/ZDC/Add or /Detector/RPD/Add commands
+    - Detector parameters are passed to the detector objects via the relevant UI command
+  - ManualConstruction is called which loops over all added detectors and calls Construct for each.
+  Additionally, the ZDC absorbers are added to a region for physics parameterization
+  - DetectorConstruction::ConstructSDandField is called by G4RunManager, within which
+    - The ZDC absorber region shower parameterization is declared
+    - ConstructSDandField is called for each detector added by the user
+
+  ## Sequence of events for manual placement
+  - DetectorConstruction::Construct is called by G4RunManager
+  - Geometry stores are cleared if for some reason Construct has been called before
+  - geometry.mac is executed, within which
+    - ForcePosition is set to true
+    - An alignment file is chosen (or left as default)
+    - A TestBeam run number is chosen to be simulated
+  - ConstructSPSTestBeam is called during which,
+    - Parameters specific to the SPS test area are set
+    - The world volume is constructed
+    - The configuration and alignment files are loaded. Configuration determines
+      which detectors are to be used. Alignment determines the position. The information
+      from each is then translated from the SPS/Desy table coordinate system to something we can use.
+    - Detectors are constructed with parameters corresponding to the detectors tested in 2018
+    - The ZDC absorbers are added to a region for physics parameterization
+    - A lead target is constructed if specified by the config file
+    - A lead block is constructed in front of the detectors if specified by the config file
+  - DetectorConstruction::ConstructSDandField is called by G4RunManager, within which
+    - The magnetic field from the Goliath magnet is constructed
+    - The ZDC absorber region shower parameterization is declared
+    - ConstructSDandField is called for each detector added by the user
+
+  # UI commands and their functions
+  ## Commands for the world
+  - <b>/Detector/Optical</b> true/false
+    - Optical (Cherenkov) photons are killed in the world volume if false
+
+  - <b>/Detector/Overlaps</b> true/false
+    - Check geometry for overlaps if true
+
+  - <b>/Detector/PI0</b> true/false
+    - I'm not sure, ask Aric
+
+  - <b>/Detector/RunNumber</b> num
+    - The TestBeam run to be simulated
+
+  - <b>/Detector/PrintDebugStatement</b> string
+    - Prints the string to help debug errors
+
+  - <b>/Detector/ForcePosition</b> true/false
+    - Detectors will be constructed according to UI commands if true
+
+  - <b>/Detector/ConfigFile</b> file name
+    - Chooses the Alignment file (I should probably change the name of the command)
+
+  - <b>/Detector/SetWorldDimensions</b> x y z unit
+    - Sets the dimensions of the world volume AND constructs it. Dimensions are full length, not half
+
+  ## Commands common to both detector types (XXX is either ZDC or RPD)
+  - <b>/Detector/XXX/Add</b>
+    - Add a new XXX type detector numbering starts at 1
+
+  - <b>/Detector/XXX/Duplicate</b> num
+    - Make another detector based on XXX num (eg ZDC 1)
+
+  - <b>/Detector/XXX/SetCurrent</b> num
+    - Set the XXX type detector number num as the current detector being referred to
+     any subsequent /Detector/XXX/command commands will be applied to XXX num
+
+  - <b>/Detector/XXX/Optical</b> true/false
+    - Optical (Cherenkov) are killed upon creation in this detector. Selectable on a per detector basis
+
+  - <b>/Detector/XXX/Position</b> x y z unit
+    - Set the position of the detector
+
+  - <b>/Detector/XXX/HousingThickness</b> thickness unit
+    - Set the housing (case) thickness of the detector
+
+  - <b>/Detector/XXX/ReducedTree</b> true/false
+    - Sets the ouput tree to have fewer branches for large productions on a per detector basis
+
+  - <b>/Detector/XXX/CheckOverlaps</b> false
+    - Check the individual detector geometry for overlaps
+
+  ## ZDC commands
+  - <b>/Detector/ZDC/AbsorberDimensions</b> x y z unit
+    - Set the tungsten absorber dimensions
+
+  - <b>/Detector/ZDC/nAbsorbers</b> num
+    - Set the number of absorbers in this ZDC (stacked in Z)
+
+  - <b>/Detector/ZDC/GapThickness</b> gap unit
+    - Set the distance between absorbers
+
+  - <b>/Detector/ZDC/SteelAbsorberHeight</b> height unit
+    - Set the height of the steel absorbers which are placed above the tungsten absorbers
+
+  - <b>/Detector/ZDC/HousingMaterial</b> aluminum/steel
+    - Chose between aluminum and steel housing material
+
+  - <b>/Detector/ZDC/AbsorberMaterial</b> composite/pure
+    - Chose between nickel tungsten composite or pure tungsten absorber material
+
+  ## RPD commands
+  - <b>/Detector/RPD/FiberDiameters</b> core cladding buffer unit
+    - Set the core, cladding, and buffer diameters of the optical fibers
+
+  - <b>/Detector/RPD/FiberPitchX</b> distance unit
+    - Set the center to center distance of fibers in x
+
+  - <b>/Detector/RPD/FiberPitchZ distance</b> unit
+    - Set the center to center distance of fibers in z
+
+  - <b>/Detector/RPD/TileSize</b> size unit
+    - Set the side length of the RPD tiles. Tiles are always square
+
+  - <b>/Detector/RPD/MinWallThickness</b> thickness unit
+    - Set the minimum allowable thickness of the aluminum material between adjacent fibers
+
+  - <b>/Detector/RPD/FiberReadoutDistance</b> distance unit
+    - Set the distance between the top of the top tile and the top of the fiber (PMT window)
+
+  - <b>/Detector/RPD/RPDtype</b> panflute/CMS
+    - Chose between the the panflute prototype design and the CMS design
+
+*/
+
 
 #include "DetectorConstruction.hh"
 #include "DetectorMessenger.hh"

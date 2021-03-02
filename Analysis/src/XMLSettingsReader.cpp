@@ -1,4 +1,5 @@
-/** @file XMLSettingsReader.cpp
+/** @ingroup ana
+ *  @file XMLSettingsReader.cpp
  *  @brief Implementation of XMLSettingsReader.
  *
  *  Function definitions for XMLSettingsReader are provided.
@@ -238,6 +239,3 @@ bool XMLSettingsReader::parseFile(std::string _fileName){
       return true;
 
 }
-
-
-

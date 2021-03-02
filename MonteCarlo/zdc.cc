@@ -23,10 +23,10 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: example.cc 86065 2014-11-07 08:51:15Z gcosmo $
-//
-///
-///
+/// \defgroup mc MonteCarlo
+/// \ingroup mc
+/// \file zdc.cc
+
 
 #include "DetectorConstruction.hh"
 #include "ActionInitialization.hh"

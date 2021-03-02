@@ -1,5 +1,7 @@
- /** @file DataReader.cxxs
- *  @brief Implementation of DataReader.
+ /** @defgroup ana Analysis
+ *   @ingroup ana
+ *   @file DataReader.cpp
+ *   @brief Implementation of DataReader.
  *
  *  Function definitions for DataReader are provided.
  *  This class reads a rootfile with raw waveforms

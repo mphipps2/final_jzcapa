@@ -1,4 +1,5 @@
-/** @file RPD.cpp
+/** @ingroup ana
+ *  @file RPD.cpp
  *  @brief Implementation of RPD.
  *
  *  Function definitions for RPD are provided.

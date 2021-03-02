@@ -1,4 +1,5 @@
-/** @file WFAnalysis.cxx
+/** @ingroup ana
+ *  @file WFAnalysis.cpp
  *  @brief Implementation of WFAnalysis.
  *
  *  Function definitions for WFAnalysis are provided.

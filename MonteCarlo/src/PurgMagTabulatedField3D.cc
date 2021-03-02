@@ -31,7 +31,8 @@
 //    *    PurgMagTabulatedField3D.cc     *
 //    *                                   *
 //    *************************************
-//
+/// \ingroup mc
+/// \file PurgMagTabulatedField3D.cc
 //
 
 #include "PurgMagTabulatedField3D.hh"
@@ -42,26 +43,26 @@ namespace{
   G4Mutex myPurgMagTabulatedField3DLock = G4MUTEX_INITIALIZER;
 }
 
-PurgMagTabulatedField3D::PurgMagTabulatedField3D(const char* filename, 
-						 double zOffset ) 
+PurgMagTabulatedField3D::PurgMagTabulatedField3D(const char* filename,
+						 double zOffset )
   :fZoffset(zOffset),invertX(false),invertY(false),invertZ(false)
-{    
- 
+{
+
   double lenUnit= millimeter;
-  double fieldUnit= tesla; 
+  double fieldUnit= tesla;
   G4cout << "\n-----------------------------------------------------------"
 	 << "\n      Magnetic field"
 	 << "\n-----------------------------------------------------------";
-    
-  G4cout << "\n ---> " "Reading the field grid from " << filename << " ... " << endl; 
+
+  G4cout << "\n ---> " "Reading the field grid from " << filename << " ... " << endl;
 
   //
-  //This is a thread-local class and we have to avoid that all workers open the 
+  //This is a thread-local class and we have to avoid that all workers open the
   //file at the same time
   G4AutoLock lock(&myPurgMagTabulatedField3DLock);
 
   ifstream file( filename ); // Open the file for reading.
-  
+
   if (!file.is_open())
     {
       G4ExceptionDescription ed;
@@ -73,11 +74,11 @@ PurgMagTabulatedField3D::PurgMagTabulatedField3D(const char* filename,
   // Ignore first blank line
   char buffer[256];
   file.getline(buffer,256);
-  
-  // Read table dimensions 
+
+  // Read table dimensions
   file >> nx >> ny >> nz; // Note dodgy order
 
-  G4cout << "  [ Number of values x,y,z: " 
+  G4cout << "  [ Number of values x,y,z: "
 	 << nx << " " << ny << " " << nz << " ] "
 	 << endl;
 
@@ -96,17 +97,17 @@ PurgMagTabulatedField3D::PurgMagTabulatedField3D(const char* filename,
       zField[ix][iy].resize(nz);
     }
   }
-  
-  // Ignore other header information    
+
+  // Ignore other header information
   // The first line whose second character is '0' is considered to
   // be the last line of the header.
   do {
     file.getline(buffer,256);
   } while ( buffer[1]!='0');
-  
+
   // Read in the data
   double xval,yval,zval,bx,by,bz;
-  
+
   for (ix=0; ix<nx; ix++) {
     for (iy=0; iy<ny; iy++) {
       for (iz=0; iz<nz; iz++) {
@@ -132,28 +133,28 @@ PurgMagTabulatedField3D::PurgMagTabulatedField3D(const char* filename,
 
   G4cout << "\n ---> ... done reading " << endl;
 
-  // G4cout << " Read values of field from file " << filename << endl; 
+  // G4cout << " Read values of field from file " << filename << endl;
   G4cout << " ---> assumed the order:  x, y, z, Bx, By, Bz "
-	 << "\n ---> Min values x,y,z: " 
+	 << "\n ---> Min values x,y,z: "
 	 << minx/cm << " " << miny/cm << " " << minz/cm << " cm "
-	 << "\n ---> Max values x,y,z: " 
+	 << "\n ---> Max values x,y,z: "
 	 << maxx/cm << " " << maxy/cm << " " << maxz/cm << " cm "
 	 << "\n ---> The field will be offset by " << zOffset/cm << " cm " << endl;
 
   // Should really check that the limits are not the wrong way around.
-  if (maxx < minx) {swap(maxx,minx); invertX = true;} 
-  if (maxy < miny) {swap(maxy,miny); invertY = true;} 
-  if (maxz < minz) {swap(maxz,minz); invertZ = true;} 
-  G4cout << "\nAfter reordering if neccesary"  
-	 << "\n ---> Min values x,y,z: " 
+  if (maxx < minx) {swap(maxx,minx); invertX = true;}
+  if (maxy < miny) {swap(maxy,miny); invertY = true;}
+  if (maxz < minz) {swap(maxz,minz); invertZ = true;}
+  G4cout << "\nAfter reordering if neccesary"
+	 << "\n ---> Min values x,y,z: "
 	 << minx/cm << " " << miny/cm << " " << minz/cm << " cm "
-	 << " \n ---> Max values x,y,z: " 
+	 << " \n ---> Max values x,y,z: "
 	 << maxx/cm << " " << maxy/cm << " " << maxz/cm << " cm ";
 
   dx = maxx - minx;
   dy = maxy - miny;
   dz = maxz - minz;
-  G4cout << "\n ---> Dif values x,y,z (range): " 
+  G4cout << "\n ---> Dif values x,y,z (range): "
 	 << dx/cm << " " << dy/cm << " " << dz/cm << " cm in z "
 	 << "\n-----------------------------------------------------------" << endl;
 }
@@ -166,15 +167,15 @@ void PurgMagTabulatedField3D::GetFieldValue(const double point[4],
   double y = point[1];
   double z = point[2] + fZoffset;
 
-  // Check that the point is within the defined region 
+  // Check that the point is within the defined region
   if ( x>=minx && x<=maxx &&
-       y>=miny && y<=maxy && 
+       y>=miny && y<=maxy &&
        z>=minz && z<=maxz ) {
-    
+
     // Position of given point within region, normalized to the range
     // [0,1]
     double xfraction = (x - minx) / dx;
-    double yfraction = (y - miny) / dy; 
+    double yfraction = (y - miny) / dy;
     double zfraction = (z - minz) / dz;
 
     if (invertX) { xfraction = 1 - xfraction;}
@@ -184,19 +185,19 @@ void PurgMagTabulatedField3D::GetFieldValue(const double point[4],
     // Need addresses of these to pass to modf below.
     // modf uses its second argument as an OUTPUT argument.
     double xdindex, ydindex, zdindex;
-    
+
     // Position of the point within the cuboid defined by the
     // nearest surrounding tabulated points
     double xlocal = ( std::modf(xfraction*(nx-1), &xdindex));
     double ylocal = ( std::modf(yfraction*(ny-1), &ydindex));
     double zlocal = ( std::modf(zfraction*(nz-1), &zdindex));
-    
+
     // The indices of the nearest tabulated point whose coordinates
     // are all less than those of the given point
     int xindex = static_cast<int>(xdindex);
     int yindex = static_cast<int>(ydindex);
     int zindex = static_cast<int>(zdindex);
-    
+
 
 #ifdef DEBUG_INTERPOLATING_FIELD
     G4cout << "Local x,y,z: " << xlocal << " " << ylocal << " " << zlocal << endl;
@@ -244,4 +245,3 @@ void PurgMagTabulatedField3D::GetFieldValue(const double point[4],
     Bfield[2] = 0.0;
   }
 }
-

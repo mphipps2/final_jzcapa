@@ -25,6 +25,7 @@
 //
 // $Id: RunAction.cc 93886 2015-11-03 08:28:26Z gcosmo $
 //
+/// \ingroup mc
 /// \file RunAction.cc
 /// \brief Implementation of the RunAction class
 

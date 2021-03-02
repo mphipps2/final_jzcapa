@@ -23,12 +23,10 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+/// \ingroup mc
+/// \file FiberHit.cc
+/// \author Michael Phipps
 //
-// $Id: FiberHit.cc,v 1.10 2006/06/29 17:48:24 gunter Exp $
-// GEANT4 tag $Name: geant4-08-01-patch-01 $
-//
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #include "FiberHit.hh"
 #include "G4UnitsTable.hh"

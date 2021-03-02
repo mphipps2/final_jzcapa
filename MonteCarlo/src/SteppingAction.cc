@@ -24,9 +24,10 @@
 // ********************************************************************
 //
 // $Id: SteppingAction.cc 74483 2013-10-09 13:37:06Z gcosmo $
-//
+/// \ingroup mc
 /// \file SteppingAction.cc
 /// \brief Implementation of the SteppingAction class
+
 
 #include "SteppingAction.hh"
 #include "EventAction.hh"

@@ -1,3 +1,7 @@
+/// \ingroup mc
+/// \file Materials.cc
+/// \author Riccardo Longo
+
 #include "Materials.hh"
 #include "G4SystemOfUnits.hh"
 

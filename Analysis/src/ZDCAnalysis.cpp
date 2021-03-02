@@ -1,17 +1,18 @@
-/** @file ZDCAnalysis.cxx
+/** @ingroup ana
+ *  @file ZDCAnalysis.cpp
  *  @brief Implementation of ZDCAnalysis.
  *
- *  
- *  Function definitions for ZDCAnalysis are provided. 
+ *
+ *  Function definitions for ZDCAnalysis are provided.
  *  This class is the main class for the ZDC analysis.
  *  The analysis is done on both ZDCs simultaneously
- *  
+ *
  *
  *  @author Chad Lantz
  *  @bug No known bugs.
 */
- 
- 
+
+
 #include "ZDCAnalysis.h"
 #include "ZDC.h"
 #include "Containers.h"
@@ -34,7 +35,7 @@ ZDCAnalysis::~ZDCAnalysis( ){
 
 /** @brief Initialization method for ZDCAnalysis
  *
- *  Can add other things here that you would 
+ *  Can add other things here that you would
  *  perhaps not put into the constructor.
  *  I.e. a TTree, some tools. Etc.
  *
@@ -72,7 +73,7 @@ void ZDCAnalysis::Initialize( std::vector < Detector* > _vDet ){
  *  @return none
  */
 void ZDCAnalysis::SetupHistograms( ){
-  
+
     //TH1D
     hChargeRatio = new TH1D("ChargeZDC2_over_ChargeZDC1","Q_{ZDC2}/Q_{ZDC1}",100,0,5);
     //hChargeRatio->SetCanExtend(TH1::kXaxis);
@@ -81,23 +82,23 @@ void ZDCAnalysis::SetupHistograms( ){
 
     hPeakRatio = new TH1D("PeakZDC2_over_PeakZDC1","Peak_{ZDC2}/Peak_{ZDC1}",100,0,5);
     //hPeakRatio->SetCanExtend(TH1::kXaxis);
-    
+
     hCharge1 = new TH1D("ZDC1_Charge","Q_{ZDC1} (pC)",200,0,200);
-    
+
     hCharge2 = new TH1D("ZDC2_Charge","Q_{ZDC2} (pC)",200,0,200);
-    
+
     hPeak1   = new TH1D("ZDC1_Peak","Peak_{ZDC1}",200,0,1000);
-    
+
     hPeak2   = new TH1D("ZDC2_Peak","Peak_{ZDC2}",200,0,1000);
-    
+
     hDpeak1  = new TH1D("ZDC1_Diff_Peak","#frac{#partial V}{#partial t}_{max ZDC1}",200,0,4500);
-    
-    hDpeak2  = new TH1D("ZDC2_Diff_Peak","#frac{#partial V}{#partial t}_{max ZDC2}",200,0,4500); 
+
+    hDpeak2  = new TH1D("ZDC2_Diff_Peak","#frac{#partial V}{#partial t}_{max ZDC2}",200,0,4500);
 
     hArrival1  = new TH1D("ZDC1_Arrival_time","Peak Center_{ZDC1} (ns)",150,240,390);
-    
+
     hArrival2  = new TH1D("ZDC2_Arrival_time","Peak Center_{ZDC2} (ns)",150,240,390);
-    
+
     hToF  = new TH1D("Time_of_Flight","Peak_Center_{ZDC1-ZDC2} (ns)",30,-15,15);
 
     //TH2D
@@ -106,7 +107,7 @@ void ZDCAnalysis::SetupHistograms( ){
 
     hPeak   = new TH2D("ZDC_Peak_Correlation", "ZDC Peak Correlation", 100, 0, 1000, 100, 0, 1000);
     //hPeak->SetCanExtend(TH1::kAllAxes);
-    
+
     hDpeak = new TH2D("ZDC_Diff_Peak_Correlation", "ZDC Diff Peak Correlation", 200, 0, 5000, 200, 0, 5000);
 
     hChargePeakZDC1 = new TH2D("ZDC1_ChargePeakCorrelation","Q_{ZDC1} (pC) vs Peak_{ZDC1}",50,0,200,50,0,1000);
@@ -114,10 +115,10 @@ void ZDCAnalysis::SetupHistograms( ){
 
     hChargePeakZDC2 = new TH2D("ZDC2_ChargePeakCorrelation","Q_{ZDC2} (pC) vs Peak_{ZDC2}",50,0,200,50,0,1000);
     //hChargePeakZDC2->SetCanExtend(TH1::kAllAxes);
-    
-    
-    
-    
+
+
+
+
 
 }
 
@@ -128,7 +129,7 @@ void ZDCAnalysis::SetupHistograms( ){
  */
 void ZDCAnalysis::SetBranches( TTree* _tree ){
     m_AnalysisTree = _tree;
-    
+
     m_AnalysisTree->Branch("zdc1_Charge",           &zdc1->Charge,           "zdc1->Charge/D" );
     m_AnalysisTree->Branch("zdc1_Peak_max",         &zdc1->Peak_max,         "zdc1->Peak_max/D" );
     m_AnalysisTree->Branch("zdc1_Diff_max",         &zdc1->Diff_max,         "zdc1->Diff_max/D" );
@@ -136,7 +137,7 @@ void ZDCAnalysis::SetBranches( TTree* _tree ){
     m_AnalysisTree->Branch("zdc1_Peak_time",        &zdc1->Peak_time,        "zdc1->Peak_Peak_time/D" );
     m_AnalysisTree->Branch("zdc1_Diff_Peak_center", &zdc1->Diff_Peak_center, "zdc1->Diff_Peak_center/I" );
     m_AnalysisTree->Branch("zdc1_Diff_Peak_time",   &zdc1->Diff_Peak_time,   "zdc1->Diff_Peak_Peak_time/D" );
-    
+
     m_AnalysisTree->Branch("zdc2_Charge",           &zdc2->Charge,           "zdc2->Charge/D" );
     m_AnalysisTree->Branch("zdc2_Peak_max",         &zdc2->Peak_max,         "zdc2->Peak_max/D" );
     m_AnalysisTree->Branch("zdc2_Diff_max",         &zdc2->Diff_max,         "zdc2->Diff_max/D" );
@@ -144,7 +145,7 @@ void ZDCAnalysis::SetBranches( TTree* _tree ){
     m_AnalysisTree->Branch("zdc2_Peak_time",        &zdc2->Peak_time,        "zdc2->Peak_Peak_time/D" );
     m_AnalysisTree->Branch("zdc2_Diff_Peak_center", &zdc2->Diff_Peak_center, "zdc2->Diff_Peak_center/I" );
     m_AnalysisTree->Branch("zdc2_Diff_Peak_time",   &zdc2->Diff_Peak_time,   "zdc2->Diff_Peak_Peak_time/D" );
-    
+
 }
 
 /** @brief Analyze Events method for ZDCAnalysis
@@ -152,7 +153,7 @@ void ZDCAnalysis::SetBranches( TTree* _tree ){
  *
  */
 void ZDCAnalysis::AnalyzeEvent( ){
-    
+
     //If neither ZDC was saturated
     if(zdc1->Peak_max<750.0 && zdc2->Peak_max<750.0 &&  zdc1->was_hit && zdc2->was_hit){
 
@@ -164,13 +165,13 @@ void ZDCAnalysis::AnalyzeEvent( ){
 
         hChargePeakZDC1->Fill(zdc1->Charge,zdc1->Peak_max);
         hChargePeakZDC2->Fill(zdc2->Charge,zdc2->Peak_max);
-        
+
         hCharge2->Fill(zdc2->Charge);
         hChargeSum->Fill(zdc1->Charge + zdc2->Charge);
 
         hToF->Fill(zdc2->Diff_Peak_time - zdc1->Diff_Peak_time);
     }
-    
+
     //If ZDC1 wasn't saturated
     if( zdc1->Peak_max<900.0 && zdc1->was_hit){
     //if( zdc1->was_hit){
@@ -179,7 +180,7 @@ void ZDCAnalysis::AnalyzeEvent( ){
         hDpeak1->Fill(zdc1->Diff_max);
         hArrival1->Fill(zdc1->Diff_Peak_time);
     }
-    
+
     //If ZDC1 wasn't saturated
     if( zdc2->Peak_max<900.0 && zdc2->was_hit ){
     //if( zdc2->was_hit ){
@@ -188,7 +189,7 @@ void ZDCAnalysis::AnalyzeEvent( ){
         hDpeak2->Fill(zdc2->Diff_max);
         hArrival2->Fill(zdc2->Diff_Peak_time);
     }
-    
+
 }
 
 /** @brief Finalize method for ZDCAnalysis
@@ -196,10 +197,10 @@ void ZDCAnalysis::AnalyzeEvent( ){
  *
  */
 void ZDCAnalysis::Finalize( ){
-    
+
     std::string output =  std::getenv("JZCaPA");
     output += "/results/";
-    
+
     TCanvas *c = new TCanvas("ZDCAnalysis","ZDCAnalysis",800,600);
     c->cd();
 
@@ -226,34 +227,7 @@ void ZDCAnalysis::Finalize( ){
     m_viz->DrawPlot(hToF,"Time of Flight (ns)","Counts","ZDC_ToF.png","");
     m_viz->DrawPlot(hChargeSum,"Q_{total} (pC)","Counts","ZDC_Qtot.png","");
     m_viz->DrawPlot(hDpeak,"#frac{#partial V}{#partial t}_{max ZDC1}","#frac{#partial V}{#partial t}_{max ZDC2}","ZDC_Dpeak_corr.png","COLZ");
-    
+
     delete c;
-    
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

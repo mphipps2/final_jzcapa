@@ -1,4 +1,3 @@
-
 //
 // ********************************************************************
 // * License and Disclaimer                                           *
@@ -24,11 +23,87 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: PrimaryGeneratorAction.cc 94307 2015-11-11 13:42:46Z gcosmo $
-//
+/// \ingroup mc
 /// \file PrimaryGeneratorAction.cc
 /// \brief Implementation of the PrimaryGeneratorAction class
+/// \author Chad Lantz
+/** \class PrimaryGeneratorAction
 
+    PrimaryGeneratorAction is responsible for producing the primary particles
+    in the simulation and cutting input from event generators to suit the selected
+    beam environment (LHC only for now).
+
+    PrimaryGeneratorAction supports:
+    - G4GeneralParticleSource through macro commands
+    - Creation of events with CRMC
+    - Creation of events with a ToyV1 generator developed by KU
+    - Creation of n neutron events at 2.5TeV
+
+    #General beam parameters
+    - <b>/beam/type</b>
+      - Set the beam environment. Options are LHC, FNAL or SPS
+
+    - <b>/beam/pos</b>
+      - Set the origin of the beam particles
+
+    - <b>/beam/projectBeam</b>
+      - Set the z value for the beam to be projected to if /beam/pos
+       is outside of the world volume
+
+    - <b>/beam/GeneratorModel</b>
+      - Set the generator model. Options are ToyV1, epos_LHC, epos_1.99,
+        pythia, gheisha, hijing, sibyll, qgsjet01, qgsjetII03, qgsjetII04,
+        phojet, and dpmjet. Models availavle depend on your local installation
+        of CRMC.
+
+    - <b>/beam/input</b>
+      - Set the name of the input root file to be used
+
+    #LHC environment parameters
+    - <b>/beam/LHC/verticalCrossingAngle</b>
+      - Set the vertical crossing angle. This will rotate any input by the crossing angle
+
+    - <b>/beam/LHC/horizontalCrossingAngle</b>
+      - Set the horizontal crossing angle. This will rotate any input by the crossing angle
+
+    - <b>/beam/nPrimaries</b>
+      - If no input or event generator is chosen, set the number of neutrons
+        to be generated
+
+    - <b>/beam/SetMinimmPseudorapidity</b>
+      - Set the minimum pseudorapidity. (Useful for event generators)
+
+    - <b>/beam/randomizeReactionPlane</b>
+      - Randomize the reaction plane angle for each event
+
+    #ToyV1 parameters
+    - <b>/beam/MultiplicityDistribution</b>
+      - Set the distribution that governs neutron multiplicity. Options are:
+        - Histogram: Based on epos multiplicity
+        - Function: Poisson distribuion
+
+    - <b>/beam/SetnPrimaries</b>
+      - Set the MPV of the Poisson multiplicity distrubution
+
+    - <b>/beam/MinSpectators</b>
+      - Set the minimum number of neutrons to be generated
+
+    - <b>/beam/MaxSpectators</b>
+      - Set the maximum number of neutrons to be generated
+
+    - <b>/beam/FragmentationPtDistribution</b>
+      - Set the distribution for pt due to fragmentation. Options are:
+        - gaus: Gaussian
+        - histogram: Distribution from epos output
+        - function: gaus + pol1
+
+    - <b>/beam/SetMeanFragmentationPt</b>
+      - Set the mean Pt kick due to spectator fragmentation
+
+    - <b>/beam/SetMeanCollisionPt</b>
+      - Set the mean Pt kick due to the primary Pb + Pb collision
+
+*/
 #include "PrimaryGeneratorAction.hh"
 
 #include "G4LogicalVolumeStore.hh"

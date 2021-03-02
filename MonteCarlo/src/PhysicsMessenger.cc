@@ -22,8 +22,8 @@
 // * use  in  resulting  scientific  publications,  and indicate your *
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
-//
-/// \file src/PhysicsMessenger.cc
+/// \ingroup mc
+/// \file PhysicsMessenger.cc
 //---------------------------------------------------------------
 //
 //  From G4UserPhysicsListMessenger.cc
@@ -35,6 +35,7 @@
 //        add dumpOrderingParam command    3 May. 2011 by H.Kurashige
 //        add SelectList command             Jul. 2020 by C.Lantz
 // ------------------------------------------------------------
+
 
 #include "PhysicsMessenger.hh"
 #include "PhysicsList.hh"

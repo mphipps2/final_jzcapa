@@ -1,3 +1,6 @@
+/// \ingroup mc
+/// \file PhysicsList.cc
+
 #include "PhysicsList.hh"
 #include "PhysicsMessenger.hh"
 

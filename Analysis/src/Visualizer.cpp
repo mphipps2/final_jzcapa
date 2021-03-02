@@ -1,4 +1,5 @@
-/** @file Visualizer.cpp
+/** @ingroup ana
+ *  @file Visualizer.cpp
  *  @brief Implementation of Visualizer class.
  *
  *

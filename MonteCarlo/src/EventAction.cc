@@ -23,10 +23,12 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+/// \ingroup mc
 /// \file RunAction.cc
 /// \brief Implementation of the RunAction class
 /// \author Chad Lantz
 /// \date 16 April 2020
+
 
 #include "EventAction.hh"
 #include "FiberHit.hh"

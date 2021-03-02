@@ -1,4 +1,5 @@
-/** @file RPDAnalysis.cxx
+/** @ingroup ana
+ *  @file RPDAnalysis.cpp
  *  @brief Implementation of RPDAnalysis.
  *
  *

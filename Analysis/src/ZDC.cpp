@@ -1,4 +1,5 @@
-/** @file ZDC.cpp
+/** @ingroup ana
+ *  @file ZDC.cpp
  *  @brief Implementation of ZDC.
  *
  *  Function definitions for ZDC are provided.

@@ -23,11 +23,12 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-//
+/// \ingroup mc
 /// \file AnalysisManager.hh
 /// \brief Definition of the AnalysisManager class
 /// \author Chad Lantz
 /// \date 16 April 2020
+
 
 #include "AnalysisManager.hh"
 #include "DetectorConstruction.hh"

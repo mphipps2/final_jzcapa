@@ -1,19 +1,20 @@
-/** @file Detector.cpp
+/** @ingroup ana
+ *  @file Detector.cpp
  *  @brief Implementation of Detector.
  *
- *  Function definitions for Detector are provided. 
- *  This is the mother class for detectors. 
+ *  Function definitions for Detector are provided.
+ *  This is the mother class for detectors.
  *  Methods common to all detectors are implemented here.
  *
  *  @author Chad Lantz, Riccardo Longo
  *  @bug No known bugs.
  */
- 
+
 #include "Detector.h"
 #include "Containers.h"
 #include <vector>
- 
- 
+
+
 /** @brief Default Constructor for Detector.
  */
 Detector::Detector( ){
@@ -34,10 +35,10 @@ Detector::~Detector( ){
  * Returns a pointer to the Channel stored in m_Elements with the
  * requested row and column.
  * If the requested element is not found, return a warning message and a NULL pointer.
- * 
+ *
  */
 Channel* Detector::GetElement(int row, int column){
-    
+
     for(int i=0; i < (int)m_Element.size(); i++){
             if(row == m_Element[i]->mapping_row && column == m_Element[i]->mapping_column){
             return m_Element[i];
@@ -45,7 +46,7 @@ Channel* Detector::GetElement(int row, int column){
   }
   std::cerr << " WARNING: Element (" << row << "," << column << ") not found! " << std::endl;
   return nullptr;
-    
+
 }
 
 /** @brief Get the properties of a detector element
@@ -53,16 +54,16 @@ Channel* Detector::GetElement(int row, int column){
  * Returns a pointer to the Channel stored in m_Elements with the
  * requested channel name.
  * If the requested element is not found, return a warning message and a NULL pointer.
- * 
+ *
  */
 Channel* Detector::GetElement(std::string _name){
-    
+
     for(int i=0; i < (int)m_Element.size(); i++){
             if(!_name.compare(m_Element.at(i)->name)) return m_Element[i];
   }
   std::cerr << " WARNING: Element (" << _name << ") not found! " << std::endl;
   return nullptr;
-    
+
 }
 
 /**
@@ -106,13 +107,3 @@ void Detector::FillHistograms(){
           } // End loop over samples in each channel
         }
 }
-
-
-
-
-
-
-
-
-
-

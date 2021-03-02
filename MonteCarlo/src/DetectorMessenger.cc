@@ -23,10 +23,12 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
+/// \ingroup mc
 /// \file DetectorMessenger.cc
 /// \brief Implementation of the DetectorMessenger class
 /// \author Chad Lantz
 /// \date 16 April 2020
+
 
 #include "DetectorMessenger.hh"
 

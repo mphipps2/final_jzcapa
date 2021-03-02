@@ -1,3 +1,6 @@
+/// \ingroup mc
+/// \file StepMax.cc
+
 #include "G4Track.hh"
 #include "G4VParticleChange.hh"
 

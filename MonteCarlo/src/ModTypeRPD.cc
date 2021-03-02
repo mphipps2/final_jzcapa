@@ -22,11 +22,12 @@
 // * use  in  resulting  scientific  publications,  and indicate your *
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
-//
-/// \file ModTypeRPD.hh
-/// \brief Implementation of the ModTypeRPD class
+/// \ingroup mc
+/// \file ModTypeRPD.cc
+/// \brief RPD detector construction
 /// \author Aric Tate
 /// \date February 2019
+
 
 
 #include "ModTypeRPD.hh"

@@ -1,12 +1,15 @@
-/** @file XMLSettingsReader.cpp
- *  @brief Implementation of XMLSettingsReader.
+/** \ingroup mc
+ *  \file XMLSettingsReader.cc
+ *  \brief Implementation of XMLSettingsReader.
+ *  \author Riccardo Longo
+ *  \bug No known bugs.
  *
  *  Function definitions for XMLSettingsReader are provided.
  *  This class is the main  class to read xml configuration files for ZDCs and RPD.
  *  DOM logic is chosen for the xml implementation
- *  @author Riccardo Longo
- *  @bug No known bugs.
  */
+ /**
+ **/
 
 #include "XMLSettingsReader.hh"
 
@@ -237,6 +240,3 @@ bool XMLSettingsReader::parseFile(std::string _fileName){
       return true;
 
 }
-
-
-

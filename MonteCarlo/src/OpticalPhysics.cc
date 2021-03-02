@@ -1,3 +1,6 @@
+/// \ingroup mc
+/// \file OpticalPhysics.cc
+
 #include "G4LossTableManager.hh"
 #include "G4EmSaturation.hh"
 
@@ -40,7 +43,7 @@ void OpticalPhysics::ConstructProcess()
     G4cout << "OpticalPhysics:: Add Optical Physics Processes"
            << G4endl;
 
-    /*      
+    /*
   fWLSProcess = new G4OpWLS();
 
   fScintProcess = new G4Scintillation();

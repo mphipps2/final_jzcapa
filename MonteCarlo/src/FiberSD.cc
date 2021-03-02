@@ -23,7 +23,9 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// Author: Michael Phipps
+/// \ingroup mc
+/// \file FiberSD.cc
+/// \author Michael Phipps
 
 #include "FiberSD.hh"
 #include "SteppingAction.hh"
