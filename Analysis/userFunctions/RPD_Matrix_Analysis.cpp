@@ -27,6 +27,7 @@
 #include <Visualizer.h>
 #include <TPaveStats.h>
 #include <TPad.h>
+#include <TROOT.h>
 #include <TGraph.h>
 #include <TLegend.h>
 #include <TGraphErrors.h>
