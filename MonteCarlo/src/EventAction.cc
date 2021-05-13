@@ -133,17 +133,22 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
     G4int         nCherenkovs   = (*HC)[i]->getNCherenkovs(); // This is the number of cherenkovs in a single step within the SD
     G4int         trackID       = (*HC)[i]->getTrackID();
 
-    //Sum energy and nCherenkovs from all steps a particle takes in a single scoring volume
-    if (trackID == prevTrackId || rodNo == prevRodNo || eDep != 0) {
-      nCherenkovsSum += nCherenkovs;
-      eDepSum += eDep;
 
-      prevTrackId = trackID;
-      prevRodNo = rodNo;
-      continue;
-    }// end summation
+    
+    // Goal of this block of code: only save hit once per charged particle per SD
+    // Requires: summing data from each step per track per SD
+    // Since geant tracks a single particle all the way through to its death, we can achieve this by summing contiguous steps from the same track in the same volume
+    // Only save the hit on the track's final step in the SD. Then reset the Cherenkov and EDep counters to zero
+    nCherenkovsSum += nCherenkovs;
+    eDepSum += eDep;
+    if (i+1 != n_hit) {
+      G4int nextRodNo    = (*HC)[i+1]->getRodNb();
+      G4int nextTrackID  = (*HC)[i+1]->getTrackID();
+      if (trackID == nextTrackID && rodNo == nextRodNo)  continue;
+    }
 
 
+    
     G4ThreeVector position      = (*HC)[i]->getPos();
     G4ThreeVector origin        = (*HC)[i]->getOrigin();
     G4ThreeVector momentum      = (*HC)[i]->getMomentum();
@@ -167,6 +172,7 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
       m_RPDdblVec->at(modNo-1).at(7). push_back( velocity     );
       m_RPDdblVec->at(modNo-1).at(8). push_back( beta         );
       m_RPDdblVec->at(modNo-1).at(9). push_back( eDepSum      );
+      // m_RPDdblVec->at(modNo-1).at(9). push_back( eDep      );
       m_RPDdblVec->at(modNo-1).at(10).push_back( charge       );
       m_RPDdblVec->at(modNo-1).at(11).push_back( time         );
 
@@ -174,6 +180,7 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
       m_RPDintVec->at(modNo-1).at(0).push_back( rodNo          );
       m_RPDintVec->at(modNo-1).at(1).push_back( modNo          );
       m_RPDintVec->at(modNo-1).at(2).push_back( nCherenkovsSum );
+      //m_RPDintVec->at(modNo-1).at(2).push_back( nCherenkovs );
       m_RPDintVec->at(modNo-1).at(3).push_back( trackID        );
       m_RPDintVec->at(modNo-1).at(4).push_back( pid            );
     // end if RPD
@@ -189,20 +196,26 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
         m_ZDCdblVec->at(modNo-1).at(6). push_back( energy       );
         m_ZDCdblVec->at(modNo-1).at(7). push_back( velocity     );
         m_ZDCdblVec->at(modNo-1).at(8). push_back( beta         );
-        m_ZDCdblVec->at(modNo-1).at(9). push_back( eDepSum      );
+	m_ZDCdblVec->at(modNo-1).at(9). push_back( eDepSum      );
+	//        m_ZDCdblVec->at(modNo-1).at(9). push_back( eDep      );
         m_ZDCdblVec->at(modNo-1).at(10).push_back( charge       );
         m_ZDCdblVec->at(modNo-1).at(11).push_back( time         );
 
         //ints
         m_ZDCintVec->at(modNo-1).at(0).push_back( rodNo          );
         m_ZDCintVec->at(modNo-1).at(1).push_back( modNo          );
-        m_ZDCintVec->at(modNo-1).at(2).push_back( nCherenkovsSum );
+	m_ZDCintVec->at(modNo-1).at(2).push_back( nCherenkovsSum );
+        // m_ZDCintVec->at(modNo-1).at(2).push_back( nCherenkovs );
         m_ZDCintVec->at(modNo-1).at(3).push_back( trackID        );
         m_ZDCintVec->at(modNo-1).at(4).push_back( pid            );
       }// end if ZDC
     }// end else (!RPD)
+    // uncomment for corrected code
+    prevRodNo = rodNo;
+    prevTrackId = trackID;
+    // Reset Cherenkov and EDep counters to zero after every saved hit
     nCherenkovsSum = 0;
-    eDepSum = 0.0;
+    eDepSum = 0.;
   }//end of hit loop
 }
 

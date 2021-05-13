@@ -117,5 +117,5 @@
 
   - Execute zdc in the 'batch' mode from macro files (without visualization)
   ```
-  $ ./zdc -m run.mac -o results/resultsFile.root
+  $ ./zdc -m run1.mac -o Output/resultsFile.root -i Input/myGeneration_A.root
   ```
