@@ -153,6 +153,8 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
       return true;
     }
   }else{ // Otherwise record all hits
+    // don't record Cherenkovs in optical-off mode
+    if (particle->GetPDGEncoding() == -22) return true;
     if(REDUCED_TREE){
       m_cherenkovVec->at(rodNum) += capturedPhotons;
       FillTimeVector( rodNum, aStep->GetTrack()->GetGlobalTime(), capturedPhotons );

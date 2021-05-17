@@ -105,8 +105,7 @@ void EventAction::EndOfEventAction(const G4Event* evt){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
-  G4int prevTrackId = 0;
-  G4int prevRodNo = 0;
+
   G4int nCherenkovsSum = 0;
   G4double eDepSum = 0.0;
 
@@ -122,7 +121,6 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
     return;
   }
 
-
   int n_hit = HC->entries();
   G4cout << name << " nHits = " << n_hit << G4endl;
   for ( G4int i = 0 ; i < n_hit; i++){
@@ -134,21 +132,6 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
     G4int         trackID       = (*HC)[i]->getTrackID();
 
 
-    
-    // Goal of this block of code: only save hit once per charged particle per SD
-    // Requires: summing data from each step per track per SD
-    // Since geant tracks a single particle all the way through to its death, we can achieve this by summing contiguous steps from the same track in the same volume
-    // Only save the hit on the track's final step in the SD. Then reset the Cherenkov and EDep counters to zero
-    nCherenkovsSum += nCherenkovs;
-    eDepSum += eDep;
-    if (i+1 != n_hit) {
-      G4int nextRodNo    = (*HC)[i+1]->getRodNb();
-      G4int nextTrackID  = (*HC)[i+1]->getTrackID();
-      if (trackID == nextTrackID && rodNo == nextRodNo)  continue;
-    }
-
-
-    
     G4ThreeVector position      = (*HC)[i]->getPos();
     G4ThreeVector origin        = (*HC)[i]->getOrigin();
     G4ThreeVector momentum      = (*HC)[i]->getMomentum();
@@ -159,6 +142,23 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
     G4double      time          = (*HC)[i]->getTime();
 
     G4int         pid           = (*HC)[i]->getParticle()->GetPDGEncoding();
+    
+    // Goal of this block of code: only save hit once per charged particle per SD
+    // Requires: summing data from each step per track per SD
+    // Since geant tracks a single particle all the way through to its death, we can achieve this by summing contiguous steps from the same track in the same volume
+    // Only save the hit on the track's final step in the SD. Then reset the Cherenkov and EDep counters to zero
+    nCherenkovsSum += nCherenkovs;
+    eDepSum += eDep;
+
+    G4int nextTrack = i+1;
+    if (nextTrack != n_hit) {
+      G4int nextRodNo    = (*HC)[nextTrack]->getRodNb();
+      G4int nextTrackID  = (*HC)[nextTrack]->getTrackID();
+     
+      if (trackID == nextTrackID && rodNo == nextRodNo)  {
+	continue;
+      }
+    }        
 
     if( sd->IsRPD() ){
       //doubles
@@ -172,7 +172,6 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
       m_RPDdblVec->at(modNo-1).at(7). push_back( velocity     );
       m_RPDdblVec->at(modNo-1).at(8). push_back( beta         );
       m_RPDdblVec->at(modNo-1).at(9). push_back( eDepSum      );
-      // m_RPDdblVec->at(modNo-1).at(9). push_back( eDep      );
       m_RPDdblVec->at(modNo-1).at(10).push_back( charge       );
       m_RPDdblVec->at(modNo-1).at(11).push_back( time         );
 
@@ -180,7 +179,6 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
       m_RPDintVec->at(modNo-1).at(0).push_back( rodNo          );
       m_RPDintVec->at(modNo-1).at(1).push_back( modNo          );
       m_RPDintVec->at(modNo-1).at(2).push_back( nCherenkovsSum );
-      //m_RPDintVec->at(modNo-1).at(2).push_back( nCherenkovs );
       m_RPDintVec->at(modNo-1).at(3).push_back( trackID        );
       m_RPDintVec->at(modNo-1).at(4).push_back( pid            );
     // end if RPD
@@ -197,7 +195,6 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
         m_ZDCdblVec->at(modNo-1).at(7). push_back( velocity     );
         m_ZDCdblVec->at(modNo-1).at(8). push_back( beta         );
 	m_ZDCdblVec->at(modNo-1).at(9). push_back( eDepSum      );
-	//        m_ZDCdblVec->at(modNo-1).at(9). push_back( eDep      );
         m_ZDCdblVec->at(modNo-1).at(10).push_back( charge       );
         m_ZDCdblVec->at(modNo-1).at(11).push_back( time         );
 
@@ -205,17 +202,15 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
         m_ZDCintVec->at(modNo-1).at(0).push_back( rodNo          );
         m_ZDCintVec->at(modNo-1).at(1).push_back( modNo          );
 	m_ZDCintVec->at(modNo-1).at(2).push_back( nCherenkovsSum );
-        // m_ZDCintVec->at(modNo-1).at(2).push_back( nCherenkovs );
         m_ZDCintVec->at(modNo-1).at(3).push_back( trackID        );
         m_ZDCintVec->at(modNo-1).at(4).push_back( pid            );
       }// end if ZDC
     }// end else (!RPD)
-    // uncomment for corrected code
-    prevRodNo = rodNo;
-    prevTrackId = trackID;
+
     // Reset Cherenkov and EDep counters to zero after every saved hit
     nCherenkovsSum = 0;
     eDepSum = 0.;
+
   }//end of hit loop
 }
 
