@@ -48,8 +48,6 @@
 
 #include "Randomize.hh"
 
-#include <time.h>
-
 /*
 */
 namespace {
@@ -64,11 +62,8 @@ namespace {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-clock_t fT;
-
 int main(int argc,char** argv)
 {
-  fT = clock();
   // Evaluate arguments
   //
   if ( argc > 9 ) {
@@ -176,9 +171,6 @@ int main(int argc,char** argv)
     ui->SessionStart();
     delete ui;
   }
-
-  fT = clock() - fT;
-  printf ("Run Time: %f seconds.\n",((float)fT)/CLOCKS_PER_SEC);
   
   delete visManager;
   delete runManager;
