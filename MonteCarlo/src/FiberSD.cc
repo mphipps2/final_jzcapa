@@ -109,6 +109,8 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
 
 G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
+  G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
+  
   //Get the number of Cherenkov photons created in this step
   int capturedPhotons = 0;
   const std::vector<const G4Track*>* secVec = aStep->GetSecondaryInCurrentStep();
@@ -125,7 +127,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   G4int rodNum = aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber(0);
 
   G4ThreeVector pos = aStep->GetTrack()->GetPosition();
-  G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
+  //  G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
 
   // If OPTICAL is true, determine if the photon has reached the top of the topOfVolume
   // and add the hit to the collection if it has
@@ -154,7 +156,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     }
   }else{ // Otherwise record all hits
     // don't record Cherenkovs in optical-off mode
-    if (particle->GetPDGEncoding() == -22) return true;
+    if (aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) return true;
     if(REDUCED_TREE){
       m_cherenkovVec->at(rodNum) += capturedPhotons;
       FillTimeVector( rodNum, aStep->GetTrack()->GetGlobalTime(), capturedPhotons );

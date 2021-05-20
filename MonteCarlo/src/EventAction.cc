@@ -123,6 +123,7 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
 
   int n_hit = HC->entries();
   G4cout << name << " nHits = " << n_hit << G4endl;
+
   for ( G4int i = 0 ; i < n_hit; i++){
 
     G4double      eDep          = (*HC)[i]->getEdep();
@@ -151,10 +152,11 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
     eDepSum += eDep;
 
     G4int nextTrack = i+1;
+
     if (nextTrack != n_hit) {
       G4int nextRodNo    = (*HC)[nextTrack]->getRodNb();
       G4int nextTrackID  = (*HC)[nextTrack]->getTrackID();
-     
+      
       if (trackID == nextTrackID && rodNo == nextRodNo)  {
 	continue;
       }
@@ -210,7 +212,6 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
     // Reset Cherenkov and EDep counters to zero after every saved hit
     nCherenkovsSum = 0;
     eDepSum = 0.;
-
   }//end of hit loop
 }
 
