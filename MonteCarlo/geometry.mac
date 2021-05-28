@@ -49,7 +49,7 @@
 
 /Detector/RPD/Add
 /Detector/RPD/Position 0. 0. 187. mm
-/Detector/RPD/FiberDiameters .71 .68 .73 mm
+/Detector/RPD/FiberDiameters .60 .66 .71 mm
 /Detector/RPD/HousingThickness 2. mm
 /Detector/RPD/FiberPitchX 1.2 mm
 /Detector/RPD/FiberPitchZ 2.0 mm
