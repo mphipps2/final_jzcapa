@@ -84,6 +84,8 @@ ModTypeRPD::ModTypeRPD(const G4int cn, G4LogicalVolume* mother, G4ThreeVector* p
     CHECK_OVERLAPS(false),
     READOUT(false),
     REDUCED_TREE(false),
+    CLAD(false),
+    BUFFERED(false),
     m_logicMother( mother )
 {
 	materials = Materials::getInstance();
@@ -110,6 +112,8 @@ ModTypeRPD::ModTypeRPD(const G4int cn, ModTypeRPD* right)
   CHECK_OVERLAPS 		  = right->CHECK_OVERLAPS;
   READOUT 		        = right->READOUT;
   REDUCED_TREE 		    = right->REDUCED_TREE;
+  CLAD         		    = right->CLAD;
+  BUFFERED    		    = right->BUFFERED;
 	materials					  = right->materials;
 	m_logicMother 		  = right->m_logicMother;
 }
@@ -122,8 +126,9 @@ ModTypeRPD::~ModTypeRPD()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void ModTypeRPD::Construct(){
+  printf("Before materials\n");
   DefineMaterials();
-
+  printf("after materials\n");
 	if(m_detType == "cms"){
 		ConstructCMSDetector();
 	}else {
@@ -164,8 +169,24 @@ void ModTypeRPD::DefineMaterials()
 
 void ModTypeRPD::ConstructPanFluteDetector()
 {
+
 	//retrieve RPD parameters
 	G4double fiber_diam = m_fiberDiam->x(); // Just core for now
+
+  if(m_fiberDiam->x() < m_fiberDiam->y()){
+    CLAD = true;
+    fiber_diam = m_fiberDiam->y();
+  }
+  if(m_fiberDiam->x() < m_fiberDiam->z() && m_fiberDiam->y() < m_fiberDiam->z()){
+    BUFFERED = true;
+    fiber_diam = m_fiberDiam->z();
+  }
+  if(!CLAD || !BUFFERED){
+    G4cout << "RPD" << m_modNum << " fibers will not have cladding or buffer" << G4endl;
+  }
+
+  //If the fiber is not clad but is buffered, the buffer will have to touch the core
+  G4double buffer_inner = (CLAD) ? m_fiberDiam->y() : m_fiberDiam->x();
 
 	char name[256];
 
@@ -221,7 +242,6 @@ void ModTypeRPD::ConstructPanFluteDetector()
     pitchZ = pitchX;
 
   }
-
 
 	// Distance in X and Z from one fiber to another diagonally from it
 	G4double offsetX = pitchX/2;
@@ -290,14 +310,36 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
     m_PFreadout_airLogical->SetVisAttributes(G4Colour(0.0,0.8,1.0,0.05));
 
-    //Create readout fibers
-    sprintf(name,"m_PFreadout_%d", m_modNum);
-    m_PFreadout_fiber = new G4Tubs(name,
+    //Create readout fiber core
+    sprintf(name,"m_PFreadoutCore_%d", m_modNum);
+    m_PFreadout_fiberCore = new G4Tubs(name,
                                    0.0*mm,
-                                   fiber_diam*mm/2.0,
+                                   m_fiberDiam->x()*mm/2.0,
                                    m_distanceToReadout*mm/2.0 ,
                                    0.0*deg,
                                    360.0*deg);
+
+    if(CLAD){
+      //Create readout fiber cladding
+      sprintf(name,"m_PFreadoutClad_%d", m_modNum);
+      m_PFreadout_fiberClad = new G4Tubs(name,
+                                     0.0*mm,
+                                     fiber_diam*mm/2.0,
+                                     m_distanceToReadout*mm/2.0 ,
+                                     0.0*deg,
+                                     360.0*deg);
+    }
+
+    if(BUFFERED){
+    //Create readout fiber buffer
+    sprintf(name,"m_PFreadoutBuff_%d", m_modNum);
+    m_PFreadout_fiberBuff = new G4Tubs(name,
+                                   buffer_inner*mm/2.0,
+                                   m_fiberDiam->z()*mm/2.0,
+                                   m_distanceToReadout*mm/2.0,
+                                   0.0*deg,
+                                   360.0*deg);
+    }
 
   }
 
@@ -306,14 +348,36 @@ void ModTypeRPD::ConstructPanFluteDetector()
     // Calculate the height of fibers in this row
 		fiber_height = m_tileSize*(row+1) ;//Just the portion of the fiber in the active region
 
-		// The fiber solid. One length for each row
+		// The fiber core. One length for each row
 		sprintf(name,"m_PFrpd_%d", row);
-		m_PFrpd.push_back( new G4Tubs(name,
+		m_PFrpdCore.push_back( new G4Tubs(name,
 														0.0*mm,
-														fiber_diam*mm/2.0,
+														m_fiberDiam->x()*mm/2.0,
 														fiber_height*mm/2.0 ,
 														0.0*deg,
 														360.0*deg) );
+
+    if(CLAD){
+  		// The fiber cladding. One length for each row
+  		sprintf(name,"m_PFrpd_%d", row);
+  		m_PFrpdClad.push_back( new G4Tubs(name,
+  														m_fiberDiam->x()*mm/2.0,
+  														m_fiberDiam->y()*mm/2.0,
+  														fiber_height*mm/2.0 ,
+  														0.0*deg,
+  														360.0*deg) );
+    }
+
+    if(BUFFERED){
+  		// The fiber buffer. One length for each row
+  		sprintf(name,"m_PFrpd_%d", row);
+  		m_PFrpdBuff.push_back( new G4Tubs(name,
+  														buffer_inner*mm/2.0,
+  														m_fiberDiam->z()*mm/2.0,
+  														fiber_height*mm/2.0 ,
+  														0.0*deg,
+  														360.0*deg) );
+    }
 
 		// Create an air channel for the fiber to be routed
 		sprintf(name,"m_PFchannel_%d", row);
@@ -323,7 +387,6 @@ void ModTypeRPD::ConstructPanFluteDetector()
                                fiber_height*mm/2.0 ,
    														 0.0*deg,
    														 360.0*deg) );
-
 
 		for(G4int col = 0; col < n_columns; col++){
 			//Now we're in the realm of working on a single tile
@@ -366,50 +429,136 @@ void ModTypeRPD::ConstructPanFluteDetector()
                                   m_fiber_count,
                                   CHECK_OVERLAPS) );
 
-            //----------------------- Place fiber in the housing -----------------------//
+            //----------------------- Place fiber core in the housing -----------------------//
             sprintf(name,"m_PFrpd_log_%d",m_fiber_count);
-            m_PFrpdLogical.push_back( new G4LogicalVolume( m_PFrpd.back(), m_matQuartz, name) );
+            m_PFrpdCoreLogical.push_back( new G4LogicalVolume( m_PFrpdCore.back(), m_matQuartz, name) );
 
-            m_PFrpdLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
-        	  m_PFrpdLogical.back()->SetVisAttributes( colors[row] );
+            m_PFrpdCoreLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
+        	  m_PFrpdCoreLogical.back()->SetVisAttributes( colors[row] );
 
             sprintf(name,"m_PFrpd_phys_%d", m_fiber_count);
-            m_PFrpdPhysical.push_back(
+            m_PFrpdCorePhysical.push_back(
                 new G4PVPlacement(stripRotation,
                                   G4ThreeVector( posx[pattern]*mm , posy*mm , posz[pattern]*mm ),
-                                  m_PFrpdLogical.back(),
+                                  m_PFrpdCoreLogical.back(),
                                   name,
                                   m_PFrpd_housingLogical,
                                   false,
                                   m_fiber_count,
                                   CHECK_OVERLAPS) );
 
+            //----------------------- Place fiber cladding in the housing -----------------------//
+            if(CLAD){
+            sprintf(name,"m_PFrpdClad_log_%d",m_fiber_count);
+            m_PFrpdCladLogical.push_back( new G4LogicalVolume( m_PFrpdClad.back(), materials->fiberClad, name) );
+
+            m_PFrpdCladLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
+        	  m_PFrpdCladLogical.back()->SetVisAttributes( colors[row] );
+
+            sprintf(name,"m_PFrpdClad_phys_%d", m_fiber_count);
+            m_PFrpdCladPhysical.push_back(
+                new G4PVPlacement(stripRotation,
+                                  G4ThreeVector( posx[pattern]*mm , posy*mm , posz[pattern]*mm ),
+                                  m_PFrpdCladLogical.back(),
+                                  name,
+                                  m_PFrpd_housingLogical,
+                                  false,
+                                  m_fiber_count,
+                                  CHECK_OVERLAPS) );
+
+            }
+            //----------------------- Place fiber buffer in the housing -----------------------//
+            if(BUFFERED){
+            sprintf(name,"m_PFrpdBuff_log_%d",m_fiber_count);
+            m_PFrpdBuffLogical.push_back( new G4LogicalVolume( m_PFrpdBuff.back(), materials->Kapton, name) );
+
+            m_PFrpdBuffLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
+        	  m_PFrpdBuffLogical.back()->SetVisAttributes( colors[row] );
+
+            sprintf(name,"m_PFrpdBuff_phys_%d", m_fiber_count);
+            m_PFrpdBuffPhysical.push_back(
+                new G4PVPlacement(stripRotation,
+                                  G4ThreeVector( posx[pattern]*mm , posy*mm , posz[pattern]*mm ),
+                                  m_PFrpdBuffLogical.back(),
+                                  name,
+                                  m_PFrpd_housingLogical,
+                                  false,
+                                  m_fiber_count,
+                                  CHECK_OVERLAPS) );
+            }
 
             //----------------------- Place readout fiber in the air volume if selected-----------------------//
             if ( READOUT ){
-              sprintf(name,"m_PFreadout_log_%d",m_fiber_count);
-              m_PFreadout_fiberLogical.push_back(
+              //Core
+              sprintf(name,"m_PFreadoutCore_log_%d",m_fiber_count);
+              m_PFreadout_fiberCoreLogical.push_back(
                             new G4LogicalVolume(
-                                        m_PFreadout_fiber,
+                                        m_PFreadout_fiberCore,
                                         m_matQuartz,
                                         name) );
 
-              m_PFreadout_fiberLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
-          	  m_PFreadout_fiberLogical.back()->SetVisAttributes(colors[row]); //G4Colour(1.0,0.0,1.0,0.9)
+              m_PFreadout_fiberCoreLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
+          	  m_PFreadout_fiberCoreLogical.back()->SetVisAttributes(colors[row]); //G4Colour(1.0,0.0,1.0,0.9)
 
-              sprintf(name,"phys_PFreadout_%d", m_fiber_count);
-              m_PFreadout_fiberPhysical.push_back(
+              sprintf(name,"phys_PFreadoutCore_%d", m_fiber_count);
+              m_PFreadout_fiberCorePhysical.push_back(
                 new G4PVPlacement(stripRotation,
                                   G4ThreeVector( posx[pattern]*mm , 0.0 , posz[pattern]*mm ),
-                                  m_PFreadout_fiberLogical.back(),
+                                  m_PFreadout_fiberCoreLogical.back(),
                                   name,
                                   m_PFreadout_airLogical,
                                   false,
                                   m_fiber_count,
                                   CHECK_OVERLAPS) );
 
-            }
+              //Cladding
+              if(CLAD){
+              sprintf(name,"m_PFreadoutClad_log_%d",m_fiber_count);
+              m_PFreadout_fiberCladLogical.push_back(
+                            new G4LogicalVolume(
+                                        m_PFreadout_fiberClad,
+                                        m_matQuartz,
+                                        name) );
 
+              m_PFreadout_fiberCladLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
+          	  m_PFreadout_fiberCladLogical.back()->SetVisAttributes(colors[row]); //G4Colour(1.0,0.0,1.0,0.9)
+
+              sprintf(name,"phys_PFreadoutClad_%d", m_fiber_count);
+              m_PFreadout_fiberCladPhysical.push_back(
+                new G4PVPlacement(stripRotation,
+                                  G4ThreeVector( posx[pattern]*mm , 0.0 , posz[pattern]*mm ),
+                                  m_PFreadout_fiberCladLogical.back(),
+                                  name,
+                                  m_PFreadout_airLogical,
+                                  false,
+                                  m_fiber_count,
+                                  CHECK_OVERLAPS) );
+              }
+
+              //Buffer
+              if(BUFFERED){
+              sprintf(name,"m_PFreadoutBuff_log_%d",m_fiber_count);
+              m_PFreadout_fiberBuffLogical.push_back(
+                            new G4LogicalVolume(
+                                        m_PFreadout_fiberBuff,
+                                        m_matQuartz,
+                                        name) );
+
+              m_PFreadout_fiberBuffLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
+          	  m_PFreadout_fiberBuffLogical.back()->SetVisAttributes(colors[row]); //G4Colour(1.0,0.0,1.0,0.9)
+
+              sprintf(name,"phys_PFreadoutBuff_%d", m_fiber_count);
+              m_PFreadout_fiberBuffPhysical.push_back(
+                new G4PVPlacement(stripRotation,
+                                  G4ThreeVector( posx[pattern]*mm , 0.0 , posz[pattern]*mm ),
+                                  m_PFreadout_fiberBuffLogical.back(),
+                                  name,
+                                  m_PFreadout_airLogical,
+                                  false,
+                                  m_fiber_count,
+                                  CHECK_OVERLAPS) );
+              }
+            }//end readout
   					m_fiber_count++;
           }//end pattern
 				}//end fiber
@@ -1079,8 +1228,14 @@ void ModTypeRPD::ConstructSDandField(){
   	}
   }else{// not CMS i.e. Pan Flute
     for(int i = 0; i < m_fiber_count; i++){
-       m_PFrpdLogical.at(i)->SetSensitiveDetector( aFiberSD );
-  	   if( READOUT )m_PFreadout_fiberLogical.at(i)->SetSensitiveDetector( aFiberSD );
+       m_PFrpdCoreLogical.at(i)->SetSensitiveDetector( aFiberSD );
+       if(CLAD) m_PFrpdCladLogical.at(i)->SetSensitiveDetector( aFiberSD );
+       if(BUFFERED) m_PFrpdBuffLogical.at(i)->SetSensitiveDetector( aFiberSD );
+  	   if( READOUT ){
+         m_PFreadout_fiberCoreLogical.at(i)->SetSensitiveDetector( aFiberSD );
+         if(CLAD) m_PFreadout_fiberCladLogical.at(i)->SetSensitiveDetector( aFiberSD );
+         if(BUFFERED) m_PFreadout_fiberBuffLogical.at(i)->SetSensitiveDetector( aFiberSD );
+       }
     }// end fiber loop
   }// end else CMS
 

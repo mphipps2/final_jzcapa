@@ -101,6 +101,8 @@ protected:
   G4bool           CHECK_OVERLAPS;
   G4bool           READOUT;
   G4bool           REDUCED_TREE;
+  G4bool           CLAD;
+  G4bool           BUFFERED;
   Materials*       materials;
   G4LogicalVolume* m_logicMother;
 
@@ -130,13 +132,29 @@ protected:
   G4VPhysicalVolume*  m_PFreadout_airPhysical;
 
 
-  std::vector< G4VSolid* >                m_PFrpd;
-  std::vector< G4LogicalVolume* >         m_PFrpdLogical;
-  std::vector< G4VPhysicalVolume* >       m_PFrpdPhysical;
+  std::vector< G4VSolid* >                m_PFrpdCore;
+  std::vector< G4LogicalVolume* >         m_PFrpdCoreLogical;
+  std::vector< G4VPhysicalVolume* >       m_PFrpdCorePhysical;
 
-  G4VSolid*                               m_PFreadout_fiber;
-  std::vector< G4LogicalVolume* >         m_PFreadout_fiberLogical;
-  std::vector< G4VPhysicalVolume* >       m_PFreadout_fiberPhysical;
+  std::vector< G4VSolid* >                m_PFrpdClad;
+  std::vector< G4LogicalVolume* >         m_PFrpdCladLogical;
+  std::vector< G4VPhysicalVolume* >       m_PFrpdCladPhysical;
+
+  std::vector< G4VSolid* >                m_PFrpdBuff;
+  std::vector< G4LogicalVolume* >         m_PFrpdBuffLogical;
+  std::vector< G4VPhysicalVolume* >       m_PFrpdBuffPhysical;
+
+  G4VSolid*                               m_PFreadout_fiberCore;
+  std::vector< G4LogicalVolume* >         m_PFreadout_fiberCoreLogical;
+  std::vector< G4VPhysicalVolume* >       m_PFreadout_fiberCorePhysical;
+
+  G4VSolid*                               m_PFreadout_fiberClad;
+  std::vector< G4LogicalVolume* >         m_PFreadout_fiberCladLogical;
+  std::vector< G4VPhysicalVolume* >       m_PFreadout_fiberCladPhysical;
+
+  G4VSolid*                               m_PFreadout_fiberBuff;
+  std::vector< G4LogicalVolume* >         m_PFreadout_fiberBuffLogical;
+  std::vector< G4VPhysicalVolume* >       m_PFreadout_fiberBuffPhysical;
 
   std::vector< G4VSolid* >                m_PFrpd_channel;
   std::vector< G4SubtractionSolid* >      m_subChannel;
