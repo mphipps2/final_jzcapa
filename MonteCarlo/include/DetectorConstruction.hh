@@ -111,6 +111,7 @@ class Alignment {
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
+  DetectorConstruction();
   DetectorConstruction(G4bool);
   virtual ~DetectorConstruction();
 

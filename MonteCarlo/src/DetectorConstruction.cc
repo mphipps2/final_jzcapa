@@ -222,6 +222,28 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+DetectorConstruction::DetectorConstruction()
+  : G4VUserDetectorConstruction(),
+  m_solidWorld(NULL),
+  m_logicWorld(NULL),
+  m_physWorld(NULL),
+  m_alignment(NULL),
+  m_GFlash(false),
+  OPTICAL(false),
+  ForceDetectorPosition(false),
+  PI0(false)
+{
+  new DetectorMessenger(this);
+  currentRPD = -1;
+  currentZDC = -1;
+  m_materials = Materials::getInstance();
+  m_materials->UseOpticalMaterials(true);
+  m_materials->DefineOpticalProperties();
+}
+
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
 DetectorConstruction::DetectorConstruction(G4bool _GFlash)
   : G4VUserDetectorConstruction(),
   m_solidWorld(NULL),
