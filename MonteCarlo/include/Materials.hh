@@ -48,6 +48,8 @@ class Materials
             G4Material* Xenon;
             /* \brief Quartz */
             G4Material* pQuartz;
+            /* \brief Fiber cladding */
+            G4Material* fiberClad;
             /* \brief EM module Quartz (?) */
             G4Material* EM_Quartz;
             /* \brief Air */
@@ -68,6 +70,8 @@ class Materials
             G4Material* Polyethylene;
             /* \brief Polymethylmethacrylate */
             G4Material* PMMA;
+            /* \brief Kapton/Polyimide */
+            G4Material* Kapton;
             /* \brief Grease */
             G4Material* Grease;
             /* \brief Al Optical Surface */

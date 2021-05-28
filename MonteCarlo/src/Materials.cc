@@ -46,6 +46,10 @@ Materials::Materials(void){
   pQuartz->AddElement(Si,1);
   pQuartz->AddElement(O, 2);
 
+  fiberClad = new G4Material("FiberCladding", 2.200 * g/cm3, 2);
+  fiberClad->AddElement(Si,1);
+  fiberClad->AddElement(O,2);
+
   EM_Quartz = new G4Material("EMQuartz", 2.200 * g/cm3, 2);
   EM_Quartz->AddElement(Si,1);
   EM_Quartz->AddElement(O, 2);
@@ -67,6 +71,12 @@ Materials::Materials(void){
   PMMA->AddElement(C,5);
   PMMA->AddElement(H,8);
   PMMA->AddElement(O,2);
+
+  Kapton = new G4Material("Kapton", 1.42 * g/cm3, 4);
+  Kapton->AddElement(C,35);
+  Kapton->AddElement(H,8);
+  Kapton->AddElement(N,2);
+  Kapton->AddElement(O,7);
 
   Grease =  new G4Material("Grease", 1.0 * g/cm3, 3);
   Grease->AddElement(C,1);
@@ -101,6 +111,20 @@ void Materials::DefineOpticalProperties(void){
    pQuartz->SetMaterialPropertiesTable(MPT_Array.back());
 
 
+
+   //Quartz Cladding optical properties
+   G4double clad_RIND[nEntriesWLS]; // Only refractive index changes
+      for(int i = 0; i < nEntriesWLS; i++){
+          // Numerical aperture is given by data sheet as 0.22 and NA = sqrt( n1^2 - n2^2 ), so n2 = sqrt( n1^2 - NA^2 )
+          clad_RIND[i] = sqrt( pow(quartz_RIND[i],2.0) - pow(0.22,2.0) ); //Refractive Index
+      }
+
+    MPT_Array.push_back(new G4MaterialPropertiesTable());
+    MPT_Array.back()->AddProperty("RINDEX",PhotonEnergy,clad_RIND,nEntriesWLS);//index of refraction
+    MPT_Array.back()->AddProperty("ABSLENGTH",PhotonEnergy,quartz_ABSL,nEntriesWLS);//absorption length
+   // MPT_Array.back()->AddProperty("REFLECTIVITY",PhotonEnergy,quartz_RFLT,nEntriesWLS);//refelectivity
+   // MPT_Array.back()->AddProperty("EFFICIENCY",PhotonEnergy,quartz_EFIC,nEntriesWLS);//efficiency
+    fiberClad->SetMaterialPropertiesTable(MPT_Array.back());
 
 
    //Aluminium optical properties
@@ -169,14 +193,51 @@ void Materials::DefineOpticalProperties(void){
    MPT_Array.back()->AddConstProperty("WLSTIMECONSTANT", 0.5*ns);
    PMMA->SetMaterialPropertiesTable(MPT_Array.back());
 
-   //Grease (silicone) optical properties
-   G4double RefractiveIndexGrease[nEntriesWLS];
-   for (int i = 0; i < nEntriesWLS; i++) RefractiveIndexGrease[i] = grease_RI;
+    //Kapton optical properties
+    G4cout << "Kapton" << G4endl;
+    // OPTICAL PROPERTIES OF MATERIALS FOR CONCENTRATOR PHOTOVOLTAIC SYSTEMS
+    // https://engineering.case.edu/centers/sdle/sites/engineering.case.edu.centers.sdle/files/optical_properties_of_materials.pdf
+    G4double kapton_RIND[50] = {1.71, 1.72, 1.72, 1.72, 1.72, 1.73, 1.73, 1.73, 1.73, 1.74, 1.74, 1.74,
+                                1.74, 1.74, 1.75, 1.75, 1.75, 1.76, 1.76, 1.77, 1.77, 1.77, 1.78, 1.78,
+                                1.78, 1.79, 1.79, 1.80, 1.80, 1.81, 1.81, 1.82, 1.82, 1.82, 1.83, 1.83,
+                                1.84, 1.84, 1.85, 1.85, 1.86, 1.86, 1.87, 1.87, 1.88, 1.89, 1.90, 1.90,
+                                1.92, 1.93};
 
-   MPT_Array.push_back(new G4MaterialPropertiesTable());
-   MPT_Array.back()->AddProperty("RINDEX",PhotonEnergy,RefractiveIndexGrease,nEntriesWLS);
-   MPT_Array.back()->AddProperty("ABSLENGTH",PhotonEnergy,AbsClad,nEntriesWLS);
-   Grease->SetMaterialPropertiesTable(MPT_Array.back());
+    // Optical Characterization of Commonly Used Thermal Control Paints in a Simulated GEO Environment
+    // https://amostech.com/TechnicalPapers/2018/Poster/Bengtson.pdf
+    G4double kapton_RFLT[50] = {0.44, 0.42, 0.40, 0.37, 0.35, 0.32, 0.29, 0.26, 0.22, 0.19, 0.15, 0.11, 0.09, 0.06, 0.04,
+                                0.03, 0.02, 0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01,
+                                0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01,
+                                0.01, 0.01, 0.01, 0.01, 0.01};
+
+    G4double um = micrometer;
+
+    // Synthesis and properties of soluble aromatic polyimides from novel 4,5-diazafluorene-containing dianhydride
+    // https://pubs.rsc.org/fa/content/articlehtml/2018/ra/c7ra12101f
+    G4double kapton_ABSL[50] = {65.39*um, 64.28*um, 62.72*um, 61.96*um, 60.49*um, 59.43*um, 58.31*um, 57.07*um,
+                                56.10*um, 54.85*um, 53.47*um, 52.21*um, 51.09*um, 49.68*um, 48.15*um, 46.51*um,
+                                45.24*um, 44.06*um, 43.02*um, 42.01*um, 40.87*um, 40.07*um, 39.16*um, 38.45*um,
+                                37.64*um, 37.01*um, 36.26*um, 35.71*um, 35.05*um, 34.42*um, 33.84*um, 33.14*um,
+                                32.40*um, 31.73*um, 30.64*um, 29.49*um, 28.41*um, 26.86*um, 25.22*um, 23.35*um,
+                                21.15*um, 19.18*um, 16.93*um, 14.84*um, 12.67*um, 10.63*um, 9.07*um, 7.72*um,
+                                6.60*um, 5.64*um};
+
+
+    MPT_Array.push_back(new G4MaterialPropertiesTable());
+    MPT_Array.back()->AddProperty("RINDEX", PhotonEnergy, kapton_RIND, nEntriesWLS);
+    MPT_Array.back()->AddProperty("REFLECTIVITY",AllPhotonEnergies,kapton_RFLT,nEntriesWLS);
+    MPT_Array.back()->AddProperty("ABSLENGTH",AllPhotonEnergies,kapton_ABSL,nEntriesWLS);
+    Kapton->SetMaterialPropertiesTable(MPT_Array.back());
+
+    //Grease (silicone) optical properties
+    G4double RefractiveIndexGrease[50];
+    for (int i = 0; i < nEntriesWLS; i++) RefractiveIndexGrease[i] = grease_RI;
+
+    MPT_Array.push_back(new G4MaterialPropertiesTable());
+    MPT_Array.back()->AddProperty("RINDEX",PhotonEnergy,RefractiveIndexGrease,nEntriesWLS);
+    MPT_Array.back()->AddProperty("ABSLENGTH",PhotonEnergy,AbsClad,nEntriesWLS);
+    Grease->SetMaterialPropertiesTable(MPT_Array.back());
+
 
    // set the optical boundary properties
 
@@ -235,6 +296,7 @@ Materials::~Materials(void)
   delete Steel;
   delete Polyethylene;
   delete PMMA;
+  delete Kapton;
   delete Grease;
 
   for (unsigned int i = 0; i < MPT_Array.size(); i++)
