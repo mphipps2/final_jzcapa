@@ -65,18 +65,20 @@ public:
   virtual void  DefineMaterials();
 
 
-  inline  void  SetPosition          ( G4ThreeVector* vec ){ delete m_pos;       m_pos       = vec; }
-  inline  void  SetFiberDiameters    ( G4ThreeVector* vec ){ delete m_fiberDiam; m_fiberDiam = vec; }
-  inline  void  SetHousingThickness  ( G4double       arg ){ m_HousingThickness = arg; }
-  inline  void  SetFiberPitchX       ( G4double       arg ){ m_fiberPitchX      = arg; }
-  inline  void  SetFiberPitchZ       ( G4double       arg ){ m_fiberPitchZ      = arg; }
-  inline  void  SetTileSize          ( G4double       arg ){ m_tileSize         = arg; }
-  inline  void  SetMinWallThickness  ( G4double       arg ){ m_minWallThickness = arg; }
-  inline  void  SetReadoutDistance   ( G4double       arg ){ READOUT = true; m_distanceToReadout = arg;}
-  inline  void  SetDetectorType      ( G4String       arg ){ m_detType          = arg; }
-  inline  void  SetOpticalFlag       ( G4bool         arg ){ OPTICAL            = arg; }
-  inline  void  SetOverlapsFlag      ( G4bool         arg ){ CHECK_OVERLAPS     = arg; }
-  inline  void  SetReducedTreeFlag   ( G4bool         arg ){ REDUCED_TREE       = arg; }
+  inline  void  SetPosition            ( G4ThreeVector* vec ){ delete m_pos;       m_pos       = vec; }
+  inline  void  SetFiberDiameters      ( G4ThreeVector* vec ){ delete m_fiberDiam; m_fiberDiam = vec; }
+  inline  void  SetHousingThickness    ( G4double       arg ){ m_HousingThickness = arg; }
+  inline  void  SetFiberPitchX         ( G4double       arg ){ m_fiberPitchX      = arg; }
+  inline  void  SetFiberPitchZ         ( G4double       arg ){ m_fiberPitchZ      = arg; }
+  inline  void  SetTileSize            ( G4double       arg ){ m_tileSize         = arg; }
+  inline  void  SetMinWallThickness    ( G4double       arg ){ m_minWallThickness = arg; }
+  inline  void  SetReadoutDistance     ( G4double       arg ){ READOUT = true; m_distanceToReadout = arg;}
+  inline  void  SetPhotonPolarAngleCut ( G4double       arg ){ m_polarAngleCut    = arg; }
+  inline  void  SetDetectorType        ( G4String       arg ){ m_detType          = arg; }
+  inline  void  SetOpticalFlag         ( G4bool         arg ){ OPTICAL            = arg; }
+  inline  void  SetOverlapsFlag        ( G4bool         arg ){ CHECK_OVERLAPS     = arg; }
+  inline  void  SetReducedTreeFlag     ( G4bool         arg ){ REDUCED_TREE       = arg; }
+
 
   inline  G4ThreeVector* GetPosition        ( ){ return m_pos;         }
   inline  G4int          GetModNum          ( ){ return m_modNum;      }
@@ -96,6 +98,7 @@ protected:
   G4double         m_minWallThickness;
   G4double         m_distanceToReadout;
   G4double         m_topOfVolume;
+  G4double         m_polarAngleCut;
   G4String         m_detType;
   G4bool           OPTICAL;
   G4bool           CHECK_OVERLAPS;

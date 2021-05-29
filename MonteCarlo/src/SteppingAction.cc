@@ -79,8 +79,14 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
 		// If World OPTICAL is on
 		if(OPTICAL){
 			// Kill photons only in SD volumes with OPTICAL off
-			if(sd != 0 && !sd->OpticalIsOn() ){
-				theTrack->SetTrackStatus( fStopAndKill );
+			if( sd != 0 ){
+				if( !sd->OpticalIsOn() ){
+					theTrack->SetTrackStatus( fStopAndKill );
+				}
+				//Cut photons with polar angles greater than the user setting
+				if( theTrack->GetMomentumDirection().theta() > sd->GetPolarAngleCut() ){
+					theTrack->SetTrackStatus( fStopAndKill );
+				}
 			}
 		} else { // World OPTICAL is off
 			// Kill all photons except those in SD volumes with OPTICAL on

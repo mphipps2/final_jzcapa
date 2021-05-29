@@ -79,6 +79,7 @@ ModTypeRPD::ModTypeRPD(const G4int cn, G4LogicalVolume* mother, G4ThreeVector* p
     m_tileSize(10.*mm),
     m_minWallThickness(0.*mm),
     m_distanceToReadout(0.*mm),
+    m_polarAngleCut(180.*deg),
     m_detType(""),
     OPTICAL(false),
     CHECK_OVERLAPS(false),
@@ -1212,6 +1213,7 @@ void ModTypeRPD::ConstructSDandField(){
 
 	aFiberSD->SetTopOfVolume( m_topOfVolume );
 	aFiberSD->SetnFibers( m_fiber_count );
+	aFiberSD->SetPhotonPolarAngleCut( m_polarAngleCut );
 	SDman->AddNewDetector( aFiberSD );
   if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count, 16 );
 

@@ -55,16 +55,18 @@ public:
   void   SetReducedTree ( G4int _nFibers, G4int _nSegments );
   void   FillTimeVector ( G4int fiberNo, G4double time, G4int weight = 1 );
 
-  inline G4bool   OpticalIsOn    ( ){ return OPTICAL;        }
-  inline G4bool   IsZDC          ( ){ return ZDC;            }
-  inline G4bool   IsRPD          ( ){ return RPD;            }
-  inline G4bool   IsReduced      ( ){ return REDUCED_TREE;   }
-  inline G4double GetTopOfVolume ( ){ return m_topOfVolume;  }
-  inline G4int    GetNCherenkovs ( ){ return m_nCherenkovs;  }
-  inline G4int    GetModNum      ( ){ return m_modNum;       }
-  inline G4int    GetNhits       ( ){ return m_nHits;        }
-  inline void     SetTopOfVolume ( G4double _top  ){ m_topOfVolume = _top; }
-  inline void     SetnFibers     ( G4int _nFibers ){ m_nFibers = _nFibers;}
+  inline G4bool   OpticalIsOn            ( ){ return OPTICAL;        }
+  inline G4bool   IsZDC                  ( ){ return ZDC;            }
+  inline G4bool   IsRPD                  ( ){ return RPD;            }
+  inline G4bool   IsReduced              ( ){ return REDUCED_TREE;   }
+  inline G4double GetTopOfVolume         ( ){ return m_topOfVolume;  }
+  inline G4double GetPolarAngleCut       ( ){ return m_polarAngleCut;}
+  inline G4int    GetNCherenkovs         ( ){ return m_nCherenkovs;  }
+  inline G4int    GetModNum              ( ){ return m_modNum;       }
+  inline G4int    GetNhits               ( ){ return m_nHits;        }
+  inline void     SetTopOfVolume         ( G4double _top  ){ m_topOfVolume = _top; }
+  inline void     SetnFibers             ( G4int _nFibers ){ m_nFibers = _nFibers;}
+  inline void     SetPhotonPolarAngleCut ( G4int _polarAngleCut ){ m_polarAngleCut = _polarAngleCut;}
 
 
 private:
@@ -81,6 +83,7 @@ private:
   G4bool REDUCED_TREE;
   G4bool ZDC, RPD;
   G4double m_topOfVolume;
+  G4double m_polarAngleCut;
   std::vector< G4int >* m_cherenkovVec;
   std::vector< G4int >* m_timeVec;
 };

@@ -19,6 +19,7 @@
 /Detector/ZDC/GapThickness 2. mm
 /Detector/ZDC/SteelAbsorberHeight 290. mm
 /Detector/ZDC/Optical false
+/Detector/ZDC/PhotonPolarAngleCut 180. deg
 /Detector/ZDC/CheckOverlaps false
 /Detector/ZDC/ReducedTree false
 /Detector/ZDC/HousingMaterial aluminum
@@ -34,6 +35,7 @@
 /Detector/ZDC/GapThickness 2. mm
 /Detector/ZDC/SteelAbsorberHeight 290. mm
 /Detector/ZDC/Optical false
+/Detector/ZDC/PhotonPolarAngleCut 180. deg
 /Detector/ZDC/CheckOverlaps false
 /Detector/ZDC/ReducedTree false
 /Detector/ZDC/HousingMaterial aluminum
@@ -58,6 +60,7 @@
 /Detector/RPD/FiberReadoutDistance 360 mm
 /Detector/RPD/RPDtype panflute
 /Detector/RPD/Optical false
+/Detector/RPD/PhotonPolarAngleCut 30. deg
 /Detector/RPD/CheckOverlaps false
 /Detector/RPD/ReducedTree false
 

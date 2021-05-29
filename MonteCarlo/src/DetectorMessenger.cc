@@ -165,6 +165,13 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fZDCSteelAbsHeightCmd->SetToBeBroadcasted(false);
   fZDCSteelAbsHeightCmd->SetDefaultUnit("mm");
 
+  fZDCPhotonPolarAngleCutCmd =
+    new G4UIcmdWithADoubleAndUnit("/Detector/ZDC/PhotonPolarAngleCut",this);
+  fZDCPhotonPolarAngleCutCmd->SetGuidance("Set the maximum polar angle for cherenkov photons");
+  fZDCPhotonPolarAngleCutCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fZDCPhotonPolarAngleCutCmd->SetToBeBroadcasted(false);
+  fZDCPhotonPolarAngleCutCmd->SetDefaultUnit("deg");
+
   fZDCOpticalFlagCmd = new G4UIcmdWithABool("/Detector/ZDC/Optical", this);
   fZDCOpticalFlagCmd->SetGuidance("Set optical flag for current ZDC");
   fZDCOpticalFlagCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -269,6 +276,14 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDReadoutDistanceCmd->SetToBeBroadcasted(false);
   fRPDReadoutDistanceCmd->SetDefaultUnit("mm");
 
+
+  fRPDPhotonPolarAngleCutCmd =
+    new G4UIcmdWithADoubleAndUnit("/Detector/RPD/PhotonPolarAngleCut",this);
+  fRPDPhotonPolarAngleCutCmd->SetGuidance("Set the maximum polar angle for cherenkov photons");
+  fRPDPhotonPolarAngleCutCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRPDPhotonPolarAngleCutCmd->SetToBeBroadcasted(false);
+  fRPDPhotonPolarAngleCutCmd->SetDefaultUnit("deg");
+
   fRPDTypeCmd = new G4UIcmdWithAString("/Detector/RPD/RPDtype", this);
   fRPDTypeCmd->SetGuidance("Set design type for the current RPD (cms or panflute)");
   fRPDTypeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -329,6 +344,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fZDCHousingThicknessCmd;
   delete fZDCGapThicknessCmd;
   delete fZDCSteelAbsHeightCmd;
+  delete fZDCPhotonPolarAngleCutCmd;
   delete fZDCOpticalFlagCmd;
   delete fZDCOverlapsFlagCmd;
   delete fZDCReducedTreeCmd;
@@ -348,6 +364,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fRPDSetTileSizeCmd;
   delete fRPDMinWallThicknessCmd;
   delete fRPDReadoutDistanceCmd;
+  delete fRPDPhotonPolarAngleCutCmd;
   delete fRPDTypeCmd;
   delete fRPDOpticalFlagCmd;
   delete fRPDOverlapsFlagCmd;
@@ -415,6 +432,9 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if(command == fZDCSteelAbsHeightCmd){
     fDetector->SetZDCSteelAbsHeight( fZDCSteelAbsHeightCmd->GetNewDoubleValue(newValue) );
   }
+  else if(command == fZDCPhotonPolarAngleCutCmd){
+    fDetector->SetZDCPhotonPolarCut( fZDCPhotonPolarAngleCutCmd->GetNewDoubleValue(newValue) );
+  }
   else if(command == fZDCOpticalFlagCmd){
     fDetector->SetZDCOpticalFlag( fZDCOpticalFlagCmd->GetNewBoolValue(newValue) );
   }
@@ -477,6 +497,9 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   }
   else if(command == fRPDReadoutDistanceCmd){
     fDetector->SetRPDReadoutDistance( fRPDReadoutDistanceCmd->GetNewDoubleValue(newValue) );
+  }
+  else if(command == fRPDPhotonPolarAngleCutCmd){
+    fDetector->SetRPDPhotonPolarCut( fRPDPhotonPolarAngleCutCmd->GetNewDoubleValue(newValue) );
   }
   else if(command == fRPDSetCurrentCmd){
     fDetector->SetCurrentRPD( fRPDSetCurrentCmd->GetNewIntValue(newValue) );

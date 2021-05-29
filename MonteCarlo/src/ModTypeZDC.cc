@@ -61,6 +61,7 @@ ModTypeZDC::ModTypeZDC(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos
     m_HousingThickness(5.0*mm),
     m_GapThickness(2.*mm),
     m_SteelAbsHeight(0.),
+    m_polarAngleCut(180.*deg),
     OPTICAL(false),
     CHECK_OVERLAPS(false),
     STEEL_ABSORBER(false),
@@ -328,6 +329,7 @@ void ModTypeZDC::ConstructSDandField(){
   aFiberSD->HistInitialize();
   aFiberSD->SetTopOfVolume( m_topOfVolume );
   aFiberSD->SetnFibers( m_nFibers );
+	aFiberSD->SetPhotonPolarAngleCut( m_polarAngleCut );
   SDman->AddNewDetector( aFiberSD );
 
   if(REDUCED_TREE){
