@@ -1211,6 +1211,7 @@ void ModTypeRPD::ConstructSDandField(){
 	aFiberSD->HistInitialize();
 
 	aFiberSD->SetTopOfVolume( m_topOfVolume );
+	aFiberSD->SetnFibers( m_fiber_count );
 	SDman->AddNewDetector( aFiberSD );
   if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count, 16 );
 

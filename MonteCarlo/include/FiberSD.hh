@@ -64,6 +64,7 @@ public:
   inline G4int    GetModNum      ( ){ return m_modNum;       }
   inline G4int    GetNhits       ( ){ return m_nHits;        }
   inline void     SetTopOfVolume ( G4double _top  ){ m_topOfVolume = _top; }
+  inline void     SetnFibers     ( G4int _nFibers ){ m_nFibers = _nFibers;}
 
 
 private:

@@ -134,7 +134,8 @@ void AnalysisManager::Book( G4String fileName )
       m_ZDCtimeVec[i]  = new std::vector< G4int  >( 128, 0 );
     }
 
-    MakeZDCTree( ZDCvec->at(i)->GetModNum() - 1, m_ZDCfiberVec[i], m_ZDCtimeVec[i], ZDCvec->at(i)->GetOpticalFlag() );
+    m_ZDCfiberVec[i] = new std::vector< G4int  >( ZDCvec->at(i)->GetnFibers(), 0 );
+    MakeZDCTree( ZDCvec->at(i)->GetModNum() - 1, m_ZDCfiberVec[i], m_ZDCtimeVec[i], ZDCvec->at(i)->GetReducedTreeFlag(), ZDCvec->at(i)->GetOpticalFlag() );
 
   }//end ZDC loop
 
@@ -151,7 +152,8 @@ void AnalysisManager::Book( G4String fileName )
       m_RPDtimeVec[i]  = new std::vector< G4int  >( 128, 0 );
     }
 
-    MakeRPDTree( RPDvec->at(i)->GetModNum() - 1, m_RPDfiberVec[i], m_RPDtimeVec[i], RPDvec->at(i)->GetOpticalFlag() );
+    m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnFibers(), 0 );
+    MakeRPDTree( RPDvec->at(i)->GetModNum() - 1, m_RPDfiberVec[i], m_RPDtimeVec[i], RPDvec->at(i)->GetReducedTreeFlag(), RPDvec->at(i)->GetOpticalFlag() );
 
   }//end RPD loop
 
@@ -391,7 +393,7 @@ void AnalysisManager::FillEventGenTree( int nSpectators, double ptCollision, dou
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVec, std::vector< int >* timeVec, G4bool thisIsOptical ){
+void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVec, std::vector< int >* timeVec, G4bool reducedTree, G4bool thisIsOptical ){
   G4int nTupleNo = m_analysisManager->GetNofNtuples();
   m_ZDCnTupleNo.push_back( nTupleNo );
   char name[20];
@@ -400,7 +402,7 @@ void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVe
 
   // If nCherenkovVec is defined for this SD the user has set the ReducedTree flag
   // Otherwise generate the full tree
-  if( nCherenkovVec ){
+  if( reducedTree ){
 
     // This branch is a vector nFibers long that contains the number of cherenkovs
     // produced in each fiber or photons that arrive at the top of each fiber during an event
@@ -420,6 +422,7 @@ void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVe
       //vector< int > branch
       m_ZDCintVec->at(zdcNo).resize(1);
       m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_ZDCintVec->at(zdcNo).at(0) );
+      m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGeneratedCherenkovs", *nCherenkovVec );
 
       //Resize the vector for the number of optical branches storing double vectors
       m_ZDCdblVec->at(zdcNo).resize(7);
@@ -465,7 +468,7 @@ void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVe
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVec, std::vector< int >* timeVec, G4bool thisIsOptical ){
+void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVec, std::vector< int >* timeVec, G4bool reducedTree, G4bool thisIsOptical ){
   G4int nTupleNo = m_analysisManager->GetNofNtuples();
   m_RPDnTupleNo.push_back( nTupleNo );
 
@@ -475,7 +478,7 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVe
 
   // If nCherenkovVec is defined for this SD the user has set the ReducedTree flag
   // Otherwise generate the full tree
-  if( nCherenkovVec ){
+  if( reducedTree ){
 
       // This branch is a vector nFibers long that contains the number of cherenkovs
       // produced in each fiber or photons that arrive at the top of each fiber during an event
@@ -497,6 +500,7 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVe
       //vector< int > branch
       m_RPDintVec->at(rpdNo).resize(1);
       m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(rpdNo).at(0) );
+      m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGeneratedCherenkovs", *nCherenkovVec );
 
       //Resize the vector for the number of optical branches storing double vectors
       m_RPDdblVec->at(rpdNo).resize(7);

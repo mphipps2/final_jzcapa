@@ -76,7 +76,6 @@ void FiberSD::HistInitialize(){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void FiberSD::Initialize(G4HCofThisEvent* HCE){
-
   fiberCollection = new FiberHitsCollection(SensitiveDetectorName,
 					      m_modNum);
 
@@ -95,6 +94,13 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
     m_timeVec->resize( 128*m_nSegments, 0 );
   }
 
+  AnalysisManager* analysisManager = AnalysisManager::getInstance();
+  m_cherenkovVec = analysisManager->GetFiberVector(ZDC,RPD,m_modNum);
+  if(m_cherenkovVec){
+    m_cherenkovVec->clear();
+    m_cherenkovVec->resize( m_nFibers, 0 );
+  }
+
   m_nCherenkovs = 0;
   m_nHits = 0;
 
@@ -110,16 +116,16 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
 G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
   G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
-  
+
   //Get the number of Cherenkov photons created in this step
-  int capturedPhotons = 0;
+  int generatedPhotons = 0;
   const std::vector<const G4Track*>* secVec = aStep->GetSecondaryInCurrentStep();
   for(uint i = 0; i < secVec->size(); i++){
     if( secVec->at(i)->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()){
-      capturedPhotons++;
+      generatedPhotons++;
     }//end if photon
   }//end secondary track loop
-  m_nCherenkovs += capturedPhotons; // Record the total in case OPTICAL is true
+  m_nCherenkovs += generatedPhotons; // Record the total in case OPTICAL is true
 
   //Don't record hits that didn't produce cherenkov photons
   // if(capturedPhotons == 0) return true;
@@ -140,6 +146,8 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
         m_nHits++;
         return true;
       }
+      m_cherenkovVec->at(rodNum) += generatedPhotons;
+
       FiberHit* newHit = new FiberHit();
       newHit->setPos      ( pos );
       newHit->setOrigin   ( aStep->GetTrack()->GetVertexPosition() );
@@ -158,8 +166,8 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     // don't record Cherenkovs in optical-off mode
     if (aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) return true;
     if(REDUCED_TREE){
-      m_cherenkovVec->at(rodNum) += capturedPhotons;
-      FillTimeVector( rodNum, aStep->GetTrack()->GetGlobalTime(), capturedPhotons );
+      m_cherenkovVec->at(rodNum) += generatedPhotons;
+      FillTimeVector( rodNum, aStep->GetTrack()->GetGlobalTime(), generatedPhotons );
 
       m_nHits++;
       return true;
@@ -176,7 +184,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     newHit->setEnergy      ( aStep->GetPreStepPoint()->GetTotalEnergy() );
     newHit->setMomentum    ( aStep->GetPreStepPoint()->GetMomentum() );
     newHit->setTime        ( aStep->GetTrack()->GetGlobalTime() );
-    newHit->setNCherenkovs ( capturedPhotons );
+    newHit->setNCherenkovs ( generatedPhotons );
 
     fiberCollection->insert ( newHit );
     m_nHits++;

@@ -60,8 +60,8 @@ class AnalysisManager
     void FillEventGenTree  ( int nSpectators, double ptCollision, double ptBreakup, double rpAngle );
 
     void MakeEventDataTree ( );
-    void MakeZDCTree       ( G4int zdcNo, std::vector< int >* nCherenkovVec, std::vector< int >* timeVec, G4bool thisIsOptical );
-    void MakeRPDTree       ( G4int rpdNo, std::vector< int >* nCherenkovVec, std::vector< int >* timeVec, G4bool thisIsOptical );
+    void MakeZDCTree       ( G4int zdcNo, std::vector< int >* nCherenkovVec, std::vector< int >* timeVec, G4bool reducedTree, G4bool thisIsOptical );
+    void MakeRPDTree       ( G4int rpdNo, std::vector< int >* nCherenkovVec, std::vector< int >* timeVec, G4bool reducedTree, G4bool thisIsOptical );
     void MakeEventGenTree  ( std::vector< std::vector<int>* > &intVec , std::vector< std::vector<double>* > &dblVec, G4int type );
 
     inline G4bool         GetOpticalFlag( ){ return OPTICAL; }

@@ -327,6 +327,7 @@ void ModTypeZDC::ConstructSDandField(){
   FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
   aFiberSD->HistInitialize();
   aFiberSD->SetTopOfVolume( m_topOfVolume );
+  aFiberSD->SetnFibers( m_nFibers );
   SDman->AddNewDetector( aFiberSD );
 
   if(REDUCED_TREE){
