@@ -84,7 +84,8 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
 					theTrack->SetTrackStatus( fStopAndKill );
 				}
 				//Cut photons with polar angles greater than the user setting
-				if( theTrack->GetMomentumDirection().theta() > sd->GetPolarAngleCut() ){
+				G4ThreeVector p = theTrack->GetMomentumDirection();
+				if( atan( sqrt( pow( p.x(), 2.0 ) + pow( p.z(), 2.0 ) ) / p.y() ) > sd->GetPolarAngleCut() ){
 					theTrack->SetTrackStatus( fStopAndKill );
 				}
 			}
