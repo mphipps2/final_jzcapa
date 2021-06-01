@@ -324,8 +324,8 @@ void ModTypeRPD::ConstructPanFluteDetector()
       //Create readout fiber cladding
       sprintf(name,"m_PFreadoutClad_%d", m_modNum);
       m_PFreadout_fiberClad = new G4Tubs(name,
-                                     0.0*mm,
-                                     fiber_diam*mm/2.0,
+                                     m_fiberDiam->x()*mm/2.0,
+                                     m_fiberDiam->y()*mm/2.0,
                                      m_distanceToReadout*mm/2.0 ,
                                      0.0*deg,
                                      360.0*deg);
