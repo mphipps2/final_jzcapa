@@ -116,7 +116,8 @@ void Materials::DefineOpticalProperties(void){
    G4double clad_RIND[nEntriesWLS]; // Only refractive index changes
       for(int i = 0; i < nEntriesWLS; i++){
           // Numerical aperture is given by data sheet as 0.22 and NA = sqrt( n1^2 - n2^2 ), so n2 = sqrt( n1^2 - NA^2 )
-          clad_RIND[i] = sqrt( pow(quartz_RIND[i],2.0) - pow(0.22,2.0) ); //Refractive Index
+	clad_RIND[i] = sqrt( pow(core_RI,2.0) - pow(0.22,2.0) ); //Refractive Index
+	//	clad_RIND[i] = 1.0; //Refractive Index
       }
 
     MPT_Array.push_back(new G4MaterialPropertiesTable());
