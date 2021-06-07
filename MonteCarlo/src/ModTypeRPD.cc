@@ -145,16 +145,28 @@ void ModTypeRPD::DefineMaterials()
   // Define Materials
   //----------------------------------------------
 
-  //Quartz
+  //Quartz_UMD
   m_matQuartz = materials->pQuartz;
 
+  //SilicaCore_UI
+  m_silicaCore_UI = materials->SilicaCore_UI;
+  //  m_silicaCore_UI = materials->pQuartz;
+
+  //SilicaClad_UI
+  m_silicaClad_UI = materials->SilicaClad_UI;
+  //   m_silicaClad_UI = materials->fiberClad;
+
+  //Kapton_UI
+  m_kapton_UI = materials->Kapton_UI;
+  //  m_kapton_UI = materials->Kapton;
+  
   //Aluminum
   m_Al = materials->Al;
 
   //Air
   m_Air = materials->Air;
 
-  //Polyethylene/Clad
+  //Polyethylene
   m_Poly = materials->Polyethylene;
 
   //Optical Grease
@@ -432,7 +444,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
             //----------------------- Place fiber core in the housing -----------------------//
             sprintf(name,"m_PFrpd_log_%d",m_fiber_count);
-            m_PFrpdCoreLogical.push_back( new G4LogicalVolume( m_PFrpdCore.back(), m_matQuartz, name) );
+            m_PFrpdCoreLogical.push_back( new G4LogicalVolume( m_PFrpdCore.back(), m_silicaCore_UI, name) );
 
             m_PFrpdCoreLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
 	    m_PFrpdCoreLogical.back()->SetVisAttributes( colors[row] );
@@ -451,7 +463,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
             //----------------------- Place fiber cladding in the housing -----------------------//
             if(CLAD){
 	      sprintf(name,"m_PFrpdClad_log_%d",m_fiber_count);
-	      m_PFrpdCladLogical.push_back( new G4LogicalVolume( m_PFrpdClad.back(), materials->fiberClad, name) );
+	      m_PFrpdCladLogical.push_back( new G4LogicalVolume( m_PFrpdClad.back(), m_silicaClad_UI, name) );
 
 	      m_PFrpdCladLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
 	      m_PFrpdCladLogical.back()->SetVisAttributes( colors[row] );
@@ -471,7 +483,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
             //----------------------- Place fiber buffer in the housing -----------------------//
             if(BUFFERED){
 	      sprintf(name,"m_PFrpdBuff_log_%d",m_fiber_count);
-	      m_PFrpdBuffLogical.push_back( new G4LogicalVolume( m_PFrpdBuff.back(), materials->Kapton, name) );
+	      m_PFrpdBuffLogical.push_back( new G4LogicalVolume( m_PFrpdBuff.back(), m_kapton_UI, name) );
 
 	      m_PFrpdBuffLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
 	      m_PFrpdBuffLogical.back()->SetVisAttributes( colors[row] );
@@ -495,7 +507,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
               m_PFreadout_fiberCoreLogical.push_back(
 						     new G4LogicalVolume(
 									 m_PFreadout_fiberCore,
-									 m_matQuartz,
+									 m_silicaCore_UI,
 									 name) );
 
               m_PFreadout_fiberCoreLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
@@ -518,7 +530,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
 		m_PFreadout_fiberCladLogical.push_back(
 						       new G4LogicalVolume(
 									   m_PFreadout_fiberClad,
-									   m_matQuartz,
+									   m_silicaClad_UI,
 									   name) );
 
 		m_PFreadout_fiberCladLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));
@@ -542,7 +554,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
 		m_PFreadout_fiberBuffLogical.push_back(
 						       new G4LogicalVolume(
 									   m_PFreadout_fiberBuff,
-									   m_matQuartz,
+									   m_kapton_UI,
 									   name) );
 
 		m_PFreadout_fiberBuffLogical.back()->SetUserLimits(new G4UserLimits(DBL_MAX,DBL_MAX,10*ms));

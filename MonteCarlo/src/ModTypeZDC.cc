@@ -68,33 +68,33 @@ ModTypeZDC::ModTypeZDC(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos
     REDUCED_TREE(false),
     m_logicMother( mother )
 {
-	m_materials = Materials::getInstance();
+  m_materials = Materials::getInstance();
   m_materials->UseOpticalMaterials(true);
   m_materials->DefineOpticalProperties();
-	m_matAbsorber = m_materials->NiW;
-	m_matHousing  = m_materials->Steel;
+  m_matAbsorber = m_materials->NiW;
+  m_matHousing  = m_materials->Steel;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 ModTypeZDC::ModTypeZDC(const int cn, ModTypeZDC* right)
-	: m_modNum( cn )
+  : m_modNum( cn )
 {
-		m_nAbsorbers 			 = right->m_nAbsorbers;
-		m_pos				 			 = new G4ThreeVector(*right->m_pos);
-		m_fiberDiam 	 		 = new G4ThreeVector(*right->m_fiberDiam);
-		m_absDim 		 			 = new G4ThreeVector(*right->m_absDim);
-		m_HousingThickness = right->m_HousingThickness;
-		m_GapThickness 		 = right->m_GapThickness;
-		m_SteelAbsHeight 	 = right->m_SteelAbsHeight;
-		OPTICAL 					 = right->OPTICAL;
-		CHECK_OVERLAPS 		 = right->CHECK_OVERLAPS;
-		STEEL_ABSORBER 		 = right->STEEL_ABSORBER;
-		REDUCED_TREE 		   = right->REDUCED_TREE;
-		m_matAbsorber 		 = right->m_matAbsorber;
-		m_matHousing			 = right->m_matHousing;
-		m_logicMother			 = right->m_logicMother;
-		m_materials				 = right->m_materials;
+  m_nAbsorbers 			 = right->m_nAbsorbers;
+  m_pos				 			 = new G4ThreeVector(*right->m_pos);
+  m_fiberDiam 	 		 = new G4ThreeVector(*right->m_fiberDiam);
+  m_absDim 		 			 = new G4ThreeVector(*right->m_absDim);
+  m_HousingThickness = right->m_HousingThickness;
+  m_GapThickness 		 = right->m_GapThickness;
+  m_SteelAbsHeight 	 = right->m_SteelAbsHeight;
+  OPTICAL 					 = right->OPTICAL;
+  CHECK_OVERLAPS 		 = right->CHECK_OVERLAPS;
+  STEEL_ABSORBER 		 = right->STEEL_ABSORBER;
+  REDUCED_TREE 		   = right->REDUCED_TREE;
+  m_matAbsorber 		 = right->m_matAbsorber;
+  m_matHousing			 = right->m_matHousing;
+  m_logicMother			 = right->m_logicMother;
+  m_materials				 = right->m_materials;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -113,18 +113,18 @@ void ModTypeZDC::Construct(){
 
 void ModTypeZDC::ConstructDetector()
 {
-	bool BUFFER, CLADDING;
-	G4double fiberMaxDia;
-	//FiberDimension x=Core, y=Cladding, z=Buffer diameters
-	BUFFER   = ( m_fiberDiam->z() == 0.0 ) ? false : true;
-	CLADDING = ( m_fiberDiam->y() == 0.0 ) ? false : true;
-	if 		 (BUFFER)  fiberMaxDia = m_fiberDiam->z();
-	else if(CLADDING)fiberMaxDia = m_fiberDiam->y();
-	else						 fiberMaxDia = m_fiberDiam->x();
+  bool BUFFER, CLADDING;
+  G4double fiberMaxDia;
+  //FiberDimension x=Core, y=Cladding, z=Buffer diameters
+  BUFFER   = ( m_fiberDiam->z() == 0.0 ) ? false : true;
+  CLADDING = ( m_fiberDiam->y() == 0.0 ) ? false : true;
+  if 		 (BUFFER)  fiberMaxDia = m_fiberDiam->z();
+  else if(CLADDING)fiberMaxDia = m_fiberDiam->y();
+  else						 fiberMaxDia = m_fiberDiam->x();
 
 
   // geometric constants
-	float zPitch;
+  float zPitch;
   float xStartStrip; // middle of left most strip -- note this strip doesn't actually exist since the sets on the edge have 5 strips instead of 6
   float stripPitch;  // distance between center of each rod ie) the diameter of one strip
   float zStartW; 		 // position where first tungsten plate gets placed
@@ -139,8 +139,8 @@ void ModTypeZDC::ConstructDetector()
   float modWidthX = floor(m_absDim->x()/fiberMaxDia)*stripPitch;
   if (modWidthX == 0) modWidthX = m_absDim->x(); // the case where you are defining a solid absorber block with no active channels
   float modHeightY = m_absDim->y() + m_SteelAbsHeight;
-	float boxWidthX  = modWidthX  + m_HousingThickness*2;
-	float boxHeightY = modHeightY + m_HousingThickness*2;
+  float boxWidthX  = modWidthX  + m_HousingThickness*2;
+  float boxHeightY = modHeightY + m_HousingThickness*2;
   float boxLengthZ = modLengthZ + m_HousingThickness*2;
 
 
@@ -165,12 +165,12 @@ void ModTypeZDC::ConstructDetector()
   m_ModulePhysical = new G4PVPlacement(nullRotation,pos,m_ModuleLogical,name,m_HousingLogical,false,cn,CHECK_OVERLAPS);
 
   G4VisAttributes* housingColor = new G4VisAttributes( );
-	housingColor->SetColor(1.,1.,1.,.4);
+  housingColor->SetColor(1.,1.,1.,.4);
   m_HousingLogical->SetVisAttributes( housingColor );
 
 
   G4VisAttributes* moduleColor = new G4VisAttributes( );
-	moduleColor->SetColor(0.,0.,1.,.2);
+  moduleColor->SetColor(0.,0.,1.,.2);
   m_ModuleLogical->SetVisAttributes( moduleColor );
 
 
@@ -179,33 +179,33 @@ void ModTypeZDC::ConstructDetector()
   //----------------------------------------------
 
   m_FiberCoreTube =
-		new G4Tubs( "Fiber_Core_Tube",
-							  0.0*mm,
-								(m_fiberDiam->x()/2.0-0.005)*mm,
-								modHeightY*mm/2.0 ,
-								0.0*deg,
-								360.0*deg);
+    new G4Tubs( "Fiber_Core_Tube",
+		0.0*mm,
+		(m_fiberDiam->x()/2.0-0.005)*mm,
+		modHeightY*mm/2.0 ,
+		0.0*deg,
+		360.0*deg);
   m_FiberCoreLogical =
-		new G4LogicalVolume(m_FiberCoreTube,
-												m_materials->pQuartz,
-												"FiberCore_Logical");
+    new G4LogicalVolume(m_FiberCoreTube,
+			m_materials->SilicaCore_UI,
+			"FiberCore_Logical");
 
-	G4VisAttributes* quartzColor  = new G4VisAttributes( G4Colour::Cyan() );
+  G4VisAttributes* quartzColor  = new G4VisAttributes( G4Colour::Cyan() );
   quartzColor->SetForceSolid(true);
   m_FiberCoreLogical->SetVisAttributes( quartzColor );
 
   if ( CLADDING ) {
 
     m_CladdingTube  =
-			new G4Tubs( "Fiber_Cladding_Tube",
-									m_fiberDiam->x()/2.0*mm - (0.005)*mm,
-									(m_fiberDiam->x()/2.0*mm-0.0005*mm+m_fiberDiam->y())*mm, modHeightY*mm/2.0, 0.0*deg,
-									360.0*deg);
+      new G4Tubs( "Fiber_Cladding_Tube",
+		  m_fiberDiam->x()/2.0*mm - (0.005)*mm,
+		  (m_fiberDiam->x()/2.0*mm-0.0005*mm+m_fiberDiam->y())*mm, modHeightY*mm/2.0, 0.0*deg,
+		  360.0*deg);
     m_CladdingLogical =
-			new G4LogicalVolume(m_CladdingTube,
-													m_materials->pQuartz,
-													"Fiber_Cladding_Logical");
-		m_CladdingLogical->SetVisAttributes( quartzColor );
+      new G4LogicalVolume(m_CladdingTube,
+			  m_materials->SilicaClad_UI,
+			  "Fiber_Cladding_Logical");
+    m_CladdingLogical->SetVisAttributes( quartzColor );
   }
 
   //----------------------------------------------
@@ -213,13 +213,13 @@ void ModTypeZDC::ConstructDetector()
   //----------------------------------------------
 
   m_W = new G4Box("W",
-									modWidthX*mm/2.0 ,
-									m_absDim->y()/2.0,
-									m_absDim->z()/2.0);
+		  modWidthX*mm/2.0 ,
+		  m_absDim->y()/2.0,
+		  m_absDim->z()/2.0);
   m_WLogical =
-		new G4LogicalVolume(m_W,
-												m_matAbsorber,
-												"W_Logical");
+    new G4LogicalVolume(m_W,
+			m_matAbsorber,
+			"W_Logical");
 
   G4VisAttributes* absorberColor = new G4VisAttributes( G4Colour::Red() );
   absorberColor->SetForceSolid(true);
@@ -230,13 +230,13 @@ void ModTypeZDC::ConstructDetector()
   //----------------------------------------------
   if(STEEL_ABSORBER){
     m_Steel = new G4Box("SteelAbsorber",
-    								modWidthX*mm/2.0 ,
-    								m_SteelAbsHeight/2.0,
-    								m_absDim->z()/2.0);
+			modWidthX*mm/2.0 ,
+			m_SteelAbsHeight/2.0,
+			m_absDim->z()/2.0);
     m_SteelLogical =
-    	new G4LogicalVolume(m_Steel,
-    											m_materials->Steel,
-    											"SteelAbsorber_Logical");
+      new G4LogicalVolume(m_Steel,
+			  m_materials->Steel,
+			  "SteelAbsorber_Logical");
 
     G4VisAttributes* steelAbsorberColor = new G4VisAttributes( G4Colour::Gray() );
     steelAbsorberColor->SetForceSolid(true);
@@ -249,33 +249,33 @@ void ModTypeZDC::ConstructDetector()
   G4RotationMatrix* stripRotation = new G4RotationMatrix();
   stripRotation->rotateX(90.*deg);
   cn = 0;
-	m_FiberCorePhysical.resize(m_nAbsorbers + 1);
-	m_FiberCladdingPhysical.resize(m_nAbsorbers + 1);
+  m_FiberCorePhysical.resize(m_nAbsorbers + 1);
+  m_FiberCladdingPhysical.resize(m_nAbsorbers + 1);
   for(int K = 0; K < m_nAbsorbers + 1; K++ ){
     for(int M = 0; M < (int)floor(m_absDim->x()/fiberMaxDia); M++ ){
 
-	  	sprintf(name,"ZDC%d_Core%d", m_modNum, cn);
+      sprintf(name,"ZDC%d_Core%d", m_modNum, cn);
       m_FiberCorePhysical.at(K).push_back( new G4PVPlacement(
-															  stripRotation,
-																G4ThreeVector((xStartStrip+(M*stripPitch))*mm,0,(zStartRad+K*zPitch)*mm),
-																m_FiberCoreLogical,
-																name,
-																m_ModuleLogical,
-																false,
-																cn,
-																CHECK_OVERLAPS) );
+							     stripRotation,
+							     G4ThreeVector((xStartStrip+(M*stripPitch))*mm,0,(zStartRad+K*zPitch)*mm),
+							     m_FiberCoreLogical,
+							     name,
+							     m_ModuleLogical,
+							     false,
+							     cn,
+							     CHECK_OVERLAPS) );
       if ( CLADDING ) {
 
-				sprintf(name,"ZDC%d_Cladding%d", m_modNum, cn);
-				m_FiberCladdingPhysical.at(K).push_back(new G4PVPlacement(
-																					stripRotation,
-																					G4ThreeVector((xStartStrip+(M*stripPitch))*mm,0,(zStartRad+K*zPitch)*mm),
-																					m_CladdingLogical,
-																					name,
-																					m_ModuleLogical,
-																					false,
-																					cn,
-																					CHECK_OVERLAPS) );
+	sprintf(name,"ZDC%d_Cladding%d", m_modNum, cn);
+	m_FiberCladdingPhysical.at(K).push_back(new G4PVPlacement(
+								  stripRotation,
+								  G4ThreeVector((xStartStrip+(M*stripPitch))*mm,0,(zStartRad+K*zPitch)*mm),
+								  m_CladdingLogical,
+								  name,
+								  m_ModuleLogical,
+								  false,
+								  cn,
+								  CHECK_OVERLAPS) );
       }// end if CLADDING
       ++cn;
     }// end M < nFibersPerGap
@@ -285,24 +285,24 @@ void ModTypeZDC::ConstructDetector()
   for(int K = 0; K < m_nAbsorbers; K++) {    // 11 layers of plates
     sprintf(name,"ZDC%d_Absorber%d",m_modNum, K);
     m_WPhysical.push_back( new G4PVPlacement(nullRotation,
-													 G4ThreeVector(0,(m_absDim->y() - modHeightY)/2.,zStartW*mm+K*zPitch*mm),
-													 m_WLogical,
-													 name,
-													 m_ModuleLogical,
-													 false,
-													 cn,
-													 CHECK_OVERLAPS) );
+					     G4ThreeVector(0,(m_absDim->y() - modHeightY)/2.,zStartW*mm+K*zPitch*mm),
+					     m_WLogical,
+					     name,
+					     m_ModuleLogical,
+					     false,
+					     cn,
+					     CHECK_OVERLAPS) );
 
     if(STEEL_ABSORBER){
       sprintf(name,"ZDC%d_SteelAbsorber%d",m_modNum, K);
       m_SteelPhysical.push_back( new G4PVPlacement(nullRotation,
-  													 G4ThreeVector(0,(modHeightY - m_SteelAbsHeight)/2.,zStartW*mm+K*zPitch*mm),
-  													 m_SteelLogical,
-  													 name,
-  													 m_ModuleLogical,
-  													 false,
-  													 cn,
-  													 CHECK_OVERLAPS) );
+						   G4ThreeVector(0,(modHeightY - m_SteelAbsHeight)/2.,zStartW*mm+K*zPitch*mm),
+						   m_SteelLogical,
+						   name,
+						   m_ModuleLogical,
+						   false,
+						   cn,
+						   CHECK_OVERLAPS) );
     }
 
     ++cn;
@@ -329,7 +329,7 @@ void ModTypeZDC::ConstructSDandField(){
   aFiberSD->HistInitialize();
   aFiberSD->SetTopOfVolume( m_topOfVolume );
   aFiberSD->SetnFibers( m_nFibers );
-	aFiberSD->SetPhotonPolarAngleCut( m_polarAngleCut );
+  aFiberSD->SetPhotonPolarAngleCut( m_polarAngleCut );
   SDman->AddNewDetector( aFiberSD );
 
   if(REDUCED_TREE){
@@ -346,18 +346,18 @@ void ModTypeZDC::ConstructSDandField(){
 
 void ModTypeZDC::SetHousingMaterial(G4String material)
 {
-	material.toLower();
-			 if( material == "steel"   ) m_matHousing = m_materials->Steel;
-	else if( material == "aluminum") m_matHousing = m_materials->Al;
-	else G4cout << "Invalid housing material selection, defaulting to steel" << G4endl;
+  material.toLower();
+  if( material == "steel"   ) m_matHousing = m_materials->Steel;
+  else if( material == "aluminum") m_matHousing = m_materials->Al;
+  else G4cout << "Invalid housing material selection, defaulting to steel" << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void ModTypeZDC::SetAbsorberMaterial(G4String material)
 {
-	material.toLower();
-			 if( material == "pure"  		 ) m_matAbsorber = m_materials->pureW;
-	else if( material == "composite" ) m_matAbsorber = m_materials->NiW;
-	else G4cout << "Invalid absorber material selection, defaulting to composite" << G4endl;
+  material.toLower();
+  if( material == "pure"  		 ) m_matAbsorber = m_materials->pureW;
+  else if( material == "composite" ) m_matAbsorber = m_materials->NiW;
+  else G4cout << "Invalid absorber material selection, defaulting to composite" << G4endl;
 }

@@ -427,7 +427,8 @@ G4VPhysicalVolume* DetectorConstruction::ConstructSPSTestBeam(){
     zdc->SetnAbsorbers        ( 11 );
     zdc->SetHousingThickness  ( 4.5*mm );
     zdc->SetGapThickness      ( 2.5*mm );
-    zdc->SetHousingMaterial   ( "aluminum" );
+    // zdc->SetHousingMaterial   ( "aluminum" );
+    zdc->SetHousingMaterial   ( "steel" );
     zdc->SetAbsorberMaterial  ( "pure" );
 
     pos = zdc->GetPosition();

@@ -48,6 +48,10 @@ class Materials
             G4Material* Xenon;
             /* \brief Quartz */
             G4Material* pQuartz;
+              /* \brief SilicaClad */
+            G4Material* SilicaClad_UI;
+                /* \brief SilicaCore */
+            G4Material* SilicaCore_UI;
             /* \brief Fiber cladding */
             G4Material* fiberClad;
             /* \brief EM module Quartz (?) */
@@ -66,7 +70,9 @@ class Materials
             G4Material* NiW;
             /* \brief Tungsten Nickel composite */
             G4Material* Steel;
-            /* \brief Polyethilene */
+            /* \brief Kapton_UI */
+            G4Material* Kapton_UI;
+              /* \brief Polyethilene_UMD */
             G4Material* Polyethylene;
             /* \brief Polymethylmethacrylate */
             G4Material* PMMA;
@@ -89,7 +95,8 @@ class Materials
             /*! \brief True if FULL physics activated.*/
             bool useOptical = false;
             /*! \brief Entries of WLS response parametrizations */
-            const G4int nEntriesWLS = 50;
+            static const G4int nEntries_UMD = 50;
+            static const G4int nEntries_UI = 5;
             /*! \brief G4NistManager pointer.*/
             G4NistManager* nist_manager;
             /*! \brief G4MaterialPropertiesTable array */

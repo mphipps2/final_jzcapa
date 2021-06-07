@@ -113,6 +113,9 @@ protected:
 protected:
 
   G4Material*      m_matQuartz;
+  G4Material*      m_silicaCore_UI;
+  G4Material*      m_silicaClad_UI;
+  G4Material*      m_kapton_UI;
   G4Material*      m_Al;
   G4Material*      m_Poly;
   G4Material*      m_Air;
