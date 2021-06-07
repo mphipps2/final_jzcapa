@@ -64,7 +64,7 @@ Materials::Materials(void){
   fiberClad = new G4Material("FiberCladding", 2.200 * g/cm3, 2);
   fiberClad->AddElement(Si,1);
   fiberClad->AddElement(O,2);
- 
+
   EM_Quartz = new G4Material("EMQuartz", 2.200 * g/cm3, 2);
   EM_Quartz->AddElement(Si,1);
   EM_Quartz->AddElement(O, 2);
@@ -329,6 +329,7 @@ Materials::~Materials(void)
   delete Si;
   delete C;
 
+  delete fiberClad;
   delete Xenon;
   delete pQuartz;
   delete SilicaCore_UI;
