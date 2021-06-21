@@ -31,6 +31,8 @@
 #include "ModTypeZDC.hh"
 #include "FiberSD.hh"
 
+#include <stdio.h>
+
 #include "G4GeometryManager.hh"
 #include "G4SolidStore.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -48,7 +50,6 @@
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 
-#include <stdio.h>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -66,6 +67,7 @@ ModTypeZDC::ModTypeZDC(const int cn, G4LogicalVolume* mother, G4ThreeVector* pos
     CHECK_OVERLAPS(false),
     STEEL_ABSORBER(false),
     REDUCED_TREE(false),
+    ML_REDUCED_TREE(false),
     m_logicMother( mother )
 {
   m_materials = Materials::getInstance();
@@ -91,6 +93,7 @@ ModTypeZDC::ModTypeZDC(const int cn, ModTypeZDC* right)
   CHECK_OVERLAPS 		 = right->CHECK_OVERLAPS;
   STEEL_ABSORBER 		 = right->STEEL_ABSORBER;
   REDUCED_TREE 		   = right->REDUCED_TREE;
+  ML_REDUCED_TREE 		   = right->ML_REDUCED_TREE;
   m_matAbsorber 		 = right->m_matAbsorber;
   m_matHousing			 = right->m_matHousing;
   m_logicMother			 = right->m_logicMother;
@@ -187,6 +190,7 @@ void ModTypeZDC::ConstructDetector()
 		360.0*deg);
   m_FiberCoreLogical =
     new G4LogicalVolume(m_FiberCoreTube,
+			//m_materials->pQuartz,
 			m_materials->SilicaCore_UI,
 			"FiberCore_Logical");
 
@@ -204,6 +208,7 @@ void ModTypeZDC::ConstructDetector()
     m_CladdingLogical =
       new G4LogicalVolume(m_CladdingTube,
 			  m_materials->SilicaClad_UI,
+			  //m_materials->fiberClad,
 			  "Fiber_Cladding_Logical");
     m_CladdingLogical->SetVisAttributes( quartzColor );
   }
@@ -335,7 +340,11 @@ void ModTypeZDC::ConstructSDandField(){
   if(REDUCED_TREE){
     aFiberSD->SetReducedTree( m_nFibers, 1 );
   }
+  else if(ML_REDUCED_TREE){
+    aFiberSD->SetReducedTree( 1 );
+  }
 
+  
   m_FiberCoreLogical->SetSensitiveDetector( aFiberSD );
 
   std::cout << "ZDC SD construction finished: SD name " << fiberSDname << std::endl;

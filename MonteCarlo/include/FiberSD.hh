@@ -52,13 +52,15 @@ public:
   void   Initialize     ( G4HCofThisEvent* );
   G4bool ProcessHits    ( G4Step*, G4TouchableHistory* );
   void   EndOfEvent     ( G4HCofThisEvent* );
-  void   SetReducedTree ( G4int _nFibers, G4int _nSegments );
+  void   SetReducedTree ( G4int _nFibers, G4int _nChannels );
+  void   SetMLReducedTree ( G4int _nChannels );
   void   FillTimeVector ( G4int fiberNo, G4double time, G4int weight = 1 );
 
   inline G4bool   OpticalIsOn            ( ){ return OPTICAL;        }
   inline G4bool   IsZDC                  ( ){ return ZDC;            }
   inline G4bool   IsRPD                  ( ){ return RPD;            }
   inline G4bool   IsReduced              ( ){ return REDUCED_TREE;   }
+  inline G4bool   IsMLReduced            ( ){ return ML_REDUCED_TREE;}
   inline G4double GetTopOfVolume         ( ){ return m_topOfVolume;  }
   inline G4double GetPolarAngleCut       ( ){ return m_polarAngleCut;}
   inline G4int    GetNCherenkovs         ( ){ return m_nCherenkovs;  }
@@ -67,7 +69,8 @@ public:
   inline void     SetTopOfVolume         ( G4double _top  ){ m_topOfVolume = _top; }
   inline void     SetnFibers             ( G4int _nFibers ){ m_nFibers = _nFibers;}
   inline void     SetPhotonPolarAngleCut ( G4int _polarAngleCut ){ m_polarAngleCut = _polarAngleCut;}
-
+  inline G4int    GetRPDChannelMapping (G4int _fiberNum) {return _fiberNum / m_nFiberPerChannel;} 
+  inline G4int    GetZDCChannelMapping (G4int _fiberNum) {return 0;} 
 
 private:
   int HCID;
@@ -76,16 +79,28 @@ private:
   G4int m_modNum;
   G4int m_nCherenkovs;
   G4int m_nFibers;
-  G4int m_nSegments;
-  G4int m_nFibersPerSegment;
+  G4int m_nChannels;
+  G4int m_nFiberPerChannel;
   G4int m_nHits;
   G4bool OPTICAL;
   G4bool REDUCED_TREE;
+  G4bool ML_REDUCED_TREE;
   G4bool ZDC, RPD;
   G4double m_topOfVolume;
   G4double m_polarAngleCut;
   std::vector< G4int >* m_cherenkovVec;
   std::vector< G4int >* m_timeVec;
+  
+  // Number of TIR reflections photon has taken in fiber
+  G4int    m_TIR_count;
+  G4int    m_prevTrackID;
+  G4bool   m_lastFiveCore;
+  G4double m_avgTimeLength;
+  G4double m_avgStepLength;
+  // Average vertical step length
+  G4double m_avgYStepLength;
+  // Number of upward reflections before checking capture condition 
+  static const int m_captureThreshold = 7;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -129,7 +129,7 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fZDCFiberDiametersCmd->SetParameterName("Core","Cladding","Buffer",true);
   fZDCFiberDiametersCmd->SetDefaultValue(G4ThreeVector(0.,0.,0.));
   fZDCFiberDiametersCmd->SetDefaultUnit("mm");
-
+  
   fZDCAbsorberDimensionsCmd = new G4UIcmdWith3VectorAndUnit("/Detector/ZDC/AbsorberDimensions", this);
   fZDCAbsorberDimensionsCmd->SetGuidance("Set current ZDC absorber dimensions");
   fZDCAbsorberDimensionsCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -283,7 +283,7 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDPhotonPolarAngleCutCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fRPDPhotonPolarAngleCutCmd->SetToBeBroadcasted(false);
   fRPDPhotonPolarAngleCutCmd->SetDefaultUnit("deg");
-
+  
   fRPDTypeCmd = new G4UIcmdWithAString("/Detector/RPD/RPDtype", this);
   fRPDTypeCmd->SetGuidance("Set design type for the current RPD (cms or panflute)");
   fRPDTypeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -306,6 +306,21 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDReducedTreeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fRPDReducedTreeCmd->SetDefaultValue(true);
   fRPDReducedTreeCmd->SetToBeBroadcasted(false);
+
+  fRPDSetNRowsCmd = new G4UIcmdWithAnInteger("/Detector/RPD/SetNRows", this);
+  fRPDSetNRowsCmd->SetGuidance("Set the number of channel rows");
+  fRPDSetNRowsCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRPDSetNRowsCmd->SetToBeBroadcasted(false);
+
+  fRPDSetNColumnsCmd = new G4UIcmdWithAnInteger("/Detector/RPD/SetNColumns", this);
+  fRPDSetNColumnsCmd->SetGuidance("Set the number of channel rows");
+  fRPDSetNColumnsCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRPDSetNColumnsCmd->SetToBeBroadcasted(false);
+
+  fRPDSetNCyclesPerTileCmd = new G4UIcmdWithAnInteger("/Detector/RPD/SetNCyclesPerTile", this);
+  fRPDSetNCyclesPerTileCmd->SetGuidance("Set the number of channel rows");
+  fRPDSetNCyclesPerTileCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRPDSetNCyclesPerTileCmd->SetToBeBroadcasted(false);
 
   fRPDSetCurrentCmd = new G4UIcmdWithAnInteger("/Detector/RPD/SetCurrent", this);
   fRPDSetCurrentCmd->SetGuidance("Select RPD to be modified");
@@ -369,6 +384,9 @@ DetectorMessenger::~DetectorMessenger(){
   delete fRPDOpticalFlagCmd;
   delete fRPDOverlapsFlagCmd;
   delete fRPDReducedTreeCmd;
+  delete fRPDSetNRowsCmd;
+  delete fRPDSetNColumnsCmd;
+  delete fRPDSetNCyclesPerTileCmd;  
   delete fRPDSetCurrentCmd;
   delete fRPDDuplicateCmd;
 
@@ -500,6 +518,15 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   }
   else if(command == fRPDPhotonPolarAngleCutCmd){
     fDetector->SetRPDPhotonPolarCut( fRPDPhotonPolarAngleCutCmd->GetNewDoubleValue(newValue) );
+  }
+  else if(command == fRPDSetNRowsCmd){
+    fDetector->SetRPD_NRows( fRPDSetNRowsCmd->GetNewIntValue(newValue) );
+  }
+  else if(command == fRPDSetNColumnsCmd){
+    fDetector->SetRPD_NColumns( fRPDSetNColumnsCmd->GetNewIntValue(newValue) );
+  }
+  else if(command == fRPDSetNCyclesPerTileCmd){
+    fDetector->SetRPD_NCyclesPerTile( fRPDSetNCyclesPerTile->GetNewIntValue(newValue) );
   }
   else if(command == fRPDSetCurrentCmd){
     fDetector->SetCurrentRPD( fRPDSetCurrentCmd->GetNewIntValue(newValue) );

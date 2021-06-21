@@ -95,8 +95,12 @@ class Materials
             /*! \brief True if FULL physics activated.*/
             bool useOptical = false;
             /*! \brief Entries of WLS response parametrizations */
-            static const G4int nEntries_UMD = 50;
-            static const G4int nEntries_UI = 5;
+  //              static const G4int nEntries_UMD = 50;
+                static const G4int nEntries_UMD = 51;
+  //              static const G4int nEntries_UI = 30;
+              static const G4int nEntries_UI = 5;
+              static const G4int nEntries_UI_small = 2;
+  //            static const G4int nEntries_UI = 19;
             /*! \brief G4NistManager pointer.*/
             G4NistManager* nist_manager;
             /*! \brief G4MaterialPropertiesTable array */

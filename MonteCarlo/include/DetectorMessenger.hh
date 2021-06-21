@@ -105,6 +105,9 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithABool*          fRPDOpticalFlagCmd;
     G4UIcmdWithABool*          fRPDOverlapsFlagCmd;
     G4UIcmdWithABool*          fRPDReducedTreeCmd;
+    G4UIcmdWithAnInteger*      fRPDSetNRowsCmd;
+    G4UIcmdWithAnInteger*      fRPDSetNColumnsCmd;
+    G4UIcmdWithAnInteger*      fRPDSetNCyclesPerTileCmd;
     G4UIcmdWithAnInteger*      fRPDSetCurrentCmd;
     G4UIcmdWithAnInteger*      fRPDDuplicateCmd;
 

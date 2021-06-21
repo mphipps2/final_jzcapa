@@ -66,6 +66,7 @@ public:
   inline  void  SetOpticalFlag         ( G4bool         arg ){ OPTICAL             = arg; }
   inline  void  SetOverlapsFlag        ( G4bool         arg ){ CHECK_OVERLAPS      = arg; }
   inline  void  SetReducedTreeFlag     ( G4bool         arg ){ REDUCED_TREE        = arg; }
+  inline  void  SetMLReducedTreeFlag   ( G4bool         arg ){ ML_REDUCED_TREE     = arg; }
   virtual void  SetHousingMaterial     ( G4String  material );
   virtual void  SetAbsorberMaterial    ( G4String  material );
 
@@ -78,6 +79,7 @@ public:
   inline  G4int            GetnFibers              ( ){ return m_nFibers;     }
   inline  G4bool           GetOpticalFlag          ( ){ return OPTICAL;       }
   inline  G4bool           GetReducedTreeFlag      ( ){ return REDUCED_TREE;  }
+  inline  G4bool           GetMLReducedTreeFlag      ( ){ return ML_REDUCED_TREE;  }
 
 protected:
   const G4int      m_modNum;
@@ -95,6 +97,7 @@ protected:
   G4bool           CHECK_OVERLAPS;
   G4bool           STEEL_ABSORBER;
   G4bool           REDUCED_TREE;
+  G4bool           ML_REDUCED_TREE;
   Materials*       m_materials;
   G4Material*      m_matAbsorber;
   G4Material*      m_matHousing;

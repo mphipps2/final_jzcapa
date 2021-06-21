@@ -33,6 +33,8 @@
 #include "ModTypeRPD.hh"
 #include "FiberSD.hh"
 
+#include <iostream>
+#include <stdio.h>
 
 #include "G4GeometryManager.hh"
 #include "G4SolidStore.hh"
@@ -63,8 +65,6 @@
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 
-#include <iostream>
-#include <stdio.h>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -74,6 +74,9 @@ ModTypeRPD::ModTypeRPD(const G4int cn, G4LogicalVolume* mother, G4ThreeVector* p
     m_fiberDiam(new G4ThreeVector(.71,.68,.73)),
     m_fiber_count(0),
     m_HousingThickness(2.0*mm),
+    m_n_rows(4),
+    m_n_columns(4),
+    m_n_cycles_per_tile(2),
     m_fiberPitchX(0.*mm),
     m_fiberPitchZ(0.*mm),
     m_tileSize(10.*mm),
@@ -103,6 +106,9 @@ ModTypeRPD::ModTypeRPD(const G4int cn, ModTypeRPD* right)
   m_fiberDiam 			  = new G4ThreeVector(*right->m_fiberDiam);
   m_fiber_count       = 0;
   m_HousingThickness  = right->m_HousingThickness;
+  m_n_rows            = right->m_n_rows;
+  m_n_columns         = right->m_n_columns;
+  m_n_cycles_per_tile = right->m_n_cycles_per_tile;
   m_fiberPitchX 		  = right->m_fiberPitchX;
   m_fiberPitchZ 		  = right->m_fiberPitchZ;
   m_tileSize 				  = right->m_tileSize;
@@ -149,16 +155,14 @@ void ModTypeRPD::DefineMaterials()
   m_matQuartz = materials->pQuartz;
 
   //SilicaCore_UI
-  m_silicaCore_UI = materials->SilicaCore_UI;
-  //  m_silicaCore_UI = materials->pQuartz;
+    m_silicaCore_UI = materials->SilicaCore_UI;
+  //m_silicaCore_UI = materials->pQuartz;
 
   //SilicaClad_UI
-  m_silicaClad_UI = materials->SilicaClad_UI;
-  //   m_silicaClad_UI = materials->fiberClad;
+    m_silicaClad_UI = materials->SilicaClad_UI;
 
   //Kapton_UI
-  m_kapton_UI = materials->Kapton_UI;
-  //  m_kapton_UI = materials->Kapton;
+    m_kapton_UI = materials->Kapton_UI;
   
   //Aluminum
   m_Al = materials->Al;
@@ -205,9 +209,6 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
   G4Colour colors[4] = { G4Colour::Cyan(),  G4Colour::Red(), G4Colour::Green(), G4Colour::Magenta() };
 
-  G4int n_rows     = 4;
-  G4int n_columns  = 4;
-  G4int n_cycles_per_tile;
   G4double pitchX;
   G4double pitchZ;
 
@@ -216,19 +217,19 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
     pitchX = m_fiberPitchX;
     pitchZ = m_fiberPitchZ;
-    n_cycles_per_tile = (m_tileSize/pitchX)/n_rows; // This rounds down
+    m_n_cycles_per_tile = (m_tileSize/pitchX)/m_n_rows; // This rounds down
 
     // If the tile size is too small, set n_cycles to 1 before recalculating m_tileSize
-    if( n_cycles_per_tile == 0 ){
+    if( m_n_cycles_per_tile == 0 ){
       G4cerr << "////////////////////////////" << G4endl;
       G4cerr << "Error in RPD" << m_modNum << ": Requested tile size and pitch are incompatible" << G4endl;
       G4cerr << "Recalculating tile size based on one cycle of the requested pitch" << G4endl;
       G4cerr << "////////////////////////////" << G4endl;
-      n_cycles_per_tile = 1;
+      m_n_cycles_per_tile = 1;
     }
 
     // Tile size and pitch are correlated and must match precisely, so recalculate the tile size based on the pitch
-    m_tileSize = pitchX*n_cycles_per_tile*n_rows;
+    m_tileSize = pitchX*m_n_cycles_per_tile*m_n_rows;
 
   }else{
     //If the user specified a fiber pitch that doesn't work, inform them
@@ -239,9 +240,9 @@ void ModTypeRPD::ConstructPanFluteDetector()
       G4cerr << "////////////////////////////" << G4endl;
     }
 
-    n_cycles_per_tile = 1;
-    //Minimum possible tile size = sqrt(2) * minimum_pitch * n_cycles_per_tile * n_rows
-    G4double min_tileSize = 0.707*(fiber_diam + m_minWallThickness)*n_cycles_per_tile*n_rows;
+    m_n_cycles_per_tile = 1;
+    //Minimum possible tile size = sqrt(2) * minimum_pitch * m_n_cycles_per_tile * m_n_rows
+    G4double min_tileSize = 0.707*(fiber_diam + m_minWallThickness)*m_n_cycles_per_tile*m_n_rows;
 
     if( m_tileSize < min_tileSize ){
       G4cerr << "////////////////////////////" << G4endl;
@@ -251,7 +252,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
       m_tileSize = min_tileSize;
     }
 
-    pitchX = m_tileSize/(0.707*n_cycles_per_tile*n_rows);
+    pitchX = m_tileSize/(0.707*m_n_cycles_per_tile*m_n_rows);
     pitchZ = pitchX;
 
   }
@@ -264,13 +265,13 @@ void ModTypeRPD::ConstructPanFluteDetector()
   // Positions of the current fiber for pattern1 and pattern2
   G4double posx[2], posz[2], posy;
   // Height of the active region
-  G4double activeHeight = n_rows*m_tileSize;
+  G4double activeHeight = m_n_rows*m_tileSize;
   // Width (x) of the RPD housing
-  G4double housingWidth = n_columns*m_tileSize + 2*m_HousingThickness;
+  G4double housingWidth = m_n_columns*m_tileSize + 2*m_HousingThickness;
   // Height (y) of the RPD housing
   G4double housingHeight = activeHeight + 2*m_HousingThickness + m_distanceToReadout;
   // Depth (z) of the RPD housing
-  G4double housingDepth = (n_rows - 0.5)*pitchZ + fiber_diam + 2*m_HousingThickness;
+  G4double housingDepth = (m_n_rows - 0.5)*pitchZ + fiber_diam + 2*m_HousingThickness;
 
 
   //create some rotation matrices
@@ -357,7 +358,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
   }
 
   // Loop over rows
-  for(G4int row = 0; row < n_rows; row++){
+  for(G4int row = 0; row < m_n_rows; row++){
     // Calculate the height of fibers in this row
     fiber_height = m_tileSize*(row+1) ;//Just the portion of the fiber in the active region
 
@@ -401,25 +402,25 @@ void ModTypeRPD::ConstructPanFluteDetector()
 					   0.0*deg,
 					   360.0*deg) );
 
-    for(G4int col = 0; col < n_columns; col++){
+    for(G4int col = 0; col < m_n_columns; col++){
       //Now we're in the realm of working on a single tile
       //we have to cycle through the two patterns until the tile
       //is filled in X
-      for(G4int cycle = 0; cycle < n_cycles_per_tile; cycle++){
+      for(G4int cycle = 0; cycle < m_n_cycles_per_tile; cycle++){
 
-	for(G4int fiber = 0; fiber < n_columns; fiber++){
+	for(G4int fiber = 0; fiber < m_n_columns; fiber++){
 	  // !!!!!!!Position calculations assume an even number of rows and columns!!!!!!! //////
 
 	  //Start at RPD center + tile width* number of tiles + cycle number * cycle width + stack number in cycle * pitch
-	  posx[0] = m_tileSize*((n_columns/2) - col ) - (cycle*n_columns*pitchX) - fiber*pitchX - pitchX/4;
+	  posx[0] = m_tileSize*((m_n_columns/2) - col ) - (cycle*m_n_columns*pitchX) - fiber*pitchX - pitchX/4;
 	  posx[1] = posx[0] - offsetX;
 
 	  //Start at Z center - half the stack depth + moving front to back and looping back to front
-	  posz[0] = - pitchZ*(n_columns-0.5)/2 + pitchZ*((row + fiber	   )%4);
-	  posz[1] = - pitchZ*(n_columns-0.5)/2 + pitchZ*((row + fiber + 2)%4) + offsetZ; //Pattern is offset by 2
+	  posz[0] = - pitchZ*(m_n_columns-0.5)/2 + pitchZ*((row + fiber	   )%4);
+	  posz[1] = - pitchZ*(m_n_columns-0.5)/2 + pitchZ*((row + fiber + 2)%4) + offsetZ; //Pattern is offset by 2
 
           //Start from the top and work down.
-          posy = ((n_rows/2 - 1) - row)*m_tileSize + fiber_height/2 - m_distanceToReadout/2;
+          posy = ((m_n_rows/2 - 1) - row)*m_tileSize + fiber_height/2 - m_distanceToReadout/2;
 
 
           //Placement is comprised of two patterns
@@ -1227,7 +1228,8 @@ void ModTypeRPD::ConstructSDandField(){
   aFiberSD->SetnFibers( m_fiber_count );
   aFiberSD->SetPhotonPolarAngleCut( m_polarAngleCut );
   SDman->AddNewDetector( aFiberSD );
-  if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count, 16 );
+  if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count, GetnChannels() );
+  if(ML_REDUCED_TREE) aFiberSD->SetMLReducedTree( GetnChannels() );
 
   // Assign fibers as SD volumes
   if(m_detType == "cms"){

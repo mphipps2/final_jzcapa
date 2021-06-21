@@ -29,6 +29,8 @@
 /// \author Chad Lantz
 /// \date 16 April 2020
 
+// Note: Relies on use of G4AnalysisManager. See: https://geant4-userdoc.web.cern.ch/UsersGuides/ForApplicationDeveloper/html/Analysis/managers.html#analysis-manager
+
 
 #include "AnalysisManager.hh"
 #include "DetectorConstruction.hh"
@@ -140,6 +142,7 @@ void AnalysisManager::Book( G4String fileName )
   }//end ZDC loop
 
   //Create RPD trees (Tree nZDCs - nZDCs + nRPDs)
+  // RPDvec->size() is just the number of modules
   m_RPDfiberVec.resize( RPDvec->size(), 0 );
   m_RPDtimeVec.resize( RPDvec->size(), 0 );
   for(uint i = 0; i < RPDvec->size(); i++){
@@ -152,8 +155,13 @@ void AnalysisManager::Book( G4String fileName )
       m_RPDtimeVec[i]  = new std::vector< G4int  >( 128, 0 );
     }
 
-    m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnFibers(), 0 );
-    MakeRPDTree( RPDvec->at(i)->GetModNum() - 1, m_RPDfiberVec[i], m_RPDtimeVec[i], RPDvec->at(i)->GetReducedTreeFlag(), RPDvec->at(i)->GetOpticalFlag() );
+    if( RPDvec->at(i)->GetMLReducedTreeFlag() ){
+      //      need a new function here to GetnChannels()
+      m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnFibers(), 0 );
+    }
+
+    m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnChannels(), 0 );
+    MakeRPDTree( RPDvec->at(i)->GetModNum() - 1, m_RPDfiberVec[i], m_RPDtimeVec[i], RPDvec->at(i)->GetReducedTreeFlag(), RPDvec->at(i)->GetMLReducedTreeFlag(), RPDvec->at(i)->GetOpticalFlag() );
 
   }//end RPD loop
 
@@ -468,7 +476,7 @@ void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVe
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVec, std::vector< int >* timeVec, G4bool reducedTree, G4bool thisIsOptical ){
+void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVec, std::vector< int >* timeVec, G4bool reducedTree, G4bool MLReducedTree, G4bool thisIsOptical ){
   G4int nTupleNo = m_analysisManager->GetNofNtuples();
   m_RPDnTupleNo.push_back( nTupleNo );
 
@@ -488,7 +496,13 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVe
       // depending on optical settings
       m_analysisManager->CreateNtupleIColumn( nTupleNo, "timeHist",    *timeVec       );
 
-  } else { //Full tree
+  }
+  else if( MLReducedTree ){
+
+    // Branch of vectors nChannels long that contains the number of cherenkovs per channel for each event
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", *nCherenkovVec );
+  }
+  else { //Full tree
 
 
     //This is done first so it can have an columnId of 0 if optical is on
@@ -503,7 +517,8 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVe
       m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGeneratedCherenkovs", *nCherenkovVec );
 
       //Resize the vector for the number of optical branches storing double vectors
-      m_RPDdblVec->at(rpdNo).resize(7);
+      //      m_RPDdblVec->at(rpdNo).resize(7);
+      m_RPDdblVec->at(rpdNo).resize(8);
       //vector< double > branches
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "x",           m_RPDdblVec->at(rpdNo).at(0) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "y",           m_RPDdblVec->at(rpdNo).at(1) );
@@ -511,7 +526,8 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVe
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "Px",          m_RPDdblVec->at(rpdNo).at(3) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "Py",          m_RPDdblVec->at(rpdNo).at(4) );
       m_analysisManager->CreateNtupleDColumn( nTupleNo, "Pz",          m_RPDdblVec->at(rpdNo).at(5) );
-      m_analysisManager->CreateNtupleDColumn( nTupleNo, "time",        m_RPDdblVec->at(rpdNo).at(6) );
+      m_analysisManager->CreateNtupleDColumn( nTupleNo, "energy",      m_RPDdblVec->at(rpdNo).at(6) );
+      m_analysisManager->CreateNtupleDColumn( nTupleNo, "time",        m_RPDdblVec->at(rpdNo).at(7) );
 
     //The next branches are only created if the optical flag is off
     } else {

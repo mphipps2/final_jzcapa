@@ -79,12 +79,13 @@ void EventAction::EndOfEventAction(const G4Event* evt){
   G4HCofThisEvent * HCE = evt->GetHCofThisEvent();
   FiberHitsCollection* HC = 0;
   G4int nCollections =  HCE->GetNumberOfCollections();
-
+  
   //Bail if there are no hit collections
   if(!HCE) return;
 
   //Loop over the collections we do have
   for(int hitsCollID = 0; hitsCollID < nCollections; hitsCollID++) {
+    std::cout << " Number of Hits collections " << nCollections << std::endl;
     HC = (FiberHitsCollection*)(HCE->GetHC(hitsCollID));
     G4String name = HC->GetSDname();
 
@@ -93,7 +94,6 @@ void EventAction::EndOfEventAction(const G4Event* evt){
     else                    ProcessHitCollection( HC );
 
   }// end hit collection loop
-
   //Give event information to analysisManager and fill the Ntuples
   m_analysisManager->SetEventNo( fEventNo );
   G4PrimaryVertex* pVert = evt->GetPrimaryVertex();
@@ -239,7 +239,8 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
     G4ThreeVector momentum = (*HC)[i]->getMomentum();
     G4double      time     = (*HC)[i]->getTime();
     G4int         rodNo    = (*HC)[i]->getRodNb();
-
+    G4double      energy   = (*HC)[i]->getEnergy();
+    
     if( sd->IsZDC() ){//ZDC hitsCollID, check to be sure/symmetric
       //double
       m_ZDCdblVec->at(modNo-1).at(0). push_back( origin.x()   );
@@ -248,7 +249,8 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
       m_ZDCdblVec->at(modNo-1).at(3). push_back( momentum.x() );
       m_ZDCdblVec->at(modNo-1).at(4). push_back( momentum.y() );
       m_ZDCdblVec->at(modNo-1).at(5). push_back( momentum.z() );
-      m_ZDCdblVec->at(modNo-1).at(6). push_back( time         );
+      m_ZDCdblVec->at(modNo-1).at(6). push_back( energy       );
+      m_ZDCdblVec->at(modNo-1).at(7). push_back( time         );
 
       //int
       m_ZDCintVec->at(modNo-1).at(0).push_back( rodNo );

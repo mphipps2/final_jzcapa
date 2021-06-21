@@ -55,15 +55,10 @@ Materials::Materials(void){
   Kapton_UI->AddElement(H,10);
   Kapton_UI->AddElement(N,2);
   Kapton_UI->AddElement(O,5);
-
   
   pQuartz = new G4Material("Quartz", 2.200 * g/cm3, 2);
   pQuartz->AddElement(Si,1);
   pQuartz->AddElement(O, 2);
-
-  fiberClad = new G4Material("FiberCladding", 2.200 * g/cm3, 2);
-  fiberClad->AddElement(Si,1);
-  fiberClad->AddElement(O,2);
 
   EM_Quartz = new G4Material("EMQuartz", 2.200 * g/cm3, 2);
   EM_Quartz->AddElement(Si,1);
@@ -87,12 +82,6 @@ Materials::Materials(void){
   PMMA->AddElement(H,8);
   PMMA->AddElement(O,2);
 
-  Kapton = new G4Material("Kapton", 1.42 * g/cm3, 4);
-  Kapton->AddElement(C,35);
-  Kapton->AddElement(H,8);
-  Kapton->AddElement(N,2);
-  Kapton->AddElement(O,7);
-
   Grease =  new G4Material("Grease", 1.0 * g/cm3, 3);
   Grease->AddElement(C,1);
   Grease->AddElement(H,1);
@@ -102,54 +91,115 @@ Materials::Materials(void){
 
 void Materials::DefineOpticalProperties(void){
 
+
+
+
   // UIUC RPD Materials
   
   // Silica core optical properties
   // 2 eV == 620 nm
   // 3.5 eV == 354 nm
   // in nm: {650, 600, 500, 400, 300}
-  G4double photonEnergy_UI[nEntries_UI] = {1.91, 2.07, 2.48, 3.1, 4.13};
-  G4double silica_RIND_UI[nEntries_UI] = {1.6, 1.6, 1.6, 1.6, 1.6};
-  G4double silica_ABSL_UI[nEntries_UI] = {5329.*cm, 3525.*cm, 2322.*cm, 885.*cm, 271.*cm};
-  
 
+  G4double photonEnergy_UI[nEntries_UI] = {1.91*eV, 2.07*eV, 2.48*eV, 3.1*eV, 4.13*eV};  
+  //    G4double photonEnergy_UI[nEntries_UI] = {1.91*eV, 2.07*eV, 2.48*eV, 3.1*eV, 3.54*eV};  
+  G4double photonEnergy_UI_small[nEntries_UI_small] = {1.91*eV, 4.13*eV};  
+  //G4double photonEnergy_UI_small[nEntries_UI_small] = {1.91*eV, 3.54*eV};
+  // https://www.content.molex.com/dxdam/literature/987650-8936.pdf
+  G4double silica_RIND_UI[nEntries_UI_small] = {1.6, 1.6};
+  G4double silica_ABSL_UI[nEntries_UI] = {5329.*cm, 3525.*cm, 2322.*cm, 885.*cm, 271.*cm};
+  //  G4double silica_ABSL_UI[nEntries_UI] = {5329.*cm, 5329.*cm, 5329.*cm, 5329.*cm, 5329.*cm,};
+  //G4double silica_ABSL_UI[nEntries_UI_small] = {300.00*cm, 1720.*cm};
+  //G4double silica_ABSL_UI[nEntries_UI_small] = {5329.*cm, 271.*cm};
+  
   MPT_Array.push_back(new G4MaterialPropertiesTable());
-  MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,silica_RIND_UI,nEntries_UI);//index of refraction
+  MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI_small,silica_RIND_UI,2);//index of refraction
   MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI,silica_ABSL_UI,nEntries_UI);//absorption length
+  //MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI,silica_ABSL_UI,2);//absorption length
   SilicaCore_UI->SetMaterialPropertiesTable(MPT_Array.back());
+
 
   // Silica cladding optical properties
   // Numerical aperture is given by data sheet as 0.22 and NA = sqrt( n1^2 - n2^2 ), so n2 = sqrt( n1^2 - NA^2 )
-  G4double silica_clad_RIND_UI[nEntries_UI] = {1.585, 1.585, 1.585, 1.585, 1.585}; // Only refractive index changes
-
+  G4double silica_clad_RIND_UI[2] = {1.585, 1.585}; // Only refractive index changes
+  //  G4double silica_clad_RIND_UI[2] = {1.4575, 1.4575}; // Only refractive index changes
+  //  G4double silica_clad_RIND_UI[2] = {1., 1.}; // Only refractive index changes
   MPT_Array.push_back(new G4MaterialPropertiesTable());
-  MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,silica_clad_RIND_UI,nEntries_UI);//index of refraction
+  //MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,silica_clad_RIND_UI,nEntries_UI);//index of refraction
+  MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI_small,silica_clad_RIND_UI,2);//index of refraction
   MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI,silica_ABSL_UI,nEntries_UI);//absorption length
+  //MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI,silica_ABSL_UI,2);//absorption length
   SilicaClad_UI->SetMaterialPropertiesTable(MPT_Array.back());
 
+  
   // Kapton optical properties:
   // https://engineering.case.edu/centers/sdle/sites/engineering.case.edu.centers.sdle/files/optical_properties_of_materials.pdf
+  // https://www.sciencedirect.com/science/article/pii/S0257897205010881
   G4double kapton_RIND_UI[nEntries_UI] = {1.8, 1.82, 1.86, 1.95, 2.18};
-  G4double kapton_ABSL_UI[nEntries_UI] = {0.011*cm, 0.0022*cm, 0.0056*cm, 0.04*cm, 0.063*cm};
+  //  G4double kapton_ABSL_UI[nEntries_UI] = {0.011*cm, 0.0022*cm, 0.0056*cm, 0.04*cm, 0.063*cm};
+  G4double kapton_ABSL_UI[nEntries_UI] = {0.011*nm, 0.0022*nm, 0.0056*nm, 0.04*nm, 0.063*nm};
+  //  G4double kapton_ABSL_UI[nEntries_UI] = {11*cm, 22*cm, 56*cm, 40*cm, 63*cm};
+  //  G4double kapton_ABSL_UI[nEntries_UI] = {68*um, 62*um, 54*um, 38*um, 20*um};
+  G4double kapton_REFL_UI[nEntries_UI] = {0.35, 0.2, 0.02, 0.03, 0.04};
 
   MPT_Array.push_back(new G4MaterialPropertiesTable());
   MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,kapton_RIND_UI,nEntries_UI);
   MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI,kapton_ABSL_UI,nEntries_UI);
+  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI,kapton_REFL_UI,nEntries_UI);
   Kapton_UI->SetMaterialPropertiesTable(MPT_Array.back());
+  
 
   // https://refractiveindex.info/?shelf=main&book=W&page=Werner
-  G4double NiW_RIND_UI[nEntries_UI] = {0.92, 1.05, 2.02, 1.49, 1.43};
-  G4double NiW_ABSL_UI[nEntries_UI] = {5.8e-7*cm, 5.8e-7*cm, 5.8e-7*cm, 5.8e-7*cm, 5.8e-7*cm};
-
+  //  G4double NiW_RIND_UI[nEntries_UI] = {0.92, 1.05, 2.02, 1.49, 1.43};
+  //  G4double NiW_ABSL_UI[nEntries_UI_small] = {5.8e-7*cm, 5.8e-7*cm};
+  // https://www.tungsten.com/materials/tungsten/
+  // only defining reflectivity since we only want optical light created in the quartz cavitiies
+  G4double NiW_REFL_UI[nEntries_UI_small] = {0.62, 0.62};
   MPT_Array.push_back(new G4MaterialPropertiesTable());
-  MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,NiW_RIND_UI,nEntries_UI);
-  MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI,NiW_ABSL_UI,nEntries_UI);
+  //  MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,NiW_RIND_UI,nEntries_UI);
+  //  MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI_small,NiW_ABSL_UI,nEntries_UI_small);
+  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,NiW_REFL_UI,nEntries_UI_small);
   NiW->SetMaterialPropertiesTable(MPT_Array.back());
 
- 
+  // https://refractiveindex.info/?shelf=main&book=W&page=Werner
+  //  G4double W_RIND_UI[nEntries_UI] = {0.92, 1.05, 2.02, 1.49, 1.43};
+  //  G4double W_ABSL_UI[nEntries_UI_small] = {5.8e-7*cm, 5.8e-7*cm};
+  // https://www.tungsten.com/materials/tungsten/
+  // only defining reflectivity since we only want optical light created in the quartz cavitiies
+  G4double W_REFL_UI[nEntries_UI_small] = {0.62, 0.62};
+  MPT_Array.push_back(new G4MaterialPropertiesTable());
+  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,W_REFL_UI,nEntries_UI_small);
+  pureW->SetMaterialPropertiesTable(MPT_Array.back());
+
+  //Aluminum optical properties
+  G4double Al_refl[nEntries_UI_small] = {0.89, 0.89};	//"Hard cut"
+  //  G4double Al_ABSL[nEntries_UI_small] = {0.01*mm, 0.01*mm};	//"Hard cut"
+  MPT_Array.push_back(new G4MaterialPropertiesTable());
+  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,Al_refl,nEntries_UI_small);
+  //  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,Al_ABSL,nEntries_UI_small);
+  Al->SetMaterialPropertiesTable(MPT_Array.back());
+   
+  //Air optical properties
+  G4double RefractiveIndexAir[nEntries_UI_small] = {1.0, 1.0};
+  MPT_Array.push_back(new G4MaterialPropertiesTable());
+  MPT_Array.back()->AddProperty("RINDEX", photonEnergy_UI_small, RefractiveIndexAir, nEntries_UI_small);
+  Air->SetMaterialPropertiesTable(MPT_Array.back());
+
+  
 
 
-  // Maryland RPD Materials
+
+
+
+
+
+
+
+
+  /*
+
+
+     // Maryland RPD Materials
   
   const float grease_RI = 1.46;
   const float clad_RI = 1.49;
@@ -161,9 +211,9 @@ void Materials::DefineOpticalProperties(void){
   G4double quartz_EFIC[nEntries_UMD];
      for(int i = 0; i < nEntries_UMD; i++){
          PhotonEnergy[i] = 2.00*eV + i*0.03*eV;
-	 //         quartz_RIND[i] = tile_RI; //Refractive Index - constants
          quartz_RIND[i] = core_RI; //Refractive Index - constants
          quartz_ABSL[i] = 300.00*cm + i*20*cm; //Attenuation length
+
 	 //         quartz_RFLT[i] = 0.5;
 	 //         quartz_EFIC[i] = 0.5;
 
@@ -176,6 +226,22 @@ void Materials::DefineOpticalProperties(void){
   // MPT_Array.back()->AddProperty("EFFICIENCY",PhotonEnergy,quartz_EFIC,nEntries_UMD);//efficiency
    pQuartz->SetMaterialPropertiesTable(MPT_Array.back());
 
+
+   //Quartz Cladding optical properties
+   G4double clad_RIND[nEntries_UMD]; // Only refractive index changes
+   for(int i = 0; i < nEntries_UMD; i++){
+     // Numerical aperture is given by data sheet as 0.22 and NA = sqrt( n1^2 - n2^2 ), so n2 = sqrt( n1^2 - NA^2 )
+     clad_RIND[i] = sqrt( pow(core_RI,2.0) - pow(0.22,2.0) ); //Refractive Index
+     //clad_RIND[i] = 1.0; //Refractive Index
+   }
+
+   MPT_Array.push_back(new G4MaterialPropertiesTable());
+   MPT_Array.back()->AddProperty("RINDEX",PhotonEnergy,clad_RIND,nEntries_UMD);//index of refraction
+   MPT_Array.back()->AddProperty("ABSLENGTH",PhotonEnergy,quartz_ABSL,nEntries_UMD);//absorption length
+   // MPT_Array.back()->AddProperty("REFLECTIVITY",PhotonEnergy,quartz_RFLT,nEntries_UMD);//refelectivity
+   // MPT_Array.back()->AddProperty("EFFICIENCY",PhotonEnergy,quartz_EFIC,nEntries_UMD);//efficiency
+   fiberClad->SetMaterialPropertiesTable(MPT_Array.back());
+   
    
 
    //Aluminium optical properties
@@ -197,8 +263,8 @@ void Materials::DefineOpticalProperties(void){
                               0.01*mm, 0.10*mm, 1.00*mm,0.01*m,  0.01*m,  0.10*m, 0.10*m,  1.00*m,  10.0*m, 10.0*m};
 
    MPT_Array.push_back(new G4MaterialPropertiesTable());
-   MPT_Array.back()->AddProperty("REFLECTIVITY",AllPhotonEnergies,Al_refl,nEntries_UMD);
-   MPT_Array.back()->AddProperty("ABSLENGTH",AllPhotonEnergies,Al_ABSL,nEntries_UMD);
+   MPT_Array.back()->AddProperty("REFLECTIVITY",AllPhotonEnergies,Al_refl,50);
+   MPT_Array.back()->AddProperty("ABSLENGTH",AllPhotonEnergies,Al_ABSL,50);
    Al->SetMaterialPropertiesTable(MPT_Array.back());
 
    //Air optical properties
@@ -226,6 +292,7 @@ void Materials::DefineOpticalProperties(void){
    //PMMA optical properties
    G4double RefractiveIndexWLSfiber[nEntries_UMD];
    for (int i = 0; i < nEntries_UMD; i++) RefractiveIndexWLSfiber[i] = core_RI;
+
    G4double AbsWLSfiber[50] = { 5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,
                                          5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,
                                          5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,5.40*m,1.10*m,
@@ -237,6 +304,7 @@ void Materials::DefineOpticalProperties(void){
                                              15.0, 9.00, 2.50, 1.00, 0.05, 0.00, 0.00, 0.00, 0.00, 0.00,
                                              0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
 
+   
    MPT_Array.push_back(new G4MaterialPropertiesTable());
    MPT_Array.back()->AddProperty("WLSABSLENGTH", PhotonEnergy, AbsWLSfiber, nEntries_UMD);
    MPT_Array.back()->AddProperty("WLSCOMPONENT", PhotonEnergy, EmissionWLSfiber, nEntries_UMD);
@@ -247,31 +315,37 @@ void Materials::DefineOpticalProperties(void){
     //Kapton optical properties
     // OPTICAL PROPERTIES OF MATERIALS FOR CONCENTRATOR PHOTOVOLTAIC SYSTEMS
     // https://engineering.case.edu/centers/sdle/sites/engineering.case.edu.centers.sdle/files/optical_properties_of_materials.pdf
-    G4double kapton_RIND[50] = {};
-
-    // Optical Characterization of Commonly Used Thermal Control Paints in a Simulated GEO Environment
-    // https://amostech.com/TechnicalPapers/2018/Poster/Bengtson.pdf
-    G4double kapton_RFLT[50] = {0.44, 0.42, 0.40, 0.37, 0.35, 0.32, 0.29, 0.26, 0.22, 0.19, 0.15, 0.11, 0.09, 0.06, 0.04,
-                                0.03, 0.02, 0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01,
-                                0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01,
-                                0.01, 0.01, 0.01, 0.01, 0.01};
 
 
-    // Synthesis and properties of soluble aromatic polyimides from novel 4,5-diazafluorene-containing dianhydride
-    // https://pubs.rsc.org/fa/content/articlehtml/2018/ra/c7ra12101f
-    G4double kapton_ABSL[50] = {65.39*um, 64.28*um, 62.72*um, 61.96*um, 60.49*um, 59.43*um, 58.31*um, 57.07*um,
-                                56.10*um, 54.85*um, 53.47*um, 52.21*um, 51.09*um, 49.68*um, 48.15*um, 46.51*um,
-                                45.24*um, 44.06*um, 43.02*um, 42.01*um, 40.87*um, 40.07*um, 39.16*um, 38.45*um,
-                                37.64*um, 37.01*um, 36.26*um, 35.71*um, 35.05*um, 34.42*um, 33.84*um, 33.14*um,
-                                32.40*um, 31.73*um, 30.64*um, 29.49*um, 28.41*um, 26.86*um, 25.22*um, 23.35*um,
-                                21.15*um, 19.18*um, 16.93*um, 14.84*um, 12.67*um, 10.63*um, 9.07*um, 7.72*um,
-                                6.60*um, 5.64*um};
+   G4double kapton_RIND[50] = {1.71, 1.72, 1.72, 1.72, 1.72, 1.73, 1.73, 1.73, 1.73, 1.74, 1.74, 1.74,
+			       1.74, 1.74, 1.75, 1.75, 1.75, 1.76, 1.76, 1.77, 1.77, 1.77, 1.78, 1.78,
+			       1.78, 1.79, 1.79, 1.80, 1.80, 1.81, 1.81, 1.82, 1.82, 1.82, 1.83, 1.83,
+			       1.84, 1.84, 1.85, 1.85, 1.86, 1.86, 1.87, 1.87, 1.88, 1.89, 1.90, 1.90,
+			       1.92, 1.93};
 
+   // Optical Characterization of Commonly Used Thermal Control Paints in a Simulated GEO Environment
+   // https://amostech.com/TechnicalPapers/2018/Poster/Bengtson.pdf
+   G4double kapton_RFLT[50] = {0.44, 0.42, 0.40, 0.37, 0.35, 0.32, 0.29, 0.26, 0.22, 0.19, 0.15, 0.11, 0.09, 0.06, 0.04,
+			       0.03, 0.02, 0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01,
+			       0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01,
+			       0.01, 0.01, 0.01, 0.01, 0.01};
 
+   G4double um = micrometer;
+
+   // Synthesis and properties of soluble aromatic polyimides from novel 4,5-diazafluorene-containing dianhydride
+   // https://pubs.rsc.org/fa/content/articlehtml/2018/ra/c7ra12101f
+   G4double kapton_ABSL[50] = {65.39*um, 64.28*um, 62.72*um, 61.96*um, 60.49*um, 59.43*um, 58.31*um, 57.07*um,
+			       56.10*um, 54.85*um, 53.47*um, 52.21*um, 51.09*um, 49.68*um, 48.15*um, 46.51*um,
+			       45.24*um, 44.06*um, 43.02*um, 42.01*um, 40.87*um, 40.07*um, 39.16*um, 38.45*um,
+			       37.64*um, 37.01*um, 36.26*um, 35.71*um, 35.05*um, 34.42*um, 33.84*um, 33.14*um,
+			       32.40*um, 31.73*um, 30.64*um, 29.49*um, 28.41*um, 26.86*um, 25.22*um, 23.35*um,
+			       21.15*um, 19.18*um, 16.93*um, 14.84*um, 12.67*um, 10.63*um, 9.07*um, 7.72*um,
+			       6.60*um, 5.64*um};
+   
     MPT_Array.push_back(new G4MaterialPropertiesTable());
     MPT_Array.back()->AddProperty("RINDEX", PhotonEnergy, kapton_RIND, nEntries_UMD);
-    MPT_Array.back()->AddProperty("REFLECTIVITY",AllPhotonEnergies,kapton_RFLT,nEntries_UMD);
-    MPT_Array.back()->AddProperty("ABSLENGTH",AllPhotonEnergies,kapton_ABSL,nEntries_UMD);
+    MPT_Array.back()->AddProperty("REFLECTIVITY",AllPhotonEnergies,kapton_RFLT,50);
+    MPT_Array.back()->AddProperty("ABSLENGTH",AllPhotonEnergies,kapton_ABSL,50);
     Kapton->SetMaterialPropertiesTable(MPT_Array.back());
 
     //Grease (silicone) optical properties
@@ -307,6 +381,7 @@ void Materials::DefineOpticalProperties(void){
    G4MaterialPropertiesTable* photonDetSurfaceProperty = new G4MaterialPropertiesTable();
 
    G4double p_mppc[] = {2.00*eV, 3.47*eV};
+   //   G4double p_mppc[] = {2.00*eV, 4.13*eV};
    const G4int nbins = sizeof(p_mppc)/sizeof(G4double);
    G4double refl_mppc[] = {1, 1};
    assert(sizeof(refl_mppc) == sizeof(p_mppc));
@@ -317,7 +392,7 @@ void Materials::DefineOpticalProperties(void){
    photonDetSurfaceProperty->AddProperty("EFFICIENCY",p_mppc,effi_mppc,nbins);
 
    photonDetSurface->SetMaterialPropertiesTable(photonDetSurfaceProperty);
-
+  */
 
 }
 

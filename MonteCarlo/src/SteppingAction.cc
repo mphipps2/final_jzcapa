@@ -58,50 +58,74 @@ SteppingAction::~SteppingAction()
 
 void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* theStep  )
 {
-	G4Track* theTrack = theStep->GetTrack();
+  G4Track* theTrack = theStep->GetTrack();
 
-	//Find out when the primary particles died
-	if(theTrack->GetParentID()==0 && theTrack->GetTrackStatus() == fStopAndKill ){
+  //Find out when the primary particles died
+  if(theTrack->GetParentID()==0 && theTrack->GetTrackStatus() == fStopAndKill ){
 
-		m_lastStepVec->push_back( theTrack->GetPosition() );
-		m_lastStepPidVec->push_back( theTrack->GetParticleDefinition()->GetParticleDefinitionID() );
+    m_lastStepVec->push_back( theTrack->GetPosition() );
+    m_lastStepPidVec->push_back( theTrack->GetParticleDefinition()->GetParticleDefinitionID() );
 
+  }
+
+
+  //If we are tracking a gamma that came from the primary event
+  if(PI0 && theTrack->GetParentID()==1 && theTrack->GetCurrentStepNumber() == 1 &&  theTrack->GetDefinition() == G4Gamma::GammaDefinition()  ){
+    m_Pi0Mom->push_back( theTrack->GetVertexMomentumDirection() );
+    m_Pi0Vert->push_back( theTrack->GetVertexPosition () );
+  }
+  else if(theTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() ){ // If we are tracking an optical photon
+
+    // Get the SD for the volume we're in. Returns 0 if we aren't in an SD volume
+    FiberSD* sd = (FiberSD*)theTrack->GetVolume()->GetLogicalVolume()->GetSensitiveDetector();
+    // If World OPTICAL is on
+    if(OPTICAL){
+      // Kill photons only in SD volumes with OPTICAL off
+      if( sd != 0 ){
+	if( !sd->OpticalIsOn() ){
+	  theTrack->SetTrackStatus( fStopAndKill );
 	}
 
-
-	//If we are tracking a gamma that came from the primary event
-		if(PI0 && theTrack->GetParentID()==1 && theTrack->GetCurrentStepNumber() == 1 &&  theTrack->GetDefinition() == G4Gamma::GammaDefinition()  ){
-				m_Pi0Mom->push_back( theTrack->GetVertexMomentumDirection() );
-				m_Pi0Vert->push_back( theTrack->GetVertexPosition () );
-		}
-		else if(theTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() ){ // If we are tracking an optical photon
-
-		// Get the SD for the volume we're in. Returns 0 if we aren't in an SD volume
-		FiberSD* sd = (FiberSD*)theTrack->GetVolume()->GetLogicalVolume()->GetSensitiveDetector();
-		// If World OPTICAL is on
-		if(OPTICAL){
-			// Kill photons only in SD volumes with OPTICAL off
-			if( sd != 0 ){
-				if( !sd->OpticalIsOn() ){
-					theTrack->SetTrackStatus( fStopAndKill );
-				}
-				/*
-				//Cut photons with polar angles greater than the user setting
-				G4ThreeVector p = theTrack->GetMomentumDirection();
-				double pT = sqrt( pow( p.x(), 2.0 ) + pow( p.z(), 2.0 ));
-				double theta = M_PI / 2.0 - atan( pT / p.y() );
-				  //				if( atan( sqrt( pow( p.x(), 2.0 ) + pow( p.z(), 2.0 ) ) / p.y() ) > sd->GetPolarAngleCut() ){
-				if( theta > sd->GetPolarAngleCut() ){
-				  theTrack->SetTrackStatus( fStopAndKill );
-				}
-				*/
-			}
-		} else { // World OPTICAL is off
-			// Kill all photons except those in SD volumes with OPTICAL on
-			if(sd == 0 || !sd->OpticalIsOn() ){
-				theTrack->SetTrackStatus( fStopAndKill );
-			}
-		}
+	/*
+	//Cut photons with polar angles greater than the user setting
+	G4ThreeVector p = theTrack->GetMomentumDirection();
+	double pT = sqrt( pow( p.x(), 2.0 ) + pow( p.z(), 2.0 ));
+	double theta = M_PI / 2.0 - atan( pT / p.y() );
+	//				if( atan( sqrt( pow( p.x(), 2.0 ) + pow( p.z(), 2.0 ) ) / p.y() ) > sd->GetPolarAngleCut() ){
+	if( theta > sd->GetPolarAngleCut() ){
+	theTrack->SetTrackStatus( fStopAndKill );
 	}
+	*/
+      }
+    } else { // World OPTICAL is off
+      // Kill all photons except those in SD volumes with OPTICAL on
+      if(sd == 0 || !sd->OpticalIsOn() ){
+	theTrack->SetTrackStatus( fStopAndKill );
+      }
+    }
+  }
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+G4double SteppingAction::GetIncidenceAngle(const G4Step *aStep)
+{
+  G4StepPoint *preStep = aStep->GetPreStepPoint();
+  G4ThreeVector photonDirection = preStep->GetMomentum() / preStep->GetMomentum().mag();
+  G4ThreeVector stepPos = preStep->GetPosition();
+
+  const G4VTouchable *touchable = preStep->GetTouchable();
+
+  const G4RotationMatrix *rotation = touchable->GetRotation();
+  G4RotationMatrix rotation_inv = rotation->inverse();
+  G4ThreeVector translation = touchable->GetTranslation();
+  G4VSolid *sector = touchable->GetSolid();
+
+  G4ThreeVector posLocal = *rotation * (stepPos - translation);
+  G4ThreeVector normal =  - sector->SurfaceNormal(posLocal);
+
+  G4ThreeVector photonDirectionLocal = *rotation * photonDirection;
+
+  G4double incidenceAngle = acos( normal.dot(photonDirectionLocal) );
+
+  return incidenceAngle;
+}

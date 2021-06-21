@@ -42,29 +42,29 @@
 
 class SteppingAction : public G4UserSteppingAction
 {
-  public:
-    SteppingAction();
-    virtual ~SteppingAction();
+public:
+  SteppingAction();
+  virtual ~SteppingAction();
 
-    inline  void SetOpticalFlag( G4bool arg ){ OPTICAL = arg; }
-    inline  void SetPI0Flag( G4bool arg ){ PI0 = arg; }
+  inline  void SetOpticalFlag( G4bool arg ){ OPTICAL = arg; }
+  inline  void SetPI0Flag( G4bool arg ){ PI0 = arg; }
 
-    inline  void SetLastStepVec( std::vector< G4ThreeVector >* vec, std::vector< int >* _lastStepPidVec){ m_lastStepVec = vec;  m_lastStepPidVec = _lastStepPidVec; }
-    inline  void SetPi0Mom( std::vector< G4ThreeVector >* vec ){ m_Pi0Mom = vec; }
-    inline  void SetPi0Vertex( std::vector< G4ThreeVector >* vec ){ m_Pi0Vert = vec; }
+  inline  void SetLastStepVec( std::vector< G4ThreeVector >* vec, std::vector< int >* _lastStepPidVec){ m_lastStepVec = vec;  m_lastStepPidVec = _lastStepPidVec; }
+  inline  void SetPi0Mom( std::vector< G4ThreeVector >* vec ){ m_Pi0Mom = vec; }
+  inline  void SetPi0Vertex( std::vector< G4ThreeVector >* vec ){ m_Pi0Vert = vec; }
+  G4double GetIncidenceAngle(const G4Step *aStep);
 
+  // method from the base class
+  virtual void UserSteppingAction(const G4Step*);
 
-    // method from the base class
-    virtual void UserSteppingAction(const G4Step*);
+private:
+  std::vector< G4ThreeVector >* m_lastStepVec;
+  std::vector< G4ThreeVector >* m_Pi0Mom;
+  std::vector< G4ThreeVector >* m_Pi0Vert;
+  std::vector< int >* m_lastStepPidVec;
 
-  private:
-    std::vector< G4ThreeVector >* m_lastStepVec;
-    std::vector< G4ThreeVector >* m_Pi0Mom;
-    std::vector< G4ThreeVector >* m_Pi0Vert;
-    std::vector< int >* m_lastStepPidVec;
-
-    G4bool   OPTICAL;
-    G4bool   PI0;
+  G4bool   OPTICAL;
+  G4bool   PI0;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

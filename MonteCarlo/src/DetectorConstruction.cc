@@ -176,6 +176,9 @@
 #include "DetectorConstruction.hh"
 #include "DetectorMessenger.hh"
 
+#include <iostream>
+#include <stdio.h>
+
 #include "G4GeometryManager.hh"
 #include "G4SolidStore.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -217,8 +220,6 @@
 #include "GFlashHitMaker.hh"
 #include "GFlashParticleBounds.hh"
 
-#include <iostream>
-#include <stdio.h>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
