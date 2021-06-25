@@ -53,8 +53,9 @@ public:
   G4bool ProcessHits    ( G4Step*, G4TouchableHistory* );
   void   EndOfEvent     ( G4HCofThisEvent* );
   void   SetReducedTree ( G4int _nFibers, G4int _nChannels );
-  void   SetMLReducedTree ( G4int _nChannels );
+  void   SetMLReducedTree (G4int _nFibers, G4int _nChannels );
   void   FillTimeVector ( G4int fiberNo, G4double time, G4int weight = 1 );
+  void   FillChannelTimeVector ( G4int channelNo, G4double time, G4int weight = 1 );
 
   inline G4bool   OpticalIsOn            ( ){ return OPTICAL;        }
   inline G4bool   IsZDC                  ( ){ return ZDC;            }
@@ -67,6 +68,7 @@ public:
   inline G4int    GetModNum              ( ){ return m_modNum;       }
   inline G4int    GetNhits               ( ){ return m_nHits;        }
   inline void     SetTopOfVolume         ( G4double _top  ){ m_topOfVolume = _top; }
+  inline void     SetBottomOfVolume         ( G4double _bottom  ){ m_bottomOfVolume = _bottom; }
   inline void     SetnFibers             ( G4int _nFibers ){ m_nFibers = _nFibers;}
   inline void     SetPhotonPolarAngleCut ( G4int _polarAngleCut ){ m_polarAngleCut = _polarAngleCut;}
   inline G4int    GetRPDChannelMapping (G4int _fiberNum) {return _fiberNum / m_nFiberPerChannel;} 
@@ -87,14 +89,20 @@ private:
   G4bool ML_REDUCED_TREE;
   G4bool ZDC, RPD;
   G4double m_topOfVolume;
+  G4double m_bottomOfVolume;
   G4double m_polarAngleCut;
+  std::vector< G4int >* m_genCherenkovVec;
   std::vector< G4int >* m_cherenkovVec;
-  std::vector< G4int >* m_timeVec;
+  std::vector< G4double > * m_yOriginVec;
+  std::vector< G4double >* m_timeVec;
   
   // Number of TIR reflections photon has taken in fiber
   G4int    m_TIR_count;
   G4int    m_prevTrackID;
   G4bool   m_lastFiveCore;
+  G4double m_yOrigin;
+  G4double m_firstStepTime;
+  G4double m_avgStepTime;
   G4double m_avgTimeLength;
   G4double m_avgStepLength;
   // Average vertical step length

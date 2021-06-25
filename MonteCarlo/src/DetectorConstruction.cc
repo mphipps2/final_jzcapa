@@ -126,6 +126,9 @@
   - <b>/Detector/XXX/ReducedTree</b> true/false
     - Sets the ouput tree to have fewer branches for large productions on a per detector basis
 
+  - <b>/Detector/XXX/MLReducedTree</b> true/false
+    - Sets the ouput tree to have fewer branches for large productions on a per detector basis
+
   - <b>/Detector/XXX/CheckOverlaps</b> false
     - Check the individual detector geometry for overlaps
 

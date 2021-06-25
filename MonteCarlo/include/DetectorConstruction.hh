@@ -154,6 +154,7 @@ public:
   inline  void SetZDCOpticalFlag       ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetOpticalFlag(arg);        }
   inline  void SetZDCOverlapsFlag      ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetOverlapsFlag(arg);       }
   inline  void SetZDCReducedTreeFlag   ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetReducedTreeFlag(arg);    }
+  inline  void SetZDCMLReducedTreeFlag   ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetMLReducedTreeFlag(arg);    }
   inline  void SetZDCHousingMaterial   ( G4String       arg ){ m_ZDCvec.at(currentZDC-1)->SetHousingMaterial(arg);    }
   inline  void SetZDCAbsorberMaterial  ( G4String       arg ){ m_ZDCvec.at(currentZDC-1)->SetAbsorberMaterial(arg);   }
   inline  void SetCurrentZDC           ( G4int          arg ){ currentZDC = arg; }
@@ -174,6 +175,7 @@ public:
   inline  void SetRPDOpticalFlag       ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOpticalFlag(arg);     }
   inline  void SetRPDOverlapsFlag      ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOverlapsFlag(arg);    }
   inline  void SetRPDReducedTreeFlag   ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetReducedTreeFlag(arg);    }
+  inline  void SetRPDMLReducedTreeFlag   ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetMLReducedTreeFlag(arg);    }
   inline  void SetRPD_NRows            ( G4int          arg ){ m_RPDvec.at(currentRPD-1)->SetNRows(arg);           }
   inline  void SetRPD_NColumns         ( G4int          arg ){ m_RPDvec.at(currentRPD-1)->SetNColumns(arg);           }
   inline  void SetRPD_NCyclesPerTile   ( G4int          arg ){ m_RPDvec.at(currentRPD-1)->SetNCyclesPerTile(arg);           }

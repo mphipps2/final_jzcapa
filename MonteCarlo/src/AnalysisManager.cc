@@ -133,17 +133,21 @@ void AnalysisManager::Book( G4String fileName )
     // the output tree, but the SD has not been created yet
     if( ZDCvec->at(i)->GetReducedTreeFlag() ){
       m_ZDCfiberVec[i] = new std::vector< G4int  >( ZDCvec->at(i)->GetnFibers(), 0 );
-      m_ZDCtimeVec[i]  = new std::vector< G4int  >( 128, 0 );
+      m_ZDCtimeVec[i]  = new std::vector< G4double  >( 128, 0 );
+    }
+    if( ZDCvec->at(i)->GetMLReducedTreeFlag() ){
+      m_ZDCfiberVec[i] = new std::vector< G4int  >( 1, 0 );
     }
 
-    m_ZDCfiberVec[i] = new std::vector< G4int  >( ZDCvec->at(i)->GetnFibers(), 0 );
-    MakeZDCTree( ZDCvec->at(i)->GetModNum() - 1, m_ZDCfiberVec[i], m_ZDCtimeVec[i], ZDCvec->at(i)->GetReducedTreeFlag(), ZDCvec->at(i)->GetOpticalFlag() );
+    MakeZDCTree( ZDCvec->at(i)->GetModNum() - 1, m_ZDCfiberVec[i], m_ZDCtimeVec[i], ZDCvec->at(i)->GetReducedTreeFlag(), ZDCvec->at(i)->GetMLReducedTreeFlag(), ZDCvec->at(i)->GetOpticalFlag() );
 
   }//end ZDC loop
 
   //Create RPD trees (Tree nZDCs - nZDCs + nRPDs)
   // RPDvec->size() is just the number of modules
   m_RPDfiberVec.resize( RPDvec->size(), 0 );
+  m_YOriginVec.resize( RPDvec->size(), 0 );
+  m_RPDfiberGenVec.resize( RPDvec->size(), 0 );
   m_RPDtimeVec.resize( RPDvec->size(), 0 );
   for(uint i = 0; i < RPDvec->size(); i++){
 
@@ -152,16 +156,19 @@ void AnalysisManager::Book( G4String fileName )
     // the output tree, but the SD has not been created yet
     if( RPDvec->at(i)->GetReducedTreeFlag() ){
       m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnFibers(), 0 );
-      m_RPDtimeVec[i]  = new std::vector< G4int  >( 128, 0 );
+      m_RPDtimeVec[i]  = new std::vector< G4double  >( 128, 0 );
     }
 
-    if( RPDvec->at(i)->GetMLReducedTreeFlag() ){
-      //      need a new function here to GetnChannels()
+    else if ( RPDvec->at(i)->GetMLReducedTreeFlag() ){
+      m_YOriginVec[i] = new std::vector< G4double  >;
+      m_RPDfiberGenVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnChannels(), 0 );
+      m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnChannels(), 0 );
+      m_RPDtimeVec[i]  = new std::vector< G4double  >( RPDvec->at(i)->GetnChannels(), 0 );
+    }
+    else {
       m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnFibers(), 0 );
     }
-
-    m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnChannels(), 0 );
-    MakeRPDTree( RPDvec->at(i)->GetModNum() - 1, m_RPDfiberVec[i], m_RPDtimeVec[i], RPDvec->at(i)->GetReducedTreeFlag(), RPDvec->at(i)->GetMLReducedTreeFlag(), RPDvec->at(i)->GetOpticalFlag() );
+    MakeRPDTree( RPDvec->at(i)->GetModNum() - 1, i, RPDvec->at(i)->GetReducedTreeFlag(), RPDvec->at(i)->GetMLReducedTreeFlag(), RPDvec->at(i)->GetOpticalFlag() );
 
   }//end RPD loop
 
@@ -401,7 +408,7 @@ void AnalysisManager::FillEventGenTree( int nSpectators, double ptCollision, dou
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVec, std::vector< int >* timeVec, G4bool reducedTree, G4bool thisIsOptical ){
+void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVec, std::vector< double >* timeVec, G4bool reducedTree, G4bool MLReducedTree, G4bool thisIsOptical ){
   G4int nTupleNo = m_analysisManager->GetNofNtuples();
   m_ZDCnTupleNo.push_back( nTupleNo );
   char name[20];
@@ -418,9 +425,17 @@ void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVe
 
     // This branch acts as a histogram to store the timing of photon arrival or production
     // depending on optical settings
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "timeHist",    *timeVec       );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "timeHist",    *timeVec       );
 
-  } else { //Full tree
+  }
+  else if (MLReducedTree ){
+
+    // This branch is a vector nFibers long that contains the number of cherenkovs
+    // produced in each fiber or photons that arrive at the top of each fiber during an event
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", *nCherenkovVec );
+
+  }
+  else { //Full tree
 
     if(thisIsOptical){
       // This branch is a vector nFibers long that contains the number of cherenkovs
@@ -476,7 +491,8 @@ void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVe
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVec, std::vector< int >* timeVec, G4bool reducedTree, G4bool MLReducedTree, G4bool thisIsOptical ){
+//void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< double >* YOriginVec, std::vector< int >* nGenCherenkovVec, std::vector< int >* nCherenkovVec, std::vector< double >* timeVec, G4bool reducedTree, G4bool MLReducedTree, G4bool thisIsOptical ){
+void AnalysisManager::MakeRPDTree( G4int rpdNo, G4int modNum, G4bool reducedTree, G4bool MLReducedTree, G4bool thisIsOptical ){
   G4int nTupleNo = m_analysisManager->GetNofNtuples();
   m_RPDnTupleNo.push_back( nTupleNo );
 
@@ -490,17 +506,30 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVe
 
       // This branch is a vector nFibers long that contains the number of cherenkovs
       // produced in each fiber or photons that arrive at the top of each fiber during an event
-      m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", *nCherenkovVec );
+    //      m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", *nCherenkovVec );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", *(m_RPDfiberVec[modNum]) );
 
       // This branch acts as a histogram to store the timing of photon arrival or production
       // depending on optical settings
-      m_analysisManager->CreateNtupleIColumn( nTupleNo, "timeHist",    *timeVec       );
+    //     m_analysisManager->CreateNtupleDColumn( nTupleNo, "timeHist",    *timeVec       );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "timeHist",    *(m_RPDtimeVec[modNum])       );
 
   }
   else if( MLReducedTree ){
-
+    std::cout << " RPD TREE NTUPLENO " << nTupleNo << std::endl;
+    // Branch of vectors nHits long to keep y origins
+    //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "yOrigin", *YOriginVec );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "yOrigin", *(m_YOriginVec[modNum]) );
     // Branch of vectors nChannels long that contains the number of cherenkovs per channel for each event
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", *nCherenkovVec );
+    //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGenCherenkovs", *nGenCherenkovVec );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGenCherenkovs", *(m_RPDfiberGenVec[modNum]) );
+    // Branch of vectors nChannels long that contains the number of cherenkovs per channel for each event
+    //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", *nCherenkovVec );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", *(m_RPDfiberVec[modNum]));
+    // This branch acts as a histogram to store the timing of photon arrival or production
+    // depending on optical settings
+    //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "timeHist",    *timeVec       );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "timeHist",    *(m_RPDtimeVec[modNum])       );
   }
   else { //Full tree
 
@@ -514,7 +543,8 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, std::vector< int >* nCherenkovVe
       //vector< int > branch
       m_RPDintVec->at(rpdNo).resize(1);
       m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(rpdNo).at(0) );
-      m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGeneratedCherenkovs", *nCherenkovVec );
+      //      m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGeneratedCherenkovs", *nCherenkovVec );
+      m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGeneratedCherenkovs", *(m_RPDfiberVec[modNum]) );
 
       //Resize the vector for the number of optical branches storing double vectors
       //      m_RPDdblVec->at(rpdNo).resize(7);
@@ -569,11 +599,28 @@ std::vector< G4int >* AnalysisManager::GetFiberVector( G4bool ZDC, G4bool RPD, G
 
   return 0;
 }
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-std::vector< G4int >* AnalysisManager::GetTimeVector( G4bool ZDC, G4bool RPD, G4int modNum  ){
+std::vector< G4int >* AnalysisManager::GetFiberGenVector( G4int modNum  ){
 
-       if(ZDC) return m_ZDCtimeVec[ modNum - 1 ];
+  return m_RPDfiberGenVec[ modNum - 1 ];
+
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+std::vector< G4double > * AnalysisManager::GetYOriginVector( G4int modNum  ){
+
+  return m_YOriginVec[ modNum - 1 ];
+
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+std::vector< G4double >* AnalysisManager::GetTimeVector( G4bool ZDC, G4bool RPD, G4int modNum  ){
+
+  if(ZDC) return m_ZDCtimeVec[ modNum - 1 ];
   else if(RPD) return m_RPDtimeVec[ modNum - 1 ];
 
   return 0;

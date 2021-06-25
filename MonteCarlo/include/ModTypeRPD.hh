@@ -68,6 +68,9 @@ public:
   inline  void  SetPosition            ( G4ThreeVector* vec ){ delete m_pos;       m_pos       = vec; }
   inline  void  SetFiberDiameters      ( G4ThreeVector* vec ){ delete m_fiberDiam; m_fiberDiam = vec; }
   inline  void  SetHousingThickness    ( G4double       arg ){ m_HousingThickness = arg; }
+  inline  void  SetNRows               ( G4int          arg ){ m_n_rows           = arg; }
+  inline  void  SetNColumns            ( G4int          arg ){ m_n_columns        = arg; }
+  inline  void  SetNCyclesPerTile      ( G4int          arg ){ m_n_cycles_per_tile= arg; }  
   inline  void  SetFiberPitchX         ( G4double       arg ){ m_fiberPitchX      = arg; }
   inline  void  SetFiberPitchZ         ( G4double       arg ){ m_fiberPitchZ      = arg; }
   inline  void  SetTileSize            ( G4double       arg ){ m_tileSize         = arg; }
@@ -93,6 +96,7 @@ protected:
   const G4int      m_modNum;
   G4ThreeVector*   m_pos;
   G4ThreeVector*   m_fiberDiam;
+  G4double         m_HousingThickness;
   G4int            m_fiber_count;
   // number of channel rows
   G4int            m_n_rows;
@@ -100,13 +104,13 @@ protected:
   G4int            m_n_columns;
   // number of repeated patterns per tile (ie channel)
   G4int            m_n_cycles_per_tile;
-  G4double         m_HousingThickness;
   G4double         m_fiberPitchX;
   G4double         m_fiberPitchZ;
   G4double         m_tileSize;
   G4double         m_minWallThickness;
   G4double         m_distanceToReadout;
   G4double         m_topOfVolume;
+  G4double         m_bottomOfVolume;
   G4double         m_polarAngleCut;
   G4String         m_detType;
   G4bool           OPTICAL;

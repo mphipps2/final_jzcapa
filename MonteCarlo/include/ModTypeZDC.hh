@@ -92,6 +92,7 @@ protected:
   G4double         m_GapThickness;
   G4double         m_SteelAbsHeight;
   G4double         m_topOfVolume;
+  G4double         m_bottomOfVolume;
   G4double         m_polarAngleCut;
   G4bool           OPTICAL;
   G4bool           CHECK_OVERLAPS;

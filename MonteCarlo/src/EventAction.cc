@@ -116,7 +116,7 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
   // If you're looking for reduced tree stuff, go to FiberSD and AnalysisManager.
   // FiberSD doesn't add hits to the collection in reduced tree mode, so there
   // is nothing to process here
-  if( sd->IsReduced() ){
+  if( sd->IsReduced() || sd->IsMLReduced() ){
     G4cout << name << " nHits = " << sd->GetNhits() << G4endl;
     return;
   }
@@ -225,7 +225,7 @@ void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
   // If you're looking for reduced tree stuff, go to FiberSD and AnalysisManager.
   // FiberSD doesn't add hits to the collection in reduced tree mode, so there
   // is nothing to process here
-  if( sd->IsReduced() ){
+  if( sd->IsReduced() || sd->IsMLReduced() ){
     G4cout << name << " nOpticalHits = " << sd->GetNhits() << G4endl;
     return;
   }

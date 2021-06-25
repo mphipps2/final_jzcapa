@@ -88,6 +88,7 @@ ModTypeRPD::ModTypeRPD(const G4int cn, G4LogicalVolume* mother, G4ThreeVector* p
     CHECK_OVERLAPS(false),
     READOUT(false),
     REDUCED_TREE(false),
+    ML_REDUCED_TREE(false),
     CLAD(false),
     BUFFERED(false),
     m_logicMother( mother )
@@ -119,6 +120,7 @@ ModTypeRPD::ModTypeRPD(const G4int cn, ModTypeRPD* right)
   CHECK_OVERLAPS 		  = right->CHECK_OVERLAPS;
   READOUT 		        = right->READOUT;
   REDUCED_TREE 		    = right->REDUCED_TREE;
+  ML_REDUCED_TREE 		    = right->ML_REDUCED_TREE;
   CLAD         		    = right->CLAD;
   BUFFERED    		    = right->BUFFERED;
   materials					  = right->materials;
@@ -581,7 +583,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
   }//end row
 
   m_topOfVolume = m_pos->y() + m_distanceToReadout +  activeHeight/2.0;
-
+  m_bottomOfVolume = -1 * activeHeight/2.0;
   std::cout << "Prototype RPD construction finished with ";
   std::cout << m_fiber_count << " Fibers, " << m_tileSize << "mm tiles." << std::endl;
 
@@ -1225,12 +1227,14 @@ void ModTypeRPD::ConstructSDandField(){
   aFiberSD->HistInitialize();
 
   aFiberSD->SetTopOfVolume( m_topOfVolume );
+  aFiberSD->SetBottomOfVolume( m_bottomOfVolume );
   aFiberSD->SetnFibers( m_fiber_count );
   aFiberSD->SetPhotonPolarAngleCut( m_polarAngleCut );
   SDman->AddNewDetector( aFiberSD );
   if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count, GetnChannels() );
-  if(ML_REDUCED_TREE) aFiberSD->SetMLReducedTree( GetnChannels() );
-
+  if(ML_REDUCED_TREE) {
+    aFiberSD->SetMLReducedTree( m_fiber_count, GetnChannels() );
+  }
   // Assign fibers as SD volumes
   if(m_detType == "cms"){
     if(m_test_tile_bool){

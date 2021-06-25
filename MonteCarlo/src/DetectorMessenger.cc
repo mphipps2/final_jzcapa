@@ -190,6 +190,12 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fZDCReducedTreeCmd->SetDefaultValue(true);
   fZDCReducedTreeCmd->SetToBeBroadcasted(false);
 
+  fZDCMLReducedTreeCmd = new G4UIcmdWithABool("/Detector/ZDC/MLReducedTree", this);
+  fZDCMLReducedTreeCmd->SetGuidance("Set ML reduced tree flag for current ZDC");
+  fZDCMLReducedTreeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fZDCMLReducedTreeCmd->SetDefaultValue(true);
+  fZDCMLReducedTreeCmd->SetToBeBroadcasted(false);
+  
   fZDCHousingMaterialCmd = new G4UIcmdWithAString("/Detector/ZDC/HousingMaterial", this);
   fZDCHousingMaterialCmd->SetGuidance("Set current ZDC housing material");
   fZDCHousingMaterialCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -307,6 +313,12 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDReducedTreeCmd->SetDefaultValue(true);
   fRPDReducedTreeCmd->SetToBeBroadcasted(false);
 
+  fRPDMLReducedTreeCmd = new G4UIcmdWithABool("/Detector/RPD/MLReducedTree", this);
+  fRPDMLReducedTreeCmd->SetGuidance("Set ML reduced tree flag for current RPD");
+  fRPDMLReducedTreeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRPDMLReducedTreeCmd->SetDefaultValue(true);
+  fRPDMLReducedTreeCmd->SetToBeBroadcasted(false);
+
   fRPDSetNRowsCmd = new G4UIcmdWithAnInteger("/Detector/RPD/SetNRows", this);
   fRPDSetNRowsCmd->SetGuidance("Set the number of channel rows");
   fRPDSetNRowsCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -363,6 +375,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fZDCOpticalFlagCmd;
   delete fZDCOverlapsFlagCmd;
   delete fZDCReducedTreeCmd;
+  delete fZDCMLReducedTreeCmd;
   delete fZDCHousingMaterialCmd;
   delete fZDCAbsorberMaterialCmd;
   delete fZDCSetCurrentCmd;
@@ -384,6 +397,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fRPDOpticalFlagCmd;
   delete fRPDOverlapsFlagCmd;
   delete fRPDReducedTreeCmd;
+  delete fRPDMLReducedTreeCmd;
   delete fRPDSetNRowsCmd;
   delete fRPDSetNColumnsCmd;
   delete fRPDSetNCyclesPerTileCmd;  
@@ -462,6 +476,9 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if(command == fZDCReducedTreeCmd){
     fDetector->SetZDCReducedTreeFlag( fZDCReducedTreeCmd->GetNewBoolValue(newValue) );
   }
+  else if(command == fZDCMLReducedTreeCmd){
+    fDetector->SetZDCMLReducedTreeFlag( fZDCMLReducedTreeCmd->GetNewBoolValue(newValue) );
+  }
   else if(command == fZDCHousingMaterialCmd){
     fDetector->SetZDCHousingMaterial( newValue );
   }
@@ -513,6 +530,9 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if(command == fRPDReducedTreeCmd){
     fDetector->SetRPDReducedTreeFlag( fRPDReducedTreeCmd->GetNewBoolValue(newValue) );
   }
+  else if(command == fRPDMLReducedTreeCmd){
+    fDetector->SetRPDMLReducedTreeFlag( fRPDMLReducedTreeCmd->GetNewBoolValue(newValue) );
+  }
   else if(command == fRPDReadoutDistanceCmd){
     fDetector->SetRPDReadoutDistance( fRPDReadoutDistanceCmd->GetNewDoubleValue(newValue) );
   }
@@ -526,7 +546,7 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
     fDetector->SetRPD_NColumns( fRPDSetNColumnsCmd->GetNewIntValue(newValue) );
   }
   else if(command == fRPDSetNCyclesPerTileCmd){
-    fDetector->SetRPD_NCyclesPerTile( fRPDSetNCyclesPerTile->GetNewIntValue(newValue) );
+    fDetector->SetRPD_NCyclesPerTile( fRPDSetNCyclesPerTileCmd->GetNewIntValue(newValue) );
   }
   else if(command == fRPDSetCurrentCmd){
     fDetector->SetCurrentRPD( fRPDSetCurrentCmd->GetNewIntValue(newValue) );

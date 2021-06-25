@@ -316,8 +316,8 @@ void ModTypeZDC::ConstructDetector()
   m_nFibers = m_FiberCorePhysical.size()*m_FiberCorePhysical[0].size();
 
   m_topOfVolume = m_pos->y() + m_absDim->y()/2. + m_SteelAbsHeight;
+  m_bottomOfVolume = -1 * m_absDim->y()/2.;
 
-  std::cout << "ModTypeZDC construction finished: Module Number " << m_modNum << std::endl;
 
 }
 
@@ -333,6 +333,7 @@ void ModTypeZDC::ConstructSDandField(){
   FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
   aFiberSD->HistInitialize();
   aFiberSD->SetTopOfVolume( m_topOfVolume );
+  aFiberSD->SetBottomOfVolume( m_bottomOfVolume );
   aFiberSD->SetnFibers( m_nFibers );
   aFiberSD->SetPhotonPolarAngleCut( m_polarAngleCut );
   SDman->AddNewDetector( aFiberSD );
@@ -341,7 +342,7 @@ void ModTypeZDC::ConstructSDandField(){
     aFiberSD->SetReducedTree( m_nFibers, 1 );
   }
   else if(ML_REDUCED_TREE){
-    aFiberSD->SetReducedTree( 1 );
+    aFiberSD->SetMLReducedTree(m_nFibers, 1 );
   }
 
   

@@ -22,6 +22,7 @@
 /Detector/ZDC/PhotonPolarAngleCut 180. deg
 /Detector/ZDC/CheckOverlaps false
 /Detector/ZDC/ReducedTree false
+/Detector/ZDC/MLReducedTree true
 /Detector/ZDC/HousingMaterial aluminum
 /Detector/ZDC/AbsorberMaterial pure
 
@@ -38,6 +39,7 @@
 /Detector/ZDC/PhotonPolarAngleCut 180. deg
 /Detector/ZDC/CheckOverlaps false
 /Detector/ZDC/ReducedTree false
+/Detector/ZDC/MLReducedTree true
 /Detector/ZDC/HousingMaterial aluminum
 /Detector/ZDC/AbsorberMaterial pure
 
@@ -53,16 +55,20 @@
 /Detector/RPD/Position 0. 0. 187. mm
 /Detector/RPD/FiberDiameters .60 .66 .71 mm
 /Detector/RPD/HousingThickness 2. mm
+/Detector/RPD/SetNColumns 4
+/Detector/RPD/SetNRows 4
+/Detector/RPD/SetNCyclesPerTile 2
 /Detector/RPD/FiberPitchX 1.2 mm
 /Detector/RPD/FiberPitchZ 2.0 mm
 /Detector/RPD/TileSize 9.6 mm
 /Detector/RPD/MinWallThickness 0.01 mm
 /Detector/RPD/FiberReadoutDistance 360 mm
 /Detector/RPD/RPDtype panflute
-/Detector/RPD/Optical false
+/Detector/RPD/Optical true
 /Detector/RPD/PhotonPolarAngleCut 30. deg
 /Detector/RPD/CheckOverlaps false
 /Detector/RPD/ReducedTree false
+/Detector/RPD/MLReducedTree true
 
 #/Detector/RPD/SetCurrent 1
 
