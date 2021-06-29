@@ -63,6 +63,8 @@ private:
   std::vector< G4ThreeVector >* m_Pi0Vert;
   std::vector< int >* m_lastStepPidVec;
 
+  G4int prevTrackID;
+  G4int TIR_count;
   G4bool   OPTICAL;
   G4bool   PI0;
 };

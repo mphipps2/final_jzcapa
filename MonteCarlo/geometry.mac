@@ -64,7 +64,8 @@
 /Detector/RPD/MinWallThickness 0.01 mm
 /Detector/RPD/FiberReadoutDistance 360 mm
 /Detector/RPD/RPDtype panflute
-/Detector/RPD/Optical true
+/Detector/RPD/Optical false
+/Detector/RPD/FullOptical true
 /Detector/RPD/PhotonPolarAngleCut 30. deg
 /Detector/RPD/CheckOverlaps false
 /Detector/RPD/ReducedTree false

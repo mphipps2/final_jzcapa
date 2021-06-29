@@ -168,7 +168,11 @@ void AnalysisManager::Book( G4String fileName )
     else {
       m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnFibers(), 0 );
     }
-    MakeRPDTree( RPDvec->at(i)->GetModNum() - 1, i, RPDvec->at(i)->GetReducedTreeFlag(), RPDvec->at(i)->GetMLReducedTreeFlag(), RPDvec->at(i)->GetOpticalFlag() );
+    G4bool rpdOpticalFlag = RPDvec->at(i)->GetOpticalFlag();
+    G4bool rpdFullOpticalFlag = RPDvec->at(i)->GetFullOpticalFlag();
+    G4bool rpdIsOptical = 0;
+    if (rpdOpticalFlag || rpdFullOpticalFlag) rpdIsOptical = 1;
+    MakeRPDTree( RPDvec->at(i)->GetModNum() - 1, i, RPDvec->at(i)->GetReducedTreeFlag(), RPDvec->at(i)->GetMLReducedTreeFlag(), rpdIsOptical);
 
   }//end RPD loop
 
@@ -516,7 +520,6 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, G4int modNum, G4bool reducedTree
 
   }
   else if( MLReducedTree ){
-    std::cout << " RPD TREE NTUPLENO " << nTupleNo << std::endl;
     // Branch of vectors nHits long to keep y origins
     //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "yOrigin", *YOriginVec );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "yOrigin", *(m_YOriginVec[modNum]) );

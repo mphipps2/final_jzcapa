@@ -121,9 +121,9 @@ void Materials::DefineOpticalProperties(void){
 
   // Silica cladding optical properties
   // Numerical aperture is given by data sheet as 0.22 and NA = sqrt( n1^2 - n2^2 ), so n2 = sqrt( n1^2 - NA^2 )
-  G4double silica_clad_RIND_UI[2] = {1.585, 1.585}; // Only refractive index changes
+  //  G4double silica_clad_RIND_UI[2] = {1.585, 1.585}; // Only refractive index changes
   //  G4double silica_clad_RIND_UI[2] = {1.4575, 1.4575}; // Only refractive index changes
-  //  G4double silica_clad_RIND_UI[2] = {1., 1.}; // Only refractive index changes
+  G4double silica_clad_RIND_UI[2] = {1., 1.}; // Only refractive index changes
   MPT_Array.push_back(new G4MaterialPropertiesTable());
   //MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,silica_clad_RIND_UI,nEntries_UI);//index of refraction
   MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI_small,silica_clad_RIND_UI,2);//index of refraction

@@ -85,6 +85,7 @@ ModTypeRPD::ModTypeRPD(const G4int cn, G4LogicalVolume* mother, G4ThreeVector* p
     m_polarAngleCut(180.*deg),
     m_detType(""),
     OPTICAL(false),
+    FULLOPTICAL(false),
     CHECK_OVERLAPS(false),
     READOUT(false),
     REDUCED_TREE(false),
@@ -117,6 +118,7 @@ ModTypeRPD::ModTypeRPD(const G4int cn, ModTypeRPD* right)
   m_distanceToReadout = right->m_distanceToReadout;
   m_detType 				  = right->m_detType;
   OPTICAL 					  = right->OPTICAL;
+  FULLOPTICAL 					  = right->FULLOPTICAL;
   CHECK_OVERLAPS 		  = right->CHECK_OVERLAPS;
   READOUT 		        = right->READOUT;
   REDUCED_TREE 		    = right->REDUCED_TREE;
@@ -157,21 +159,19 @@ void ModTypeRPD::DefineMaterials()
   m_matQuartz = materials->pQuartz;
 
   //SilicaCore_UI
-    m_silicaCore_UI = materials->SilicaCore_UI;
-  //m_silicaCore_UI = materials->pQuartz;
+  m_silicaCore_UI = materials->SilicaCore_UI;
 
   //SilicaClad_UI
-    m_silicaClad_UI = materials->SilicaClad_UI;
+  m_silicaClad_UI = materials->SilicaClad_UI;
 
   //Kapton_UI
-    m_kapton_UI = materials->Kapton_UI;
+  m_kapton_UI = materials->Kapton_UI;
   
   //Aluminum
   m_Al = materials->Al;
 
   //Air
   m_Air = materials->Air;
-
   //Polyethylene
   m_Poly = materials->Polyethylene;
 
@@ -326,12 +326,13 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
     m_PFreadout_airLogical->SetVisAttributes(G4Colour(0.0,0.8,1.0,0.05));
 
+    //    double airGap = 0.2;
     //Create readout fiber core
     sprintf(name,"m_PFreadoutCore_%d", m_modNum);
     m_PFreadout_fiberCore = new G4Tubs(name,
 				       0.0*mm,
 				       m_fiberDiam->x()*mm/2.0,
-				       m_distanceToReadout*mm/2.0 ,
+				       m_distanceToReadout*mm/2.0,
 				       0.0*deg,
 				       360.0*deg);
 
@@ -341,7 +342,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
       m_PFreadout_fiberClad = new G4Tubs(name,
 					 m_fiberDiam->x()*mm/2.0,
 					 m_fiberDiam->y()*mm/2.0,
-					 m_distanceToReadout*mm/2.0 ,
+					 m_distanceToReadout*mm/2.0,
 					 0.0*deg,
 					 360.0*deg);
     }
@@ -366,9 +367,12 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
     // The fiber core. One length for each row
     sprintf(name,"m_PFrpd_%d", row);
+
+   
     m_PFrpdCore.push_back( new G4Tubs(name,
 				      0.0*mm,
 				      m_fiberDiam->x()*mm/2.0,
+				      //				      fiber_height*mm/2.0 - airGap*mm/2.0 ,
 				      fiber_height*mm/2.0 ,
 				      0.0*deg,
 				      360.0*deg) );
@@ -379,6 +383,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
       m_PFrpdClad.push_back( new G4Tubs(name,
 					m_fiberDiam->x()*mm/2.0,
 					m_fiberDiam->y()*mm/2.0,
+					//					fiber_height*mm/2.0 - airGap*mm/2.0 ,
 					fiber_height*mm/2.0 ,
 					0.0*deg,
 					360.0*deg) );
@@ -390,7 +395,8 @@ void ModTypeRPD::ConstructPanFluteDetector()
       m_PFrpdBuff.push_back( new G4Tubs(name,
 					buffer_inner*mm/2.0,
 					m_fiberDiam->z()*mm/2.0,
-					fiber_height*mm/2.0 ,
+					//					fiber_height*mm/2.0 - airGap*mm/2.0,
+					fiber_height*mm/2.0,
 					0.0*deg,
 					360.0*deg) );
     }
@@ -455,7 +461,8 @@ void ModTypeRPD::ConstructPanFluteDetector()
             sprintf(name,"m_PFrpd_phys_%d", m_fiber_count);
             m_PFrpdCorePhysical.push_back(
 					  new G4PVPlacement(stripRotation,
-							    G4ThreeVector( posx[pattern]*mm , posy*mm , posz[pattern]*mm ),
+							    //							    G4ThreeVector( posx[pattern]*mm , posy*mm , posz[pattern]*mm + airGap*mm),
+							    G4ThreeVector( posx[pattern]*mm , posy*mm , posz[pattern]*mm),
 							    m_PFrpdCoreLogical.back(),
 							    name,
 							    m_PFrpd_housingLogical,
@@ -474,7 +481,8 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	      sprintf(name,"m_PFrpdClad_phys_%d", m_fiber_count);
 	      m_PFrpdCladPhysical.push_back(
 					    new G4PVPlacement(stripRotation,
-							      G4ThreeVector( posx[pattern]*mm , posy*mm , posz[pattern]*mm ),
+							      //							      G4ThreeVector( posx[pattern]*mm , posy*mm , posz[pattern]*mm + airGap*mm),
+							      G4ThreeVector( posx[pattern]*mm , posy*mm , posz[pattern]*mm),
 							      m_PFrpdCladLogical.back(),
 							      name,
 							      m_PFrpd_housingLogical,
@@ -494,7 +502,8 @@ void ModTypeRPD::ConstructPanFluteDetector()
 	      sprintf(name,"m_PFrpdBuff_phys_%d", m_fiber_count);
 	      m_PFrpdBuffPhysical.push_back(
 					    new G4PVPlacement(stripRotation,
-							      G4ThreeVector( posx[pattern]*mm , posy*mm , posz[pattern]*mm ),
+							      //							      G4ThreeVector( posx[pattern]*mm , posy*mm , posz[pattern]*mm + airGap*mm),
+							      G4ThreeVector( posx[pattern]*mm , posy*mm , posz[pattern]*mm),
 							      m_PFrpdBuffLogical.back(),
 							      name,
 							      m_PFrpd_housingLogical,
@@ -832,7 +841,7 @@ void ModTypeRPD::ConstructCMSDetector()
   ///////////////////////////////////////////////////////////////////////////////////
   // if Optical is turned on we need to build air detector above each fiber
 
-  if ( OPTICAL ){
+  if ( OPTICAL || FULLOPTICAL ){
 
     G4double air_detect_thickness = 0.1;
     G4double correction = 0.0;
@@ -1223,7 +1232,7 @@ void ModTypeRPD::ConstructSDandField(){
   //Create and initialize the SD
   char fiberSDname[256];
   sprintf( fiberSDname, "RPD%d_SD", m_modNum);
-  FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
+  FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL, FULLOPTICAL );
   aFiberSD->HistInitialize();
 
   aFiberSD->SetTopOfVolume( m_topOfVolume );
@@ -1240,7 +1249,7 @@ void ModTypeRPD::ConstructSDandField(){
     if(m_test_tile_bool){
       m_test_PDLogical->SetSensitiveDetector( aFiberSD );
     }else{
-      if (OPTICAL){
+      if (OPTICAL || FULLOPTICAL){
 	for(G4int i=0;i<64;i++){
 	  m_air_detect_Logical[i]->SetSensitiveDetector( aFiberSD );}
       }else{

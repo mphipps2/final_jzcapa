@@ -173,9 +173,10 @@ public:
   inline  void SetRPDPhotonPolarCut    ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetPhotonPolarAngleCut(arg);}
   inline  void SetRPDDetectorType      ( G4String       arg ){ m_RPDvec.at(currentRPD-1)->SetDetectorType(arg);    }
   inline  void SetRPDOpticalFlag       ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOpticalFlag(arg);     }
+  inline  void SetRPDFullOpticalFlag   ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetFullOpticalFlag(arg);     }
   inline  void SetRPDOverlapsFlag      ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOverlapsFlag(arg);    }
   inline  void SetRPDReducedTreeFlag   ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetReducedTreeFlag(arg);    }
-  inline  void SetRPDMLReducedTreeFlag   ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetMLReducedTreeFlag(arg);    }
+  inline  void SetRPDMLReducedTreeFlag ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetMLReducedTreeFlag(arg);    }
   inline  void SetRPD_NRows            ( G4int          arg ){ m_RPDvec.at(currentRPD-1)->SetNRows(arg);           }
   inline  void SetRPD_NColumns         ( G4int          arg ){ m_RPDvec.at(currentRPD-1)->SetNColumns(arg);           }
   inline  void SetRPD_NCyclesPerTile   ( G4int          arg ){ m_RPDvec.at(currentRPD-1)->SetNCyclesPerTile(arg);           }

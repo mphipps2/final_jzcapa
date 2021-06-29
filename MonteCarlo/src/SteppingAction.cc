@@ -47,7 +47,10 @@
 
 SteppingAction::SteppingAction( )
 : G4UserSteppingAction()
-{}
+{
+  prevTrackID = -1;
+  TIR_count = 0;
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -76,13 +79,28 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
   }
   else if(theTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition() ){ // If we are tracking an optical photon
 
+    
+    
     // Get the SD for the volume we're in. Returns 0 if we aren't in an SD volume
     FiberSD* sd = (FiberSD*)theTrack->GetVolume()->GetLogicalVolume()->GetSensitiveDetector();
     // If World OPTICAL is on
     if(OPTICAL){
+      /*
+      if (theTrack->GetPosition().z() > 180 && theTrack->GetPosition().z() < 190 ) {
+	if (theTrack->GetPosition().y() < 0 ) {
+	  int trackID = theStep->GetTrack()->GetTrackID();
+	  if (trackID == prevTrackID) ++TIR_count;
+	  else {TIR_count = 1; prevTrackID = trackID;}
+	  G4ThreeVector p = theStep->GetTrack()->GetMomentumDirection();
+	  double pT = sqrt( pow( p.x(), 2.0 ) + pow( p.z(), 2.0 ));
+	  double theta = M_PI / 2.0 - atan( pT / p.y() );
+	  //	  if (TIR_count > 10 && theta > M_PI/2) std::cout << " trackID "  << trackID <<  " y " << theStep->GetTrack()->GetPosition().y() << " z " << theStep->GetTrack()->GetPosition().z() << " material " << theStep->GetPreStepPoint()->GetMaterial()->GetName()  << std::endl;
+	}       
+      }
+      */
       // Kill photons only in SD volumes with OPTICAL off
       if( sd != 0 ){
-	if( !sd->OpticalIsOn() ){
+	if( !sd->OpticalIsOn() && !sd->FullOpticalIsOn()){
 	  theTrack->SetTrackStatus( fStopAndKill );
 	}
 
@@ -99,7 +117,7 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
       }
     } else { // World OPTICAL is off
       // Kill all photons except those in SD volumes with OPTICAL on
-      if(sd == 0 || !sd->OpticalIsOn() ){
+      if(sd == 0 || (!sd->OpticalIsOn() && !sd->FullOpticalIsOn())){
 	theTrack->SetTrackStatus( fStopAndKill );
       }
     }

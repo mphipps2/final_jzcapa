@@ -49,9 +49,10 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-FiberSD::FiberSD(G4String sdName, G4int modNum, G4bool optical)
+FiberSD::FiberSD(G4String sdName, G4int modNum, G4bool optical, G4bool fullOptical)
   :G4VSensitiveDetector(sdName),
   m_modNum(modNum),
+  FULLOPTICAL(fullOptical),
   OPTICAL(optical),
   REDUCED_TREE(false),
   ML_REDUCED_TREE(false),
@@ -67,7 +68,8 @@ FiberSD::FiberSD(G4String sdName, G4int modNum, G4bool optical)
   m_avgStepLength = 0;
   m_avgTimeLength = 0;
   m_firstStepTime = 0;
-  m_yOrigin = 0;
+  is_upward_light = 0;
+  is_downward_light = 0;
   if( sdName.contains("R") ) RPD = true;
   if( sdName.contains("Z") ) ZDC = true;
 
@@ -90,7 +92,6 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
 					      m_modNum);
 
   std::string name = collectionName[0];
-
   if(REDUCED_TREE){
     // Grab the vector from AnalysisManager if reduced tree mode is active
     AnalysisManager* analysisManager = AnalysisManager::getInstance();
@@ -113,20 +114,26 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
     m_cherenkovVec->clear();
     m_cherenkovVec->resize( m_nChannels, 0 );
     if (RPD) {
+      // Clear it and resize in case this isn't the first event
       m_yOriginVec = analysisManager->GetYOriginVector(m_modNum);
+      m_yOriginVec->clear();
+      // Clear it and resize in case this isn't the first event
       m_genCherenkovVec = analysisManager->GetFiberGenVector(m_modNum);
+      m_genCherenkovVec->clear();
+      m_genCherenkovVec->resize( m_nChannels, 0 );
       m_timeVec->clear();
       m_timeVec->resize( 128*m_nChannels, 0 );
     }
   }
+  else {
+    if(m_cherenkovVec){
+      AnalysisManager* analysisManager = AnalysisManager::getInstance();
+      m_cherenkovVec = analysisManager->GetFiberVector(ZDC,RPD,m_modNum);
 
-  AnalysisManager* analysisManager = AnalysisManager::getInstance();
-  m_cherenkovVec = analysisManager->GetFiberVector(ZDC,RPD,m_modNum);
-  if(m_cherenkovVec){
-    m_cherenkovVec->clear();
-    m_cherenkovVec->resize( m_nFibers, 0 );
+      m_cherenkovVec->clear();
+      m_cherenkovVec->resize( m_nFibers, 0 );
+    }
   }
-  
   
   m_nCherenkovs = 0;
   m_nHits = 0;
@@ -152,7 +159,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
       generatedPhotons++;
     }//end if photon
   }//end secondary track loop
-  m_nCherenkovs += generatedPhotons; // Record the total in case OPTICAL is true 
+  m_nCherenkovs += generatedPhotons; 
   
   //Don't record hits that didn't produce cherenkov photons
   // if(capturedPhotons == 0) return true;
@@ -169,18 +176,23 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     m_genCherenkovVec->at(channelNum)+=generatedPhotons;
   }
   
-  // If OPTICAL is true, determine if the photon has reached the top of the topOfVolume
+  // If FULLOPTICAL is true, determine if the photon has reached the top of the topOfVolume
+  // If OPTICAL is true, determine if the photon is captured (requires # of steps inside SD to exceed m_captureThreshold and for the final five steps to not include the Kapton buffer material)
   // and add the hit to the collection if it has
-
   G4bool KEEP_DOWNWARD_LIGHT = 1;
-  G4bool is_downward_light = 0;
+  G4bool KEEP_UPWARD_LIGHT = 1;
+  int trackID = aStep->GetTrack()->GetTrackID();
+  if (trackID != m_prevTrackID) {
+    is_downward_light = 0;
+    is_upward_light = 0;
+  }
   if(OPTICAL){
     if (aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
-      int trackID = aStep->GetTrack()->GetTrackID();
+
       G4ThreeVector p = aStep->GetTrack()->GetMomentumDirection();
       double pT = sqrt( pow( p.x(), 2.0 ) + pow( p.z(), 2.0 ));
       double theta = M_PI / 2.0 - atan( pT / p.y() );
-      //      std::cout << " track " << trackID << " theta " << theta << " y " << aStep->GetTrack()->GetPosition().y() << " z " << aStep->GetTrack()->GetPosition().z() << " rodNum " << rodNum << " material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() << " m_TIR_count " << m_TIR_count  << std::endl;
+      // std::cout << " track " << trackID << " theta " << theta << " y " << aStep->GetTrack()->GetPosition().y() << " z " << aStep->GetTrack()->GetPosition().z() << " rodNum " << rodNum << " material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() << " m_TIR_count " << m_TIR_count  << std::endl;
       if (theta > M_PI/2) {
 	is_downward_light = 1;
 	// kill downward going photons
@@ -199,7 +211,6 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	m_avgStepLength = 0;
 	m_avgStepTime = 0;
 	m_firstStepTime = aStep->GetTrack()->GetGlobalTime();
-	m_yOrigin = aStep->GetTrack()->GetVertexPosition().y();
       }
       if (m_TIR_count > m_captureThreshold - 5) {
 	if (aStep->GetPostStepPoint()->GetMaterial()->GetName() == "Kapton_UI") {
@@ -210,7 +221,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
 	m_avgYStepLength += (aStep->GetPostStepPoint()->GetPosition().y() - aStep->GetPreStepPoint()->GetPosition().y());
 	m_avgStepLength += aStep->GetStepLength();
-	m_avgStepTime += aStep->GetTrack()->GetGlobalTime() - m_firstStepTime;
+	m_avgStepTime += aStep->GetDeltaTime();
 	
       }
       // light considered captured if number of TIR reflections >= threshold number or light reaches top of readout
@@ -260,7 +271,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	  else     channelNum = GetZDCChannelMapping(rodNum);
 	  if (RPD) {
 	    FillChannelTimeVector( channelNum, timeArrived );
-	    m_yOriginVec->push_back(m_yOrigin);
+	    m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y());
 	  }
 	  m_cherenkovVec->at(channelNum)++;
 	  m_nHits++;
@@ -268,21 +279,23 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
 	  return true;
 	}
-	m_cherenkovVec->at(rodNum) += generatedPhotons;
-	FiberHit* newHit = new FiberHit();
-	newHit->setPos      ( pos );
-	newHit->setOrigin   ( aStep->GetTrack()->GetVertexPosition() );
-	newHit->setMomentum ( aStep->GetPreStepPoint()->GetMomentum() );
-	newHit->setEnergy   ( aStep->GetPreStepPoint()->GetTotalEnergy() );
-	newHit->setTime     ( aStep->GetTrack()->GetGlobalTime() );
-	newHit->setRodNb    ( rodNum );
+	// Full Tree Mode
+	else { 
+	  FiberHit* newHit = new FiberHit();
+	  newHit->setPos      ( pos );
+	  newHit->setOrigin   ( aStep->GetTrack()->GetVertexPosition() );
+	  newHit->setMomentum ( aStep->GetPreStepPoint()->GetMomentum() );
+	  newHit->setEnergy   ( aStep->GetPreStepPoint()->GetTotalEnergy() );
+	  newHit->setTime     ( aStep->GetTrack()->GetGlobalTime() );
+	  newHit->setRodNb    ( rodNum );
 
-	fiberCollection->insert ( newHit );
-	m_nHits++;
+	  fiberCollection->insert ( newHit );
+	  m_nHits++;
 
-	m_lastFiveCore = 0;
-	aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
-	return true;
+	  m_lastFiveCore = 0;
+	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
+	  return true;
+	}
       }
       // photon not captured (in some non-TIR reflection mode)
       else if (m_TIR_count >= m_captureThreshold && !m_lastFiveCore ) {
@@ -292,6 +305,87 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     
     }
   }
+  else if (FULLOPTICAL) {
+    if( aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
+      //      int trackID = aStep->GetTrack()->GetTrackID();
+      G4ThreeVector p = aStep->GetTrack()->GetMomentumDirection();
+      double pT = sqrt( pow( p.x(), 2.0 ) + pow( p.z(), 2.0 ));
+      double theta = M_PI / 2.0 - atan( pT / p.y() );
+      //      std::cout << " track " << trackID << " theta " << theta << " y " << aStep->GetTrack()->GetPosition().y() << " z " << aStep->GetTrack()->GetPosition().z() << " rodNum " << rodNum << " material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() << " m_TIR_count " << m_TIR_count  << std::endl;
+      //      if (RPD) std::cout << " trackID "  << trackID << " theta " << theta << " y " << aStep->GetTrack()->GetPosition().y() << " z " << aStep->GetTrack()->GetPosition().z() << " rodNum " << rodNum << " material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() << " m_TIR_count " << m_TIR_count  << std::endl;
+      if (!is_downward_light && !is_upward_light) {
+	if (theta > M_PI/2) {
+	  is_downward_light = 1;
+	  // kill downward going photons
+	  if (!KEEP_DOWNWARD_LIGHT) {
+	    aStep->GetTrack()->SetTrackStatus( fStopAndKill ); 
+	    return true;
+	  }
+	}
+	else {
+	  is_upward_light = 1;
+	  // kill upward going photons
+	  if (!KEEP_UPWARD_LIGHT) {
+	    aStep->GetTrack()->SetTrackStatus( fStopAndKill ); 
+	    return true;
+	  }
+	}
+      }
+      if (trackID == m_prevTrackID) {
+	++m_TIR_count;
+      }
+      else {
+	m_TIR_count = 1;
+      }
+      if (pos.y() >= m_topOfVolume - 0.1*mm){
+	/*
+	if (RPD) { 
+	  if (is_downward_light) std::cout << " DOWNWARD LIGHT MADE IT TO THE TOP! " << std::endl;
+	  else std::cout << " upward light " << std::endl;
+	}
+	*/
+	if(REDUCED_TREE){
+	  m_cherenkovVec->at(rodNum)++;
+	  FillTimeVector( rodNum, aStep->GetTrack()->GetGlobalTime() );
+	  m_nHits++;
+	  return true;
+	}
+	else if(ML_REDUCED_TREE){
+	  G4int channelNum;
+	  //	  std::cout << " filling vecs in FiberSD " << std::endl;
+	  if (RPD) channelNum = GetRPDChannelMapping(rodNum);
+	  else     channelNum = GetZDCChannelMapping(rodNum);
+	  if (RPD) {
+	    FillChannelTimeVector( channelNum, aStep->GetTrack()->GetGlobalTime());
+	    m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y() );
+	  }
+	  m_cherenkovVec->at(channelNum)++;
+	  m_nHits++;
+	  m_lastFiveCore = 0;
+	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
+	  return true;
+	}
+	// Full Tree Mode
+	else {
+	  FiberHit* newHit = new FiberHit();
+	  newHit->setPos      ( pos );
+	  newHit->setOrigin   ( aStep->GetTrack()->GetVertexPosition() );
+	  newHit->setMomentum ( aStep->GetPreStepPoint()->GetMomentum() );
+	  newHit->setEnergy   ( aStep->GetPreStepPoint()->GetTotalEnergy() );
+	  newHit->setTime     ( aStep->GetTrack()->GetGlobalTime() );
+	  newHit->setRodNb    ( rodNum );
+
+	  fiberCollection->insert ( newHit );
+	  m_nHits++;
+
+	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
+	  return true;
+	}
+      }
+      m_prevTrackID = trackID;;
+    }
+  }
+  // Optical OFF Mode
   else{ // Otherwise record all hits
     // don't record Cherenkovs in optical-off mode
     if (aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) return true;
@@ -310,23 +404,26 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
       m_nHits++;
       return true;
     }
-    FiberHit* newHit = new FiberHit();
-    newHit->setCharge      ( aStep->GetPreStepPoint()->GetCharge() );
-    newHit->setTrackID     ( aStep->GetTrack()->GetTrackID() );
-    newHit->setModNb       ( m_modNum );
-    newHit->setRodNb       ( rodNum );
-    newHit->setEdep        ( aStep->GetTotalEnergyDeposit() );
-    newHit->setOrigin      ( aStep->GetTrack()->GetVertexPosition() );
-    newHit->setPos         ( pos );
-    newHit->setParticle    ( particle );
-    newHit->setEnergy      ( aStep->GetPreStepPoint()->GetTotalEnergy() );
-    newHit->setMomentum    ( aStep->GetPreStepPoint()->GetMomentum() );
-    newHit->setTime        ( aStep->GetTrack()->GetGlobalTime() );
-    newHit->setNCherenkovs ( generatedPhotons );
+    // Full Tree Mode
+    else {
+      FiberHit* newHit = new FiberHit();
+      newHit->setCharge      ( aStep->GetPreStepPoint()->GetCharge() );
+      newHit->setTrackID     ( aStep->GetTrack()->GetTrackID() );
+      newHit->setModNb       ( m_modNum );
+      newHit->setRodNb       ( rodNum );
+      newHit->setEdep        ( aStep->GetTotalEnergyDeposit() );
+      newHit->setOrigin      ( aStep->GetTrack()->GetVertexPosition() );
+      newHit->setPos         ( pos );
+      newHit->setParticle    ( particle );
+      newHit->setEnergy      ( aStep->GetPreStepPoint()->GetTotalEnergy() );
+      newHit->setMomentum    ( aStep->GetPreStepPoint()->GetMomentum() );
+      newHit->setTime        ( aStep->GetTrack()->GetGlobalTime() );
+      newHit->setNCherenkovs ( generatedPhotons );
 
-    fiberCollection->insert ( newHit );
-    m_nHits++;
-    return true;
+      fiberCollection->insert ( newHit );
+      m_nHits++;
+      return true;
+    }
   }
   return false; //Something failed if we got here
 }
