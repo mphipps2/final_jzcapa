@@ -61,6 +61,7 @@ FiberSD::FiberSD(G4String sdName, G4int modNum, G4bool optical, G4bool fullOptic
  {
   collectionName.insert(sdName);
   HCID = -1;
+  m_isTIR = 0;
   m_TIR_count = 0;
   m_prevTrackID = -1;
   m_lastFiveCore = 1;
@@ -114,6 +115,9 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
     m_cherenkovVec->clear();
     m_cherenkovVec->resize( m_nChannels, 0 );
     if (RPD) {
+      // Clear it and resize in case this isn't the first event
+      m_incidenceAngleVec = analysisManager->GetIncidenceAngleVector(m_modNum);
+      m_incidenceAngleVec->clear();
       // Clear it and resize in case this isn't the first event
       m_yOriginVec = analysisManager->GetYOriginVector(m_modNum);
       m_yOriginVec->clear();
@@ -185,7 +189,9 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   if (trackID != m_prevTrackID) {
     is_downward_light = 0;
     is_upward_light = 0;
+    m_isTIR = 0;
   }
+
   if(OPTICAL){
     if (aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
 
@@ -197,6 +203,14 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	is_downward_light = 1;
 	// kill downward going photons
 	if (!KEEP_DOWNWARD_LIGHT) { 
+	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); 
+	  return true;
+	}
+      }
+      else {
+	is_upward_light = 1;
+	// kill upward going photons
+	if (!KEEP_UPWARD_LIGHT) {
 	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); 
 	  return true;
 	}
@@ -225,7 +239,9 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	
       }
       // light considered captured if number of TIR reflections >= threshold number or light reaches top of readout
-      if ((m_TIR_count >= m_captureThreshold  && m_lastFiveCore) || (pos.y() >= m_topOfVolume - 0.1*mm)) {
+      //      if ((m_TIR_count >= m_captureThreshold  && m_lastFiveCore) || (pos.y() >= m_topOfVolume - 0.1*mm)) {
+      if ((m_TIR_count >= m_captureThreshold  && m_lastFiveCore)) {
+
 	// Get average vertical step length
 	// here worked
 	m_avgYStepLength /= 5;
@@ -272,6 +288,14 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	  if (RPD) {
 	    FillChannelTimeVector( channelNum, timeArrived );
 	    m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y());
+	    
+	    double incidenceAngle = GetIncidenceAngle(aStep);
+	    // incidence angles between [0,180]. eg) if critical angle is 82 degrees, retained light between [82,98]
+	    // normalize s.t. distribution is between [0,180]
+	    if (incidenceAngle > 90) incidenceAngle = 180 - incidenceAngle;
+	    // then flip the convention for downward going light so we can visualize the directional dependency
+	    if (is_downward_light) incidenceAngle = 180 - incidenceAngle;
+	    m_incidenceAngleVec->push_back(incidenceAngle);	 
 	  }
 	  m_cherenkovVec->at(channelNum)++;
 	  m_nHits++;
@@ -307,6 +331,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   }
   else if (FULLOPTICAL) {
     if( aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
+      
       //      int trackID = aStep->GetTrack()->GetTrackID();
       G4ThreeVector p = aStep->GetTrack()->GetMomentumDirection();
       double pT = sqrt( pow( p.x(), 2.0 ) + pow( p.z(), 2.0 ));
@@ -331,13 +356,50 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	  }
 	}
       }
+      /*
+      double incidenceAngle = GetIncidenceAngle(aStep);
+      // incidence angles between [0,180]. eg) if critical angle is 82 degrees, retained light between [82,98]
+      // normalize s.t. distribution is between [0,180]
+      if (incidenceAngle > 90) incidenceAngle = 180 - incidenceAngle;
+      // then flip the convention for downward going light so we can visualize the directional dependency
+
+      if (RPD) {
+	//	if (aStep->GetPreStepPoint()->GetMaterial()->GetName() == "SilicaCore_UI"  &&   aStep->GetPostStepPoint()->GetMaterial()->GetName() == "SilicaClad_UI"  ) {
+	if (aStep->GetPreStepPoint()->GetMaterial()->GetName() == "SilicaClad_UI"  &&   aStep->GetPostStepPoint()->GetMaterial()->GetName() == "SilicaCore_UI"  ) {
+	  if (incidenceAngle >= 82.148) m_isTIR = 1;
+	  if (incidenceAngle < 82.148) {
+	    aStep->GetTrack()->SetTrackStatus( fStopAndKill );
+	    return true;
+	  }
+	}
+	if (m_isTIR) std::cout << " trackID "  << trackID << " isTIR " << m_isTIR << " incidence angle: " << incidenceAngle << " theta " << theta << " y " << aStep->GetTrack()->GetPosition().y() << " z " << aStep->GetTrack()->GetPosition().z() << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() <<  " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName() << " total energy " << aStep->GetTrack()->GetTotalEnergy() * eV << " m_TIR_count " << m_TIR_count  << std::endl;
+      }
+      */
+	//if (is_downward_light) incidenceAngle = 180 - incidenceAngle;
+
+      
       if (trackID == m_prevTrackID) {
 	++m_TIR_count;
+	/*
+	if (m_TIR_count > 15 ) {
+
+	  aStep->GetTrack()->SetTrackStatus( fStopAndKill );
+	  return true;
+	}
+	*/
+	//	if (RPD) std::cout << " trackID "  << trackID << " incidence angle: " << incidenceAngle << " theta " << theta << " y " << aStep->GetTrack()->GetPosition().y() << " z " << aStep->GetTrack()->GetPosition().z() << " rodNum " << rodNum << " material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() << " m_TIR_count " << m_TIR_count  << std::endl;
       }
       else {
 	m_TIR_count = 1;
       }
+
+      
       if (pos.y() >= m_topOfVolume - 0.1*mm){
+
+
+
+
+	
 	/*
 	if (RPD) { 
 	  if (is_downward_light) std::cout << " DOWNWARD LIGHT MADE IT TO THE TOP! " << std::endl;
@@ -356,8 +418,19 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	  if (RPD) channelNum = GetRPDChannelMapping(rodNum);
 	  else     channelNum = GetZDCChannelMapping(rodNum);
 	  if (RPD) {
-	    FillChannelTimeVector( channelNum, aStep->GetTrack()->GetGlobalTime());
-	    m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y() );
+	    //	    if (aStep->GetPreStepPoint()->GetMaterial()->GetName() == "SilicaCore_UI"  &&   aStep->GetPostStepPoint()->GetMaterial()->GetName() == "SilicaClad_UI"  ) {
+	    if (aStep->GetPreStepPoint()->GetMaterial()->GetName() == "SilicaClad_UI"  &&   aStep->GetPostStepPoint()->GetMaterial()->GetName() == "SilicaCore_UI"  ) {
+	      double incidenceAngle = GetIncidenceAngle(aStep);
+	      // incidence angles between [0,180]. eg) if critical angle is 82 degrees, retained light between [82,98]
+	      // normalize s.t. distribution is between [0,180]
+	      if (incidenceAngle > 90) incidenceAngle = 180 - incidenceAngle;
+	      //	      if (is_downward_light) incidenceAngle = 180 - incidenceAngle;
+	      m_incidenceAngleVec->push_back(incidenceAngle);	 
+	      FillChannelTimeVector( channelNum, aStep->GetTrack()->GetGlobalTime());
+	      m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y() );
+	      aStep->GetTrack()->SetTrackStatus( fStopAndKill );
+	      return true;
+	    }
 	  }
 	  m_cherenkovVec->at(channelNum)++;
 	  m_nHits++;
@@ -381,6 +454,9 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
 	  return true;
 	}
+
+
+	
       }
       m_prevTrackID = trackID;;
     }
@@ -476,4 +552,28 @@ void FiberSD::FillChannelTimeVector( G4int channelNo, G4double time, G4int weigh
   int offset = channelNo;    // Do this because there was a rounding issue when just using an int cat
   bin += 128*offset;                           // Add the offset for the current segment (channel)
   m_timeVec->at(bin) += weight;                // Add the weight (nPhotons).
+}
+
+G4double FiberSD::GetIncidenceAngle(const G4Step *aStep)
+{
+  G4StepPoint *preStep = aStep->GetPreStepPoint();
+  G4ThreeVector photonDirection = preStep->GetMomentum() / preStep->GetMomentum().mag();
+  G4ThreeVector stepPos = preStep->GetPosition();
+
+  const G4VTouchable *touchable = preStep->GetTouchable();
+
+  const G4RotationMatrix *rotation = touchable->GetRotation();
+  G4RotationMatrix rotation_inv = rotation->inverse();
+  G4ThreeVector translation = touchable->GetTranslation();
+  G4VSolid *sector = touchable->GetSolid();
+
+  G4ThreeVector posLocal = *rotation * (stepPos - translation);
+  G4ThreeVector normal =  - sector->SurfaceNormal(posLocal);
+
+  G4ThreeVector photonDirectionLocal = *rotation * photonDirection;
+
+  G4double incidenceAngle = acos( normal.dot(photonDirectionLocal) );
+  G4double incidenceDegrees = (incidenceAngle / (2*M_PI)) * 360;
+  
+  return incidenceDegrees;
 }

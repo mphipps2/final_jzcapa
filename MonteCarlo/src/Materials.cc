@@ -106,7 +106,7 @@ void Materials::DefineOpticalProperties(void){
   G4double photonEnergy_UI_small[nEntries_UI_small] = {1.91*eV, 4.13*eV};  
   //G4double photonEnergy_UI_small[nEntries_UI_small] = {1.91*eV, 3.54*eV};
   // https://www.content.molex.com/dxdam/literature/987650-8936.pdf
-  G4double silica_RIND_UI[nEntries_UI_small] = {1.6, 1.6};
+  G4double silica_RIND_UI[nEntries_UI] = {1.6, 1.6, 1.6, 1.6, 1.6};
   G4double silica_ABSL_UI[nEntries_UI] = {5329.*cm, 3525.*cm, 2322.*cm, 885.*cm, 271.*cm};
   //  G4double silica_ABSL_UI[nEntries_UI] = {5329.*cm, 5329.*cm, 5329.*cm, 5329.*cm, 5329.*cm,};
   //G4double silica_ABSL_UI[nEntries_UI_small] = {300.00*cm, 1720.*cm};
@@ -121,9 +121,9 @@ void Materials::DefineOpticalProperties(void){
 
   // Silica cladding optical properties
   // Numerical aperture is given by data sheet as 0.22 and NA = sqrt( n1^2 - n2^2 ), so n2 = sqrt( n1^2 - NA^2 )
-  //  G4double silica_clad_RIND_UI[2] = {1.585, 1.585}; // Only refractive index changes
+  G4double silica_clad_RIND_UI[nEntries_UI] = {1.585, 1.585, 1.585, 1.585, 1.585}; // Only refractive index changes
   //  G4double silica_clad_RIND_UI[2] = {1.4575, 1.4575}; // Only refractive index changes
-  G4double silica_clad_RIND_UI[2] = {1., 1.}; // Only refractive index changes
+  //  G4double silica_clad_RIND_UI[2] = {1., 1.}; // Only refractive index changes
   MPT_Array.push_back(new G4MaterialPropertiesTable());
   //MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,silica_clad_RIND_UI,nEntries_UI);//index of refraction
   MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI_small,silica_clad_RIND_UI,2);//index of refraction

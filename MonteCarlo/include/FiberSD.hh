@@ -74,7 +74,9 @@ public:
   inline void     SetPhotonPolarAngleCut ( G4int _polarAngleCut ){ m_polarAngleCut = _polarAngleCut;}
   inline G4int    GetRPDChannelMapping (G4int _fiberNum) {return _fiberNum / m_nFiberPerChannel;} 
   inline G4int    GetZDCChannelMapping (G4int _fiberNum) {return 0;} 
-
+  G4double GetIncidenceAngle(const G4Step *aStep);
+  inline std::vector< G4double > * GetIncidenceAngleVec() {return m_incidenceAngleVec;}
+  
 private:
   int HCID;
   G4double m_modCoreIndexRefraction;
@@ -100,10 +102,12 @@ private:
   std::vector< G4double > * m_yOriginVec;
   std::vector< G4double >* m_timeVec;
   
+  std::vector< G4double >* m_incidenceAngleVec;
   // Number of TIR reflections photon has taken in fiber
   G4int    m_TIR_count;
   G4int    m_prevTrackID;
   G4bool   m_lastFiveCore;
+  G4bool   m_isTIR;
   G4double m_yOrigin;
   G4double m_firstStepTime;
   G4double m_avgStepTime;
@@ -112,7 +116,8 @@ private:
   // Average vertical step length
   G4double m_avgYStepLength;
   // Number of upward reflections before checking capture condition 
-  static const int m_captureThreshold = 7;
+  //  static const int m_captureThreshold = 7;
+  static const int m_captureThreshold = 5;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

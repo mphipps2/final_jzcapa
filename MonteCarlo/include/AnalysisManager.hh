@@ -68,6 +68,7 @@ public:
   inline G4bool         GetPI0Flag    ( ){ return PI0;     }
   std::vector< G4int >* GetFiberVector( G4bool ZDC, G4bool RPD, G4int modNum );
   std::vector< G4int >* GetFiberGenVector( G4int modNum );
+  std::vector< G4double >* GetIncidenceAngleVector( G4int modNum );
   std::vector< G4double >* GetYOriginVector( G4int modNum );
   std::vector< G4double >* GetTimeVector ( G4bool ZDC, G4bool RPD, G4int modNum );
 
@@ -95,7 +96,7 @@ private:
   std::vector< std::vector< std::vector<double> > > *m_ZDCdblVec, *m_RPDdblVec;
   std::vector< std::vector< std::vector< int  > > > *m_ZDCintVec, *m_RPDintVec;
   std::vector< std::vector< G4int  >* > m_ZDCfiberVec, m_RPDfiberVec, m_RPDfiberGenVec ;
-  std::vector< std::vector< G4double >* >   m_ZDCtimeVec, m_RPDtimeVec, m_YOriginVec;
+  std::vector< std::vector< G4double >* >   m_ZDCtimeVec, m_RPDtimeVec, m_YOriginVec, m_IncidenceAngleVec;
   std::vector< G4ThreeVector >* m_lastStepVec, *m_Pi0Mom, *m_Pi0Vert;
   std::vector< int >  m_lastStepPidVec, m_ZDCnTupleNo, m_RPDnTupleNo;
   std::vector< double > m_lastStepXVec, m_lastStepYVec, m_lastStepZVec;

@@ -125,25 +125,3 @@ void SteppingAction::UserSteppingAction(__attribute__((unused)) const G4Step* th
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4double SteppingAction::GetIncidenceAngle(const G4Step *aStep)
-{
-  G4StepPoint *preStep = aStep->GetPreStepPoint();
-  G4ThreeVector photonDirection = preStep->GetMomentum() / preStep->GetMomentum().mag();
-  G4ThreeVector stepPos = preStep->GetPosition();
-
-  const G4VTouchable *touchable = preStep->GetTouchable();
-
-  const G4RotationMatrix *rotation = touchable->GetRotation();
-  G4RotationMatrix rotation_inv = rotation->inverse();
-  G4ThreeVector translation = touchable->GetTranslation();
-  G4VSolid *sector = touchable->GetSolid();
-
-  G4ThreeVector posLocal = *rotation * (stepPos - translation);
-  G4ThreeVector normal =  - sector->SurfaceNormal(posLocal);
-
-  G4ThreeVector photonDirectionLocal = *rotation * photonDirection;
-
-  G4double incidenceAngle = acos( normal.dot(photonDirectionLocal) );
-
-  return incidenceAngle;
-}

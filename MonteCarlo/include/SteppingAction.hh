@@ -52,7 +52,6 @@ public:
   inline  void SetLastStepVec( std::vector< G4ThreeVector >* vec, std::vector< int >* _lastStepPidVec){ m_lastStepVec = vec;  m_lastStepPidVec = _lastStepPidVec; }
   inline  void SetPi0Mom( std::vector< G4ThreeVector >* vec ){ m_Pi0Mom = vec; }
   inline  void SetPi0Vertex( std::vector< G4ThreeVector >* vec ){ m_Pi0Vert = vec; }
-  G4double GetIncidenceAngle(const G4Step *aStep);
 
   // method from the base class
   virtual void UserSteppingAction(const G4Step*);
