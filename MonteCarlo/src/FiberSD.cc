@@ -397,8 +397,6 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
       if (pos.y() >= m_topOfVolume - 0.1*mm){
 
 
-
-
 	
 	/*
 	if (RPD) { 
@@ -428,8 +426,8 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	    m_incidenceAngleVec->push_back(incidenceAngle);	 
 	    FillChannelTimeVector( channelNum, aStep->GetTrack()->GetGlobalTime());
 	    m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y() );
-	    aStep->GetTrack()->SetTrackStatus( fStopAndKill );
-	    return true;
+	    //	    aStep->GetTrack()->SetTrackStatus( fStopAndKill );
+	    //	    return true;
 	      //	    }
 	  }
 	  m_cherenkovVec->at(channelNum)++;
