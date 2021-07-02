@@ -419,18 +419,18 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	  else     channelNum = GetZDCChannelMapping(rodNum);
 	  if (RPD) {
 	    //	    if (aStep->GetPreStepPoint()->GetMaterial()->GetName() == "SilicaCore_UI"  &&   aStep->GetPostStepPoint()->GetMaterial()->GetName() == "SilicaClad_UI"  ) {
-	    if (aStep->GetPreStepPoint()->GetMaterial()->GetName() == "SilicaClad_UI"  &&   aStep->GetPostStepPoint()->GetMaterial()->GetName() == "SilicaCore_UI"  ) {
-	      double incidenceAngle = GetIncidenceAngle(aStep);
-	      // incidence angles between [0,180]. eg) if critical angle is 82 degrees, retained light between [82,98]
-	      // normalize s.t. distribution is between [0,180]
-	      if (incidenceAngle > 90) incidenceAngle = 180 - incidenceAngle;
-	      //	      if (is_downward_light) incidenceAngle = 180 - incidenceAngle;
-	      m_incidenceAngleVec->push_back(incidenceAngle);	 
-	      FillChannelTimeVector( channelNum, aStep->GetTrack()->GetGlobalTime());
-	      m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y() );
-	      aStep->GetTrack()->SetTrackStatus( fStopAndKill );
-	      return true;
-	    }
+	    //	    if (aStep->GetPreStepPoint()->GetMaterial()->GetName() == "SilicaClad_UI"  &&   aStep->GetPostStepPoint()->GetMaterial()->GetName() == "SilicaCore_UI"  ) {
+	    double incidenceAngle = GetIncidenceAngle(aStep);
+	    // incidence angles between [0,180]. eg) if critical angle is 82 degrees, retained light between [82,98]
+	    // normalize s.t. distribution is between [0,180]
+	    if (incidenceAngle > 90) incidenceAngle = 180 - incidenceAngle;
+	    //	      if (is_downward_light) incidenceAngle = 180 - incidenceAngle;
+	    m_incidenceAngleVec->push_back(incidenceAngle);	 
+	    FillChannelTimeVector( channelNum, aStep->GetTrack()->GetGlobalTime());
+	    m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y() );
+	    aStep->GetTrack()->SetTrackStatus( fStopAndKill );
+	    return true;
+	      //	    }
 	  }
 	  m_cherenkovVec->at(channelNum)++;
 	  m_nHits++;
