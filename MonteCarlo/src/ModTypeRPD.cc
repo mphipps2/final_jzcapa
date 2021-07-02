@@ -302,7 +302,11 @@ void ModTypeRPD::ConstructPanFluteDetector()
                       CHECK_OVERLAPS);
 
   m_PFrpd_housingLogical->SetVisAttributes( G4Colour(1.0,1.0,1.0,0.7));//G4Colour(1.0,0.0,0.0,0.3)
-
+  
+  // set the optical boundary properties
+  G4OpticalSurface *opAlSurface = new G4OpticalSurface("opAlSurface",unified, ground, dielectric_metal, 1);
+  G4LogicalSkinSurface *alSurface = new G4LogicalSkinSurface("AlSurface",m_PFrpd_housingLogical,opAlSurface);
+  if (alSurface) alSurface->DumpInfo();
 
   // Construct the readout above RPD tiles
   if ( READOUT ){
@@ -451,6 +455,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
 								m_fiber_count,
 								CHECK_OVERLAPS) );
 
+	    
             //----------------------- Place fiber core in the housing -----------------------//
             sprintf(name,"m_PFrpd_log_%d",m_fiber_count);
             m_PFrpdCoreLogical.push_back( new G4LogicalVolume( m_PFrpdCore.back(), m_silicaCore_UI, name) );

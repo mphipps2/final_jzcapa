@@ -136,8 +136,8 @@ void Materials::DefineOpticalProperties(void){
   // https://engineering.case.edu/centers/sdle/sites/engineering.case.edu.centers.sdle/files/optical_properties_of_materials.pdf
   // https://www.sciencedirect.com/science/article/pii/S0257897205010881
   G4double kapton_RIND_UI[nEntries_UI] = {1.8, 1.82, 1.86, 1.95, 2.18};
-  //  G4double kapton_ABSL_UI[nEntries_UI] = {0.011*cm, 0.0022*cm, 0.0056*cm, 0.04*cm, 0.063*cm};
-  G4double kapton_ABSL_UI[nEntries_UI] = {0.011*nm, 0.0022*nm, 0.0056*nm, 0.04*nm, 0.063*nm};
+  G4double kapton_ABSL_UI[nEntries_UI] = {0.011*cm, 0.0022*cm, 0.0056*cm, 0.04*cm, 0.063*cm};
+  //G4double kapton_ABSL_UI[nEntries_UI] = {0.011*nm, 0.0022*nm, 0.0056*nm, 0.04*nm, 0.063*nm};
   //  G4double kapton_ABSL_UI[nEntries_UI] = {11*cm, 22*cm, 56*cm, 40*cm, 63*cm};
   //  G4double kapton_ABSL_UI[nEntries_UI] = {68*um, 62*um, 54*um, 38*um, 20*um};
   G4double kapton_REFL_UI[nEntries_UI] = {0.35, 0.2, 0.02, 0.03, 0.04};
@@ -154,7 +154,7 @@ void Materials::DefineOpticalProperties(void){
   //  G4double NiW_ABSL_UI[nEntries_UI_small] = {5.8e-7*cm, 5.8e-7*cm};
   // https://www.tungsten.com/materials/tungsten/
   // only defining reflectivity since we only want optical light created in the quartz cavitiies
-  G4double NiW_REFL_UI[nEntries_UI_small] = {0.62, 0.62};
+  G4double NiW_REFL_UI[nEntries_UI] = {0.62, 0.62, 0.62, 0.62, 0.62};
   MPT_Array.push_back(new G4MaterialPropertiesTable());
   //  MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,NiW_RIND_UI,nEntries_UI);
   //  MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI_small,NiW_ABSL_UI,nEntries_UI_small);
@@ -166,19 +166,19 @@ void Materials::DefineOpticalProperties(void){
   //  G4double W_ABSL_UI[nEntries_UI_small] = {5.8e-7*cm, 5.8e-7*cm};
   // https://www.tungsten.com/materials/tungsten/
   // only defining reflectivity since we only want optical light created in the quartz cavitiies
-  G4double W_REFL_UI[nEntries_UI_small] = {0.62, 0.62};
+  G4double W_REFL_UI[nEntries_UI] = {0.62, 0.62, 0.62, 0.62, 0.62};
   MPT_Array.push_back(new G4MaterialPropertiesTable());
   MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,W_REFL_UI,nEntries_UI_small);
   pureW->SetMaterialPropertiesTable(MPT_Array.back());
 
   //Aluminum optical properties
-  G4double Al_refl[nEntries_UI_small] = {0.89, 0.89};	//"Hard cut"
+  G4double Al_refl[nEntries_UI] = {0.89, 0.89, 0.89, 0.89, 0.89};	//"Hard cut"
   //  G4double Al_ABSL[nEntries_UI_small] = {0.01*mm, 0.01*mm};	//"Hard cut"
   MPT_Array.push_back(new G4MaterialPropertiesTable());
   MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,Al_refl,nEntries_UI_small);
   //  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,Al_ABSL,nEntries_UI_small);
   Al->SetMaterialPropertiesTable(MPT_Array.back());
-   
+  
   //Air optical properties
   G4double RefractiveIndexAir[nEntries_UI_small] = {1.0, 1.0};
   MPT_Array.push_back(new G4MaterialPropertiesTable());
