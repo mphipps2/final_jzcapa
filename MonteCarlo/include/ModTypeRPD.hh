@@ -70,6 +70,7 @@ public:
   inline  void  SetPosition            ( G4ThreeVector* vec ){ delete m_pos;       m_pos       = vec; }
   inline  void  SetFiberDiameters      ( G4ThreeVector* vec ){ delete m_fiberDiam; m_fiberDiam = vec; }
   inline  void  SetHousingThickness    ( G4double       arg ){ m_HousingThickness = arg; }
+  inline  void  SetRPDRotation         ( G4double       arg ){ m_rpdRotation      = arg; }
   inline  void  SetNRows               ( G4int          arg ){ m_n_rows           = arg; }
   inline  void  SetNColumns            ( G4int          arg ){ m_n_columns        = arg; }
   inline  void  SetNCyclesPerTile      ( G4int          arg ){ m_n_cycles_per_tile= arg; }  
@@ -102,6 +103,7 @@ protected:
   G4ThreeVector*   m_pos;
   G4ThreeVector*   m_fiberDiam;
   G4double         m_HousingThickness;
+  G4double         m_rpdRotation;
   G4int            m_fiber_count;
   // number of channel rows
   G4int            m_n_rows;

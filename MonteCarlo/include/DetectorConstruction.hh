@@ -164,6 +164,7 @@ public:
   //For manual RPDs
   inline  void SetRPDPosition          ( G4ThreeVector* vec ){ m_RPDvec.at(currentRPD-1)->SetPosition(vec);        }
   inline  void SetRPDFiberDimensions   ( G4ThreeVector* vec ){ m_RPDvec.at(currentRPD-1)->SetFiberDiameters(vec);  }
+  inline  void SetRPDRotation          ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetRPDRotation(arg);     }
   inline  void SetRPDHousingThickness  ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetHousingThickness(arg);}
   inline  void SetRPDFiberPitchX       ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetFiberPitchX(arg);     }
   inline  void SetRPDFiberPitchZ       ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetFiberPitchZ(arg);     }

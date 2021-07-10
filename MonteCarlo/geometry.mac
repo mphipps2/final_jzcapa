@@ -55,6 +55,8 @@
 /Detector/RPD/Position 0. 0. 187. mm
 /Detector/RPD/FiberDiameters .60 .66 .71 mm
 /Detector/RPD/HousingThickness 2. mm
+# generally 0 or 315. deg
+/Detector/RPD/RotationAngle 0. deg
 /Detector/RPD/SetNColumns 4
 /Detector/RPD/SetNRows 4
 /Detector/RPD/SetNCyclesPerTile 2

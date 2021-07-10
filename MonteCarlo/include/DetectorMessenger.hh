@@ -102,6 +102,7 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithADoubleAndUnit* fRPDMinWallThicknessCmd;
     G4UIcmdWithADoubleAndUnit* fRPDReadoutDistanceCmd;
     G4UIcmdWithADoubleAndUnit* fRPDPhotonPolarAngleCutCmd;
+    G4UIcmdWithADoubleAndUnit* fRPDRotationCmd;
     G4UIcmdWithAString*        fRPDTypeCmd;
     G4UIcmdWithABool*          fRPDFullOpticalFlagCmd;
     G4UIcmdWithABool*          fRPDOpticalFlagCmd;

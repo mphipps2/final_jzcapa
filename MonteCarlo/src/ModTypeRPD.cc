@@ -76,6 +76,7 @@ ModTypeRPD::ModTypeRPD(const G4int cn, G4LogicalVolume* mother, G4ThreeVector* p
     m_fiberDiam(new G4ThreeVector(.71,.68,.73)),
     m_fiber_count(0),
     m_HousingThickness(2.0*mm),
+    m_rpdRotation(0.*deg),
     m_n_rows(4),
     m_n_columns(4),
     m_n_cycles_per_tile(2),
@@ -111,6 +112,7 @@ ModTypeRPD::ModTypeRPD(const G4int cn, ModTypeRPD* right)
   m_fiberDiam 			  = new G4ThreeVector(*right->m_fiberDiam);
   m_fiber_count       = 0;
   m_HousingThickness  = right->m_HousingThickness;
+  m_rpdRotation       = right->m_rpdRotation;
   m_n_rows            = right->m_n_rows;
   m_n_columns         = right->m_n_columns;
   m_n_cycles_per_tile = right->m_n_cycles_per_tile;
@@ -299,7 +301,8 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
   sprintf(name,"RPD%d_Case_Physical", m_modNum);
   G4RotationMatrix* rotationMatrix = new G4RotationMatrix();
-  rotationMatrix->rotateX(315.*deg);
+  std::cout << " ROTATION AMOUNT " << m_rpdRotation << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+  rotationMatrix->rotateX(m_rpdRotation);
   m_PFrpd_housingPhysical =
     //    new G4PVPlacement(nullRotation,
     new G4PVPlacement(rotationMatrix,

@@ -289,7 +289,14 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDPhotonPolarAngleCutCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fRPDPhotonPolarAngleCutCmd->SetToBeBroadcasted(false);
   fRPDPhotonPolarAngleCutCmd->SetDefaultUnit("deg");
-  
+
+  fRPDRotationCmd =
+    new G4UIcmdWithADoubleAndUnit("/Detector/RPD/RotationAngle",this);
+  fRPDRotationCmd->SetGuidance("Set the RPD rotation around the x axis");
+  fRPDRotationCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRPDRotationCmd->SetToBeBroadcasted(false);
+  fRPDRotationCmd->SetDefaultUnit("deg");
+
   fRPDTypeCmd = new G4UIcmdWithAString("/Detector/RPD/RPDtype", this);
   fRPDTypeCmd->SetGuidance("Set design type for the current RPD (cms or panflute)");
   fRPDTypeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -330,7 +337,7 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDMLReducedTreeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fRPDMLReducedTreeCmd->SetDefaultValue(true);
   fRPDMLReducedTreeCmd->SetToBeBroadcasted(false);
-
+ 
   fRPDSetNRowsCmd = new G4UIcmdWithAnInteger("/Detector/RPD/SetNRows", this);
   fRPDSetNRowsCmd->SetGuidance("Set the number of channel rows");
   fRPDSetNRowsCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -405,6 +412,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fRPDMinWallThicknessCmd;
   delete fRPDReadoutDistanceCmd;
   delete fRPDPhotonPolarAngleCutCmd;
+  delete fRPDRotationCmd;
   delete fRPDTypeCmd;
   delete fRPDFullOpticalFlagCmd;
   delete fRPDOpticalFlagCmd;
@@ -555,6 +563,9 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   }
   else if(command == fRPDPhotonPolarAngleCutCmd){
     fDetector->SetRPDPhotonPolarCut( fRPDPhotonPolarAngleCutCmd->GetNewDoubleValue(newValue) );
+  }
+  else if(command == fRPDRotationCmd){
+    fDetector->SetRPDRotation( fRPDRotationCmd->GetNewDoubleValue(newValue) );
   }
   else if(command == fRPDSetNRowsCmd){
     fDetector->SetRPD_NRows( fRPDSetNRowsCmd->GetNewIntValue(newValue) );
