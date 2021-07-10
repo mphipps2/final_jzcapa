@@ -147,6 +147,7 @@ void AnalysisManager::Book( G4String fileName )
   // RPDvec->size() is just the number of modules
   m_RPDfiberVec.resize( RPDvec->size(), 0 );
   m_YOriginVec.resize( RPDvec->size(), 0 );
+  m_EnergyVec.resize( RPDvec->size(), 0 );
   m_IncidenceAngleVec.resize( RPDvec->size(), 0 );
   m_RPDfiberGenVec.resize( RPDvec->size(), 0 );
   m_RPDtimeVec.resize( RPDvec->size(), 0 );
@@ -162,6 +163,7 @@ void AnalysisManager::Book( G4String fileName )
 
     else if ( RPDvec->at(i)->GetMLReducedTreeFlag() ){
       m_IncidenceAngleVec[i] = new std::vector< G4double  >;
+      m_EnergyVec[i] = new std::vector< G4double  >;
       m_YOriginVec[i] = new std::vector< G4double  >;
       m_RPDfiberGenVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnChannels(), 0 );
       m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnChannels(), 0 );
@@ -525,6 +527,7 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, G4int modNum, G4bool reducedTree
     // Branch of vectors nHits long to keep y origins
     //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "yOrigin", *YOriginVec );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "incidenceAngle", *(m_IncidenceAngleVec[modNum]) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "energy", *(m_EnergyVec[modNum]) );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "yOrigin", *(m_YOriginVec[modNum]) );
     // Branch of vectors nChannels long that contains the number of cherenkovs per channel for each event
     //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGenCherenkovs", *nGenCherenkovVec );
@@ -627,6 +630,14 @@ std::vector< G4double > * AnalysisManager::GetYOriginVector( G4int modNum  ){
 std::vector< G4double > * AnalysisManager::GetIncidenceAngleVector( G4int modNum  ){
 
   return m_IncidenceAngleVec[ modNum - 1 ];
+
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+std::vector< G4double > * AnalysisManager::GetEnergyVector( G4int modNum  ){
+
+  return m_EnergyVec[ modNum - 1 ];
 
 }
 

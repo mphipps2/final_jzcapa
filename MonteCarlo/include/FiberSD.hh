@@ -75,6 +75,8 @@ public:
   inline G4int    GetRPDChannelMapping (G4int _fiberNum) {return _fiberNum / m_nFiberPerChannel;} 
   inline G4int    GetZDCChannelMapping (G4int _fiberNum) {return 0;} 
   G4double GetIncidenceAngle(const G4Step *aStep);
+  G4double GetPostStepIncidenceAngle(const G4Step *aStep);
+  G4double GetTrackIncidenceAngle(const G4Step *aStep);
   inline std::vector< G4double > * GetIncidenceAngleVec() {return m_incidenceAngleVec;}
   
 private:
@@ -100,6 +102,7 @@ private:
   std::vector< G4int >* m_genCherenkovVec;
   std::vector< G4int >* m_cherenkovVec;
   std::vector< G4double > * m_yOriginVec;
+  std::vector< G4double > * m_energyVec;
   std::vector< G4double >* m_timeVec;
   
   std::vector< G4double >* m_incidenceAngleVec;

@@ -30,7 +30,6 @@
 
 #include "DetectorConstruction.hh"
 #include "ActionInitialization.hh"
-#include "PhysicsList.hh"
 
 #ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
@@ -45,6 +44,8 @@
 #include "G4VModularPhysicsList.hh"
 #include "G4FastSimulationPhysics.hh"
 #include "FTFP_BERT.hh"
+#include "QGSP_BERT.hh"
+#include "G4OpticalPhysics.hh"
 
 #include "Randomize.hh"
 
@@ -75,6 +76,7 @@ int main(int argc,char** argv)
   G4String output = "";
   G4String input = "";
   G4bool   gflash = false;
+  G4bool   fastOptical = false;
   G4long   myseed = -1;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
@@ -85,6 +87,10 @@ int main(int argc,char** argv)
     else if ( G4String(argv[i]) == "-o"  ) output     = argv[i+1];
     else if ( G4String(argv[i]) == "-i"  ) input      = argv[i+1];
     else if ( G4String(argv[i]) == "-r"  ) myseed     = atoi(argv[i+1]);
+    else if ( G4String(argv[i]) == "-f"  ){
+      G4String buffer = argv[i+1];
+      if( buffer.contains("t") ) fastOptical = true;
+    }
     else if ( G4String(argv[i]) == "-p"  ){
       G4String buffer = argv[i+1];
       if( buffer.contains("t") ) gflash = true;
@@ -137,13 +143,35 @@ int main(int argc,char** argv)
   }
 
   // Set mandatory initialization classes
-  //
+  
   // Detector construction
   runManager->SetUserInitialization( new DetectorConstruction( gflash ) );
-  // Physics list
-  runManager->SetUserInitialization( new PhysicsList( gflash ) );
+
+  // Default ATLAS physics list
+  G4VModularPhysicsList* physicsList = new QGSP_BERT;
+  // G4VModularPhysicsList* physicsList = new FTFP_BERT;
+  
+  G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
+  opticalPhysics->Configure(kCerenkov, true);
+  opticalPhysics->Configure(kScintillation, true);
+  // if ever used for Maryland's RPD, this should be turned on
+  opticalPhysics->Configure(kWLS, false);
+  opticalPhysics->SetCerenkovTrackSecondariesFirst(true);
+  opticalPhysics->SetScintillationTrackSecondariesFirst(true);
+  physicsList->RegisterPhysics(opticalPhysics);
+
+  // currently only configured for the RPD
+  if (fastOptical) { 
+    G4FastSimulationPhysics* fastSimPhysics = new G4FastSimulationPhysics();
+    fastSimPhysics->ActivateFastSimulation("opticalphoton");
+    physicsList->RegisterPhysics(fastSimPhysics);
+  }
+  
+  runManager->SetUserInitialization(physicsList);
+
   // User action initialization
   runManager->SetUserInitialization( new ActionInitialization( output ) );
+  
   // Initialize visualization
   G4VisManager* visManager = new G4VisExecutive;
   // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.

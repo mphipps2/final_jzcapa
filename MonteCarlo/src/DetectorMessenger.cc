@@ -306,6 +306,12 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDOpticalFlagCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fRPDOpticalFlagCmd->SetDefaultValue(true);
   fRPDOpticalFlagCmd->SetToBeBroadcasted(false);
+  
+  fRPDFastOpticalFlagCmd = new G4UIcmdWithABool("/Detector/RPD/FastOptical", this);
+  fRPDFastOpticalFlagCmd->SetGuidance("Set fast optical flag for current RPD");
+  fRPDFastOpticalFlagCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
+  fRPDFastOpticalFlagCmd->SetDefaultValue(true);
+  fRPDFastOpticalFlagCmd->SetToBeBroadcasted(false);
 
   fRPDOverlapsFlagCmd = new G4UIcmdWithABool("/Detector/RPD/CheckOverlaps", this);
   fRPDOverlapsFlagCmd->SetGuidance("Set check overlaps flag for current RPD");
@@ -402,6 +408,7 @@ DetectorMessenger::~DetectorMessenger(){
   delete fRPDTypeCmd;
   delete fRPDFullOpticalFlagCmd;
   delete fRPDOpticalFlagCmd;
+  delete fRPDFastOpticalFlagCmd;
   delete fRPDOverlapsFlagCmd;
   delete fRPDReducedTreeCmd;
   delete fRPDMLReducedTreeCmd;

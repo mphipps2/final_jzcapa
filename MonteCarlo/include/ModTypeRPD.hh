@@ -37,9 +37,11 @@
 #include "G4SubtractionSolid.hh"
 #include "G4AssemblyVolume.hh"
 #include "Materials.hh"
+#include "FastSimModelOpFiber.hh"
+#include "FastFiberModel.hh"
 
 #include <vector>
-
+#include <memory>
 
 class G4VPhysicalVolume;
 class G4LogicalVolume;
@@ -79,6 +81,7 @@ public:
   inline  void  SetPhotonPolarAngleCut ( G4double       arg ){ m_polarAngleCut    = arg; }
   inline  void  SetDetectorType        ( G4String       arg ){ m_detType          = arg; }
   inline  void  SetOpticalFlag         ( G4bool         arg ){ OPTICAL            = arg; }
+  inline  void  SetFastOpticalFlag     ( G4bool         arg ){ FASTOPTICAL        = arg; }
   inline  void  SetFullOpticalFlag     ( G4bool         arg ){ FULLOPTICAL        = arg; }
   inline  void  SetOverlapsFlag        ( G4bool         arg ){ CHECK_OVERLAPS     = arg; }
   inline  void  SetReducedTreeFlag     ( G4bool         arg ){ REDUCED_TREE       = arg; }
@@ -117,6 +120,7 @@ protected:
   G4String         m_detType;
   G4bool           FULLOPTICAL;
   G4bool           OPTICAL;
+  G4bool           FASTOPTICAL;
   G4bool           CHECK_OVERLAPS;
   G4bool           READOUT;
   G4bool           REDUCED_TREE;
@@ -154,7 +158,11 @@ protected:
   G4LogicalVolume*    m_PFreadout_airLogical;
   G4VPhysicalVolume*  m_PFreadout_airPhysical;
 
+  FastSimModelOpFiber* m_fastOptical;
+  //FastFiberModel* m_fastOptical;
+  G4Region *m_fastOpticalRegion;
 
+  
   std::vector< G4VSolid* >                m_PFrpdCore;
   std::vector< G4LogicalVolume* >         m_PFrpdCoreLogical;
   std::vector< G4VPhysicalVolume* >       m_PFrpdCorePhysical;

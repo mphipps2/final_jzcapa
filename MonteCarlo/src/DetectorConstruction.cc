@@ -342,12 +342,13 @@ G4VPhysicalVolume* DetectorConstruction::ManualConstruction(){
     pos = zdc->GetPosition();
     printf( "ZDC%d center = (%f,%f,%f)\n", zdc->GetModNum(), pos->x(), pos->y(), pos->z() );
     zdc->Construct();
-
+    /*
     //Create a region for this module's tungsten absorbers
     sprintf(name,"ZDC%d_absorber", zdc->GetModNum());
     m_Region.push_back( new G4Region( name ) );
     zdc->GetAbsorberLogicalVolume()->SetRegion(m_Region.back());
     m_Region.back()->AddRootLogicalVolume(zdc->GetAbsorberLogicalVolume());
+    */
   }
 
   for(ModTypeRPD* rpd : m_RPDvec){
