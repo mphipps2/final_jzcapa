@@ -12,9 +12,9 @@
 #EMCAL
 /Detector/ZDC/Add
 /Detector/ZDC/Position 0. 0. 100. mm
-/Detector/ZDC/AbsorberDimensions 43.5 180. 4. mm #run4
+/Detector/ZDC/AbsorberDimensions 43.5 180. 40. mm #run4
 #/Detector/ZDC/AbsorberDimensions 90. 180. 4. mm #run3
-/Detector/ZDC/nAbsorbers 25
+/Detector/ZDC/nAbsorbers 1
 /Detector/ZDC/HousingThickness 5. mm
 /Detector/ZDC/GapThickness 2. mm
 /Detector/ZDC/SteelAbsorberHeight 290. mm
@@ -25,31 +25,6 @@
 /Detector/ZDC/MLReducedTree true
 /Detector/ZDC/HousingMaterial aluminum
 /Detector/ZDC/AbsorberMaterial pure
-
-/Detector/ZDC/Add
-/Detector/ZDC/Position 0. 0. 266. mm
-/Detector/ZDC/FiberDiameters 1.5 0. 0. mm
-/Detector/ZDC/AbsorberDimensions 43.5 180. 10.2 mm #run4
-#/Detector/ZDC/AbsorberDimensions 90. 180. 10.2 mm #run3
-/Detector/ZDC/nAbsorbers 11
-/Detector/ZDC/HousingThickness 5. mm
-/Detector/ZDC/GapThickness 2. mm
-/Detector/ZDC/SteelAbsorberHeight 290. mm
-/Detector/ZDC/Optical false
-/Detector/ZDC/PhotonPolarAngleCut 180. deg
-/Detector/ZDC/CheckOverlaps false
-/Detector/ZDC/ReducedTree false
-/Detector/ZDC/MLReducedTree true
-/Detector/ZDC/HousingMaterial aluminum
-/Detector/ZDC/AbsorberMaterial pure
-
-#/Detector/ZDC/SetCurrent 1
-
-/Detector/ZDC/Duplicate 2
-/Detector/ZDC/Position 0. 0. 413. mm
-
-/Detector/ZDC/Duplicate 2
-/Detector/ZDC/Position 0. 0. 560. mm
 
 /Detector/RPD/Add
 /Detector/RPD/Position 0. 0. 187. mm

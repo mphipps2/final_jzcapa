@@ -156,6 +156,8 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
 
 G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
+
+  //  std::cout << " processing track " << aStep->GetTrack()->GetTrackID() << std::endl;
   G4ParticleDefinition *particle = aStep->GetTrack()->GetDefinition();
 
   //Get the number of Cherenkov photons created in this step
@@ -220,7 +222,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	// kill upward going photons
 	if (!KEEP_UPWARD_LIGHT) {
 	  //	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); 
-	  return true;
+	  //	  return true;
 	  //	}
 	}
       }
@@ -238,24 +240,27 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     //      if (incidenceAngle > 90) incidenceAngle = 180 - incidenceAngle;
     if (incidencePreStepAngle > 90) incidencePreStepCorrectedAngle = 180 - incidencePreStepAngle;
     if (incidencePostStepAngle > 90) incidencePostStepCorrectedAngle = 180 - incidencePostStepAngle;
+    if (incidenceTrackAngle > 90) incidenceTrackAngle = 180 - incidenceTrackAngle;
     double incidencePreStepCorrectedAngleOriginal = incidencePreStepCorrectedAngle;
     double incidencePostStepCorrectedAngleOriginal = incidencePostStepCorrectedAngle;
+    /*
     // then flip the convention for downward going light so we can visualize the directional dependency
     if (is_downward_light) {
       incidencePreStepCorrectedAngle = 180 - incidencePreStepCorrectedAngle;
       incidencePostStepCorrectedAngle = 180 - incidencePostStepCorrectedAngle;
     }
+    */
     if (RPD) {
       
       
-      //std::cout << "FiberSD trackID "  << trackID << " topOfVolume " << m_topOfVolume << " isTIR " << m_isTIR << " incidence preStep angle: " << incidencePreStepAngle << " incidence postStep angle: " << incidencePostStepAngle << " incidence track angle: " << incidenceTrackAngle << " x " << aStep->GetTrack()->GetPosition().x() << " y " << aStep->GetTrack()->GetPosition().y() << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() <<  " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName()  << " process " << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()  << " stepStatus " << aStep->GetPostStepPoint()->GetStepStatus() << " stepNum "<< aStep->GetTrack()->GetCurrentStepNumber() << " originx " << aStep->GetTrack()->GetVertexPosition().x() << " originy " << aStep->GetTrack()->GetVertexPosition().y() << " originVolume: " << aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() << std::endl;
+      //      if (is_downward_light)      std::cout << "FiberSD trackID "  << trackID << " topOfVolume " << m_topOfVolume << " isTIR " << m_isTIR << " incidence preStep angle: " << incidencePreStepCorrectedAngle << " incidence postStep angle: " << incidencePostStepCorrectedAngle << " incidence track angle: " << incidenceTrackAngle << " x " << aStep->GetTrack()->GetPosition().x() << " y " << aStep->GetTrack()->GetPosition().y() << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() <<  " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName()  << " process " << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()  << " stepStatus " << aStep->GetPostStepPoint()->GetStepStatus() << " stepNum "<< aStep->GetTrack()->GetCurrentStepNumber() << " originx " << aStep->GetTrack()->GetVertexPosition().x() << " originy " << aStep->GetTrack()->GetVertexPosition().y() << " originVolume: " << aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() << std::endl;
       
-      //      std::cout << "FiberSD trackID "  << trackID << " incidence track angle: " << incidenceTrackAngle << " x " << aStep->GetTrack()->GetPosition().x() << " y " << aStep->GetTrack()->GetPosition().y() << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() <<  " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName()  << " stepNum "<< aStep->GetTrack()->GetCurrentStepNumber()  << " stepLength " << aStep->GetTrack()->GetStepLength() << std::endl;
+      //      /*      if (is_downward_light)*/ std::cout << "FiberSD trackID "  << trackID << " incidence track angle: " << incidenceTrackAngle << " x " << aStep->GetTrack()->GetPosition().x() << " y " << aStep->GetTrack()->GetPosition().y() << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() <<  " prestep index " << aStep->GetPreStepPoint()->GetMaterial()->GetIndex() << " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName()  << " poststep index " << aStep->GetPostStepPoint()->GetMaterial()->GetIndex() << " stepNum "<< aStep->GetTrack()->GetCurrentStepNumber()  << " stepLength " << aStep->GetTrack()->GetStepLength() << " Time " << aStep->GetTrack()->GetGlobalTime() << std::endl;
     }
 
     //if (is_downward_light) incidenceAngle = 180 - incidenceAngle;
-
-      
+    //      if (is_downward_light) std::cout << " DOWNWARD LIGHT! " << std::endl;
+    //      else std::cout << " UPWARD LIGHT " << std::endl;      
     // m_topOfVolume = 379.2 ie >= 379.1      
     if (pos.y() >= m_topOfVolume - 0.2*mm){
 
@@ -295,9 +300,10 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	  FillChannelTimeVector( channelNum, aStep->GetTrack()->GetGlobalTime());
 	  m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y() );
 	  m_energyVec->push_back(aStep->GetTrack()->GetTotalEnergy() * 1e+6 );
-
+	  //	  if (is_downward_light) std::cout << " RECORDING DOWNWARD LIGHT! " << std::endl;
+	  //	  else if (is_upward_light) std::cout << " RECORDING UPWARD LIGHT! " << std::endl;
 	  //	  std::cout << " RECORDING TRACK!!!! " << " topOfVolume " << m_topOfVolume << " trackID "  << trackID << " isTIR " << m_isTIR << " incidence angle: " << incidenceAngle << " x " << aStep->GetTrack()->GetPosition().x() << " y " << aStep->GetTrack()->GetPosition().y() << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() <<  " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName()  << " m_TIR_count " << m_TIR_count  << " stepNum "<< aStep->GetTrack()->GetCurrentStepNumber() << " originx " << aStep->GetTrack()->GetVertexPosition().x() << " originy " << aStep->GetTrack()->GetVertexPosition().y() << " originVolume: " << aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() << std::endl;
-	  //	  std::cout << " RECORDING TRACK!!!! " << " prestep incidence angle: " << incidencePreStepCorrectedAngleOriginal << " poststep incidence angle " << incidencePostStepCorrectedAngleOriginal << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() <<  " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName()  << " m_TIR_count " << m_TIR_count  <<  std::endl;
+	  //	if (is_downward_light)   std::cout << " RECORDING DOWNWARD TRACK!!!! " << " prestep incidence angle: " << incidencePreStepCorrectedAngleOriginal << " poststep incidence angle " << incidencePostStepCorrectedAngleOriginal << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() <<  " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName()  << " m_TIR_count " << m_TIR_count  <<  std::endl;
 	  //	    std::cout << " light reached readout; isTIR " << m_isTIR << std::endl;
 	  //	    aStep->GetTrack()->SetTrackStatus( fStopAndKill );
 	  //	    return true;

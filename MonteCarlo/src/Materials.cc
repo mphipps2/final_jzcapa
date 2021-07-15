@@ -170,14 +170,6 @@ void Materials::DefineOpticalProperties(void){
   MPT_Array.push_back(new G4MaterialPropertiesTable());
   MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,W_REFL_UI,nEntries_UI_small);
   pureW->SetMaterialPropertiesTable(MPT_Array.back());
-
-  //Aluminum optical properties
-  G4double Al_refl[nEntries_UI] = {0.89, 0.89, 0.89, 0.89, 0.89};	//"Hard cut"
-  //  G4double Al_ABSL[nEntries_UI_small] = {0.01*mm, 0.01*mm};	//"Hard cut"
-  MPT_Array.push_back(new G4MaterialPropertiesTable());
-  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,Al_refl,nEntries_UI_small);
-  //  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,Al_ABSL,nEntries_UI_small);
-  Al->SetMaterialPropertiesTable(MPT_Array.back());
   
   //Air optical properties
   G4double RefractiveIndexAir[nEntries_UI_small] = {1.0, 1.0};
@@ -185,8 +177,30 @@ void Materials::DefineOpticalProperties(void){
   MPT_Array.back()->AddProperty("RINDEX", photonEnergy_UI_small, RefractiveIndexAir, nEntries_UI_small);
   Air->SetMaterialPropertiesTable(MPT_Array.back());
 
-  
+  /*
+    //Aluminum optical properties
+  MPT_Array.push_back(new G4MaterialPropertiesTable());
+  G4double Al_refl[nEntries_UI] = {0.89, 0.89, 0.89, 0.89, 0.89};	//"Hard cut"
+  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,Al_refl,nEntries_UI_small);
+  // set the optical boundary properties
+  G4OpticalSurface *OpAlSurface = new G4OpticalSurface("opAlSurface",unified, ground, dielectric_metal, 1);
+  OpAlSurface->SetMaterialPropertiesTable(MPT_Array.back());
+  */
 
+  //Aluminum optical properties
+  G4double Al_refl[nEntries_UI] = {0.89, 0.89, 0.89, 0.89, 0.89};//"Hard cut"
+  MPT_Array.push_back(new G4MaterialPropertiesTable());
+  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI,Al_refl,nEntries_UI);
+  Al->SetMaterialPropertiesTable(MPT_Array.back());
+  
+  
+  /*
+      //quartz to air surface
+  MPT_Array.push_back(new G4MaterialPropertiesTable());
+  // set the optical boundary properties
+  G4OpticalSurface *opQuartzToAir = new G4OpticalSurface("opQuartzToAir",unified, ground, dielectric_metal, 1);
+  opAlSurface->SetMaterialPropertiesTable(MPT_Array.back());
+  */
 
 
 

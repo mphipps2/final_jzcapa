@@ -86,6 +86,7 @@ class Materials
             G4OpticalSurface* TileSurface;
             /* \brief PhotonDetect Optical Surface */
             G4OpticalSurface* photonDetSurface;
+            G4OpticalSurface* OpAlSurface;
 
     private:
             /*! \brief Private constructor.*/

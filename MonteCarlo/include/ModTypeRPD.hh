@@ -38,7 +38,7 @@
 #include "G4AssemblyVolume.hh"
 #include "Materials.hh"
 #include "FastSimModelOpFiber.hh"
-#include "FastFiberModel.hh"
+//#include "FastFiberModel.hh"
 
 #include <vector>
 #include <memory>
@@ -146,6 +146,7 @@ protected:
   G4Material*      m_Grease;
 
   G4OpticalSurface*   m_photonDetSurface;
+  G4OpticalSurface*   m_opAlSurface;
 
   G4SubtractionSolid* m_tile;
 

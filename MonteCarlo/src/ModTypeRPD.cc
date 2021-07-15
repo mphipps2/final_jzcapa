@@ -33,7 +33,7 @@
 #include "ModTypeRPD.hh"
 #include "FiberSD.hh"
 #include "FastSimModelOpFiber.hh"
-#include "FastFiberModel.hh"
+//#include "FastFiberModel.hh"
 
 #include <iostream>
 #include <stdio.h>
@@ -188,6 +188,8 @@ void ModTypeRPD::DefineMaterials()
   //Wavelength Shifter/Fiber
   m_PMMA = materials->PMMA;
 
+  //Aluminum optical surface
+  m_opAlSurface = materials->OpAlSurface;
 
 }
 
@@ -281,7 +283,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
   G4double housingHeight = activeHeight + 2*m_HousingThickness + m_distanceToReadout;
   // Depth (z) of the RPD housing
   G4double housingDepth = (m_n_rows - 0.5)*pitchZ + fiber_diam + 2*m_HousingThickness;
-
+  std::cout << " RPD THICKNESS: " << (m_n_rows - 0.5)*pitchZ + fiber_diam << " !!!!!!!!!!!!!!" << std::endl;
 
   //create some rotation matrices
   G4RotationMatrix* stripRotation = new G4RotationMatrix();
@@ -298,10 +300,17 @@ void ModTypeRPD::ConstructPanFluteDetector()
 			       housingDepth*mm/2.0 );
 
   m_PFrpd_housingLogical = new G4LogicalVolume(m_PFrpd_housing,  m_Al,   "Housing_Logical");
-
+  // add logical skin to the aluminum cavities
+  //  G4LogicalSkinSurface *alSurface = new G4LogicalSkinSurface("AlSurface",m_PFrpd_housingLogical,m_opAlSurface);
+  //  alSurface->DumpInfo();
+  // set the optical boundary properties
+  G4OpticalSurface *opAlSurface = new G4OpticalSurface("opAlSurface",unified, ground, dielectric_metal, 1);
+  G4LogicalSkinSurface *alSurface = new G4LogicalSkinSurface("AlSurface",m_PFrpd_housingLogical,opAlSurface);
+  if (alSurface) alSurface->DumpInfo();
+  
+  
   sprintf(name,"RPD%d_Case_Physical", m_modNum);
   G4RotationMatrix* rotationMatrix = new G4RotationMatrix();
-  std::cout << " ROTATION AMOUNT " << m_rpdRotation << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
   rotationMatrix->rotateX(m_rpdRotation);
   m_PFrpd_housingPhysical =
     //    new G4PVPlacement(nullRotation,
@@ -315,12 +324,8 @@ void ModTypeRPD::ConstructPanFluteDetector()
                       CHECK_OVERLAPS);
 
   m_PFrpd_housingLogical->SetVisAttributes( G4Colour(1.0,1.0,1.0,0.7));//G4Colour(1.0,0.0,0.0,0.3)
-  
-  // set the optical boundary properties
-  G4OpticalSurface *opAlSurface = new G4OpticalSurface("opAlSurface",unified, ground, dielectric_metal, 1);
-  G4LogicalSkinSurface *alSurface = new G4LogicalSkinSurface("AlSurface",m_PFrpd_housingLogical,opAlSurface);
-  if (alSurface) alSurface->DumpInfo();
 
+  
   // Construct the readout above RPD tiles
   if ( READOUT ){
 
@@ -512,15 +517,15 @@ void ModTypeRPD::ConstructPanFluteDetector()
 							      CHECK_OVERLAPS) );
 	      
 	      // build regions where fast optical physics will be used
-	      //	      m_PFrpdCladLogical.back()->SetRegion(m_fastOpticalRegion);	       
-	      //	      m_fastOpticalRegion->AddRootLogicalVolume(m_PFrpdCladLogical.back());
+	      // m_PFrpdCladLogical.back()->SetRegion(m_fastOpticalRegion);	       
+	      //     m_fastOpticalRegion->AddRootLogicalVolume(m_PFrpdCladLogical.back());
 
             }
 	    // Air cladding
 	    else{
 	      // build regions where fast optical physics will be used
-	      m_PFrpd_channelLogical.back()->SetRegion(m_fastOpticalRegion);	       
-	      m_fastOpticalRegion->AddRootLogicalVolume(m_PFrpd_channelLogical.back());
+	      //	      m_PFrpd_channelLogical.back()->SetRegion(m_fastOpticalRegion);	       
+	      //	      m_fastOpticalRegion->AddRootLogicalVolume(m_PFrpd_channelLogical.back());
 	    }
             //----------------------- Place fiber buffer in the housing -----------------------//
             if(BUFFERED){
@@ -593,7 +598,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
 									  CHECK_OVERLAPS) );
 		// build regions where fast optical physics will be used
 		//		m_PFreadout_fiberCladLogical.back()->SetRegion(m_fastOpticalRegion);	       
-		// 		m_fastOpticalRegion->AddRootLogicalVolume(m_PFreadout_fiberCladLogical.back());
+		//	m_fastOpticalRegion->AddRootLogicalVolume(m_PFreadout_fiberCladLogical.back());
               }
               //Buffer
               if(BUFFERED){
@@ -629,9 +634,13 @@ void ModTypeRPD::ConstructPanFluteDetector()
   // Air cladding
   if (!CLAD) {
     // build regions where fast optical physics will be used
-    m_PFreadout_airLogical->SetRegion(m_fastOpticalRegion);	       
-    m_fastOpticalRegion->AddRootLogicalVolume(m_PFreadout_airLogical);
+    //    m_PFreadout_airLogical->SetRegion(m_fastOpticalRegion);	       
+    //    m_fastOpticalRegion->AddRootLogicalVolume(m_PFreadout_airLogical);
   }
+
+
+
+
   
   m_topOfVolume = m_pos->y() + m_distanceToReadout +  activeHeight/2.0;
   m_bottomOfVolume = -1 * activeHeight/2.0;
@@ -1309,7 +1318,7 @@ void ModTypeRPD::ConstructSDandField(){
 	if(BUFFERED) m_PFreadout_fiberBuffLogical.at(i)->SetSensitiveDetector( aFiberSD );
       }
     }// end fiber loop
-    if (FASTOPTICAL) m_fastOptical = new FastSimModelOpFiber("FastSimModelOpFiber",m_fastOpticalRegion);
+    if (FASTOPTICAL) m_fastOptical = new FastSimModelOpFiber("FastSimModelOpFiber",m_fastOpticalRegion, m_distanceToReadout, m_fiber_count, GetnChannels());
     //    if (FASTOPTICAL) m_fastOptical = new FastFiberModel("FastFiberModel",m_fastOpticalRegion);
   }// end else CMS
 

@@ -153,11 +153,11 @@ int main(int argc,char** argv)
   
   G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
   opticalPhysics->Configure(kCerenkov, true);
-  opticalPhysics->Configure(kScintillation, true);
+  opticalPhysics->Configure(kScintillation, false);
   // if ever used for Maryland's RPD, this should be turned on
   opticalPhysics->Configure(kWLS, false);
   opticalPhysics->SetCerenkovTrackSecondariesFirst(true);
-  opticalPhysics->SetScintillationTrackSecondariesFirst(true);
+  //  opticalPhysics->SetScintillationTrackSecondariesFirst(true);
   physicsList->RegisterPhysics(opticalPhysics);
 
   // currently only configured for the RPD
