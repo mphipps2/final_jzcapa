@@ -37,7 +37,10 @@ public:
 
   void SetCoreMaterial(G4Material* mat) { fCoreMaterial = mat; }
   G4bool Compare_doubles(double x, double y, double epsilon = 0.0000001f);
-
+  G4double GetTrackIncidenceAngle(const G4Track *track);
+  G4double GetPrestepIncidenceAngle(const G4Track *track);
+  G4double GetPoststepIncidenceAngle(const G4Track *track);
+  
 private:
   void DefineCommands();
 
@@ -54,9 +57,11 @@ private:
   G4OpBoundaryProcess* fOpBoundaryProc;
   G4Material* fCoreMaterial;
   G4bool fProcAssigned;
-  G4int fSafety;
+  G4int fSafetySteps;
+  G4int fSafetyReflections;
   G4double fTrkLength;
   G4double fNtransport;
+  G4double fMaxTransport;
   G4double fTransportUnit;
   G4ThreeVector fFiberAxis;
   G4ThreeVector fDownwardFiberAxis;
