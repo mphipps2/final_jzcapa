@@ -61,16 +61,6 @@ FiberSD::FiberSD(G4String sdName, G4int modNum, G4bool optical, G4bool fullOptic
  {
   collectionName.insert(sdName);
   HCID = -1;
-  m_isTIR = 0;
-  m_TIR_count = 0;
-  m_prevTrackID = -1;
-  m_lastFiveCore = 1;
-  m_avgYStepLength = 0;
-  m_avgStepLength = 0;
-  m_avgTimeLength = 0;
-  m_firstStepTime = 0;
-  is_upward_light = 0;
-  is_downward_light = 0;
   if( sdName.contains("R") ) RPD = true;
   if( sdName.contains("Z") ) ZDC = true;
 
@@ -188,161 +178,106 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   // If FULLOPTICAL is true, determine if the photon has reached the top of the topOfVolume
   // If OPTICAL is true, determine if the photon is captured (requires # of steps inside SD to exceed m_captureThreshold and for the final five steps to not include the Kapton buffer material)
   // and add the hit to the collection if it has
-  G4bool KEEP_DOWNWARD_LIGHT = true;
-  G4bool KEEP_UPWARD_LIGHT = true;
+
   int trackID = aStep->GetTrack()->GetTrackID();
-  if (trackID != m_prevTrackID) {
-    is_downward_light = 0;
-    is_upward_light = 0;
-    m_isTIR = 0;
-  }
-  // 380
-  //  std::cout << " TOPOFVOLUME " << m_topOfVolume << std::endl;
-  if( aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
+  if (OPTICAL) {
+    if( aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
       
-    //      int trackID = aStep->GetTrack()->GetTrackID();
-    G4ThreeVector p = aStep->GetTrack()->GetMomentumDirection();
-    double pT = sqrt( pow( p.x(), 2.0 ) + pow( p.z(), 2.0 ));
-    double theta = M_PI / 2.0 - atan( pT / p.y() );
+      G4ThreeVector p = aStep->GetTrack()->GetMomentumDirection();
+      double pT = sqrt( pow( p.x(), 2.0 ) + pow( p.z(), 2.0 ));
+      double theta = M_PI / 2.0 - atan( pT / p.y() );
     
-    //    std::cout << " track " << trackID << " theta " << theta << " y " << aStep->GetTrack()->GetPosition().y() << " z " << aStep->GetTrack()->GetPosition().z() << " rodNum " << rodNum << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() << " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName() << " stepNum " << aStep->GetTrack()->GetCurrentStepNumber()  << " m_TIR_count " << m_TIR_count  << std::endl;
-    //      if (RPD) std::cout << " trackID "  << trackID << " theta " << theta << " y " << aStep->GetTrack()->GetPosition().y() << " z " << aStep->GetTrack()->GetPosition().z() << " rodNum " << rodNum << " material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() << " m_TIR_count " << m_TIR_count  << std::endl;
+      double incidencePreStepAngle = GetIncidenceAngle(aStep);
+      double incidencePreStepCorrectedAngle = incidencePreStepAngle;
+      double incidencePostStepAngle = GetPostStepIncidenceAngle(aStep);
+      double incidencePostStepCorrectedAngle = incidencePostStepAngle;
+      double incidenceTrackAngle = GetTrackIncidenceAngle(aStep);
+
+      // incidence angles between [0,180]. eg) if critical angle is 82 degrees, retained light between [82,98]
+      // normalize s.t. distribution is between [0,180]
+
+      if (incidencePreStepAngle > 90) incidencePreStepCorrectedAngle = 180 - incidencePreStepAngle;
+      if (incidencePostStepAngle > 90) incidencePostStepCorrectedAngle = 180 - incidencePostStepAngle;
+      if (incidenceTrackAngle > 90) incidenceTrackAngle = 180 - incidenceTrackAngle;
+      double incidencePreStepCorrectedAngleOriginal = incidencePreStepCorrectedAngle;
+      double incidencePostStepCorrectedAngleOriginal = incidencePostStepCorrectedAngle;
     
 
-    if (!is_downward_light && !is_upward_light) {
-      if (theta > M_PI/2) {
-	is_downward_light = 1;
-	// kill downward going photons
-	if (!KEEP_DOWNWARD_LIGHT) {
-	  //	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); 
-	  //	  return true;
+      if (pos.y() >= m_topOfVolume - 0.2*mm){
+	if(REDUCED_TREE){
+	  m_cherenkovVec->at(rodNum)++;
+	  FillTimeVector( rodNum, aStep->GetTrack()->GetGlobalTime() );
+	  m_nHits++;
+	  return true;
 	}
-      }
-      else {
-	is_upward_light = 1;
-	// kill upward going photons
-	if (!KEEP_UPWARD_LIGHT) {
-	  //	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); 
-	  //	  return true;
-	  //	}
+	else if(ML_REDUCED_TREE){
+	  G4int channelNum;
+	  if (RPD) channelNum = GetRPDChannelMapping(rodNum);
+	  else     channelNum = GetZDCChannelMapping(rodNum);
+	  if (RPD) {
+	    m_incidenceAngleVec->push_back(incidencePostStepCorrectedAngle);	 
+	    FillChannelTimeVector( channelNum, aStep->GetTrack()->GetGlobalTime());
+	    m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y() );
+	    m_energyVec->push_back(aStep->GetTrack()->GetTotalEnergy() * 1e+6 );
+	  }
+	  m_cherenkovVec->at(channelNum)++;
+	  m_nHits++;
+	  m_lastFiveCore = 0;
+	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
+	  return true;
 	}
+	// Full Tree Mode
+	else {
+	  FiberHit* newHit = new FiberHit();
+	  newHit->setPos      ( pos );
+	  newHit->setOrigin   ( aStep->GetTrack()->GetVertexPosition() );
+	  newHit->setMomentum ( aStep->GetPreStepPoint()->GetMomentum() );
+	  //	std::cout << " recorded Track totalEnergy " << aStep->GetTrack()->GetTotalEnergy() * 1e+6 << std::endl;
+	  newHit->setEnergy   ( aStep->GetTrack()->GetTotalEnergy() * 1e+6);
+	  newHit->setEnergy   ( aStep->GetTrack()->GetTotalEnergy());
+	  newHit->setTime     ( aStep->GetTrack()->GetGlobalTime() );
+	  newHit->setRodNb    ( rodNum );
+
+	  fiberCollection->insert ( newHit );
+	  m_nHits++;
+
+	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
+	  return true;
+	}	
       }
-    } 
-
-    double incidencePreStepAngle = GetIncidenceAngle(aStep);
-    double incidencePreStepCorrectedAngle = incidencePreStepAngle;
-    double incidencePostStepAngle = GetPostStepIncidenceAngle(aStep);
-    double incidencePostStepCorrectedAngle = incidencePostStepAngle;
-    double incidenceTrackAngle = GetTrackIncidenceAngle(aStep);
-
-    // incidence angles between [0,180]. eg) if critical angle is 82 degrees, retained light between [82,98]
-    // normalize s.t. distribution is between [0,180]
-
-    //      if (incidenceAngle > 90) incidenceAngle = 180 - incidenceAngle;
-    if (incidencePreStepAngle > 90) incidencePreStepCorrectedAngle = 180 - incidencePreStepAngle;
-    if (incidencePostStepAngle > 90) incidencePostStepCorrectedAngle = 180 - incidencePostStepAngle;
-    if (incidenceTrackAngle > 90) incidenceTrackAngle = 180 - incidenceTrackAngle;
-    double incidencePreStepCorrectedAngleOriginal = incidencePreStepCorrectedAngle;
-    double incidencePostStepCorrectedAngleOriginal = incidencePostStepCorrectedAngle;
-    /*
-    // then flip the convention for downward going light so we can visualize the directional dependency
-    if (is_downward_light) {
-      incidencePreStepCorrectedAngle = 180 - incidencePreStepCorrectedAngle;
-      incidencePostStepCorrectedAngle = 180 - incidencePostStepCorrectedAngle;
     }
-    */
-    if (RPD) {
-      
-      
-      //      std::cout << "FiberSD trackID "  << trackID << " topOfVolume " << m_topOfVolume << " isTIR " << m_isTIR << " incidence preStep angle: " << incidencePreStepCorrectedAngle << " incidence postStep angle: " << incidencePostStepCorrectedAngle << " incidence track angle: " << incidenceTrackAngle << " x " << aStep->GetTrack()->GetPosition().x() << " y " << aStep->GetTrack()->GetPosition().y() << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() <<  " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName()  << " process " << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()  << " stepStatus " << aStep->GetPostStepPoint()->GetStepStatus() << " stepNum "<< aStep->GetTrack()->GetCurrentStepNumber() << " originx " << aStep->GetTrack()->GetVertexPosition().x() << " originy " << aStep->GetTrack()->GetVertexPosition().y() << " originVolume: " << aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() << std::endl;
-      
-      //      /*      if (is_downward_light)*/ std::cout << "FiberSD trackID "  << trackID << " incidence track angle: " << incidenceTrackAngle << " x " << aStep->GetTrack()->GetPosition().x() << " y " << aStep->GetTrack()->GetPosition().y() << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() <<  " prestep index " << aStep->GetPreStepPoint()->GetMaterial()->GetIndex() << " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName()  << " poststep index " << aStep->GetPostStepPoint()->GetMaterial()->GetIndex() << " stepNum "<< aStep->GetTrack()->GetCurrentStepNumber()  << " stepLength " << aStep->GetTrack()->GetStepLength() << " Time " << aStep->GetTrack()->GetGlobalTime() << std::endl;
-    }
-
-    //if (is_downward_light) incidenceAngle = 180 - incidenceAngle;
-    //      if (is_downward_light) std::cout << " DOWNWARD LIGHT! " << std::endl;
-    //      else std::cout << " UPWARD LIGHT " << std::endl;      
-    // m_topOfVolume = 379.2 ie >= 379.1      
-    if (pos.y() >= m_topOfVolume - 0.2*mm){
-
-
-	
-    /*
-      if (RPD) { 
-      if (is_downward_light) std::cout << " DOWNWARD LIGHT MADE IT TO THE TOP! " << std::endl;
-      else std::cout << " upward light " << std::endl;
-      }
-    */
-
-	  //    if (aStep->GetPreStepPoint()->GetMaterial()->GetName() == "SilicaCore_UI"  &&   aStep->GetPostStepPoint()->GetMaterial()->GetName() == "SilicaClad_UI"  ) {
-      if(REDUCED_TREE){
-	m_cherenkovVec->at(rodNum)++;
-	FillTimeVector( rodNum, aStep->GetTrack()->GetGlobalTime() );
-	m_nHits++;
-	return true;
-      }
-      else if(ML_REDUCED_TREE){
-	G4int channelNum;
-	//	  std::cout << " filling vecs in FiberSD " << std::endl;
-	if (RPD) channelNum = GetRPDChannelMapping(rodNum);
-	else     channelNum = GetZDCChannelMapping(rodNum);
-	if (RPD) {
-	  //	    if (aStep->GetPreStepPoint()->GetMaterial()->GetName() == "SilicaCore_UI"  &&   aStep->GetPostStepPoint()->GetMaterial()->GetName() == "SilicaClad_UI"  ) {
-	  //	    if (aStep->GetPreStepPoint()->GetMaterial()->GetName() == "SilicaClad_UI"  &&   aStep->GetPostStepPoint()->GetMaterial()->GetName() == "SilicaCore_UI"  ) {
-
-
-	  //	  double incidenceAngle = GetIncidenceAngle(aStep);
-	  // incidence angles between [0,180]. eg) if critical angle is 82 degrees, retained light between [82,98]
-	  // normalize s.t. distribution is between [0,180]
-	  //	  if (incidenceAngle > 90) incidenceAngle = 180 - incidenceAngle;
-	  //	      if (is_downward_light) incidenceAngle = 180 - incidenceAngle;
-	  //	  m_incidenceAngleVec->push_back(incidenceAngle);	 
-	  m_incidenceAngleVec->push_back(incidencePostStepCorrectedAngle);	 
-	  FillChannelTimeVector( channelNum, aStep->GetTrack()->GetGlobalTime());
-	  m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y() );
-	  m_energyVec->push_back(aStep->GetTrack()->GetTotalEnergy() * 1e+6 );
-	  //	  if (is_downward_light) std::cout << " RECORDING DOWNWARD LIGHT! " << std::endl;
-	  //	  else if (is_upward_light) std::cout << " RECORDING UPWARD LIGHT! " << std::endl;
-	  //	  std::cout << " RECORDING TRACK!!!! " << " topOfVolume " << m_topOfVolume << " trackID "  << trackID << " isTIR " << m_isTIR <<  " x " << aStep->GetTrack()->GetPosition().x() << " y " << aStep->GetTrack()->GetPosition().y() << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() <<  " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName()  << " m_TIR_count " << m_TIR_count  << " stepNum "<< aStep->GetTrack()->GetCurrentStepNumber() << " originx " << aStep->GetTrack()->GetVertexPosition().x() << " originy " << aStep->GetTrack()->GetVertexPosition().y() << " originVolume: " << aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() << std::endl;
-	  //	if (is_downward_light)   std::cout << " RECORDING DOWNWARD TRACK!!!! " << " prestep incidence angle: " << incidencePreStepCorrectedAngleOriginal << " poststep incidence angle " << incidencePostStepCorrectedAngleOriginal << " prestep material " << aStep->GetPreStepPoint()->GetMaterial()->GetName() <<  " poststep material " << aStep->GetPostStepPoint()->GetMaterial()->GetName()  << " m_TIR_count " << m_TIR_count  <<  std::endl;
-	  //	    std::cout << " light reached readout; isTIR " << m_isTIR << std::endl;
-	  //	    aStep->GetTrack()->SetTrackStatus( fStopAndKill );
-	  //	    return true;
-	  //	    }
-	}
-	m_cherenkovVec->at(channelNum)++;
-	m_nHits++;
-	m_lastFiveCore = 0;
-	aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
-	return true;
-      }
-      // Full Tree Mode
-      else {
-	FiberHit* newHit = new FiberHit();
-	newHit->setPos      ( pos );
-	newHit->setOrigin   ( aStep->GetTrack()->GetVertexPosition() );
-	newHit->setMomentum ( aStep->GetPreStepPoint()->GetMomentum() );
-	//	std::cout << " recorded Track totalEnergy " << aStep->GetTrack()->GetTotalEnergy() * 1e+6 << std::endl;
-	newHit->setEnergy   ( aStep->GetTrack()->GetTotalEnergy() * 1e+6);
-	newHit->setEnergy   ( aStep->GetTrack()->GetTotalEnergy());
-	newHit->setTime     ( aStep->GetTrack()->GetGlobalTime() );
-	newHit->setRodNb    ( rodNum );
-
-	fiberCollection->insert ( newHit );
-	m_nHits++;
-
-	aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
-	return true;
-      }
-
-
-	
-    }
-    m_prevTrackID = trackID;;
   }
+  else {
+    if( aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) return true;
+    if(REDUCED_TREE){
+      m_cherenkovVec->at(rodNum) += generatedPhotons;
+      FillTimeVector( rodNum, aStep->GetTrack()->GetGlobalTime(), generatedPhotons );
 
+      m_nHits++;
+      return true;
+    }
+    FiberHit* newHit = new FiberHit();
+    newHit->setCharge      ( aStep->GetPreStepPoint()->GetCharge() );
+    newHit->setTrackID     ( aStep->GetTrack()->GetTrackID() );
+    newHit->setModNb       ( m_modNum );
+    newHit->setRodNb       ( rodNum );
+    newHit->setEdep        ( aStep->GetTotalEnergyDeposit() );
+    newHit->setOrigin      ( aStep->GetTrack()->GetVertexPosition() );
+    newHit->setPos         ( pos );
+    newHit->setParticle    ( particle );
+    newHit->setEnergy      ( aStep->GetPreStepPoint()->GetTotalEnergy() );
+    newHit->setMomentum    ( aStep->GetPreStepPoint()->GetMomentum() );
+    newHit->setTime        ( aStep->GetTrack()->GetGlobalTime() );
+    newHit->setNCherenkovs ( generatedPhotons );
+
+    fiberCollection->insert ( newHit );
+    m_nHits++;
+    return true;
+
+      
+  }
   return false; //Something failed if we got here
-}
+ }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
