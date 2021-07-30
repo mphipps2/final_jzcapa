@@ -74,6 +74,7 @@ public:
   std::vector< G4double >* GetTimeVector ( G4bool ZDC, G4bool RPD, G4int modNum );
 
   inline void SetGunPosition ( G4double x, G4double y, G4double z ){ m_gunPos->set(x,y,z); }
+  inline void SetEventSeeds ( unsigned int seed1, unsigned int seed2){ m_EventSeed1 = seed1; m_EventSeed2 = seed2; }
   inline void SetEventNo     ( G4int _eventNo ){ m_eventNo = _eventNo; }
 
   inline  std::vector< std::vector< std::vector<double> > >*  GetRPDdoubleVectors( ){return m_RPDdblVec;}
@@ -91,6 +92,8 @@ private:
   G4bool m_FactoryOn;
   G4bool OPTICAL;
   G4bool PI0;
+  unsigned int m_EventSeed1;
+  unsigned int m_EventSeed2;
   G4ThreeVector* m_gunPos;
   G4AnalysisManager* m_analysisManager;
   DetectorConstruction* m_detectorConstruction;

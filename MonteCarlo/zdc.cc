@@ -47,7 +47,10 @@
 #include "QGSP_BERT.hh"
 #include "G4OpticalPhysics.hh"
 
+#include "TRandom3.h"
+
 #include "Randomize.hh"
+#include <climits>
 
 /*
 */
@@ -67,7 +70,7 @@ int main(int argc,char** argv)
 {
   // Evaluate arguments
   //
-  if ( argc > 9 ) {
+  if ( argc > 13 ) {
     PrintUsage();
     return 1;
   }
@@ -78,6 +81,8 @@ int main(int argc,char** argv)
   G4bool   gflash = false;
   G4bool   fastOptical = false;
   G4long   myseed = -1;
+  G4long   myseed1 = -1;
+  G4long   myseed2 = -1;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif
@@ -87,6 +92,8 @@ int main(int argc,char** argv)
     else if ( G4String(argv[i]) == "-o"  ) output     = argv[i+1];
     else if ( G4String(argv[i]) == "-i"  ) input      = argv[i+1];
     else if ( G4String(argv[i]) == "-r"  ) myseed     = atoi(argv[i+1]);
+    else if ( G4String(argv[i]) == "-r1"  ) myseed1     = atoi(argv[i+1]);
+    else if ( G4String(argv[i]) == "-r2"  ) myseed2     = atoi(argv[i+1]);    
     else if ( G4String(argv[i]) == "-f"  ){
       G4String buffer = argv[i+1];
       if( buffer.contains("t") ) fastOptical = true;
@@ -124,23 +131,29 @@ int main(int argc,char** argv)
 #else
   G4RunManager * runManager = new G4RunManager;
 #endif
-
   //Set the seed
-  if(myseed == -1){
+    if (myseed != -1) {
+      G4Random::setTheSeed(myseed);
+    }
+    else if (myseed1 != -1 && myseed2 != -1) {
+      long seeds[2] = {myseed1,myseed2};      
+      G4Random::setTheSeeds(seeds);
+    }
+    // default method is to let ROOT set seeds based off TUUID object (guaranteed unique to time and space)
+    else {
 
-    long systime = time(NULL);
-
-    // long systime = chrono::duration_cast< milliseconds >(
-    // chrono::system_clock::now().time_since_epoch();
-
-    long seeds[2];
-    seeds[0] = (long) systime;
-    seeds[1] = (long) (systime*G4UniformRand());
-    G4Random::setTheSeeds(seeds);
-    runManager->SetRandomNumberStore(false);
-  }else {
-    G4Random::setTheSeed(myseed);
-  }
+      long seeds[2];
+      TRandom3* myRand1 = new TRandom3(0);
+      long seed = myRand1->Integer(std::numeric_limits<unsigned int>::max());
+      seeds[0] = seed;
+      TRandom3* myRand2 = new TRandom3(0);
+      seed = myRand2->Integer(std::numeric_limits<unsigned int>::max());
+      seeds[1] = seed;
+  
+      G4Random::setTheSeeds(seeds);
+      runManager->SetRandomNumberStore(false);
+      delete myRand1; delete myRand2;
+    }
 
   // Set mandatory initialization classes
   
@@ -166,7 +179,6 @@ int main(int argc,char** argv)
 
   // User action initialization
   runManager->SetUserInitialization( new ActionInitialization( output ) );
-  
   // Initialize visualization
   G4VisManager* visManager = new G4VisExecutive;
   // G4VisExecutive can take a verbosity argument - see /vis/verbose guidance.
@@ -194,7 +206,8 @@ int main(int argc,char** argv)
     ui->SessionStart();
     delete ui;
   }
-  
+
+
   delete visManager;
   delete runManager;
 

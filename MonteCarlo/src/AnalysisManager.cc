@@ -173,9 +173,8 @@ void AnalysisManager::Book( G4String fileName )
       m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnFibers(), 0 );
     }
     G4bool rpdOpticalFlag = RPDvec->at(i)->GetOpticalFlag();
-    G4bool rpdFullOpticalFlag = RPDvec->at(i)->GetFullOpticalFlag();
     G4bool rpdIsOptical = 0;
-    if (rpdOpticalFlag || rpdFullOpticalFlag) rpdIsOptical = 1;
+    if (rpdOpticalFlag) rpdIsOptical = 1;
     MakeRPDTree( RPDvec->at(i)->GetModNum() - 1, i, RPDvec->at(i)->GetReducedTreeFlag(), RPDvec->at(i)->GetMLReducedTreeFlag(), rpdIsOptical);
 
   }//end RPD loop
@@ -234,6 +233,12 @@ void AnalysisManager::FillNtuples(){
   m_analysisManager->FillNtupleDColumn( m_eventDataNtupleNo, 1, m_gunPos->x() );
   m_analysisManager->FillNtupleDColumn( m_eventDataNtupleNo, 2, m_gunPos->y() );
   m_analysisManager->FillNtupleDColumn( m_eventDataNtupleNo, 3, m_gunPos->z() );
+  // Note: Geant seeds are unsigned ints but we save it to the tree as a signed int to use the FillNtupleIColumn function. So if you want to look at a particular event, convert the signed int from the ntuple to unsigned int using:
+  // int trueSeed = (int16_t) signedSeed; // defined in <stdint.h>
+  int seed1 = (short) m_EventSeed1;
+  m_analysisManager->FillNtupleIColumn( m_eventDataNtupleNo, 4, seed1 );
+  int seed2 = (short) m_EventSeed2;
+  m_analysisManager->FillNtupleIColumn( m_eventDataNtupleNo, 5, seed2 );
 
 
   // fill ntuples  //
@@ -297,6 +302,7 @@ void AnalysisManager::FillRPDnCherenkovs( int rpdNo, int nCherenkovs ){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void AnalysisManager::MakeEventDataTree( ){
+
   m_eventDataNtupleNo = m_analysisManager->GetNofNtuples();
   m_analysisManager->CreateNtuple( "EventData", "Event Data");
 
@@ -308,14 +314,18 @@ void AnalysisManager::MakeEventDataTree( ){
   m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "gunPosY"  );
   m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "gunPosZ"  );
 
+  // is really an unsigned int
+  m_analysisManager->CreateNtupleIColumn( m_eventDataNtupleNo, "EventSeed1"  );
+  m_analysisManager->CreateNtupleIColumn( m_eventDataNtupleNo, "EventSeed2"  );
+
   //std::vector< double >
-  m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "lastStepX",   m_lastStepXVec   );
-  m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "lastStepY",   m_lastStepYVec   );
-  m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "lastStepZ",   m_lastStepZVec   );
+  //  m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "lastStepX",   m_lastStepXVec   );
+  //  m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "lastStepY",   m_lastStepYVec   );
+  //  m_analysisManager->CreateNtupleDColumn( m_eventDataNtupleNo, "lastStepZ",   m_lastStepZVec   );
 
 
   //std::vector< int >
-  m_analysisManager->CreateNtupleIColumn( m_eventDataNtupleNo, "lastStepPID", m_lastStepPidVec );
+  //  m_analysisManager->CreateNtupleIColumn( m_eventDataNtupleNo, "lastStepPID", m_lastStepPidVec );
 
   if(PI0){
       //std::vector< double >
@@ -526,14 +536,12 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, G4int modNum, G4bool reducedTree
   else if( MLReducedTree ){
     // Branch of vectors nHits long to keep y origins
     //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "yOrigin", *YOriginVec );
-    m_analysisManager->CreateNtupleDColumn( nTupleNo, "incidenceAngle", *(m_IncidenceAngleVec[modNum]) );
-    m_analysisManager->CreateNtupleDColumn( nTupleNo, "energy", *(m_EnergyVec[modNum]) );
-    m_analysisManager->CreateNtupleDColumn( nTupleNo, "yOrigin", *(m_YOriginVec[modNum]) );
+    //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "incidenceAngle", *(m_IncidenceAngleVec[modNum]) );
+    //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "energy", *(m_EnergyVec[modNum]) );
+    //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "yOrigin", *(m_YOriginVec[modNum]) );
     // Branch of vectors nChannels long that contains the number of cherenkovs per channel for each event
-    //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGenCherenkovs", *nGenCherenkovVec );
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGenCherenkovs", *(m_RPDfiberGenVec[modNum]) );
+    //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGenCherenkovs", *(m_RPDfiberGenVec[modNum]) );
     // Branch of vectors nChannels long that contains the number of cherenkovs per channel for each event
-    //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", *nCherenkovVec );
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", *(m_RPDfiberVec[modNum]));
     // This branch acts as a histogram to store the timing of photon arrival or production
     // depending on optical settings

@@ -330,7 +330,7 @@ void ModTypeZDC::ConstructSDandField(){
   //Note one SD object for each module
   char fiberSDname[256];
   sprintf( fiberSDname, "ZDC%d_SD", m_modNum);
-  FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL, 0 );
+  FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
   aFiberSD->HistInitialize();
   aFiberSD->SetTopOfVolume( m_topOfVolume );
   aFiberSD->SetBottomOfVolume( m_bottomOfVolume );

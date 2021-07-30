@@ -83,7 +83,6 @@ public:
   inline  void  SetDetectorType        ( G4String       arg ){ m_detType          = arg; }
   inline  void  SetOpticalFlag         ( G4bool         arg ){ OPTICAL            = arg; }
   inline  void  SetFastOpticalFlag     ( G4bool         arg ){ FASTOPTICAL        = arg; }
-  inline  void  SetFullOpticalFlag     ( G4bool         arg ){ FULLOPTICAL        = arg; }
   inline  void  SetOverlapsFlag        ( G4bool         arg ){ CHECK_OVERLAPS     = arg; }
   inline  void  SetReducedTreeFlag     ( G4bool         arg ){ REDUCED_TREE       = arg; }
   inline  void  SetMLReducedTreeFlag   ( G4bool         arg ){ ML_REDUCED_TREE    = arg; }
@@ -93,7 +92,6 @@ public:
   inline  G4int          GetModNum          ( ){ return m_modNum;      }
   inline  G4int          GetnFibers         ( ){ return m_fiber_count; }
   inline  G4int          GetnChannels       ( ){ return m_n_rows * m_n_columns;  }
-  inline  G4bool         GetFullOpticalFlag ( ){ return FULLOPTICAL;       }
   inline  G4bool         GetOpticalFlag     ( ){ return OPTICAL;       }
   inline  G4bool         GetReducedTreeFlag ( ){ return REDUCED_TREE;  }
   inline  G4bool         GetMLReducedTreeFlag ( ){ return ML_REDUCED_TREE;  }
@@ -120,7 +118,6 @@ protected:
   G4double         m_bottomOfVolume;
   G4double         m_polarAngleCut;
   G4String         m_detType;
-  G4bool           FULLOPTICAL;
   G4bool           OPTICAL;
   G4bool           FASTOPTICAL;
   G4bool           CHECK_OVERLAPS;

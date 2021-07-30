@@ -44,7 +44,7 @@ class G4HCofThisEvent;
 class FiberSD : public G4VSensitiveDetector
 {
 public:
-  FiberSD(G4String, G4int,G4bool,G4bool);
+  FiberSD(G4String, G4int,G4bool);
   ~FiberSD();
 
   void HistInitialize();
@@ -58,7 +58,6 @@ public:
   void   FillChannelTimeVector ( G4int channelNo, G4double time, G4int weight = 1 );
 
   inline G4bool   OpticalIsOn            ( ){ return OPTICAL;        }
-  inline G4bool   FullOpticalIsOn        ( ){ return FULLOPTICAL;        }
   inline G4bool   IsZDC                  ( ){ return ZDC;            }
   inline G4bool   IsRPD                  ( ){ return RPD;            }
   inline G4bool   IsReduced              ( ){ return REDUCED_TREE;   }
@@ -92,7 +91,6 @@ private:
   G4int m_nFiberPerChannel;
   G4int m_nHits;
   G4bool OPTICAL;
-  G4bool FULLOPTICAL;
   G4bool REDUCED_TREE;
   G4bool ML_REDUCED_TREE;
   G4bool ZDC, RPD;

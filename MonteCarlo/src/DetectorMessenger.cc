@@ -302,12 +302,6 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction * Det)
   fRPDTypeCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
   fRPDTypeCmd->SetToBeBroadcasted(false);
 
-  fRPDFullOpticalFlagCmd = new G4UIcmdWithABool("/Detector/RPD/FullOptical", this);
-  fRPDFullOpticalFlagCmd->SetGuidance("Set full optical flag for current RPD");
-  fRPDFullOpticalFlagCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
-  fRPDFullOpticalFlagCmd->SetDefaultValue(true);
-  fRPDFullOpticalFlagCmd->SetToBeBroadcasted(false);
-
   fRPDOpticalFlagCmd = new G4UIcmdWithABool("/Detector/RPD/Optical", this);
   fRPDOpticalFlagCmd->SetGuidance("Set optical flag for current RPD");
   fRPDOpticalFlagCmd->AvailableForStates(G4State_PreInit, G4State_Init, G4State_Idle);
@@ -414,7 +408,6 @@ DetectorMessenger::~DetectorMessenger(){
   delete fRPDPhotonPolarAngleCutCmd;
   delete fRPDRotationCmd;
   delete fRPDTypeCmd;
-  delete fRPDFullOpticalFlagCmd;
   delete fRPDOpticalFlagCmd;
   delete fRPDFastOpticalFlagCmd;
   delete fRPDOverlapsFlagCmd;
@@ -542,9 +535,6 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   }
   else if(command == fRPDTypeCmd){
     fDetector->SetRPDDetectorType( newValue );
-  }
-  else if(command == fRPDFullOpticalFlagCmd){
-    fDetector->SetRPDFullOpticalFlag( fRPDFullOpticalFlagCmd->GetNewBoolValue(newValue) );
   }
   else if(command == fRPDOpticalFlagCmd){
     fDetector->SetRPDOpticalFlag( fRPDOpticalFlagCmd->GetNewBoolValue(newValue) );

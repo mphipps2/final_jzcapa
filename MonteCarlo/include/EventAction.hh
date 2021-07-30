@@ -44,25 +44,26 @@
 
 class EventAction : public G4UserEventAction
 {
-  public:
-    EventAction( );
-    virtual ~EventAction();
+public:
+  EventAction( );
+  virtual ~EventAction();
 
-    virtual void BeginOfEventAction          ( const G4Event* event );
-    virtual void EndOfEventAction            ( const G4Event* event );
-    virtual void ProcessHitCollection        ( FiberHitsCollection* HC );
-    virtual void ProcessOpticalHitCollection ( FiberHitsCollection* HC );
+  virtual void BeginOfEventAction          ( const G4Event* event );
+  virtual void EndOfEventAction            ( const G4Event* event );
+  virtual void ProcessHitCollection        ( FiberHitsCollection* HC );
+  virtual void ProcessOpticalHitCollection ( FiberHitsCollection* HC );
 
 
-  private:
-    // Indecies are [mod#][dataSet][dataValue]
-    // Vectors are created in AnalysisManager.cc
-    std::vector< std::vector< std::vector<double> > > *m_RPDdblVec, *m_ZDCdblVec;
-    std::vector< std::vector< std::vector< int  > > > *m_RPDintVec, *m_ZDCintVec;
+private:
+  // Indecies are [mod#][dataSet][dataValue]
+  // Vectors are created in AnalysisManager.cc
+  std::vector< std::vector< std::vector<double> > > *m_RPDdblVec, *m_ZDCdblVec;
+  std::vector< std::vector< std::vector< int  > > > *m_RPDintVec, *m_ZDCintVec;
 
-    AnalysisManager* m_analysisManager;
-    G4int    fEventNo, fnZDCs, fnRPDs;
-    G4double gunPosX, gunPosY, gunPosZ;
+  AnalysisManager* m_analysisManager;
+  G4int    fEventNo, fnZDCs, fnRPDs;
+  unsigned int fEventSeed1, fEventSeed2;
+  G4double gunPosX, gunPosY, gunPosZ;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -49,10 +49,9 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-FiberSD::FiberSD(G4String sdName, G4int modNum, G4bool optical, G4bool fullOptical)
+FiberSD::FiberSD(G4String sdName, G4int modNum, G4bool optical)
   :G4VSensitiveDetector(sdName),
   m_modNum(modNum),
-  FULLOPTICAL(fullOptical),
   OPTICAL(optical),
   REDUCED_TREE(false),
   ML_REDUCED_TREE(false),
@@ -175,7 +174,6 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
     m_genCherenkovVec->at(channelNum)+=generatedPhotons;
   }
   
-  // If FULLOPTICAL is true, determine if the photon has reached the top of the topOfVolume
   // If OPTICAL is true, determine if the photon is captured (requires # of steps inside SD to exceed m_captureThreshold and for the final five steps to not include the Kapton buffer material)
   // and add the hit to the collection if it has
 

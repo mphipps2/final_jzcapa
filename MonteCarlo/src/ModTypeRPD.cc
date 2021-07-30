@@ -88,7 +88,6 @@ ModTypeRPD::ModTypeRPD(const G4int cn, G4LogicalVolume* mother, G4ThreeVector* p
     m_polarAngleCut(180.*deg),
     m_detType(""),
     OPTICAL(false),
-    FULLOPTICAL(false),
     CHECK_OVERLAPS(false),
     READOUT(false),
     REDUCED_TREE(false),
@@ -123,7 +122,6 @@ ModTypeRPD::ModTypeRPD(const G4int cn, ModTypeRPD* right)
   m_distanceToReadout = right->m_distanceToReadout;
   m_detType 				  = right->m_detType;
   OPTICAL 					  = right->OPTICAL;
-  FULLOPTICAL 					  = right->FULLOPTICAL;
   FASTOPTICAL 					  = right->FASTOPTICAL;
   
   CHECK_OVERLAPS 		  = right->CHECK_OVERLAPS;
@@ -892,7 +890,7 @@ void ModTypeRPD::ConstructCMSDetector()
   ///////////////////////////////////////////////////////////////////////////////////
   // if Optical is turned on we need to build air detector above each fiber
 
-  if ( OPTICAL || FULLOPTICAL ){
+  if ( OPTICAL ){
 
     G4double air_detect_thickness = 0.1;
     G4double correction = 0.0;
@@ -1283,7 +1281,7 @@ void ModTypeRPD::ConstructSDandField(){
   //Create and initialize the SD
   char fiberSDname[256];
   sprintf( fiberSDname, "RPD%d_SD", m_modNum);
-  FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL, FULLOPTICAL );
+  FiberSD* aFiberSD = new FiberSD( fiberSDname, m_modNum, OPTICAL );
   aFiberSD->HistInitialize();
 
   aFiberSD->SetTopOfVolume( m_topOfVolume );
@@ -1300,7 +1298,7 @@ void ModTypeRPD::ConstructSDandField(){
     if(m_test_tile_bool){
       m_test_PDLogical->SetSensitiveDetector( aFiberSD );
     }else{
-      if (OPTICAL || FULLOPTICAL){
+      if (OPTICAL){
 	for(G4int i=0;i<64;i++){
 	  m_air_detect_Logical[i]->SetSensitiveDetector( aFiberSD );}
       }else{

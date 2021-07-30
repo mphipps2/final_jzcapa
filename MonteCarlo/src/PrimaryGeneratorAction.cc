@@ -199,6 +199,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent){
     G4cerr << "\nInvalid beam type selection. Aborting event\n" << G4endl;
     anEvent->SetEventAborted();
   }
+  
 }//end GeneratePrimaries
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -70,6 +70,10 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
   m_RPDintVec = m_analysisManager->GetRPDintVectors   ( );
   m_ZDCdblVec = m_analysisManager->GetZDCdoubleVectors( );
   m_ZDCintVec = m_analysisManager->GetZDCintVectors   ( );
+
+  fEventSeed1 = CLHEP::HepRandom::getTheSeeds()[0];
+  fEventSeed2 = CLHEP::HepRandom::getTheSeeds()[1];
+  std::cout << "Event seed 1: " << fEventSeed1 << " Event seed 2: " << fEventSeed2 << std::endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -98,6 +102,7 @@ void EventAction::EndOfEventAction(const G4Event* evt){
   m_analysisManager->SetEventNo( fEventNo );
   G4PrimaryVertex* pVert = evt->GetPrimaryVertex();
   m_analysisManager->SetGunPosition( pVert->GetX0(), pVert->GetY0(), pVert->GetZ0() );
+  m_analysisManager->SetEventSeeds( fEventSeed1, fEventSeed2 );
   m_analysisManager->FillNtuples();
 
 }
