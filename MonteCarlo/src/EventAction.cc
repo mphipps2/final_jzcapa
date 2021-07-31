@@ -73,7 +73,6 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
 
   fEventSeed1 = CLHEP::HepRandom::getTheSeeds()[0];
   fEventSeed2 = CLHEP::HepRandom::getTheSeeds()[1];
-  std::cout << "Event seed 1: " << fEventSeed1 << " Event seed 2: " << fEventSeed2 << std::endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

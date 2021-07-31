@@ -535,12 +535,12 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, G4int modNum, G4bool reducedTree
   }
   else if( MLReducedTree ){
     // Branch of vectors nHits long to keep y origins
-    //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "yOrigin", *YOriginVec );
-    //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "incidenceAngle", *(m_IncidenceAngleVec[modNum]) );
-    //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "energy", *(m_EnergyVec[modNum]) );
-    //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "yOrigin", *(m_YOriginVec[modNum]) );
+
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "incidenceAngle", *(m_IncidenceAngleVec[modNum]) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "energy", *(m_EnergyVec[modNum]) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "yOrigin", *(m_YOriginVec[modNum]) );
     // Branch of vectors nChannels long that contains the number of cherenkovs per channel for each event
-    //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGenCherenkovs", *(m_RPDfiberGenVec[modNum]) );
+    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGenCherenkovs", *(m_RPDfiberGenVec[modNum]) );
     // Branch of vectors nChannels long that contains the number of cherenkovs per channel for each event
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", *(m_RPDfiberVec[modNum]));
     // This branch acts as a histogram to store the timing of photon arrival or production
