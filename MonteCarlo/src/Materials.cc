@@ -103,8 +103,6 @@ void Materials::DefineOpticalProperties(void){
 
   G4double photonEnergy_UI[nEntries_UI] = {1.91*eV, 2.07*eV, 2.48*eV, 3.1*eV, 4.13*eV};  
   //    G4double photonEnergy_UI[nEntries_UI] = {1.91*eV, 2.07*eV, 2.48*eV, 3.1*eV, 3.54*eV};  
-  G4double photonEnergy_UI_small[nEntries_UI_small] = {1.91*eV, 4.13*eV};  
-  //G4double photonEnergy_UI_small[nEntries_UI_small] = {1.91*eV, 3.54*eV};
   // https://www.content.molex.com/dxdam/literature/987650-8936.pdf
   G4double silica_RIND_UI[nEntries_UI] = {1.6, 1.6, 1.6, 1.6, 1.6};
   G4double silica_ABSL_UI[nEntries_UI] = {5329.*cm, 3525.*cm, 2322.*cm, 885.*cm, 271.*cm};
@@ -113,9 +111,8 @@ void Materials::DefineOpticalProperties(void){
   //G4double silica_ABSL_UI[nEntries_UI_small] = {5329.*cm, 271.*cm};
   
   MPT_Array.push_back(new G4MaterialPropertiesTable());
-  MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI_small,silica_RIND_UI,2);//index of refraction
+  MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,silica_RIND_UI,nEntries_UI);//index of refraction
   MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI,silica_ABSL_UI,nEntries_UI);//absorption length
-  //MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI,silica_ABSL_UI,2);//absorption length
   SilicaCore_UI->SetMaterialPropertiesTable(MPT_Array.back());
 
 
@@ -125,10 +122,8 @@ void Materials::DefineOpticalProperties(void){
   //  G4double silica_clad_RIND_UI[2] = {1.4575, 1.4575}; // Only refractive index changes
   //  G4double silica_clad_RIND_UI[2] = {1., 1.}; // Only refractive index changes
   MPT_Array.push_back(new G4MaterialPropertiesTable());
-  //MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,silica_clad_RIND_UI,nEntries_UI);//index of refraction
-  MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI_small,silica_clad_RIND_UI,2);//index of refraction
+  MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,silica_clad_RIND_UI,nEntries_UI);//index of refraction
   MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI,silica_ABSL_UI,nEntries_UI);//absorption length
-  //MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI,silica_ABSL_UI,2);//absorption length
   SilicaClad_UI->SetMaterialPropertiesTable(MPT_Array.back());
 
   
@@ -137,9 +132,6 @@ void Materials::DefineOpticalProperties(void){
   // https://www.sciencedirect.com/science/article/pii/S0257897205010881
   G4double kapton_RIND_UI[nEntries_UI] = {1.8, 1.82, 1.86, 1.95, 2.18};
   G4double kapton_ABSL_UI[nEntries_UI] = {0.011*cm, 0.0022*cm, 0.0056*cm, 0.04*cm, 0.063*cm};
-  //G4double kapton_ABSL_UI[nEntries_UI] = {0.011*nm, 0.0022*nm, 0.0056*nm, 0.04*nm, 0.063*nm};
-  //  G4double kapton_ABSL_UI[nEntries_UI] = {11*cm, 22*cm, 56*cm, 40*cm, 63*cm};
-  //  G4double kapton_ABSL_UI[nEntries_UI] = {68*um, 62*um, 54*um, 38*um, 20*um};
   G4double kapton_REFL_UI[nEntries_UI] = {0.35, 0.2, 0.02, 0.03, 0.04};
 
   MPT_Array.push_back(new G4MaterialPropertiesTable());
@@ -156,9 +148,7 @@ void Materials::DefineOpticalProperties(void){
   // only defining reflectivity since we only want optical light created in the quartz cavitiies
   G4double NiW_REFL_UI[nEntries_UI] = {0.62, 0.62, 0.62, 0.62, 0.62};
   MPT_Array.push_back(new G4MaterialPropertiesTable());
-  //  MPT_Array.back()->AddProperty("RINDEX",photonEnergy_UI,NiW_RIND_UI,nEntries_UI);
-  //  MPT_Array.back()->AddProperty("ABSLENGTH",photonEnergy_UI_small,NiW_ABSL_UI,nEntries_UI_small);
-  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,NiW_REFL_UI,nEntries_UI_small);
+  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI,NiW_REFL_UI,nEntries_UI);
   NiW->SetMaterialPropertiesTable(MPT_Array.back());
 
   // https://refractiveindex.info/?shelf=main&book=W&page=Werner
@@ -168,24 +158,15 @@ void Materials::DefineOpticalProperties(void){
   // only defining reflectivity since we only want optical light created in the quartz cavitiies
   G4double W_REFL_UI[nEntries_UI] = {0.62, 0.62, 0.62, 0.62, 0.62};
   MPT_Array.push_back(new G4MaterialPropertiesTable());
-  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,W_REFL_UI,nEntries_UI_small);
+  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI,W_REFL_UI,nEntries_UI);
   pureW->SetMaterialPropertiesTable(MPT_Array.back());
   
   //Air optical properties
-  G4double RefractiveIndexAir[nEntries_UI_small] = {1.0, 1.0};
+  G4double RefractiveIndexAir[nEntries_UI] = {1.0, 1.0, 1.0, 1.0, 1.0};
   MPT_Array.push_back(new G4MaterialPropertiesTable());
-  MPT_Array.back()->AddProperty("RINDEX", photonEnergy_UI_small, RefractiveIndexAir, nEntries_UI_small);
+  MPT_Array.back()->AddProperty("RINDEX", photonEnergy_UI, RefractiveIndexAir, nEntries_UI);
   Air->SetMaterialPropertiesTable(MPT_Array.back());
 
-  /*
-    //Aluminum optical properties
-  MPT_Array.push_back(new G4MaterialPropertiesTable());
-  G4double Al_refl[nEntries_UI] = {0.89, 0.89, 0.89, 0.89, 0.89};	//"Hard cut"
-  MPT_Array.back()->AddProperty("REFLECTIVITY",photonEnergy_UI_small,Al_refl,nEntries_UI_small);
-  // set the optical boundary properties
-  G4OpticalSurface *OpAlSurface = new G4OpticalSurface("opAlSurface",unified, ground, dielectric_metal, 1);
-  OpAlSurface->SetMaterialPropertiesTable(MPT_Array.back());
-  */
 
   //Aluminum optical properties
   G4double Al_refl[nEntries_UI] = {0.89, 0.89, 0.89, 0.89, 0.89};//"Hard cut"

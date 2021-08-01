@@ -84,7 +84,7 @@ void AnalysisManager::Book( G4String fileName )
   // in AnalysisManager.hh
   G4cout << "Using " << m_analysisManager->GetType() << " type Analysis Manager" << G4endl;
   m_analysisManager->SetVerboseLevel(1);
-  m_analysisManager->SetNtupleMerging(true);
+  //  m_analysisManager->SetNtupleMerging(true);
 
   // Open an output file
   //
@@ -240,7 +240,6 @@ void AnalysisManager::FillNtuples(){
   int seed2 = (short) m_EventSeed2;
   m_analysisManager->FillNtupleIColumn( m_eventDataNtupleNo, 5, seed2 );
 
-
   // fill ntuples  //
   for(int i = 0; i < m_analysisManager->GetNofNtuples(); i++){
     m_analysisManager->AddNtupleRow(i);
@@ -286,7 +285,7 @@ void AnalysisManager::FillNtuples(){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void AnalysisManager::FillZDCnCherenkovs( int zdcNo, int nCherenkovs ){
-
+  std::cout << " filling ZDC n Cherenkovs " << std::endl;
   m_analysisManager->FillNtupleIColumn( m_ZDCnTupleNo[zdcNo - 1], 0, nCherenkovs );
 
 }
@@ -294,7 +293,7 @@ void AnalysisManager::FillZDCnCherenkovs( int zdcNo, int nCherenkovs ){
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void AnalysisManager::FillRPDnCherenkovs( int rpdNo, int nCherenkovs ){
-
+  std::cout << " filling RPD n Cherenkovs " << std::endl;
   m_analysisManager->FillNtupleIColumn( m_RPDnTupleNo[rpdNo - 1], 0, nCherenkovs );
 
 }
@@ -456,6 +455,8 @@ void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVe
   else { //Full tree
 
     if(thisIsOptical){
+
+
       // This branch is a vector nFibers long that contains the number of cherenkovs
       // produced in each fiber during an event. Make this first so it's columnId is 0
       m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs"                               );
@@ -463,7 +464,6 @@ void AnalysisManager::MakeZDCTree( G4int zdcNo, std::vector< int >* nCherenkovVe
       //vector< int > branch
       m_ZDCintVec->at(zdcNo).resize(1);
       m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_ZDCintVec->at(zdcNo).at(0) );
-      m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGeneratedCherenkovs", *nCherenkovVec );
 
       //Resize the vector for the number of optical branches storing double vectors
       m_ZDCdblVec->at(zdcNo).resize(7);
@@ -536,11 +536,11 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, G4int modNum, G4bool reducedTree
   else if( MLReducedTree ){
     // Branch of vectors nHits long to keep y origins
 
-    m_analysisManager->CreateNtupleDColumn( nTupleNo, "incidenceAngle", *(m_IncidenceAngleVec[modNum]) );
-    m_analysisManager->CreateNtupleDColumn( nTupleNo, "energy", *(m_EnergyVec[modNum]) );
-    m_analysisManager->CreateNtupleDColumn( nTupleNo, "yOrigin", *(m_YOriginVec[modNum]) );
+    //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "incidenceAngle", *(m_IncidenceAngleVec[modNum]) );
+    //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "energy", *(m_EnergyVec[modNum]) );
+    //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "yOrigin", *(m_YOriginVec[modNum]) );
     // Branch of vectors nChannels long that contains the number of cherenkovs per channel for each event
-    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGenCherenkovs", *(m_RPDfiberGenVec[modNum]) );
+    //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGenCherenkovs", *(m_RPDfiberGenVec[modNum]) );
     // Branch of vectors nChannels long that contains the number of cherenkovs per channel for each event
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "nCherenkovs", *(m_RPDfiberVec[modNum]));
     // This branch acts as a histogram to store the timing of photon arrival or production
@@ -560,8 +560,6 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, G4int modNum, G4bool reducedTree
       //vector< int > branch
       m_RPDintVec->at(rpdNo).resize(1);
       m_analysisManager->CreateNtupleIColumn( nTupleNo, "rodNo",       m_RPDintVec->at(rpdNo).at(0) );
-      //      m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGeneratedCherenkovs", *nCherenkovVec );
-      m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGeneratedCherenkovs", *(m_RPDfiberVec[modNum]) );
 
       //Resize the vector for the number of optical branches storing double vectors
       //      m_RPDdblVec->at(rpdNo).resize(7);

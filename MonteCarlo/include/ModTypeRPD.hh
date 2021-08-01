@@ -79,10 +79,8 @@ public:
   inline  void  SetTileSize            ( G4double       arg ){ m_tileSize         = arg; }
   inline  void  SetMinWallThickness    ( G4double       arg ){ m_minWallThickness = arg; }
   inline  void  SetReadoutDistance     ( G4double       arg ){ READOUT = true; m_distanceToReadout = arg;}
-  inline  void  SetPhotonPolarAngleCut ( G4double       arg ){ m_polarAngleCut    = arg; }
   inline  void  SetDetectorType        ( G4String       arg ){ m_detType          = arg; }
   inline  void  SetOpticalFlag         ( G4bool         arg ){ OPTICAL            = arg; }
-  inline  void  SetFastOpticalFlag     ( G4bool         arg ){ FASTOPTICAL        = arg; }
   inline  void  SetOverlapsFlag        ( G4bool         arg ){ CHECK_OVERLAPS     = arg; }
   inline  void  SetReducedTreeFlag     ( G4bool         arg ){ REDUCED_TREE       = arg; }
   inline  void  SetMLReducedTreeFlag   ( G4bool         arg ){ ML_REDUCED_TREE    = arg; }
@@ -116,10 +114,8 @@ protected:
   G4double         m_distanceToReadout;
   G4double         m_topOfVolume;
   G4double         m_bottomOfVolume;
-  G4double         m_polarAngleCut;
   G4String         m_detType;
   G4bool           OPTICAL;
-  G4bool           FASTOPTICAL;
   G4bool           CHECK_OVERLAPS;
   G4bool           READOUT;
   G4bool           REDUCED_TREE;

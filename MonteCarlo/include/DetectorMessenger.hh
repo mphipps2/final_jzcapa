@@ -80,7 +80,6 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithADoubleAndUnit* fZDCHousingThicknessCmd;
     G4UIcmdWithADoubleAndUnit* fZDCGapThicknessCmd;
     G4UIcmdWithADoubleAndUnit* fZDCSteelAbsHeightCmd;
-    G4UIcmdWithADoubleAndUnit* fZDCPhotonPolarAngleCutCmd;
     G4UIcmdWithABool*          fZDCOpticalFlagCmd;
     G4UIcmdWithABool*          fZDCOverlapsFlagCmd;
     G4UIcmdWithABool*          fZDCReducedTreeCmd;
@@ -101,7 +100,6 @@ class DetectorMessenger: public G4UImessenger{
     G4UIcmdWithADoubleAndUnit* fRPDSetTileSizeCmd;
     G4UIcmdWithADoubleAndUnit* fRPDMinWallThicknessCmd;
     G4UIcmdWithADoubleAndUnit* fRPDReadoutDistanceCmd;
-    G4UIcmdWithADoubleAndUnit* fRPDPhotonPolarAngleCutCmd;
     G4UIcmdWithADoubleAndUnit* fRPDRotationCmd;
     G4UIcmdWithAString*        fRPDTypeCmd;
     G4UIcmdWithABool*          fRPDOpticalFlagCmd;

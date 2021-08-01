@@ -78,12 +78,7 @@ G4bool FastSimModelOpFiber::ModelTrigger(const G4FastTrack& fasttrack) {
     reset();
     fTrackId = track->GetTrackID();
   }
-  /*
-  if (fTransported) {
-  std::cout << " fTransported " << std::endl;
-    return false; // track is already transported and did pass NILL check, nothing to do
-  }
-  */
+
   getCoreMaterial(track);
 
   auto matPropTable = fCoreMaterial->GetMaterialPropertiesTable();
@@ -94,12 +89,6 @@ G4bool FastSimModelOpFiber::ModelTrigger(const G4FastTrack& fasttrack) {
   }
 
 
-  /*  
-  if ( !checkTotalInternalReflection(track) ) {
-  //    std::cout << " notTIR " << std::endl;
-    return false; // nothing to do if the previous status is not total internal reflection
-  }
-  */
   G4TouchableHandle theTouchable = track->GetTouchableHandle();
   auto fiberPos = theTouchable->GetHistory()->GetTopTransform().Inverse().TransformPoint(G4ThreeVector(0.,0.,0.));
   fFiberAxis = theTouchable->GetHistory()->GetTopTransform().Inverse().TransformAxis(G4ThreeVector(0.,0.,1.));
@@ -143,13 +132,12 @@ G4bool FastSimModelOpFiber::ModelTrigger(const G4FastTrack& fasttrack) {
     fActiveArea = false;
   }
 
-  //  if (fIsDownwardLight) std::cout << " DOWNWARD LIGHT! fTransportUnit " << fTransportUnit  << " trackID " << track->GetTrackID() << " fiberLen " << activeFiberLen << " isActive " << fActiveArea << " fIsDownwardLight " << fIsDownwardLight << " fTransportUnit " << fTransportUnit << " fiberAxis " << fFiberAxis << " downward axis " << fDownwardFiberAxis << " fiberLen " << fiberLen << " fiberLen == fiberLen " << (fiberLen == 28.8) << std::endl;
 
 
   fFiberEnd.set(0,0,0);
   // if it's upward take light to top where it's recorded. else it goes to the bottom where it has a chance to be recaptured
   // depending which way we're going and which fiber we're in we may need to splice on either the active fiber length or the readout fiber length
-  //  std::cout << " fTransportUnit " << fTransportUnit << " FiberAxis " << fFiberAxis << " deltaPos " << deltaPos << std::endl;
+
   // readout area/downward light
   if (!fActiveArea && fIsDownwardLight) fFiberEnd = fiberPos + fFiberAxis*fiberLen/2 + fFiberAxis*activeFiberLen;
   // active area/downward light
@@ -158,10 +146,8 @@ G4bool FastSimModelOpFiber::ModelTrigger(const G4FastTrack& fasttrack) {
   else if (fActiveArea && !fIsDownwardLight) fFiberEnd = fiberPos + fFiberAxis*fiberLen/2 + fFiberAxis*fReadoutFiberLen;
   // active area/upward light
   else if (!fActiveArea && !fIsDownwardLight)  fFiberEnd = fiberPos + fFiberAxis*fiberLen/2 ;
-  else { std::cerr << " Warning: doesn't make sense" << std::endl; }
 
   if ( !checkTotalInternalReflection(track) ) {
-    //    std::cout << " notTIR " << std::endl;
     return false; // nothing to do if the previous status is not total internal reflection
   }
 
@@ -176,7 +162,6 @@ G4bool FastSimModelOpFiber::ModelTrigger(const G4FastTrack& fasttrack) {
   // fNtransport is estimate of how many total internal reflections the track will take to reach fiber end
   // require at least n = fSafetySteps of total internal reflections at the end. ie) if we're very close to the end let geant handle things, no transport
   if ( fNtransport < 0. ) {
-    //    std::cout << " resetting negative fNtransport " << std::endl;
     reset();
 
     return false;
@@ -184,7 +169,6 @@ G4bool FastSimModelOpFiber::ModelTrigger(const G4FastTrack& fasttrack) {
 
   if ( matPropTable->GetProperty(kABSLENGTH) ) {
     double attLength = matPropTable->GetProperty(kABSLENGTH)->Value( track->GetDynamicParticle()->GetTotalMomentum() );
-    //    double totalPathLength =  deltaPos.mag()*fNtransport;
     double totalPathLength =  deltaPos.mag()*fMaxTransport;
     double survivalProb = exp((-1 * totalPathLength) / attLength);
     // initializing to 0 invokes random seed
@@ -224,28 +208,16 @@ void FastSimModelOpFiber::DoIt(const G4FastTrack& fasttrack, G4FastStep& fastste
   G4ThreeVector finalPos = track->GetPosition() + posShift;
   G4double finalTime = track->GetGlobalTime() + timeShift;
 
-  //    double totalPathLength =  deltaPos.mag()*fNtransport;
-  //  double timeShift = timeUnit*fNtransport;
-  //G4ThreeVector finalPos = track->GetPosition() + posShift;
-  //  finalPos = fFiberEnd - fFiberAxis*0.1;
-  /*
-  finalPos = mStepCurrent.globalPosition;
-  finalPos.setZ(fFiberEnd.z());
-  finalPos = finalPos - fFiberAxis*0.1;
-  */
   auto fiberPos = track->GetTouchableHandle()->GetHistory()->GetTopTransform().Inverse().TransformPoint(G4ThreeVector(0.,0.,0.));
 
-  //  std::cout << " posShift " << posShift << " finalPos 1: " << track->GetPosition() + posShift  << " fiberEnd " << fFiberEnd << " prevTime " << track->GetGlobalTime() + (deltaTime*fNtransport) << " newtime " << finalTime << " trackID " << track->GetTrackID()  << " stepNum " << track->GetCurrentStepNumber() << std::endl;
-  //  std::cout << "final Position " << finalPos << " fFiberEnd " << fFiberEnd << " fiberPos " << fiberPos  << " timeUnit " << timeUnit << " fNtransport " << fNtransport << " timeShift " << timeShift << " deltaT " << timeUnit << " deltaP " << deltaPos.mag() << std::endl;
-
+  /*
   G4double incidentAngle = fOpBoundaryProc->GetIncidentAngle();
   G4double incidentDegrees = (incidentAngle / (2*M_PI)) * 360;
-  G4double incidentAngle2 = GetTrackIncidenceAngle(track);
   if (incidentDegrees > 90) incidentDegrees = 180 - incidentDegrees;
+  */
+  G4double incidentAngle2 = GetTrackIncidenceAngle(track);
   if (incidentAngle2 > 90) incidentAngle2 = 180 - incidentAngle2;
 
-  //  std::cout << "transporting!!!!!!!!! incident angle from GEANT:   " << incidentDegrees << " incident angle from calculation: " << incidentAngle2 << " fNtotIntRefl " << fNtotIntRefl << " fSafetyReflections " << fSafetyReflections <<  " logicalVol " << track->GetVolume()->GetLogicalVolume()->GetName() <<  " stepNum " << track->GetCurrentStepNumber() << " StepLength = " << std::setw(9) << track->GetStepLength() << " TrackID " << track->GetTrackID() << " currentDeltaPos " << mStepCurrent.deltaPosition << " prevDeltaPos " << mStepPrevious.deltaPosition << std::endl;
-  //  if (finalPos.y() < 100) std::cout << " downward transport!" << std::endl;
   faststep.ProposePrimaryTrackFinalPosition( finalPos, false );
   faststep.ProposePrimaryTrackFinalTime( finalTime );
   faststep.ProposePrimaryTrackFinalKineticEnergy( track->GetKineticEnergy() );
@@ -266,34 +238,23 @@ bool FastSimModelOpFiber::checkTotalInternalReflection(const G4Track* track) {
     std::cerr << " trackstatus: stopped in checkTIR " << std::endl;
     return false;
   }
-
+  /*
   G4int theStatus = fOpBoundaryProc->GetStatus();
   // matches calculated incident angle as long as we are in core/cladding
   G4double incidentAngle = fOpBoundaryProc->GetIncidentAngle();
   G4double incidentDegrees = (incidentAngle / (2*M_PI)) * 360;
-  G4double incidentAngle2_orig = GetTrackIncidenceAngle(track);
-  G4double incidentAngle2 = GetTrackIncidenceAngle(track);
-  G4double incidentAnglePrestep = GetPrestepIncidenceAngle(track);
-  G4double incidentAnglePoststep = GetPoststepIncidenceAngle(track);
   if (incidentDegrees > 90) incidentDegrees = 180 - incidentDegrees;
+  */
+  G4double incidentAngle2 = GetTrackIncidenceAngle(track);
   if (incidentAngle2 > 90) incidentAngle2 = 180 - incidentAngle2;
-  if (incidentAnglePrestep > 90) incidentAnglePrestep = 180 - incidentAnglePrestep;
-  if (incidentAnglePoststep > 90) incidentAnglePoststep = 180 - incidentAnglePoststep;
-  //!Compare_doubles(incidentDegrees,incidentAngle2) && track->GetCurrentStepNumber() != 1 && !Compare_doubles(track->GetPosition().y(),19.2) && !Compare_doubles(track->GetPosition().y(),9.6) && !Compare_doubles(track->GetPosition().y(),0) && !Compare_doubles(track->GetPosition().y(),-9.6) && !Compare_doubles(track->GetPosition().y(),-19.2))
-
-  //  std::cout << " Geant:  " << incidentDegrees << " incident angle from calculation: " << incidentAngle2 << " Prestep " << incidentAnglePrestep << " Poststep: " << incidentAnglePoststep <<  " y: " << track->GetPosition().y() << " G4OpBoundaryProcessStatus = " << std::setw(2) << theStatus << " logicalVol " << track->GetVolume()->GetLogicalVolume()->GetName() <<  " stepNum " << track->GetCurrentStepNumber() << " StepLength = " << std::setw(9) << track->GetStepLength() << " TrackID " << track->GetTrackID() << " currentDeltaPos " << mStepCurrent.deltaPosition << " prevDeltaPos " << mStepPrevious.deltaPosition << " fNtotIntRefl " << fNtotIntRefl << " fSafetyReflections " << fSafetyReflections <<  std::endl;
-
-  if (!Compare_doubles(incidentDegrees,incidentAngle2) && track->GetCurrentStepNumber() != 1  && !Compare_doubles(track->GetPosition().y(),19.2) && !Compare_doubles(track->GetPosition().y(),9.6) && !Compare_doubles(track->GetPosition().y(),0) && !Compare_doubles(track->GetPosition().y(),-9.6) && !Compare_doubles(track->GetPosition().y(),-19.2))  std::cerr << " Warning: incident angle from geant doesn't match calculation. Geant:  " << incidentDegrees << " incident angle from calculation: " << incidentAngle2 << " Prestep " << incidentAnglePrestep << " Poststep: " << incidentAnglePoststep <<  " y: " << track->GetPosition().y() << " G4OpBoundaryProcessStatus = " << std::setw(2) << theStatus << " logicalVol " << track->GetVolume()->GetLogicalVolume()->GetName() <<  " stepNum " << track->GetCurrentStepNumber() << " StepLength = " << std::setw(9) << track->GetStepLength() << " TrackID " << track->GetTrackID() << " currentDeltaPos " << mStepCurrent.deltaPosition << " prevDeltaPos " << mStepPrevious.deltaPosition << " fNtotIntRefl " << fNtotIntRefl << " fSafetyReflections " << fSafetyReflections <<  std::endl;
 
   // 19.2 is the transition b/w active and readout fibers. The normal is relative to the center of the fiber now rather than the side. This causes this a captured track to appear uncaptured during this step
   if (fNtotIntRefl > 0) {
     if (Compare_doubles(track->GetPosition().y(),19.2)) {
-      //      std::cout << " skipping active->readout transition in TIR calculations case 1" << " prestep material " << track->GetStep()->GetPreStepPoint()->GetMaterial()->GetIndex() << track->GetStep()->GetPreStepPoint()->GetMaterial()->GetName() << " postStepMaterial " << track->GetStep()->GetPostStepPoint()->GetMaterial()->GetIndex() << track->GetStep()->GetPostStepPoint()->GetMaterial()->GetName() << " y: " << track->GetPosition().y() << " fiberEnd: " << fFiberEnd.y() << std::endl;
       return false;
     }
     // if light reaches end of fiber and we're not going to transport, we need to reset the counters to deal with recaptured light correctly
     else if (Compare_doubles(track->GetPosition().y(),fFiberEnd.y()) && !Compare_doubles(fFiberEnd.y(),19.2)) {
-      //      std::cout << " skipping active->readout transition in TIR calculations case 2" << " prestep material " << track->GetStep()->GetPreStepPoint()->GetMaterial()->GetIndex() << track->GetStep()->GetPreStepPoint()->GetMaterial()->GetName() << " postStepMaterial " << track->GetStep()->GetPostStepPoint()->GetMaterial()->GetIndex() << track->GetStep()->GetPostStepPoint()->GetMaterial()->GetName() << " y: " << track->GetPosition().y() << std::endl;
       reset();
       return false;
     }
@@ -316,12 +277,10 @@ bool FastSimModelOpFiber::checkTotalInternalReflection(const G4Track* track) {
     mStepCurrent = FastFiberData(trackID,globalTime,globalPosition);
     auto deltaPos = mStepCurrent.globalPosition - mStepPrevious.globalPosition;
     mStepCurrent.setDeltaPosition(deltaPos.mag());
-    //    std::cout << " TIR incident angle from calculation: " << incidentAngle2 << " from GEANT:   " << incidentDegrees << " TrackID " << track->GetTrackID() << " currentDeltaPos " << mStepCurrent.deltaPosition << " prevDeltaPos " << mStepPrevious.deltaPosition << " fNtotIntRefl " << fNtotIntRefl << " G4OpBoundaryProcessStatus = " << std::setw(2) << theStatus << " y: " << track->GetPosition().y() << std::endl;
     if ( fNtotIntRefl > fSafetyReflections ) { // require at least n = fSafety of total internal reflections at the beginning
       // the 19.2 check above should get rid of any cases of the step length changing within a TIR
       if (!Compare_doubles(mStepCurrent.deltaPosition,mStepPrevious.deltaPosition)) {
 	std::cout << "Warning: step length has changed for this TIR track!!!! " << std::endl;
-	std::cout << " Geant:  " << incidentDegrees << " incident angle from calculation: " << incidentAngle2 << " Prestep " << incidentAnglePrestep << " Poststep: " << incidentAnglePoststep <<  " y: " << track->GetPosition().y() << " G4OpBoundaryProcessStatus = " << std::setw(2) << theStatus << " logicalVol " << track->GetVolume()->GetLogicalVolume()->GetName() <<  " stepNum " << track->GetCurrentStepNumber() << " StepLength = " << std::setw(9) << track->GetStepLength() << " TrackID " << track->GetTrackID() << " currentDeltaPos " << mStepCurrent.deltaPosition << " prevDeltaPos " << mStepPrevious.deltaPosition << " fNtotIntRefl " << fNtotIntRefl << " fSafetyReflections " << fSafetyReflections <<  " fFiberEnd.y() " << fFiberEnd.y() << std::endl;
 	return false;
       }
       return true;
@@ -343,7 +302,7 @@ void FastSimModelOpFiber::setOpBoundaryProc(const G4Track* track) {
   G4ProcessManager* pm = track->GetDefinition()->GetProcessManager();
   auto postStepProcessVector = pm->GetPostStepProcessVector();
 
-  for (int np = 0; np < postStepProcessVector->entries(); np++) {
+  for (int np = 0; np < (int) postStepProcessVector->entries(); np++) {
     auto theProcess = (*postStepProcessVector)[np];
     if ( theProcess->GetProcessType()!=fOptical || theProcess->GetProcessSubType()!=G4OpProcessSubType::fOpBoundary ) continue;
 

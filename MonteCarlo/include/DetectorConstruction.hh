@@ -150,7 +150,6 @@ public:
   inline  void SetZDCHousingThickness  ( G4double       arg ){ m_ZDCvec.at(currentZDC-1)->SetHousingThickness(arg);   }
   inline  void SetZDCGapThickness      ( G4double       arg ){ m_ZDCvec.at(currentZDC-1)->SetGapThickness(arg);       }
   inline  void SetZDCSteelAbsHeight    ( G4double       arg ){ m_ZDCvec.at(currentZDC-1)->SetSteelAbsHeight(arg);     }
-  inline  void SetZDCPhotonPolarCut    ( G4double       arg ){ m_ZDCvec.at(currentZDC-1)->SetPhotonPolarAngleCut(arg);}
   inline  void SetZDCOpticalFlag       ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetOpticalFlag(arg);        }
   inline  void SetZDCOverlapsFlag      ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetOverlapsFlag(arg);       }
   inline  void SetZDCReducedTreeFlag   ( G4bool         arg ){ m_ZDCvec.at(currentZDC-1)->SetReducedTreeFlag(arg);    }
@@ -171,7 +170,6 @@ public:
   inline  void SetRPDTileSize          ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetTileSize(arg);        }
   inline  void SetRPDMinWallThickness  ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetMinWallThickness(arg);}
   inline  void SetRPDReadoutDistance   ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetReadoutDistance(arg); }
-  inline  void SetRPDPhotonPolarCut    ( G4double       arg ){ m_RPDvec.at(currentRPD-1)->SetPhotonPolarAngleCut(arg);}
   inline  void SetRPDDetectorType      ( G4String       arg ){ m_RPDvec.at(currentRPD-1)->SetDetectorType(arg);    }
   inline  void SetRPDOpticalFlag       ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOpticalFlag(arg);     }
   inline  void SetRPDOverlapsFlag      ( G4bool         arg ){ m_RPDvec.at(currentRPD-1)->SetOverlapsFlag(arg);    }

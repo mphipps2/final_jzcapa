@@ -88,7 +88,6 @@ void EventAction::EndOfEventAction(const G4Event* evt){
 
   //Loop over the collections we do have
   for(int hitsCollID = 0; hitsCollID < nCollections; hitsCollID++) {
-    std::cout << " Number of Hits collections " << nCollections << std::endl;
     HC = (FiberHitsCollection*)(HCE->GetHC(hitsCollID));
     G4String name = HC->GetSDname();
 
@@ -107,7 +106,7 @@ void EventAction::EndOfEventAction(const G4Event* evt){
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
+//Optical off + Nonreduced
 void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
 
   G4int nCherenkovsSum = 0;
@@ -221,6 +220,7 @@ void EventAction::ProcessHitCollection( FiberHitsCollection* HC ){
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+//Optical on + Nonreduced
 void EventAction::ProcessOpticalHitCollection ( FiberHitsCollection* HC ){
   G4String name = HC->GetSDname();
   FiberSD* sd = (FiberSD*)G4SDManager::GetSDMpointer()->FindSensitiveDetector( name );

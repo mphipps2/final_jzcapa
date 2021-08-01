@@ -165,7 +165,6 @@ int main(int argc,char** argv)
   // G4VModularPhysicsList* physicsList = new FTFP_BERT;
   
   G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
-  opticalPhysics->PrintStatistics();
   physicsList->RegisterPhysics(opticalPhysics);
 
   // currently only configured for the RPD

@@ -62,7 +62,6 @@ public:
   inline  void  SetSteelAbsHeight      ( G4double       arg ){ STEEL_ABSORBER = true; m_SteelAbsHeight = arg; }
   inline  void  SetHousingThickness    ( G4double       arg ){ m_HousingThickness  = arg; }
   inline  void  SetGapThickness        ( G4double       arg ){ m_GapThickness      = arg; }
-  inline  void  SetPhotonPolarAngleCut ( G4double       arg ){ m_polarAngleCut     = arg; }
   inline  void  SetOpticalFlag         ( G4bool         arg ){ OPTICAL             = arg; }
   inline  void  SetOverlapsFlag        ( G4bool         arg ){ CHECK_OVERLAPS      = arg; }
   inline  void  SetReducedTreeFlag     ( G4bool         arg ){ REDUCED_TREE        = arg; }
@@ -93,7 +92,6 @@ protected:
   G4double         m_SteelAbsHeight;
   G4double         m_topOfVolume;
   G4double         m_bottomOfVolume;
-  G4double         m_polarAngleCut;
   G4bool           OPTICAL;
   G4bool           CHECK_OVERLAPS;
   G4bool           STEEL_ABSORBER;

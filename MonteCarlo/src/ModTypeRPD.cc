@@ -85,7 +85,6 @@ ModTypeRPD::ModTypeRPD(const G4int cn, G4LogicalVolume* mother, G4ThreeVector* p
     m_tileSize(10.*mm),
     m_minWallThickness(0.*mm),
     m_distanceToReadout(0.*mm),
-    m_polarAngleCut(180.*deg),
     m_detType(""),
     OPTICAL(false),
     CHECK_OVERLAPS(false),
@@ -94,7 +93,6 @@ ModTypeRPD::ModTypeRPD(const G4int cn, G4LogicalVolume* mother, G4ThreeVector* p
     ML_REDUCED_TREE(false),
     CLAD(false),
     BUFFERED(false),
-    FASTOPTICAL(true),
     m_logicMother( mother )
 {
   materials = Materials::getInstance();
@@ -122,8 +120,6 @@ ModTypeRPD::ModTypeRPD(const G4int cn, ModTypeRPD* right)
   m_distanceToReadout = right->m_distanceToReadout;
   m_detType 				  = right->m_detType;
   OPTICAL 					  = right->OPTICAL;
-  FASTOPTICAL 					  = right->FASTOPTICAL;
-  
   CHECK_OVERLAPS 		  = right->CHECK_OVERLAPS;
   READOUT 		        = right->READOUT;
   REDUCED_TREE 		    = right->REDUCED_TREE;
@@ -281,7 +277,6 @@ void ModTypeRPD::ConstructPanFluteDetector()
   G4double housingHeight = activeHeight + 2*m_HousingThickness + m_distanceToReadout;
   // Depth (z) of the RPD housing
   G4double housingDepth = (m_n_rows - 0.5)*pitchZ + fiber_diam + 2*m_HousingThickness;
-  std::cout << " RPD THICKNESS: " << (m_n_rows - 0.5)*pitchZ + fiber_diam << " !!!!!!!!!!!!!!" << std::endl;
 
   //create some rotation matrices
   G4RotationMatrix* stripRotation = new G4RotationMatrix();
@@ -1287,7 +1282,6 @@ void ModTypeRPD::ConstructSDandField(){
   aFiberSD->SetTopOfVolume( m_topOfVolume );
   aFiberSD->SetBottomOfVolume( m_bottomOfVolume );
   aFiberSD->SetnFibers( m_fiber_count );
-  aFiberSD->SetPhotonPolarAngleCut( m_polarAngleCut );
   SDman->AddNewDetector( aFiberSD );
   if(REDUCED_TREE) aFiberSD->SetReducedTree( m_fiber_count, GetnChannels() );
   if(ML_REDUCED_TREE) {
@@ -1316,7 +1310,7 @@ void ModTypeRPD::ConstructSDandField(){
 	if(BUFFERED) m_PFreadout_fiberBuffLogical.at(i)->SetSensitiveDetector( aFiberSD );
       }
     }// end fiber loop
-    if (FASTOPTICAL) m_fastOptical = new FastSimModelOpFiber("FastSimModelOpFiber",m_fastOpticalRegion, m_distanceToReadout, m_fiber_count, GetnChannels());
+    m_fastOptical = new FastSimModelOpFiber("FastSimModelOpFiber",m_fastOpticalRegion, m_distanceToReadout, m_fiber_count, GetnChannels());
     //    if (FASTOPTICAL) m_fastOptical = new FastFiberModel("FastFiberModel",m_fastOpticalRegion);
   }// end else CMS
 

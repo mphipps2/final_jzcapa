@@ -121,15 +121,6 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
       m_timeVec->resize( 128*m_nChannels, 0 );
     }
   }
-  else {
-    if(m_cherenkovVec){
-      AnalysisManager* analysisManager = AnalysisManager::getInstance();
-      m_cherenkovVec = analysisManager->GetFiberVector(ZDC,RPD,m_modNum);
-
-      m_cherenkovVec->clear();
-      m_cherenkovVec->resize( m_nFibers, 0 );
-    }
-  }
   
   m_nCherenkovs = 0;
   m_nHits = 0;
@@ -177,29 +168,29 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
   // If OPTICAL is true, determine if the photon is captured (requires # of steps inside SD to exceed m_captureThreshold and for the final five steps to not include the Kapton buffer material)
   // and add the hit to the collection if it has
 
-  int trackID = aStep->GetTrack()->GetTrackID();
   if (OPTICAL) {
     if( aStep->GetTrack()->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition()) {
-      
+      /*
       G4ThreeVector p = aStep->GetTrack()->GetMomentumDirection();
       double pT = sqrt( pow( p.x(), 2.0 ) + pow( p.z(), 2.0 ));
       double theta = M_PI / 2.0 - atan( pT / p.y() );
-    
+      
       double incidencePreStepAngle = GetIncidenceAngle(aStep);
       double incidencePreStepCorrectedAngle = incidencePreStepAngle;
+      double incidenceTrackAngle = GetTrackIncidenceAngle(aStep);
+      if (incidencePreStepAngle > 90) incidencePreStepCorrectedAngle = 180 - incidencePreStepAngle;
+      if (incidenceTrackAngle > 90) incidenceTrackAngle = 180 - incidenceTrackAngle;    
+      */
       double incidencePostStepAngle = GetPostStepIncidenceAngle(aStep);
       double incidencePostStepCorrectedAngle = incidencePostStepAngle;
-      double incidenceTrackAngle = GetTrackIncidenceAngle(aStep);
+
 
       // incidence angles between [0,180]. eg) if critical angle is 82 degrees, retained light between [82,98]
       // normalize s.t. distribution is between [0,180]
 
-      if (incidencePreStepAngle > 90) incidencePreStepCorrectedAngle = 180 - incidencePreStepAngle;
+
       if (incidencePostStepAngle > 90) incidencePostStepCorrectedAngle = 180 - incidencePostStepAngle;
-      if (incidenceTrackAngle > 90) incidenceTrackAngle = 180 - incidenceTrackAngle;
-      double incidencePreStepCorrectedAngleOriginal = incidencePreStepCorrectedAngle;
-      double incidencePostStepCorrectedAngleOriginal = incidencePostStepCorrectedAngle;
-    
+
 
       if (pos.y() >= m_topOfVolume - 0.2*mm){
 	if(REDUCED_TREE){
@@ -251,6 +242,14 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
       m_cherenkovVec->at(rodNum) += generatedPhotons;
       FillTimeVector( rodNum, aStep->GetTrack()->GetGlobalTime(), generatedPhotons );
 
+      m_nHits++;
+      return true;
+    }
+    else if(ML_REDUCED_TREE){
+      G4int channelNum;
+      if (RPD) channelNum = GetRPDChannelMapping(rodNum);
+      else     channelNum = GetZDCChannelMapping(rodNum);
+      m_cherenkovVec->at(channelNum) += generatedPhotons;
       m_nHits++;
       return true;
     }

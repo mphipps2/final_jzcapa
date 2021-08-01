@@ -3,7 +3,6 @@
 /Detector/Overlaps  false
 /Detector/PI0       false
 /Detector/RunNumber 347
-/Detector/PrintDebugStatement TEST LINE
 
 /Detector/ForcePosition true
 #/Detector/ConfigFile Alignment_2018.xml
@@ -12,29 +11,32 @@
 #EMCAL
 /Detector/ZDC/Add
 /Detector/ZDC/Position 0. 0. 100. mm
-/Detector/ZDC/AbsorberDimensions 43.5 180. 40. mm #run4
-#/Detector/ZDC/AbsorberDimensions 90. 180. 4. mm #run3
-/Detector/ZDC/nAbsorbers 1
+/Detector/ZDC/FiberDiameters 1.5 0. 0. mm	
+/Detector/ZDC/AbsorberDimensions 90. 180. 10.2 mm #run3
+/Detector/ZDC/nAbsorbers 11
 /Detector/ZDC/HousingThickness 5. mm
 /Detector/ZDC/GapThickness 2. mm
 /Detector/ZDC/SteelAbsorberHeight 290. mm
 /Detector/ZDC/Optical false
-/Detector/ZDC/PhotonPolarAngleCut 180. deg
 /Detector/ZDC/CheckOverlaps false
 /Detector/ZDC/ReducedTree false
 /Detector/ZDC/MLReducedTree true
 /Detector/ZDC/HousingMaterial aluminum
 /Detector/ZDC/AbsorberMaterial pure
 
+/Detector/ZDC/Duplicate 1
+/Detector/ZDC/Position 0. 0. 271. mm
+
+/Detector/ZDC/Duplicate 2
+/Detector/ZDC/Position 0. 0. 423. mm
+
+/Detector/ZDC/Duplicate 3
+/Detector/ZDC/Position 0. 0. 575. mm
+
 /Detector/RPD/Add
-/Detector/RPD/Position 0. 0. 187. mm
+/Detector/RPD/Position 0. 0. 185. mm
 /Detector/RPD/FiberDiameters .60 .66 .71 mm
 /Detector/RPD/HousingThickness 2. mm
-# generally 0 or 315. deg
-/Detector/RPD/RotationAngle 0. deg
-/Detector/RPD/SetNColumns 4
-/Detector/RPD/SetNRows 4
-/Detector/RPD/SetNCyclesPerTile 2
 /Detector/RPD/FiberPitchX 1.2 mm
 /Detector/RPD/FiberPitchZ 2.0 mm
 /Detector/RPD/TileSize 9.6 mm
@@ -42,14 +44,7 @@
 /Detector/RPD/FiberReadoutDistance 360 mm
 /Detector/RPD/RPDtype panflute
 /Detector/RPD/Optical true
-/Detector/RPD/FullOptical false
-/Detector/RPD/FastOptical false
-/Detector/RPD/PhotonPolarAngleCut 30. deg
 /Detector/RPD/CheckOverlaps false
 /Detector/RPD/ReducedTree false
 /Detector/RPD/MLReducedTree true
 
-#/Detector/RPD/SetCurrent 1
-
-#/Detector/RPD/Duplicate 1
-#/Detector/RPD/Position 0. 0. 280. mm
