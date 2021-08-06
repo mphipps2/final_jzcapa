@@ -355,24 +355,25 @@ void AnalysisManager::MakeEventGenTree( std::vector< std::vector<int>* > &intVec
   if(type == 0){ // CRMC generated events
     //Integer
     m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "nPart"  );
-    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "nSpec"  );
-    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "model"  );
+    //    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "nSpec"  );
+    //    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "model"  );
 
     //Doubles
-    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "impactParameter"  );
+    //    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "impactParameter"  );
 
+    // vectors below need to be resized to single neutron and value moved to 0 position
     ////std::vector< double >
     m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "px", *dblVec[0] );
     m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "py", *dblVec[1] );
     m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo, "pz", *dblVec[2] );
     m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo,  "E", *dblVec[3] );
-    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo,  "m", *dblVec[4] );
+    //    m_analysisManager->CreateNtupleDColumn( m_eventGenNtupleNo,  "m", *dblVec[4] );
 
 
     //vector< int > branches
     m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo,      "pdgid", *intVec[0] );
-    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "CRMCstatus", *intVec[1] );
-    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "keptStatus", *intVec[2] );
+    //    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "CRMCstatus", *intVec[1] );
+    //    m_analysisManager->CreateNtupleIColumn( m_eventGenNtupleNo, "keptStatus", *intVec[2] );
   }
   else if(type == 1){ // Toy pt Generator
     //Integer
@@ -400,20 +401,18 @@ void AnalysisManager::MakeEventGenTree( std::vector< std::vector<int>* > &intVec
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void AnalysisManager::FillEventGenTree( int nPart, int nSpec, int model, double impactParam ){
-
   m_analysisManager->FillNtupleIColumn( m_eventGenNtupleNo, 0, nPart );
-  m_analysisManager->FillNtupleIColumn( m_eventGenNtupleNo, 1, nSpec );
-  m_analysisManager->FillNtupleIColumn( m_eventGenNtupleNo, 2, model );
+  //  m_analysisManager->FillNtupleIColumn( m_eventGenNtupleNo, 1, nSpec );
+  //  m_analysisManager->FillNtupleIColumn( m_eventGenNtupleNo, 2, model );
 
   //Doubles
-  m_analysisManager->FillNtupleDColumn( m_eventGenNtupleNo, 3, impactParam );
+  //  m_analysisManager->FillNtupleDColumn( m_eventGenNtupleNo, 3, impactParam );
 
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void AnalysisManager::FillEventGenTree( int nSpectators, double ptCollision, double ptBreakup, double rpAngle ){
-
   m_analysisManager->FillNtupleIColumn( m_eventGenNtupleNo, 0, nSpectators );
 
   //Doubles

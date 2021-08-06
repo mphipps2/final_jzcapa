@@ -100,6 +100,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4double       fFragmentationPt;
     G4int          fnPrimaries;
     G4int          fCRMCnPart;
+    G4int          fCRMCnNeutrons;
     G4int          fCRMCmodelCode;
     G4int          fCurrentEvent;
     G4int          fMinNspec;

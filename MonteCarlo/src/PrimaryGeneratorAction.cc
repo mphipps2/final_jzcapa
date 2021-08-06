@@ -118,6 +118,7 @@
 #include "G4SystemOfUnits.hh"
 #include "Randomize.hh"
 #include "G4GeneralParticleSource.hh"
+#include "G4Run.hh"
 
 #ifdef CRMC
 #include "CRMCconfig.h"
@@ -245,7 +246,6 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent){
   }
 
   for(uint i = 0; i < fPrimaryVec.size(); i++){
-
     // If the particle is charged it will be swept away by the steering magnets.
     // Also, if particle is outside of the acceptance of the detector (set by user)
     // Change the kept status to 0 (not kept) and continue to the next particle.
@@ -422,7 +422,6 @@ void PrimaryGeneratorAction::OpenInputFile(G4String fileName){
   fdblVec.push_back( fCRMCm = new std::vector<double>(maxNpart,0) );
 
   // Send the vectors to the analysis manager to set them as output
-
   m_analysisManager->MakeEventGenTree( fintVec, fdblVec, 0 );
 
 
@@ -436,6 +435,7 @@ void PrimaryGeneratorAction::OpenInputFile(G4String fileName){
   eventGenParticleTree = (TTree*)eventGenFile->Get("Particle");
 
   eventGenParticleTree->SetBranchAddress("nPart",&fCRMCnPart);
+  eventGenParticleTree->SetBranchAddress("nNeutrons",&fCRMCnNeutrons);
   eventGenParticleTree->SetBranchAddress("ImpactParameter",&fCRMCimpactPar);
 
   // CRMC uses c style arrays in the output
@@ -482,53 +482,123 @@ void PrimaryGeneratorAction::ReadEvent(){
 
       G4cerr << "Exiting or crashing or resetting the number of events, depending on if I figured out a good way to exit" << G4endl;
   }
+  
   G4ThreeVector momentum(0.,0.,0.);
   G4double psiRP = (RANDOMIZE_RP) ? CLHEP::RandFlat::shootInt( CLHEP::twopi ) : 0.0;
-  eventGenParticleTree->GetEntry( fCurrentEvent++ );
+  int currentEventNumber = runManager->GetCurrentRun()->GetNumberOfEvent();
 
-  // Clear vectors
+  eventGenParticleTree->GetEntry( currentEventNumber );    
+    // Clear vectors
   fPrimaryVec.clear();
   fCRMCkeptIndex.clear();
-  fCRMCkeptStatus->clear();
   fCRMCkeptStatus->resize(fCRMCnPart,0);
-  for(auto vec : fdblVec) vec->resize(fCRMCnPart);
-  for(auto vec : fintVec) vec->resize(fCRMCnPart);
+  for(auto vec : fdblVec) {
+    //vec->clear();
+    vec->resize(fCRMCnNeutrons,0);
+  }
+  //  for(auto vec : fdblVec) vec->resize(fCRMCnNeutrons);
+  for(auto vec : fintVec) {
+    //    vec->clear();
+    vec->resize(fCRMCnNeutrons,0);
+  }
 
   int nSpectators = 0;
-  // Add all final state particles to the particle vector
-  for(int part = 0; part < fCRMCnPart; part++){
+  
+  // default cluster submission run mode is to have a true N particle event simulated as N independent GEANT events. This mode is activated here
+  if (fCRMCnPart == 1 && fCRMCnNeutrons > 1) {
+    // what we get from eventgen is a vector of values (all the neutrons in a single event) but in this geant run mode we want to separate each neutron into a separate event that we iterate through sequentially. As such, we need to take the value of the current event vector entry and then resize the vector to 1 with it initialized to the current event vector entry
+    G4double CRMCpx_temp = fCRMCpx->at(currentEventNumber);
+    G4double CRMCpy_temp = fCRMCpy->at(currentEventNumber);
+    G4double CRMCpz_temp = fCRMCpz->at(currentEventNumber);
+    G4double CRMCenergy_temp = fCRMCenergy->at(currentEventNumber);
+    G4double CRMCm_temp = fCRMCm->at(currentEventNumber);
+    G4int CRMCpdgid_temp = fCRMCpdgid->at(currentEventNumber);
+    G4int CRMCstatus_temp = fCRMCstatus->at(currentEventNumber);
+    fCRMCpx->clear();
+    fCRMCpx->resize(1,CRMCpx_temp);
+    fCRMCpy->clear();
+    fCRMCpy->resize(1,CRMCpy_temp);
+    fCRMCpz->clear();
+    fCRMCpz->resize(1,CRMCpz_temp);
+    fCRMCenergy->clear();
+    fCRMCenergy->resize(1,CRMCenergy_temp);
+    fCRMCm->clear();
+    fCRMCm->resize(1,CRMCm_temp);
+    fCRMCpdgid->clear();
+    fCRMCpdgid->resize(1,CRMCpdgid_temp);    
+    fCRMCstatus->clear();
+    fCRMCstatus->resize(1,CRMCstatus_temp);
+    
+    for(int part = 0; part < fCRMCnPart; part++){
 
-    momentum.set( fCRMCpx->at(part), //px
-                  fCRMCpy->at(part), //py
-                  fCRMCpz->at(part));//pz
+      momentum.set( fCRMCpx->at(part), //px
+		    fCRMCpy->at(part), //py
+		    fCRMCpz->at(part));//pz
 
 
-    // Rotate momentum for crossing angle and reaction plane
-    momentum.rotateY(fHorizXingAngle);
-    momentum.rotateX(fVertXingAngle);
-    momentum.rotateZ(psiRP);
+      // Rotate momentum for crossing angle and reaction plane
+      momentum.rotateY(fHorizXingAngle);
+      momentum.rotateX(fVertXingAngle);
+      momentum.rotateZ(psiRP);
 
-    // Replace the content of the output vectors with the rotated components
-    fCRMCpx->at(part) = momentum.x();
-    fCRMCpy->at(part) = momentum.y();
-    fCRMCpz->at(part) = momentum.z();
+      // Replace the content of the output vectors with the rotated components
+      fCRMCpx->at(part) = momentum.x();
+      fCRMCpy->at(part) = momentum.y();
+      fCRMCpz->at(part) = momentum.z();
 
-    //Count number of spectators
-    if(fCRMCstatus->at(part) == 1 && fCRMCpdgid->at(part) == 2112 && momentum.pseudoRapidity() > fpsrCut ) nSpectators++;
+      //Count number of spectators
+      if(fCRMCstatus->at(part) == 1 && fCRMCpdgid->at(part) == 2112 && momentum.pseudoRapidity() > fpsrCut ) nSpectators++;
 
-    // Cut out fragments in final state particles
-    if(fCRMCstatus->at(part) == 1 && fCRMCpdgid->at(part) > 999999999 ) continue;
+      // Cut out fragments in final state particles
+      if(fCRMCstatus->at(part) == 1 && fCRMCpdgid->at(part) > 999999999 ) continue;
+      fPrimaryVec.push_back(
+			    new G4PrimaryParticle( fCRMCpdgid->at(part),
+						   fCRMCpx->at(part)*GeV,
+						   fCRMCpy->at(part)*GeV,
+						   fCRMCpz->at(part)*GeV,
+						   fCRMCenergy->at(part)*GeV) );
+      fCRMCkeptIndex.push_back(part);
+      fCRMCkeptStatus->at(part) = 1; //kept status == 1
+    }
+  }
+  
+  // this handles the alternative run mode in which all N particles are simulated in a single GEANT event.
+  else {
+    for(int part = 0; part < fCRMCnPart; part++){
 
-    fPrimaryVec.push_back(
-      new G4PrimaryParticle( fCRMCpdgid->at(part),
-                             fCRMCpx->at(part)*GeV,
-                             fCRMCpy->at(part)*GeV,
-                             fCRMCpz->at(part)*GeV,
-                             fCRMCenergy->at(part)*GeV) );
+      momentum.set( fCRMCpx->at(part), //px
+		    fCRMCpy->at(part), //py
+		    fCRMCpz->at(part));//pz
 
-    fCRMCkeptIndex.push_back(part);
-    fCRMCkeptStatus->at(part) = 1; //kept status == 1
+
+      // Rotate momentum for crossing angle and reaction plane
+      momentum.rotateY(fHorizXingAngle);
+      momentum.rotateX(fVertXingAngle);
+      momentum.rotateZ(psiRP);
+
+      // Replace the content of the output vectors with the rotated components
+      fCRMCpx->at(part) = momentum.x();
+      fCRMCpy->at(part) = momentum.y();
+      fCRMCpz->at(part) = momentum.z();
+      
+      //Count number of spectators
+      if(fCRMCstatus->at(part) == 1 && fCRMCpdgid->at(part) == 2112 && momentum.pseudoRapidity() > fpsrCut ) nSpectators++;
+
+      // Cut out fragments in final state particles
+      if(fCRMCstatus->at(part) == 1 && fCRMCpdgid->at(part) > 999999999 ) continue;
+
+      fPrimaryVec.push_back(
+			    new G4PrimaryParticle( fCRMCpdgid->at(part),
+						   fCRMCpx->at(part)*GeV,
+						   fCRMCpy->at(part)*GeV,
+						   fCRMCpz->at(part)*GeV,
+						   fCRMCenergy->at(part)*GeV) );
+
+      fCRMCkeptIndex.push_back(part);
+      fCRMCkeptStatus->at(part) = 1; //kept status == 1
+    }
   }// end particle loop
+
   m_analysisManager->FillEventGenTree( fCRMCkeptIndex.size(), nSpectators, fCRMCmodelCode, fCRMCimpactPar );
 }// end ReadEvent
 
