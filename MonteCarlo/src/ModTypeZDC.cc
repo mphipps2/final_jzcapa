@@ -145,6 +145,7 @@ void ModTypeZDC::ConstructDetector()
   float boxHeightY = modHeightY + m_HousingThickness*2;
   float boxLengthZ = modLengthZ + m_HousingThickness*2;
 
+  std::cout << " ZDC length (Z): " << boxLengthZ << std::endl;
 
   //----------------------------------------------
   // Housing

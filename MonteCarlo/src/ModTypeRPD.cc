@@ -286,7 +286,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
 
   m_fastOpticalRegion = new G4Region("fastOpticalRegion");
-
+  std::cout << " RPD length (Z): " << housingDepth << std::endl;
   // Construct the housing
   m_PFrpd_housing = new G4Box( "RPDHousing", housingWidth*mm/2.0,
 			       housingHeight*mm/2.0,

@@ -260,9 +260,12 @@ void PrimaryGeneratorAction::GenerateLHCEvent(G4Event* anEvent){
     G4ThreeVector* position;
     if(PROJECT){
       G4double projDist = fabs( fProjPlane - fpos->z() );
+      std::cout << " projDist " << projDist << " projPlane " << fProjPlane << " pos z " << fpos->z() << std::endl;
       G4double projectedX = fpos->x() + momentum.x()*projDist;
       G4double projectedY = fpos->y() + momentum.y()*projDist;
+      std::cout << " projectedY " << projectedY << " fposy " << fpos->y() << " momY " << momentum.y() << " projDist " << projDist << std::endl;
       position = new G4ThreeVector( projectedX, projectedY, fProjPlane );
+      std::cout << " x " << projectedX << " y " << projectedY << " z " << fProjPlane << std::endl;
     }else{
       position = new G4ThreeVector( fpos->x(), fpos->y(), fpos->z() );
     }

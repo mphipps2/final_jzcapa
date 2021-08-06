@@ -3,6 +3,7 @@
 /Detector/Overlaps  false
 /Detector/PI0       false
 /Detector/RunNumber 347
+/Detector/PrintDebugStatement TEST LINE
 
 /Detector/ForcePosition true
 #/Detector/ConfigFile Alignment_2018.xml
@@ -10,7 +11,7 @@
 
 #EMCAL
 /Detector/ZDC/Add
-/Detector/ZDC/Position 0. 0. 100. mm
+/Detector/ZDC/Position 0. 0. 73.2 mm
 /Detector/ZDC/FiberDiameters 1.5 0. 0. mm	
 /Detector/ZDC/AbsorberDimensions 90. 180. 10.2 mm #run3
 /Detector/ZDC/nAbsorbers 11
@@ -25,16 +26,16 @@
 /Detector/ZDC/AbsorberMaterial pure
 
 /Detector/ZDC/Duplicate 1
-/Detector/ZDC/Position 0. 0. 271. mm
+/Detector/ZDC/Position 0. 0. 231.1 mm
 
 /Detector/ZDC/Duplicate 2
-/Detector/ZDC/Position 0. 0. 423. mm
+/Detector/ZDC/Position 0. 0. 378.1 mm
 
 /Detector/ZDC/Duplicate 3
-/Detector/ZDC/Position 0. 0. 575. mm
+/Detector/ZDC/Position 0. 0. 525.1 mm
 
 /Detector/RPD/Add
-/Detector/RPD/Position 0. 0. 185. mm
+/Detector/RPD/Position 0. 0. 152.2 mm
 /Detector/RPD/FiberDiameters .60 .66 .71 mm
 /Detector/RPD/HousingThickness 2. mm
 /Detector/RPD/FiberPitchX 1.2 mm

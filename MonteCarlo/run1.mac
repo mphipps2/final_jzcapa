@@ -68,9 +68,10 @@
 #################################
 
 /beam/type lhc
-/beam/pos 0. 0. -140.
-/beam/projectBeam -80. mm
-/beam/nPrimaries 1
+/beam/pos 0. 0. -140. m
+#/beam/projectBeam -80. mm
+/beam/projectBeam 0 mm
+#/beam/nPrimaries 1
 #/beam/LHC/horizontalCrossingAngle 0.100 mrad
 #/beam/LHC/verticalCrossingAngle 0.100 mrad
 
@@ -106,6 +107,6 @@
 ##############################################################
 ##############################################################
 # number of events
-/run/beamOn 1
+/run/beamOn 2
 ##############################################################
 ##############################################################
