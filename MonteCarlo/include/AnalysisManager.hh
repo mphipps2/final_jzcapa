@@ -71,6 +71,7 @@ public:
   std::vector< G4double >* GetIncidenceAngleVector( G4int modNum );
   std::vector< G4double >* GetYOriginVector( G4int modNum );
   std::vector< G4double >* GetEnergyVector( G4int modNum );
+  std::vector< G4int >*    GetChannelVector( G4int modNum );
   std::vector< G4double >* GetTimeVector ( G4bool ZDC, G4bool RPD, G4int modNum );
 
   inline void SetGunPosition ( G4double x, G4double y, G4double z ){ m_gunPos->set(x,y,z); }
@@ -99,7 +100,7 @@ private:
   DetectorConstruction* m_detectorConstruction;
   std::vector< std::vector< std::vector<double> > > *m_ZDCdblVec, *m_RPDdblVec;
   std::vector< std::vector< std::vector< int  > > > *m_ZDCintVec, *m_RPDintVec;
-  std::vector< std::vector< G4int  >* > m_ZDCfiberVec, m_RPDfiberVec, m_RPDfiberGenVec ;
+  std::vector< std::vector< G4int  >* > m_ZDCfiberVec, m_RPDfiberVec, m_RPDfiberGenVec, m_channelVec ;
   std::vector< std::vector< G4double >* >   m_ZDCtimeVec, m_RPDtimeVec, m_YOriginVec, m_EnergyVec, m_IncidenceAngleVec;
   std::vector< G4ThreeVector >* m_lastStepVec, *m_Pi0Mom, *m_Pi0Vert;
   std::vector< int >  m_lastStepPidVec, m_ZDCnTupleNo, m_RPDnTupleNo;

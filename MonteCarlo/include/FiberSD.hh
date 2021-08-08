@@ -98,6 +98,7 @@ private:
   std::vector< G4int >* m_cherenkovVec;
   std::vector< G4double > * m_yOriginVec;
   std::vector< G4double > * m_energyVec;
+  std::vector< G4int > * m_channelVec;
   std::vector< G4double >* m_timeVec;
   
   std::vector< G4double >* m_incidenceAngleVec;

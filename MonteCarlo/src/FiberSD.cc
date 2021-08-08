@@ -102,6 +102,7 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
     m_timeVec      = analysisManager->GetTimeVector(ZDC,RPD,m_modNum);
     // Clear it and resize in case this isn't the first event
     m_cherenkovVec->clear();
+    //    m_cherenkovVec->resize( m_nChannels, 0 );
     m_cherenkovVec->resize( m_nChannels, 0 );
     if (RPD) {
       // Clear it and resize in case this isn't the first event
@@ -113,6 +114,9 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
       // Clear it and resize in case this isn't the first event
       m_energyVec = analysisManager->GetEnergyVector(m_modNum);
       m_energyVec->clear();
+      // Clear it and resize in case this isn't the first event
+      m_channelVec = analysisManager->GetChannelVector(m_modNum);
+      m_channelVec->clear();
       // Clear it and resize in case this isn't the first event
       m_genCherenkovVec = analysisManager->GetFiberGenVector(m_modNum);
       m_genCherenkovVec->clear();
@@ -191,7 +195,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 
       if (incidencePostStepAngle > 90) incidencePostStepCorrectedAngle = 180 - incidencePostStepAngle;
 
-
+ 
       if (pos.y() >= m_topOfVolume - 0.2*mm){
 	if(REDUCED_TREE){
 	  m_cherenkovVec->at(rodNum)++;
@@ -208,8 +212,10 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	    FillChannelTimeVector( channelNum, aStep->GetTrack()->GetGlobalTime());
 	    m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y() );
 	    m_energyVec->push_back(aStep->GetTrack()->GetTotalEnergy() * 1e+6 );
+	    m_channelVec->push_back(channelNum);
 	  }
 	  m_cherenkovVec->at(channelNum)++;
+	  //m_cherenkovVec->at(rodNum)++;
 	  m_nHits++;
 	  m_lastFiveCore = 0;
 	  aStep->GetTrack()->SetTrackStatus( fStopAndKill ); //Kill the track so we only record it once
