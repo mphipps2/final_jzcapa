@@ -100,6 +100,7 @@ private:
   std::vector< G4double > * m_energyVec;
   std::vector< G4int > * m_channelVec;
   std::vector< G4double >* m_timeVec;
+  std::vector< G4double >* m_timeHitVec;
   
   std::vector< G4double >* m_incidenceAngleVec;
   // Number of TIR reflections photon has taken in fiber

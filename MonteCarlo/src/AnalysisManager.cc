@@ -149,6 +149,7 @@ void AnalysisManager::Book( G4String fileName )
   m_YOriginVec.resize( RPDvec->size(), 0 );
   m_EnergyVec.resize( RPDvec->size(), 0 );
   m_channelVec.resize( RPDvec->size(), 0 );
+  m_timeHitVec.resize( RPDvec->size(), 0 );
   m_IncidenceAngleVec.resize( RPDvec->size(), 0 );
   m_RPDfiberGenVec.resize( RPDvec->size(), 0 );
   m_RPDtimeVec.resize( RPDvec->size(), 0 );
@@ -166,6 +167,7 @@ void AnalysisManager::Book( G4String fileName )
       m_IncidenceAngleVec[i] = new std::vector< G4double  >;
       m_EnergyVec[i] = new std::vector< G4double  >;
       m_channelVec[i] = new std::vector< G4int  >;
+      m_timeHitVec[i] = new std::vector< G4double  >;
       m_YOriginVec[i] = new std::vector< G4double  >;
       m_RPDfiberGenVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnChannels(), 0 );
       m_RPDfiberVec[i] = new std::vector< G4int  >( RPDvec->at(i)->GetnChannels(), 0 );
@@ -540,6 +542,7 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, G4int modNum, G4bool reducedTree
     //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "incidenceAngle", *(m_IncidenceAngleVec[modNum]) );
     m_analysisManager->CreateNtupleDColumn( nTupleNo, "energy", *(m_EnergyVec[modNum]) );
     m_analysisManager->CreateNtupleIColumn( nTupleNo, "channel", *(m_channelVec[modNum]) );
+    m_analysisManager->CreateNtupleDColumn( nTupleNo, "time", *(m_timeHitVec[modNum]) );
     //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "yOrigin", *(m_YOriginVec[modNum]) );
     // Branch of vectors nChannels long that contains the number of cherenkovs per channel for each event
     //    m_analysisManager->CreateNtupleIColumn( nTupleNo, "nGenCherenkovs", *(m_RPDfiberGenVec[modNum]) );
@@ -548,7 +551,7 @@ void AnalysisManager::MakeRPDTree( G4int rpdNo, G4int modNum, G4bool reducedTree
     // This branch acts as a histogram to store the timing of photon arrival or production
     // depending on optical settings
     //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "timeHist",    *timeVec       );
-    m_analysisManager->CreateNtupleDColumn( nTupleNo, "timeHist",    *(m_RPDtimeVec[modNum])       );
+    //    m_analysisManager->CreateNtupleDColumn( nTupleNo, "timeHist",    *(m_RPDtimeVec[modNum])       );
   }
   else { //Full tree
 
@@ -654,6 +657,14 @@ std::vector< G4double > * AnalysisManager::GetEnergyVector( G4int modNum  ){
 std::vector< G4int > * AnalysisManager::GetChannelVector( G4int modNum  ){
 
   return m_channelVec[ modNum - 1 ];
+
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo.....
+
+std::vector< G4double > * AnalysisManager::GetTimeHitVector( G4int modNum  ){
+
+  return m_timeHitVec[ modNum - 1 ];
 
 }
 

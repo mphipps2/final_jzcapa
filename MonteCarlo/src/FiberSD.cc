@@ -118,6 +118,9 @@ void FiberSD::Initialize(G4HCofThisEvent* HCE){
       m_channelVec = analysisManager->GetChannelVector(m_modNum);
       m_channelVec->clear();
       // Clear it and resize in case this isn't the first event
+      m_timeHitVec = analysisManager->GetTimeHitVector(m_modNum);
+      m_timeHitVec->clear();
+      // Clear it and resize in case this isn't the first event
       m_genCherenkovVec = analysisManager->GetFiberGenVector(m_modNum);
       m_genCherenkovVec->clear();
       m_genCherenkovVec->resize( m_nChannels, 0 );
@@ -213,6 +216,7 @@ G4bool FiberSD::ProcessHits(G4Step* aStep,G4TouchableHistory*){
 	    m_yOriginVec->push_back(aStep->GetTrack()->GetVertexPosition().y() );
 	    m_energyVec->push_back(aStep->GetTrack()->GetTotalEnergy() * 1e+6 );
 	    m_channelVec->push_back(channelNum);
+	    m_timeHitVec->push_back(aStep->GetTrack()->GetGlobalTime());
 	  }
 	  m_cherenkovVec->at(channelNum)++;
 	  //m_cherenkovVec->at(rodNum)++;
