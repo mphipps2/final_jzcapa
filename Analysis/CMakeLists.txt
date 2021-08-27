@@ -24,6 +24,12 @@ TARGET_LINK_LIBRARIES(AnalysisExample ${XERCESC_LIBRARY})
 install(TARGETS AnalysisExample RUNTIME DESTINATION bin)
 
 
+add_executable(rpdMLTrainingAnalysis ${DEPENDENCIES} userFunctions/rpdMLTrainingAnalysis.cpp)
+TARGET_LINK_LIBRARIES(rpdMLTrainingAnalysis ${ROOT_LIBRARIES})
+TARGET_LINK_LIBRARIES(rpdMLTrainingAnalysis ${XERCESC_LIBRARY})
+
+install(TARGETS rpdMLTrainingAnalysis RUNTIME DESTINATION bin)
+
 add_executable(myAnalysis ${DEPENDENCIES} userFunctions/myAnalysis.cpp)
 TARGET_LINK_LIBRARIES(myAnalysis ${ROOT_LIBRARIES})
 TARGET_LINK_LIBRARIES(myAnalysis ${XERCESC_LIBRARY})

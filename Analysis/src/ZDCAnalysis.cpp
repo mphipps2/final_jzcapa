@@ -51,7 +51,7 @@ void ZDCAnalysis::Initialize( ){
  *
  */
 void ZDCAnalysis::Initialize( std::vector < Detector* > _vDet ){
-
+  std::cout << " initialzing zdc Analysis " << std::endl;
     for( auto& det : _vDet ){
         if( det->GetChannelsVector().at(0)->detector == "ZDC" && det->GetChannelsVector()[0]->mapping_column == 1){
             m_zdc1 = (ZDC*)det;

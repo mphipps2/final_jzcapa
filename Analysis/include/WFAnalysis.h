@@ -61,7 +61,7 @@ class WFAnalysis : public Analysis{
   /** Frequency threshold for low pass filter */
   int fCutoff;
   /** Sensitivity level to hits (differentiation window) for RPD channels*/
-  int m_RPDdiffSens = 25;
+  int m_RPDdiffSens = 3;
   /** Hit threshold multiplier for RPD channels*/
   double m_RPDTmultiple = 3.5;
   /** Frequency threshold for low pass filter for RPD channels*/

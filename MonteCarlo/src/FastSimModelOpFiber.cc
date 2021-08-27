@@ -117,15 +117,16 @@ G4bool FastSimModelOpFiber::ModelTrigger(const G4FastTrack& fasttrack) {
 
   G4int channelNum = track->GetTouchableHandle()->GetCopyNumber(0) / fNFibersPerChannel;
   G4double activeFiberLen;
-  if (channelNum > 11) activeFiberLen = 38.4;
-  else if (channelNum <= 11 && channelNum > 7) activeFiberLen = 28.8;
-  else if (channelNum <= 7 && channelNum > 3) activeFiberLen = 19.2;
-  else activeFiberLen = 9.6;
+  // Warning: This part is hard coded for now. If fiber lengths change this needs manually changed
+  if (channelNum > 11) activeFiberLen = 45.6;
+  else if (channelNum <= 11 && channelNum > 7) activeFiberLen = 34.2;
+  else if (channelNum <= 7 && channelNum > 3) activeFiberLen = 22.8;
+  else activeFiberLen = 11.4;
   // fiberPos is vector giving fiber center in global coordinates
   // fiberAxis is a unit y vector (0,1,0)
-  // fiberLen is 360 or 9.6, 19.2, 28.8, 38.4 (depending whether its a readout fiber or from active area)
+  // fiberLen is 360 or 11.4, 22.8, 34.2, 45.6 (depending whether its a readout fiber or from active area)
   // fiberEnd is just a y transform taking you to the center of fiber end. x and z from fiberPosVec preserved in fiberEndVec
-  if (std::floor(fiberLen) == 9 || std::floor(fiberLen) == 19 || std::floor(fiberLen) == 28 || std::floor(fiberLen) == 38) {
+  if (std::floor(fiberLen) == 11 || std::floor(fiberLen) == 22 || std::floor(fiberLen) == 34 || std::floor(fiberLen) == 45) {
     fActiveArea = true;
   }
   else {
@@ -248,13 +249,15 @@ bool FastSimModelOpFiber::checkTotalInternalReflection(const G4Track* track) {
   G4double incidentAngle2 = GetTrackIncidenceAngle(track);
   if (incidentAngle2 > 90) incidentAngle2 = 180 - incidentAngle2;
 
-  // 19.2 is the transition b/w active and readout fibers. The normal is relative to the center of the fiber now rather than the side. This causes this a captured track to appear uncaptured during this step
+  // 22.8 is the transition b/w active and readout fibers. The normal is relative to the center of the fiber now rather than the side. This causes this a captured track to appear uncaptured during this step
   if (fNtotIntRefl > 0) {
-    if (Compare_doubles(track->GetPosition().y(),19.2)) {
+    // Warning: 22.8 is hardcoded! if fiber length changes, change this!
+    if (Compare_doubles(track->GetPosition().y(),22.8)) {
       return false;
     }
     // if light reaches end of fiber and we're not going to transport, we need to reset the counters to deal with recaptured light correctly
-    else if (Compare_doubles(track->GetPosition().y(),fFiberEnd.y()) && !Compare_doubles(fFiberEnd.y(),19.2)) {
+    // Warning: 22.8 is hardcoded! if fiber length changes, change this!
+    else if (Compare_doubles(track->GetPosition().y(),fFiberEnd.y()) && !Compare_doubles(fFiberEnd.y(),22.8)) {
       reset();
       return false;
     }
@@ -278,9 +281,9 @@ bool FastSimModelOpFiber::checkTotalInternalReflection(const G4Track* track) {
     auto deltaPos = mStepCurrent.globalPosition - mStepPrevious.globalPosition;
     mStepCurrent.setDeltaPosition(deltaPos.mag());
     if ( fNtotIntRefl > fSafetyReflections ) { // require at least n = fSafety of total internal reflections at the beginning
-      // the 19.2 check above should get rid of any cases of the step length changing within a TIR
+      // the 22.8 check above should get rid of any cases of the step length changing within a TIR
       if (!Compare_doubles(mStepCurrent.deltaPosition,mStepPrevious.deltaPosition)) {
-	std::cout << "Warning: step length has changed for this TIR track!!!! " << std::endl;
+	std::cout << "Warning: step length has changed for this TIR track!!!! Current step " << mStepCurrent.deltaPosition << " Previous Step: " << mStepPrevious.deltaPosition << " y: " << globalPosition.y() << " if fiberLength changed make sure you change hardcoded values in FastSimModelOpFiber! " << std::endl;
 	return false;
       }
       return true;

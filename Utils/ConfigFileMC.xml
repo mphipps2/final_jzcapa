@@ -8,7 +8,7 @@
                 <name>Signal0</name>
                 <mapping_row>0</mapping_row>
                 <mapping_column>0</mapping_column>
-                <delay>93</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>70.1</HV>
                 <is_on>true</is_on>
@@ -21,7 +21,7 @@
                 <name>Signal1</name>
                 <mapping_row>0</mapping_row>
                 <mapping_column>1</mapping_column>
-                <delay>93</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>70.0</HV>
                 <is_on>true</is_on>
@@ -34,7 +34,7 @@
                 <name>Signal2</name>
                 <mapping_row>0</mapping_row>
                 <mapping_column>2</mapping_column>
-                <delay>93</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.38</HV>
                 <is_on>true</is_on>
@@ -47,7 +47,7 @@
                 <name>Signal3</name>
                 <mapping_row>0</mapping_row>
                 <mapping_column>3</mapping_column>
-                <delay>93</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.38</HV>
                 <is_on>true</is_on>
@@ -60,7 +60,7 @@
                 <name>Signal4</name>
                 <mapping_row>1</mapping_row>
                 <mapping_column>0</mapping_column>
-                <delay>82</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.38</HV>
                 <is_on>true</is_on>
@@ -73,7 +73,7 @@
                 <name>Signal5</name>
                 <mapping_row>1</mapping_row>
                 <mapping_column>1</mapping_column>
-                <delay>82</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.26</HV>
                 <is_on>true</is_on>
@@ -86,7 +86,7 @@
                 <name>Signal6</name>
                 <mapping_row>1</mapping_row>
                 <mapping_column>2</mapping_column>
-                <delay>82</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.3</HV>
                 <is_on>true</is_on>
@@ -99,7 +99,7 @@
                 <name>Signal7</name>
                 <mapping_row>1</mapping_row>
                 <mapping_column>3</mapping_column>
-                <delay>82</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.3</HV>
                 <is_on>true</is_on>
@@ -112,7 +112,7 @@
                 <name>Signal8</name>
                 <mapping_row>2</mapping_row>
                 <mapping_column>0</mapping_column>
-                <delay>61</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.52</HV>
                 <is_on>true</is_on>
@@ -125,7 +125,7 @@
                 <name>Signal9</name>
                 <mapping_row>2</mapping_row>
                 <mapping_column>1</mapping_column>
-                <delay>61</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.52</HV>
                 <is_on>true</is_on>
@@ -138,7 +138,7 @@
                 <name>Signal10</name>
                 <mapping_row>2</mapping_row>
                 <mapping_column>2</mapping_column>
-                <delay>61</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.52</HV>
                 <is_on>true</is_on>
@@ -151,7 +151,7 @@
                 <name>Signal11</name>
                 <mapping_row>2</mapping_row>
                 <mapping_column>3</mapping_column>
-                <delay>61</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.52</HV>
                 <is_on>true</is_on>
@@ -164,7 +164,7 @@
                 <name>Signal12</name>
                 <mapping_row>3</mapping_row>
                 <mapping_column>0</mapping_column>
-                <delay>50</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.5</HV>
                 <is_on>true</is_on>
@@ -177,7 +177,7 @@
                 <name>Signal13</name>
                 <mapping_row>3</mapping_row>
                 <mapping_column>1</mapping_column>
-                <delay>50</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.47</HV>
                 <is_on>true</is_on>
@@ -190,7 +190,7 @@
                 <name>Signal14</name>
                 <mapping_row>3</mapping_row>
                 <mapping_column>2</mapping_column>
-                <delay>50</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.44</HV>
                 <is_on>true</is_on>
@@ -203,7 +203,7 @@
                 <name>Signal15</name>
                 <mapping_row>3</mapping_row>
                 <mapping_column>3</mapping_column>
-                <delay>50</delay>
+                <delay>0</delay>
                 <offset>-250</offset>
                 <HV>69.44</HV>
                 <is_on>true</is_on>

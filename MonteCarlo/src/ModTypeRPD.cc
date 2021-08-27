@@ -232,10 +232,9 @@ void ModTypeRPD::ConstructPanFluteDetector()
       G4cerr << "////////////////////////////" << G4endl;
       m_n_cycles_per_tile = 1;
     }
-
+    std::cout << " tileSize " << m_tileSize << " setting n cycles per tile " << m_n_cycles_per_tile << " pitchX " << pitchX << " m_n_rows " << m_n_rows << std::endl;
     // Tile size and pitch are correlated and must match precisely, so recalculate the tile size based on the pitch
     m_tileSize = pitchX*m_n_cycles_per_tile*m_n_rows;
-
   }else{
     //If the user specified a fiber pitch that doesn't work, inform them
     if( m_fiberPitchX < 0.0 ){
@@ -248,7 +247,6 @@ void ModTypeRPD::ConstructPanFluteDetector()
     m_n_cycles_per_tile = 1;
     //Minimum possible tile size = sqrt(2) * minimum_pitch * m_n_cycles_per_tile * m_n_rows
     G4double min_tileSize = 0.707*(fiber_diam + m_minWallThickness)*m_n_cycles_per_tile*m_n_rows;
-
     if( m_tileSize < min_tileSize ){
       G4cerr << "////////////////////////////" << G4endl;
       G4cerr << "Error in RPD" << m_modNum << ": Requested fiber diameter and tile size are incompatible" << G4endl;
@@ -259,7 +257,6 @@ void ModTypeRPD::ConstructPanFluteDetector()
 
     pitchX = m_tileSize/(0.707*m_n_cycles_per_tile*m_n_rows);
     pitchZ = pitchX;
-
   }
 
   // Distance in X and Z from one fiber to another diagonally from it
@@ -277,7 +274,7 @@ void ModTypeRPD::ConstructPanFluteDetector()
   G4double housingHeight = activeHeight + 2*m_HousingThickness + m_distanceToReadout;
   // Depth (z) of the RPD housing
   G4double housingDepth = (m_n_rows - 0.5)*pitchZ + fiber_diam + 2*m_HousingThickness;
-
+  
   //create some rotation matrices
   G4RotationMatrix* stripRotation = new G4RotationMatrix();
   stripRotation->rotateX(90.*deg);

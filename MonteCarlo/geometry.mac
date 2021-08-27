@@ -37,10 +37,15 @@
 /Detector/RPD/Add
 /Detector/RPD/Position 0. 0. 152.2 mm
 /Detector/RPD/FiberDiameters .60 .66 .71 mm
-/Detector/RPD/HousingThickness 2. mm
-/Detector/RPD/FiberPitchX 1.2 mm
-/Detector/RPD/FiberPitchZ 2.0 mm
-/Detector/RPD/TileSize 9.6 mm
+#/Detector/RPD/HousingThickness 2. mm
+#/Detector/RPD/FiberPitchX 1.2 mm
+#/Detector/RPD/FiberPitchZ 2.0 mm
+#/Detector/RPD/TileSize 9.6 mm
+# Run 3 specs
+/Detector/RPD/HousingThickness 1.61 mm
+/Detector/RPD/FiberPitchX 1.425 mm
+/Detector/RPD/FiberPitchZ 1.63 mm
+/Detector/RPD/TileSize 11.40 mm
 /Detector/RPD/MinWallThickness 0.01 mm
 /Detector/RPD/FiberReadoutDistance 360 mm
 /Detector/RPD/RPDtype panflute

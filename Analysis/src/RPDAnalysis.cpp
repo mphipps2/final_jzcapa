@@ -41,7 +41,6 @@ RPDAnalysis::~RPDAnalysis( ){
  */
 void RPDAnalysis::Initialize( std::vector < Detector* > _vDet ){
   m_counter = 0;
-
     for( auto& det : _vDet ){
         if(det->GetChannelsVector().size() == 0) continue;
         if(det->GetChannelsVector().at(0)->detector == "RPD" ){
@@ -140,7 +139,6 @@ void RPDAnalysis::AnalyzeEvent( ){
     ChargeSum = 0;
     PeakSum = 0;
     DiffPeakSum = 0;
-
     //This loop takes the running average of charge and peak height per tile
     for(int row = 0; row < 4; row++){
         for(int col = 0; col < 4; col++){
@@ -157,7 +155,6 @@ void RPDAnalysis::AnalyzeEvent( ){
     }
 
     //This loop finds the center of mass per event (should probably be it's own function)
-
     double totalCharge = 0;
     double weightedRow = 0;
     double weightedCol = 0;
@@ -226,6 +223,7 @@ void RPDAnalysis::Finalize( ){
     //cPeak.Print( (output + "RPD_Peak_per_tile.png").c_str() );
     //cDpeak.Print( (output + "RPD_Diff_peak_per_tile.png").c_str() );
 
+    /*
     m_viz->DrawPlot(hChgVsPk,"RPD Q_{total}","RPD Peak_{sum}","RPD_TotalCharge.png","");
     m_viz->DrawPlot(hPkVsDiffPk,"RPD Peak_{sum}","#frac{#partial V}{#partial t}_{max}","RPD_TotalCharge.png","");
     m_viz->DrawPlot(hChargeSum,"RPD Q_{total}","Counts","RPD_TotalCharge.png","");
@@ -234,5 +232,6 @@ void RPDAnalysis::Finalize( ){
     m_viz->DrawPlot(hCharge,"Col","Row","RPD_Charge.png","COLZ text",marker);
     m_viz->DrawPlot(hPeak,"Col","Row","RPD_Peak.png","COLZ text",marker);
     m_viz->DrawPlot(hCenter,"x (mm)","y (mm)","RPD_CoM.png","COLZ",marker);
-
+    */
+    
 }

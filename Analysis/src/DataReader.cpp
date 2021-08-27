@@ -417,7 +417,6 @@ void DataReader::UpdateConsole( Long_t _updateRate){
  *
  */
 void DataReader::Run(){
-
   Initialize();
   if( !m_fIn ){
       std::cerr << "Input file didn't open... exiting" << std::endl;

@@ -76,7 +76,6 @@ void WFAnalysis::SetupHistograms( ){
  *
  */
 void WFAnalysis::AnalyzeEvent( const std::vector< TH1* >& vWFH ){
-
   // example... you can loop through all histos as follows
   for( unsigned int ch = 0; ch < vWFH.size(); ch++ ){
     TH1* h = vWFH[ch];
@@ -99,7 +98,6 @@ void WFAnalysis::AnalyzeEvent( const std::vector< TH1* >& vWFH ){
  *  @return none
  */
 void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
-
   // example... you can loop through each sample in each channel
   // Can do the same in previous AnalyzeEvent( .. ) function, just
   // looking at vWFH[ch]->GetBinContent( samp + 1 );
@@ -121,14 +119,12 @@ void WFAnalysis::AnalyzeEvent( const std::vector< std::vector< float > >& vWF ){
  *
  */
 void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
-
     for( unsigned int ch = 0; ch < vCh.size(); ch++ ){
         if( !vCh.at(ch)->is_on){continue;}
       //retrieving information for each channel as a histogram
         TH1D* h = vCh.at(ch)->WF_histo;
         TH1D* hProcessed = vCh.at(ch)->PWF_histo;
         TH1D* hDiff = vCh.at(ch)->FirstDerivative;
-
       //If Channel belongs to an RPD, set RPD processing values
         if( vCh.at(ch)->detector.find_first_of("R") != std::string::npos ){
             m_diffSens  = m_RPDdiffSens;
@@ -149,16 +145,13 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
                 vCh.at(ch)->pWF->at(bin) *= -1;
             }
         }
-
         //Get the first derivative and determine the hit window from it
         //if a valid hit window is not found was_hit is set to false
         GetDifferential( vCh.at(ch) );
-
         //We set the offset of the DRS4 channels to -250 at first. This lead to clipping
         //of the baseline. If that's the case, estimate the RMS to be 5 based on good runs.
         vCh.at(ch)->FirstDerivativeRMS = ( vCh.at(ch)->offset != -250 ) ? GetRMS( vCh.at(ch) ) : 5.0;
         FindHitWindow( vCh.at(ch) );
-
         //If the channel was hit, proceed with processing
         if( vCh.at(ch)->was_hit ){
             //Get and subtract the pedestal from the data outside the hit window
@@ -201,7 +194,6 @@ void WFAnalysis::AnalyzeEvent( const std::vector< Channel* > vCh ){
  * N is given by m_diffSens and is set by the constructor or SetDiffSense()
  */
 void WFAnalysis::GetDifferential( Channel* Ch ){
-
     // Loop over histogram
     for( unsigned int bin = m_diffSens; bin < Ch->WF_histo->GetNbinsX() - m_diffSens ; bin++ ){
       //decalare temp variable to store the sum before and after the i data point
@@ -212,9 +204,8 @@ void WFAnalysis::GetDifferential( Channel* Ch ){
         sum_before += Ch->WF.at( bin - i );
         sum_after  += Ch->WF.at( bin + i );
       }
-        //set the bin to the calculated derivative value
-        Ch->FirstDerivative->SetBinContent(bin,(sum_after - sum_before));
-
+      //set the bin to the calculated derivative value
+      Ch->FirstDerivative->SetBinContent(bin,(sum_after - sum_before));
     }//end derivative loop
 }
 
@@ -268,7 +259,6 @@ void WFAnalysis::FindHitWindow( Channel* ch ){
     ch->Diff_max = ch->FirstDerivative->GetMaximum();
     int risingEdge = ch->Diff_Peak_center = ch->FirstDerivative->GetMaximumBin();
     int fallingEdge = ch->FirstDerivative->GetMinimumBin();
-
     //  If the derivative maximum or minimum are below threshold, no hit
     //  Also, if the rising edge is after the falling edge (i.e. a negative pulse), no hit
     if( ch->Diff_max <= threshold || ch->FirstDerivative->GetMinimum() >= -1*threshold || risingEdge > fallingEdge){
@@ -280,7 +270,6 @@ void WFAnalysis::FindHitWindow( Channel* ch ){
         ch->Peak_max = ch->Charge = ch->Diff_max = ch->Peak_time = ch->Diff_Peak_time = 0.0;
         return;
     }
-
     //If it made it here, we probably have a hit and we can start processing
     ch->was_hit = true;
     int nBins = ch->FirstDerivative->GetNbinsX();
