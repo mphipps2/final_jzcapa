@@ -47,7 +47,7 @@
 /Detector/RPD/FiberPitchZ 1.63 mm
 /Detector/RPD/TileSize 11.40 mm
 /Detector/RPD/MinWallThickness 0.01 mm
-/Detector/RPD/FiberReadoutDistance 360 mm
+/Detector/RPD/FiberReadoutDistance 507 mm
 /Detector/RPD/RPDtype panflute
 /Detector/RPD/Optical true
 /Detector/RPD/CheckOverlaps false

@@ -124,7 +124,7 @@ G4bool FastSimModelOpFiber::ModelTrigger(const G4FastTrack& fasttrack) {
   else activeFiberLen = 11.4;
   // fiberPos is vector giving fiber center in global coordinates
   // fiberAxis is a unit y vector (0,1,0)
-  // fiberLen is 360 or 11.4, 22.8, 34.2, 45.6 (depending whether its a readout fiber or from active area)
+  // fiberLen is 507 or 11.4, 22.8, 34.2, 45.6 (depending whether its a readout fiber or from active area)
   // fiberEnd is just a y transform taking you to the center of fiber end. x and z from fiberPosVec preserved in fiberEndVec
   if (std::floor(fiberLen) == 11 || std::floor(fiberLen) == 22 || std::floor(fiberLen) == 34 || std::floor(fiberLen) == 45) {
     fActiveArea = true;
