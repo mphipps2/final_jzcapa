@@ -72,6 +72,8 @@ private:
   G4ThreeVector fFiberEnd;
   G4bool fKill;
   G4bool fTransported;
+  G4bool f_is_run3;
+  G4bool f_is_run4;
   G4int fNtotIntRefl;
   G4int fTrackId;
   G4int fNFibers;

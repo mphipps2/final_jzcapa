@@ -40,6 +40,8 @@ FastSimModelOpFiber::FastSimModelOpFiber(G4String name, G4Region* envelope, G4do
     mStepPrevious(0,0.,G4ThreeVector(0)),
     mStepCurrent(0,0.,G4ThreeVector(0))
 {
+  f_is_run3 = true;
+  f_is_run4 = false;
   fOpBoundaryProc = NULL;
   fCoreMaterial = NULL;
   fProcAssigned = false;
@@ -118,22 +120,40 @@ G4bool FastSimModelOpFiber::ModelTrigger(const G4FastTrack& fasttrack) {
   G4int channelNum = track->GetTouchableHandle()->GetCopyNumber(0) / fNFibersPerChannel;
   G4double activeFiberLen;
   // Warning: This part is hard coded for now. If fiber lengths change this needs manually changed
-  if (channelNum > 11) activeFiberLen = 45.6;
-  else if (channelNum <= 11 && channelNum > 7) activeFiberLen = 34.2;
-  else if (channelNum <= 7 && channelNum > 3) activeFiberLen = 22.8;
-  else activeFiberLen = 11.4;
+  if (f_is_run3) {
+    if (channelNum > 11) activeFiberLen = 45.6;
+    else if (channelNum <= 11 && channelNum > 7) activeFiberLen = 34.2;
+    else if (channelNum <= 7 && channelNum > 3) activeFiberLen = 22.8;
+    else activeFiberLen = 11.4;
+  }
+  else if (f_is_run4) {
+    if (channelNum > 11) activeFiberLen = 38.4;
+    else if (channelNum <= 11 && channelNum > 7) activeFiberLen = 28.8;
+    else if (channelNum <= 7 && channelNum > 3) activeFiberLen = 19.2;
+    else activeFiberLen = 9.6;
+  }
+
   // fiberPos is vector giving fiber center in global coordinates
   // fiberAxis is a unit y vector (0,1,0)
   // fiberLen is 507 or 11.4, 22.8, 34.2, 45.6 (depending whether its a readout fiber or from active area)
   // fiberEnd is just a y transform taking you to the center of fiber end. x and z from fiberPosVec preserved in fiberEndVec
-  if (std::floor(fiberLen) == 11 || std::floor(fiberLen) == 22 || std::floor(fiberLen) == 34 || std::floor(fiberLen) == 45) {
-    fActiveArea = true;
+  if (f_is_run3) {
+    if (std::floor(fiberLen) == 11 || std::floor(fiberLen) == 22 || std::floor(fiberLen) == 34 || std::floor(fiberLen) == 45) {   
+      fActiveArea = true;
+    }
+    else {
+      fActiveArea = false;
+    }
   }
-  else {
-    fActiveArea = false;
+  else if (f_is_run4) {
+    if (std::floor(fiberLen) == 9 || std::floor(fiberLen) == 19 || std::floor(fiberLen) == 28 || std::floor(fiberLen) == 38) {   
+      fActiveArea = true;
+    }
+    else {
+      fActiveArea = false;
+    }
+
   }
-
-
 
   fFiberEnd.set(0,0,0);
   // if it's upward take light to top where it's recorded. else it goes to the bottom where it has a chance to be recaptured
@@ -250,18 +270,32 @@ bool FastSimModelOpFiber::checkTotalInternalReflection(const G4Track* track) {
   if (incidentAngle2 > 90) incidentAngle2 = 180 - incidentAngle2;
 
   // 22.8 is the transition b/w active and readout fibers. The normal is relative to the center of the fiber now rather than the side. This causes this a captured track to appear uncaptured during this step
-  if (fNtotIntRefl > 0) {
-    // Warning: 22.8 is hardcoded! if fiber length changes, change this!
-    if (Compare_doubles(track->GetPosition().y(),22.8)) {
-      return false;
-    }
-    // if light reaches end of fiber and we're not going to transport, we need to reset the counters to deal with recaptured light correctly
-    // Warning: 22.8 is hardcoded! if fiber length changes, change this!
-    else if (Compare_doubles(track->GetPosition().y(),fFiberEnd.y()) && !Compare_doubles(fFiberEnd.y(),22.8)) {
-      reset();
-      return false;
+  if (f_is_run3) {
+    if (fNtotIntRefl > 0) {
+      if (Compare_doubles(track->GetPosition().y(),22.8)) {   
+	return false;
+      }
+      // if light reaches end of fiber and we're not going to transport, we need to reset the counters to deal with recaptured light correctly
+      else if (Compare_doubles(track->GetPosition().y(),fFiberEnd.y()) && !Compare_doubles(fFiberEnd.y(),22.8)) {
+	reset();
+	return false;
+      }
     }
   }
+  else if (f_is_run4) {
+    if (fNtotIntRefl > 0) {
+      if (Compare_doubles(track->GetPosition().y(),19.2)) {
+	return false;
+      }
+      // if light reaches end of fiber and we're not going to transport, we need to reset the counters to deal with recaptured light correctly
+      else if (Compare_doubles(track->GetPosition().y(),fFiberEnd.y()) && !Compare_doubles(fFiberEnd.y(),19.2)) {
+	reset();
+	return false;
+      }
+    }
+
+  }
+
   // UPDATE THIS TO CALCULATE CRITICAL ANGLE FROM MATPROPERTIESTABLE
   //  if (incidentDegrees >= 82.148) {
   if (incidentAngle2 >= 82.148) {
